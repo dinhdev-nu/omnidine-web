@@ -1,32 +1,29 @@
 import React, { useState } from 'react';
 import { DndContext, useSensor, useSensors, PointerSensor, DragOverlay, type DragEndEvent } from '@dnd-kit/core';
-import TableCard, { type Table } from './TableCard';
+import type { PosTablePosition, TableListItem } from '@/types/table-type';
+import TableCard from './TableCard';
 import DraggableTable from './DraggableTable';
 import Icon from '@/components/AppIcon';
 import Button from '../../../components/Button';
 
 interface TableLayoutProps {
-  tables: Table[];
-  selectedTable?: Table | null;
-  isEditingPositions?: boolean;
-  changedTableIds?: Set<string>;
-  onTableSelect: (table: Table | null) => void;
-  onTableClick: (table: Table) => void;
-  onTableMove: (id: string, pos: { x: number; y: number }) => void;
-  onSavePositionChanges: () => void;
-  onCancelEditingPositions: () => void;
+  tables: TableListItem[];
+  tablePositions: Record<string, PosTablePosition>;
+  currentOccupancyByTableId: Record<string, number>;
+  selectedTable?: TableListItem | null;
+  onTableSelect: (table: TableListItem | null) => void;
+  onTableClick: (table: TableListItem) => void;
+  onTableMove: (id: string, pos: PosTablePosition) => void;
 }
 
 const TableLayout: React.FC<TableLayoutProps> = ({
   tables,
+  tablePositions,
+  currentOccupancyByTableId,
   selectedTable,
-  isEditingPositions = false,
-  changedTableIds = new Set(),
   onTableSelect,
   onTableClick,
   onTableMove,
-  onSavePositionChanges,
-  onCancelEditingPositions,
 }) => {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [scale, setScale] = useState(1);
@@ -40,10 +37,11 @@ const TableLayout: React.FC<TableLayoutProps> = ({
     if (delta.x !== 0 || delta.y !== 0) {
       const table = tables.find((t) => t._id === active.id);
       if (table) {
+        const currentPosition = tablePositions[table._id] ?? { x: 0, y: 0 };
         // Compensate for scale factor when dropping
         onTableMove(String(active.id), {
-          x: Math.round(table.x + delta.x / scale),
-          y: Math.round(table.y + delta.y / scale),
+          x: Math.round(currentPosition.x + delta.x / scale),
+          y: Math.round(currentPosition.y + delta.y / scale),
         });
       }
     }
@@ -51,7 +49,7 @@ const TableLayout: React.FC<TableLayoutProps> = ({
   };
 
   const handleLayoutClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isEditingPositions && (e.target as HTMLElement).classList.contains('table-layout')) {
+    if ((e.target as HTMLElement).classList.contains('table-layout')) {
       onTableSelect(null);
     }
   };
@@ -70,59 +68,18 @@ const TableLayout: React.FC<TableLayoutProps> = ({
       onDragCancel={() => setActiveId(null)}
     >
       <div className="flex-1 min-w-0 min-h-0 bg-muted/30 relative overflow-hidden flex flex-col">
-        {/* Editing Mode Banner */}
-        {isEditingPositions && (
-          <div className="absolute top-0 left-0 right-0 z-20 bg-warning/90 backdrop-blur-sm border-b-2 border-warning px-4 py-3">
-            <div className="flex items-center justify-between max-w-full">
-              <div className="flex items-center space-x-3">
-                <div className="bg-warning text-warning-foreground rounded-full p-2">
-                  <Icon name="Move" size={20} />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-warning-foreground">Chế độ chỉnh sửa vị trí bàn</h3>
-                  <p className="text-sm text-warning-foreground/80">
-                    Kéo thả các bàn để thay đổi vị trí.
-                    {changedTableIds.size > 0 && ` Đã thay đổi: ${changedTableIds.size} bàn`}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onCancelEditingPositions}
-                  iconName="X"
-                  iconPosition="left"
-                  className="bg-surface text-foreground border-border hover:bg-muted"
-                >
-                  Hủy
-                </Button>
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={onSavePositionChanges}
-                  iconName="Check"
-                  iconPosition="left"
-                  className="bg-success text-success-foreground hover:bg-success/90"
-                >
-                  Lưu thay đổi
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Zoom Controls */}
         <div className="absolute bottom-6 right-6 flex flex-col gap-1.5 bg-surface/90 backdrop-blur-sm border border-border rounded-lg shadow-lg p-1.5 z-10 transition-opacity">
-           <Button variant="ghost" size="icon" onClick={handleZoomIn} title="Thu phóng lớn"><Icon name="ZoomIn" size={18} /></Button>
-           <Button variant="ghost" size="icon" onClick={handleZoomReset} title="Khôi phục zoom" className="w-8 h-8 px-0 text-[10px] font-bold text-muted-foreground flex items-center justify-center tracking-tighter">
-              {Math.round(scale * 100)}%
-           </Button>
-           <Button variant="ghost" size="icon" onClick={handleZoomOut} title="Thu phóng nhỏ"><Icon name="ZoomOut" size={18} /></Button>
+          <Button variant="ghost" size="icon" onClick={handleZoomIn} title="Thu phóng lớn"><Icon name="ZoomIn" size={18} /></Button>
+          <Button variant="ghost" size="icon" onClick={handleZoomReset} title="Khôi phục zoom" className="w-8 h-8 px-0 text-[10px] font-bold text-muted-foreground flex items-center justify-center tracking-tighter">
+            {Math.round(scale * 100)}%
+          </Button>
+          <Button variant="ghost" size="icon" onClick={handleZoomOut} title="Thu phóng nhỏ"><Icon name="ZoomOut" size={18} /></Button>
         </div>
 
         {/* Scrollable Layout Container */}
-        <div className={`flex-1 overflow-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] ${isEditingPositions ? 'pt-20' : ''}`} onClick={handleLayoutClick}>
+        <div className="flex-1 overflow-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" onClick={handleLayoutClick}>
           {/* Zoomable Container Grid */}
           <div
             className="table-layout min-w-[2000px] min-h-[2000px] relative transition-transform duration-200 ease-out origin-top-left"
@@ -139,11 +96,11 @@ const TableLayout: React.FC<TableLayoutProps> = ({
               <DraggableTable
                 key={table._id}
                 table={table}
+                position={tablePositions[table._id] ?? { x: 0, y: 0 }}
+                currentOccupancy={currentOccupancyByTableId[table._id] ?? 0}
                 isSelected={selectedTable?._id === table._id}
                 isActive={activeId === table._id}
                 onTableClick={onTableClick}
-                isEditingMode={isEditingPositions}
-                hasChanged={changedTableIds.has(table._id)}
               />
             ))}
 
@@ -163,7 +120,12 @@ const TableLayout: React.FC<TableLayoutProps> = ({
         <DragOverlay>
           {activeTable ? (
             <div className="opacity-80" style={{ transform: `scale(${scale})`, transformOrigin: '0 0' }}>
-              <TableCard table={activeTable} onTableClick={() => { }} isDragging />
+              <TableCard
+                table={activeTable}
+                currentOccupancy={currentOccupancyByTableId[activeTable._id] ?? 0}
+                onTableClick={() => { }}
+                isDragging
+              />
             </div>
           ) : null}
         </DragOverlay>

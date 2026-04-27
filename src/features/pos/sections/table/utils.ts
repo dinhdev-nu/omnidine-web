@@ -1,5 +1,4 @@
 import type { TableListItem, TableRecord } from '@/types/table-type';
-import type { Table } from './components/TableCard';
 
 export const clamp = (value: number, min: number, max: number) => {
     if (value < min) return min;
@@ -20,53 +19,31 @@ export const getDefaultPosition = (index: number) => {
     };
 };
 
-export const inferShape = (capacity: number, index: number): 'rectangular' | 'circular' => {
-    if (capacity >= 6) return 'circular';
-    return index % 3 === 0 ? 'circular' : 'rectangular';
-};
-
-export const toTableFromListItem = (item: TableListItem, index: number): Table | null => {
+export const toTableFromListItem = (item: TableListItem): TableListItem | null => {
     const id = normalizeTableId(item);
     if (!id) return null;
 
-    const position = getDefaultPosition(index);
-
     return {
+        ...item,
         _id: id,
-        number: item.table_number,
-        name: item.name,
-        notes: item.notes ?? null,
-        status: item.status,
-        shape: inferShape(item.capacity, index),
-        capacity: item.capacity,
-        currentOccupancy: item.status === 'occupied' ? 1 : 0,
-        isActive: item.is_active,
-        hasQr: item.has_qr,
-        qrCode: null,
-        x: position.x,
-        y: position.y,
     };
 };
 
-export const toTableFromRecord = (item: TableRecord, index: number): Table | null => {
+export const toTableFromRecord = (item: TableRecord): TableListItem | null => {
     const id = normalizeTableId(item);
     if (!id) return null;
 
-    const position = getDefaultPosition(index);
-
     return {
         _id: id,
-        number: item.table_number,
+        id: item.id,
+        table_number: item.table_number,
         name: item.name,
-        notes: item.notes,
-        status: item.status,
-        shape: inferShape(item.capacity, index),
         capacity: item.capacity,
-        currentOccupancy: item.status === 'occupied' ? 1 : 0,
-        isActive: item.is_active,
-        hasQr: Boolean(item.qr_code),
-        qrCode: item.qr_code,
-        x: position.x,
-        y: position.y,
+        status: item.status,
+        is_active: item.is_active,
+        has_qr: Boolean(item.qr_code),
+        qr_code: item.qr_code,
+        qr_url: null,
+        notes: item.notes ?? null,
     };
 };

@@ -37,12 +37,7 @@ const PosLayout = memo<LayoutProps>(({
 
   const restaurant = posData.restaurant;
   const storeName = posData.restaurant.name ?? 'POS Manager';
-  const userRole: SidebarProps['userRole'] =
-    posData.user.is_owner
-      ? 'owner'
-      : posData.user.is_admin
-        ? 'admin'
-        : 'staff';
+  const userRole: SidebarProps['userRole'] = posData.business_role;
 
   // useCallback để Header và Sidebar nhận reference ổn định, tránh re-render thừa
   const handleToggleSidebar = useCallback(() => {

@@ -9,15 +9,16 @@ import Icon from '@/components/AppIcon';
 import ConfirmationDialog from '@/components/ui/ConfirmationDialog';
 import { usePOSStore } from '@/stores/pos-store';
 import { usePosContext } from '@/features/pos/contexts/usePosContext';
+import { useTableManagement } from '../table/hooks/useTableManagement';
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const MainPosSection: React.FC = () => {
   const categories = usePOSStore(state => state.menuCategories);
   const menuItems = usePOSStore(state => state.menuItems);
-  const tables = usePOSStore(state => state.tables);
   const { data: posData } = usePosContext();
-  const staff = posData?.staff ?? null;
+  const staff = posData?.current_staff ?? null;
+  const { tables } = useTableManagement();
 
   const [cartItems, setCartItems] = useState<Array<{
     _id: string;
@@ -73,8 +74,7 @@ const MainPosSection: React.FC = () => {
   }, []);
 
   const tableOptions = useMemo(() => {
-    const totalTables = Array.isArray(tables?.total) ? tables.total : [];
-    return totalTables.map((table) => ({
+    return tables.map((table) => ({
       value: table._id,
       label: table.name?.trim() || table.table_number,
     }));

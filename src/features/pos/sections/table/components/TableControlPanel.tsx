@@ -1,92 +1,61 @@
 import React, { useState } from 'react';
 import Icon from '@/components/AppIcon';
+import type { TableListItem, TableStatus, UpdateTablePayload } from '@/types/table-type';
 import Button from '../../../components/Button';
 import Input from '../../../components/Input';
-import Select from '../../../components/Select';
-import type { Table } from './TableCard';
-
-type TableStatus = Table['status'];
-
-export interface UpdateTableForm {
-  number: string;
-  name: string;
-  notes: string;
-  capacity: number;
-}
-
-interface Server {
-  value: string;
-  label: string;
-}
+import QrDialog from '../../../components/QrDialog';
 
 interface TableControlPanelProps {
-  selectedTable?: Table | null;
-  disabled?: boolean;
+  selectedTable?: TableListItem | null;
   isSubmittingUpdate?: boolean;
   isTogglingActive?: boolean;
   isRegeneratingQr?: boolean;
-  availableServers?: Server[];
   onTableStatusChange: (id: string, status: TableStatus) => void;
-  onServerAssign: (id: string, serverLabel: string | null) => void;
-  onUpdateTable: (id: string, form: UpdateTableForm) => void;
+  onUpdateTable: (id: string, form: UpdateTablePayload) => void;
   onToggleTableActive: (id: string) => void;
   onRegenerateTableQr: (id: string) => void;
   onDeleteTable: (id: string) => void;
 }
 
-const DEFAULT_SERVERS: Server[] = [
-  { value: 'nguyen_van_a', label: 'Nguyễn Văn A' },
-  { value: 'tran_thi_b', label: 'Trần Thị B' },
-  { value: 'le_van_c', label: 'Lê Văn C' },
-  { value: 'pham_thi_d', label: 'Phạm Thị D' },
-];
-
 const TableControlPanel: React.FC<TableControlPanelProps> = ({
   selectedTable,
-  disabled = false,
   isSubmittingUpdate = false,
   isTogglingActive = false,
   isRegeneratingQr = false,
-  availableServers = DEFAULT_SERVERS,
   onTableStatusChange,
-  onServerAssign,
   onUpdateTable,
   onToggleTableActive,
   onRegenerateTableQr,
   onDeleteTable,
 }) => {
-  const [editForm, setEditForm] = useState<UpdateTableForm>({
-    number: selectedTable ? String(selectedTable.number) : '',
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [editForm, setEditForm] = useState({
+    table_number: selectedTable?.table_number ?? '',
     name: selectedTable?.name ?? '',
     notes: selectedTable?.notes ?? '',
     capacity: selectedTable?.capacity ?? 1,
   });
 
-  const handleUpdateTable = () => {
-    if (!selectedTable || !editForm.number.trim()) return;
-    onUpdateTable(selectedTable._id, editForm);
-  };
+  const tableQrUrl = selectedTable?.qr_url
+    ?? (selectedTable?.qr_code ? `${window.location.origin}/public/tables/${selectedTable.qr_code}` : null);
 
-  const selectedServerId = availableServers.find(
-    (s) => s.label === selectedTable?.assignedServer
-  )?.value ?? '';
+  const handleUpdateTable = () => {
+    if (!selectedTable || !editForm.table_number.trim()) return;
+    onUpdateTable(selectedTable._id, {
+      table_number: editForm.table_number.trim(),
+      capacity: editForm.capacity,
+      name: editForm.name,
+      notes: editForm.notes,
+    });
+  };
 
   return (
     <div className="w-72 2xl:w-80 bg-surface border-l border-border h-full flex flex-col relative">
-      {disabled && (
-        <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="bg-muted rounded-lg p-4 text-center">
-            <Icon name="Lock" size={32} className="mx-auto mb-2 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">Đang chỉnh sửa vị trí bàn</p>
-          </div>
-        </div>
-      )}
-
       {selectedTable ? (
         <div className="flex-1 overflow-y-auto min-h-0">
           <div className="p-4 space-y-3 flex flex-col h-full">
             <div className="flex items-center justify-between">
-               <h3 className="text-lg font-medium text-foreground">Bàn {selectedTable.number}</h3>
+              <h3 className="text-lg font-medium text-foreground">Bàn {selectedTable.table_number}</h3>
             </div>
 
             {/* Status Control */}
@@ -106,7 +75,7 @@ const TableControlPanel: React.FC<TableControlPanelProps> = ({
                     variant={selectedTable.status === status ? variant : 'outline'}
                     size="sm"
                     onClick={() => onTableStatusChange(selectedTable._id, status)}
-                    disabled={selectedTable.isActive === false}
+                    disabled={selectedTable.is_active === false}
                   >
                     {label}
                   </Button>
@@ -118,28 +87,32 @@ const TableControlPanel: React.FC<TableControlPanelProps> = ({
               <label className="text-xs text-muted-foreground block">Thông số chi tiết</label>
               <div className="grid grid-cols-2 gap-2">
                 <Input
-                    type="text"
-                    placeholder="Số bàn"
-                    value={editForm.number}
-                    onChange={(e) => setEditForm((p) => ({ ...p, number: e.target.value }))}
+                  type="text"
+                  label="Số bàn"
+                  placeholder="Số bàn"
+                  value={editForm.table_number}
+                  onChange={(e) => setEditForm((p) => ({ ...p, table_number: e.target.value }))}
                 />
                 <Input
-                    type="number"
-                    min="1"
-                    max="99"
-                    placeholder="Sức chứa"
-                    value={editForm.capacity}
-                    onChange={(e) => setEditForm((p) => ({ ...p, capacity: parseInt(e.target.value, 10) || 1 }))}
+                  type="number"
+                  label="Sức chứa"
+                  min="1"
+                  max="99"
+                  placeholder="Sức chứa"
+                  value={editForm.capacity}
+                  onChange={(e) => setEditForm((p) => ({ ...p, capacity: parseInt(e.target.value, 10) || 1 }))}
                 />
               </div>
               <Input
                 type="text"
+                label="Tên bàn"
                 placeholder="Tên bàn (không bắt buộc)"
                 value={editForm.name}
                 onChange={(e) => setEditForm((p) => ({ ...p, name: e.target.value }))}
               />
               <Input
                 type="text"
+                label="Ghi chú"
                 placeholder="Ghi chú (không bắt buộc)"
                 value={editForm.notes}
                 onChange={(e) => setEditForm((p) => ({ ...p, notes: e.target.value }))}
@@ -152,7 +125,7 @@ const TableControlPanel: React.FC<TableControlPanelProps> = ({
                 iconName="Save"
                 iconPosition="left"
                 onClick={handleUpdateTable}
-                disabled={isSubmittingUpdate || !editForm.number.trim()}
+                disabled={isSubmittingUpdate || !editForm.table_number.trim()}
               >
                 Cập nhật thông tin
               </Button>
@@ -164,15 +137,18 @@ const TableControlPanel: React.FC<TableControlPanelProps> = ({
                 size="sm"
                 onClick={() => onToggleTableActive(selectedTable._id)}
                 disabled={isTogglingActive}
-                iconName={selectedTable.isActive === false ? 'Power' : 'PowerOff'}
+                iconName={selectedTable.is_active === false ? 'Power' : 'PowerOff'}
                 iconPosition="left"
               >
-                {selectedTable.isActive === false ? 'Kích hoạt' : 'Ngưng bàn'}
+                {selectedTable.is_active === false ? 'Kích hoạt' : 'Ngưng bàn'}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => onRegenerateTableQr(selectedTable._id)}
+                onClick={() => {
+                  onRegenerateTableQr(selectedTable._id);
+                  setIsQrModalOpen(true);
+                }}
                 disabled={isRegeneratingQr}
                 iconName="QrCode"
                 iconPosition="left"
@@ -181,16 +157,23 @@ const TableControlPanel: React.FC<TableControlPanelProps> = ({
               </Button>
             </div>
 
-            <div className="mt-4">
-              <label className="text-xs text-muted-foreground mb-2 block">Phân công cá nhân</label>
-              <Select
-                options={[{ value: '', label: 'Chưa phân công' }, ...availableServers]}
-                value={selectedServerId}
-                onChange={(event) => {
-                  const server = availableServers.find((s) => s.value === event.target.value);
-                  onServerAssign(selectedTable._id, server ? server.label : null);
-                }}
-              />
+            <div className="space-y-2 mt-4 pt-4 border-t border-border">
+              <label className="text-xs text-muted-foreground block">QR bàn hiện tại</label>
+              <Button
+                variant="outline"
+                size="sm"
+                fullWidth
+                iconName="ScanQrCode"
+                iconPosition="left"
+                onClick={() => setIsQrModalOpen(true)}
+              >
+                Xem QR và URL
+              </Button>
+              {!selectedTable.has_qr && (
+                <p className="text-xs text-muted-foreground">
+                  Bàn này chưa có QR. Bấm Tạo lại QR để sinh mã mới rồi mở modal xem.
+                </p>
+              )}
             </div>
 
             <div className="mt-auto pt-4">
@@ -206,6 +189,18 @@ const TableControlPanel: React.FC<TableControlPanelProps> = ({
                 Xóa bỏ bàn này
               </Button>
             </div>
+
+            <QrDialog
+              open={isQrModalOpen}
+              onClose={() => setIsQrModalOpen(false)}
+              title={`QR bàn ${selectedTable.table_number}`}
+              subtitle="Xem mã QR và đường dẫn để chia sẻ hoặc in tại quầy."
+              qrUrl={tableQrUrl}
+              emptyMessage={selectedTable.has_qr
+                ? 'Bàn đã có QR. Nếu link chưa hiện, bấm Tạo lại QR để nạp đường dẫn mới.'
+                : 'Bàn này chưa có QR. Bấm Tạo lại QR để sinh mã mới rồi mở lại modal.'}
+              copyUrlLabel="Sao chép URL"
+            />
           </div>
         </div>
       ) : (

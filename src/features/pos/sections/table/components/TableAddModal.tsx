@@ -1,31 +1,21 @@
 import React, { useState } from 'react';
 import Icon from '@/components/AppIcon';
+import type { CreateTablePayload } from '@/types/table-type';
 import Button from '../../../components/Button';
 import Input from '../../../components/Input';
-import Select from '../../../components/Select';
-
-export interface NewTableForm {
-  number: string;
-  name: string;
-  notes: string;
-  capacity: number;
-  shape: 'rectangular' | 'circular';
-}
 
 interface TableAddModalProps {
   isOpen: boolean;
   isSubmitting: boolean;
   onClose: () => void;
-  onConfirm: (form: NewTableForm) => void;
+  onConfirm: (form: CreateTablePayload) => void;
 }
 
-const SHAPE_OPTIONS = [
-  { value: 'rectangular', label: 'Hình chữ nhật' },
-  { value: 'circular', label: 'Hình tròn' },
-];
-
-const DEFAULT_FORM: NewTableForm = {
-  number: '', name: '', notes: '', capacity: 4, shape: 'rectangular'
+const DEFAULT_FORM: CreateTablePayload = {
+  table_number: '',
+  name: '',
+  notes: '',
+  capacity: 4,
 };
 
 const TableAddModal: React.FC<TableAddModalProps> = ({
@@ -34,12 +24,12 @@ const TableAddModal: React.FC<TableAddModalProps> = ({
   onClose,
   onConfirm,
 }) => {
-  const [form, setForm] = useState<NewTableForm>(DEFAULT_FORM);
+  const [form, setForm] = useState<CreateTablePayload>(DEFAULT_FORM);
 
   if (!isOpen) return null;
 
   const handleSubmit = () => {
-    if (!form.number.trim()) return;
+    if (!form.table_number?.trim()) return;
     onConfirm(form);
     setForm(DEFAULT_FORM);
   };
@@ -71,8 +61,8 @@ const TableAddModal: React.FC<TableAddModalProps> = ({
             <Input
               type="text"
               placeholder="VD: 10"
-              value={form.number}
-              onChange={(e) => setForm((p) => ({ ...p, number: e.target.value }))}
+              value={form.table_number}
+              onChange={(e) => setForm((p) => ({ ...p, table_number: e.target.value }))}
               required
             />
           </div>
@@ -81,36 +71,26 @@ const TableAddModal: React.FC<TableAddModalProps> = ({
             <Input
               type="text"
               placeholder="VD: Bàn ban công"
-              value={form.name}
+              value={form.name ?? ''}
               onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-foreground mb-1 block">Sức chứa</label>
-              <Input
-                type="number"
-                min="1"
-                max="99"
-                value={form.capacity}
-                onChange={(e) => setForm((p) => ({ ...p, capacity: parseInt(e.target.value) || 1 }))}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-foreground mb-1 block">Hình dạng</label>
-              <Select
-                options={SHAPE_OPTIONS}
-                value={form.shape}
-                onChange={(event) => setForm((p) => ({ ...p, shape: event.target.value as NewTableForm['shape'] }))}
-              />
-            </div>
+          <div>
+            <label className="text-sm font-medium text-foreground mb-1 block">Sức chứa</label>
+            <Input
+              type="number"
+              min="1"
+              max="99"
+              value={form.capacity}
+              onChange={(e) => setForm((p) => ({ ...p, capacity: parseInt(e.target.value) || 1 }))}
+            />
           </div>
           <div>
             <label className="text-sm font-medium text-foreground mb-1 block">Ghi chú (tuỳ chọn)</label>
             <Input
               type="text"
               placeholder=""
-              value={form.notes}
+              value={form.notes ?? ''}
               onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))}
             />
           </div>
@@ -124,7 +104,7 @@ const TableAddModal: React.FC<TableAddModalProps> = ({
           <Button
             variant="default"
             onClick={handleSubmit}
-            disabled={!form.number.trim() || isSubmitting}
+            disabled={!form.table_number?.trim() || isSubmitting}
             iconName="Check"
             iconPosition="left"
           >

@@ -3,8 +3,6 @@
 export interface PosUser {
   id: string; // ObjectId from user.sub
   system_role: 'user' | 'admin';
-  is_owner: boolean;
-  is_admin: boolean;
 }
 
 export interface PosStaff {
@@ -39,32 +37,11 @@ export interface PosRestaurant {
   accepts_online_orders: boolean;
 }
 
-export interface TableRow {
-  _id: string;
-  restaurant_id: string;
-  table_number: string;
-  name: string | null;
-  capacity: number;
-  status: 'available' | 'occupied' | 'reserved' | 'cleaning' | 'inactive';
-  qr_code: string | null;
-  notes: string | null;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface PosTables {
-  total: TableRow[];
-  available: TableRow[];
-  occupied: TableRow[];
-  reserved: TableRow[];
-  cleaning: TableRow[];
-  inactive: TableRow[];
-}
+export type BusinessRole = 'owner' | 'admin' | 'staff';
 
 export interface PosInitData {
   user: PosUser;
-  staff: PosStaff | null;
+  business_role: BusinessRole;
+  current_staff: PosStaff | null;
   restaurant: PosRestaurant;
-  tables: PosTables;
 }

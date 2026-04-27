@@ -4,7 +4,6 @@ import { toAppError } from '@/services/error';
 import { PosContext, type PosContextType } from './pos-context';
 import type { PosInitData } from '@/types/pos-init-type';
 import type { AppError } from '@/services/types';
-import { usePOSStore } from '@/stores/pos-store';
 
 interface PosProviderProps {
     slug: string;
@@ -21,14 +20,6 @@ export const PosProvider: React.FC<PosProviderProps> = ({ slug, children }) => {
             const slugError: AppError = {
                 message: 'POS slug is required',
             };
-            usePOSStore.getState().setTables({
-                total: [],
-                available: [],
-                occupied: [],
-                reserved: [],
-                cleaning: [],
-                inactive: [],
-            });
             setData(null);
             setError(slugError);
             setLoading(false);
@@ -39,20 +30,10 @@ export const PosProvider: React.FC<PosProviderProps> = ({ slug, children }) => {
             setLoading(true);
             setError(null);
             const result = await fetchPosInit(slug);
-            // Requirement: when /pos/init succeeds, save tables to store first.
-            usePOSStore.getState().setTables(result.tables);
             setData(result);
             return;
         } catch (err) {
             const appError = toAppError(err, 'Failed to fetch POS init data');
-            usePOSStore.getState().setTables({
-                total: [],
-                available: [],
-                occupied: [],
-                reserved: [],
-                cleaning: [],
-                inactive: [],
-            });
             setData(null);
             setError(appError);
             return Promise.reject(appError);

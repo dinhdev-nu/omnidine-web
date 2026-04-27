@@ -5,6 +5,11 @@ export interface TableIdentity {
   id?: string;
 }
 
+export interface TablePosition {
+  x: number;
+  y: number;
+}
+
 export interface TableRecord extends TableIdentity {
   restaurant_id: string;
   table_number: string;
@@ -25,6 +30,8 @@ export interface TableListItem extends TableIdentity {
   status: TableStatus;
   is_active: boolean;
   has_qr: boolean;
+  qr_code?: string | null;
+  qr_url?: string | null;
   notes?: string | null;
 }
 

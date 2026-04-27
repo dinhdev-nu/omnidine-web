@@ -106,7 +106,7 @@ Ket luan zero-omission:
 - Moi field khong xuat hien tren response deu co ly do cu the (mask theo role, payload toi gian cho command endpoint, hoac derived field thay the).
 
 ---
-
+2.1 2.2 2.3 2.4 2.5 2.6
 ## 2. API Specification
 
 ## 2.1 POST /restaurants/{id}/tables

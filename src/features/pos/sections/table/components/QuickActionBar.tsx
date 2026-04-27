@@ -1,9 +1,7 @@
 import React from 'react';
 import Icon from '@/components/AppIcon';
 import Button, { type ButtonProps } from '../../../components/Button';
-import type { Table } from './TableCard';
-
-type TableStatus = Table['status'];
+import type { TableListItem, TableStatus } from '@/types/table-type';
 
 interface QuickAction {
   label: string;
@@ -14,13 +12,9 @@ interface QuickAction {
 }
 
 interface QuickActionBarProps {
-  selectedTable?: Table | null;
-  disabled?: boolean;
+  selectedTable?: TableListItem | null;
+  selectedTableCurrentOccupancy?: number;
   onQuickStatusChange: (id: string, status: TableStatus) => void;
-  onCreateOrder: (id: string) => void;
-  onViewOrder: (orderId?: string) => void;
-  onPrintBill: (id: string) => void;
-  onCallWaiter: (id: string) => void;
 }
 
 // ── Status label map ──────────────────────────────────────────────────────────
@@ -45,26 +39,10 @@ const STATUS_CLASS: Record<TableStatus, string> = {
 
 const QuickActionBar: React.FC<QuickActionBarProps> = ({
   selectedTable,
-  disabled = false,
+  selectedTableCurrentOccupancy = 0,
   onQuickStatusChange,
-  onCreateOrder,
-  onViewOrder,
-  onPrintBill,
-  onCallWaiter,
 }) => {
   const barClassName = 'h-14 sm:h-16 bg-surface border-t border-border flex items-center px-3 sm:px-4 shrink-0';
-
-  // Editing mode — locked bar
-  if (disabled) {
-    return (
-      <div className={`${barClassName} justify-center`}>
-        <div className="flex items-center space-x-2 text-muted-foreground">
-          <Icon name="Lock" size={16} />
-          <p className="text-sm">Đang chỉnh sửa vị trí bàn</p>
-        </div>
-      </div>
-    );
-  }
 
   // No table selected
   if (!selectedTable) {
@@ -86,10 +64,7 @@ const QuickActionBar: React.FC<QuickActionBarProps> = ({
         ];
       case 'occupied':
         return [
-          { label: 'Tạo đơn', icon: 'Plus', variant: 'default', action: () => onCreateOrder(id) },
-          { label: 'Xem đơn', icon: 'Eye', variant: 'outline', action: () => onViewOrder(selectedTable.orderId), disabled: !selectedTable.orderId },
-          { label: 'In hóa đơn', icon: 'Printer', variant: 'outline', action: () => onPrintBill(id), disabled: !selectedTable.orderId },
-          { label: 'Gọi phục vụ', icon: 'Bell', variant: 'outline', action: () => onCallWaiter(id) },
+          { label: 'Hoàn thành', icon: 'CheckCircle', variant: 'success', action: () => onQuickStatusChange(id, 'cleaning') },
         ];
       case 'reserved':
         return [
@@ -115,14 +90,13 @@ const QuickActionBar: React.FC<QuickActionBarProps> = ({
         {/* Selected Table Info */}
         <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
           <div className="w-9 h-9 bg-primary text-primary-foreground rounded-md flex items-center justify-center">
-            <span className="font-bold text-xs sm:text-sm">{selectedTable.number}</span>
+            <span className="font-bold text-xs sm:text-sm">{selectedTable.table_number}</span>
           </div>
 
           <div className="hidden md:block min-w-0">
-            <p className="text-sm font-medium text-foreground">Bàn {selectedTable.number}</p>
+            <p className="text-sm font-medium text-foreground">Bàn {selectedTable.table_number}</p>
             <p className="text-xs text-muted-foreground truncate max-w-56">
-              {selectedTable.currentOccupancy}/{selectedTable.capacity} khách
-              {selectedTable.assignedServer && ` • ${selectedTable.assignedServer}`}
+              {selectedTableCurrentOccupancy}/{selectedTable.capacity} khách
             </p>
           </div>
         </div>

@@ -1,45 +1,50 @@
 import React from 'react';
 import Button from '../../components/Button';
+import Input from '../../components/Input';
+import Select from '../../components/Select';
 import TableLayout from './components/TableLayout';
 import TableControlPanel from './components/TableControlPanel';
 import TableAddModal from './components/TableAddModal';
 import QuickActionBar from './components/QuickActionBar';
 import { useTableManagement } from './hooks/useTableManagement';
-import { AVAILABLE_SERVERS } from './constants';
 
 const TableSection: React.FC = () => {
     const {
         // State
         tables,
+        tablePositions,
+        tableOccupancyById,
         selectedTable,
+        selectedTableCurrentOccupancy,
         stats,
         // Statuses
-        isEditingPositions,
-        changedTableIds,
         showAddModal,
         setShowAddModal,
         isSubmittingAdd,
         isSubmittingUpdate,
         isTogglingActive,
         isRegeneratingQr,
+        isLoadingTables,
+        statusFilter,
+        activeFilter,
+        capacityMinFilter,
+        capacityMaxFilter,
+        hasActiveFilters,
         // Handlers
-        handleStartEditingPositions,
-        handleCancelEditingPositions,
-        handleSavePositionChanges,
+        handleStatusFilterChange,
+        handleActiveFilterChange,
+        handleCapacityMinFilterChange,
+        handleCapacityMaxFilterChange,
+        handleClearFilters,
         handleAutoArrange,
         handleTableMove,
         syncTableSelection,
         handleTableStatusChange,
-        handleServerAssign,
         handleAddTable,
         handleUpdateTable,
         handleToggleTableActive,
         handleRegenerateTableQr,
         handleDeleteTable,
-        handleCreateOrder,
-        handleViewOrder,
-        handlePrintBill,
-        handleCallWaiter,
     } = useTableManagement();
 
     return (
@@ -72,24 +77,13 @@ const TableSection: React.FC = () => {
                         </div>
 
                         <div className="flex flex-wrap items-center gap-2 self-start xl:self-auto">
-                            {!isEditingPositions && (
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    iconName="Move"
-                                    iconPosition="left"
-                                    onClick={handleStartEditingPositions}
-                                >
-                                    Chỉnh vị trí
-                                </Button>
-                            )}
+
                             <Button
                                 variant="outline"
                                 size="sm"
                                 iconName="RefreshCcw"
                                 iconPosition="left"
                                 onClick={handleAutoArrange}
-                                disabled={isEditingPositions}
                                 title="Sắp xếp gọn các bàn trống"
                             >
                                 Gom bàn trống
@@ -100,11 +94,71 @@ const TableSection: React.FC = () => {
                                 iconName="Plus"
                                 iconPosition="left"
                                 onClick={() => setShowAddModal(true)}
-                                disabled={isEditingPositions}
                             >
                                 Thêm bàn mới
                             </Button>
                         </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-5">
+                            <Select
+                                value={statusFilter}
+                                onChange={(event) => handleStatusFilterChange(event.target.value)}
+                                options={[
+                                    { value: 'all', label: 'Tất cả trạng thái' },
+                                    { value: 'available', label: 'Trống' },
+                                    { value: 'occupied', label: 'Có khách' },
+                                    { value: 'reserved', label: 'Đã đặt' },
+                                    { value: 'cleaning', label: 'Dọn dẹp' },
+                                    { value: 'inactive', label: 'Ngưng hoạt động' },
+                                ]}
+                            />
+
+                            <Select
+                                value={activeFilter}
+                                onChange={(event) => handleActiveFilterChange(event.target.value)}
+                                options={[
+                                    { value: 'all', label: 'Tất cả hoạt động' },
+                                    { value: 'active', label: 'Đang hoạt động' },
+                                    { value: 'inactive', label: 'Đang ngưng' },
+                                ]}
+                            />
+
+                            <Input
+                                type="text"
+                                inputMode="numeric"
+                                placeholder="Sức chứa từ"
+                                value={capacityMinFilter}
+                                onChange={(event) => handleCapacityMinFilterChange(event.target.value)}
+                            />
+
+                            <Input
+                                type="text"
+                                inputMode="numeric"
+                                placeholder="Sức chứa đến"
+                                value={capacityMaxFilter}
+                                onChange={(event) => handleCapacityMaxFilterChange(event.target.value)}
+                            />
+
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                iconName="X"
+                                iconPosition="left"
+                                disabled={!hasActiveFilters}
+                                onClick={handleClearFilters}
+                                className="w-full xl:h-10"
+                            >
+                                Xóa lọc
+                            </Button>
+                        </div>
+
+                        {isLoadingTables && (
+                            <p className="text-xs text-muted-foreground">
+                                Đang tải danh sách bàn theo bộ lọc...
+                            </p>
+                        )}
                     </div>
                 </div>
 
@@ -112,14 +166,12 @@ const TableSection: React.FC = () => {
                     <div className="flex-1 min-h-0 flex min-w-0 border-r border-border">
                         <TableLayout
                             tables={tables}
+                            tablePositions={tablePositions}
+                            currentOccupancyByTableId={tableOccupancyById}
                             selectedTable={selectedTable}
-                            isEditingPositions={isEditingPositions}
-                            changedTableIds={changedTableIds}
                             onTableSelect={syncTableSelection}
                             onTableClick={syncTableSelection}
                             onTableMove={handleTableMove}
-                            onSavePositionChanges={handleSavePositionChanges}
-                            onCancelEditingPositions={handleCancelEditingPositions}
                         />
                     </div>
 
@@ -127,13 +179,10 @@ const TableSection: React.FC = () => {
                         <TableControlPanel
                             key={selectedTable?._id ?? 'none'}
                             selectedTable={selectedTable}
-                            disabled={isEditingPositions}
                             isSubmittingUpdate={isSubmittingUpdate}
                             isTogglingActive={isTogglingActive}
                             isRegeneratingQr={isRegeneratingQr}
-                            availableServers={AVAILABLE_SERVERS}
                             onTableStatusChange={handleTableStatusChange}
-                            onServerAssign={handleServerAssign}
                             onUpdateTable={handleUpdateTable}
                             onToggleTableActive={handleToggleTableActive}
                             onRegenerateTableQr={handleRegenerateTableQr}
@@ -144,12 +193,8 @@ const TableSection: React.FC = () => {
 
                 <QuickActionBar
                     selectedTable={selectedTable}
-                    disabled={isEditingPositions}
+                    selectedTableCurrentOccupancy={selectedTableCurrentOccupancy}
                     onQuickStatusChange={handleTableStatusChange}
-                    onCreateOrder={handleCreateOrder}
-                    onViewOrder={handleViewOrder}
-                    onPrintBill={handlePrintBill}
-                    onCallWaiter={handleCallWaiter}
                 />
             </div>
 
