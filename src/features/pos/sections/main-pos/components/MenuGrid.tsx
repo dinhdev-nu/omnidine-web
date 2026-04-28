@@ -1,7 +1,8 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Image from '@/components/AppImage';
 import Button from '../../../components/Button.tsx';
 import Icon from '@/components/AppIcon';
+import { POS_BASE_PATH } from '@/routes/pos-route';
 
 interface MenuItem {
   _id: string;
@@ -35,6 +36,17 @@ const getStockStatusText = (stock: number): string => {
 
 const MenuGrid = ({ menuItems, onAddToCart }: MenuGridProps) => {
   const navigate = useNavigate();
+  const { slug } = useParams<{ slug: string }>();
+
+  const handleNavigateToMenu = () => {
+    const normalizedSlug = slug?.trim();
+    if (!normalizedSlug) {
+      navigate(POS_BASE_PATH);
+      return;
+    }
+
+    navigate(`${POS_BASE_PATH}/${normalizedSlug}/menu`);
+  };
 
   if (!menuItems || menuItems.length === 0) {
     return (
@@ -51,7 +63,7 @@ const MenuGrid = ({ menuItems, onAddToCart }: MenuGridProps) => {
             variant="outline"
             iconName="Plus"
             iconPosition="left"
-            onClick={() => navigate('/menu-management')}
+            onClick={handleNavigateToMenu}
           >
             Thêm món mới
           </Button>

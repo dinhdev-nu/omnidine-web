@@ -3,6 +3,8 @@ import Button from '../../../components/Button.tsx';
 import Icon from '@/components/AppIcon';
 import Input from '../../../components/Input.tsx';
 import Select from '../../../components/Select.tsx';
+import { Switch } from '@/components/ui/switch';
+import { usePosContext } from '@/features/pos/contexts/usePosContext';
 
 interface CartItem {
   _id: string;
@@ -29,8 +31,16 @@ interface OrderCartProps {
   onUpdateNote: (id: string, note: string) => void;
   onClearCart: () => void;
   orderNumber?: string | null;
-  draftOrderId?: string | null;
-  draftCustomerInfo?: { name: string } | null;
+  selectedOrderType?: '' | 'dine_in' | 'takeaway' | 'delivery';
+  onOrderTypeChange?: (value: string) => void;
+  selectedOrderSource?: 'pos' | 'phone';
+  onOrderSourceChange?: (value: string) => void;
+  customerName?: string;
+  onCustomerNameChange?: (value: string) => void;
+  customerPhone?: string;
+  onCustomerPhoneChange?: (value: string) => void;
+  orderNotes?: string;
+  onOrderNotesChange?: (value: string) => void;
   selectedTable?: string | null;
   onTableChange?: (value: string) => void;
   onSummaryChange?: (summary: { subtotal: number; discount: number; tax: number; total: number }) => void;
@@ -38,6 +48,8 @@ interface OrderCartProps {
   onStaffChange?: (value: string) => void;
   tableOptions?: TableOption[];
   staffOptions?: StaffOption[];
+  /** When true, hide discount UI (used by MainPos new-order flow) */
+  hideDiscount?: boolean;
   discountType?: 'percent' | 'amount';
   discountValue?: number;
 }
@@ -52,30 +64,42 @@ const OrderCart = ({
   onUpdateNote,
   onClearCart,
   orderNumber = null,
-  draftOrderId = null,
-  draftCustomerInfo = null,
+  selectedOrderType = '',
+  onOrderTypeChange,
+  selectedOrderSource = 'pos',
+  onOrderSourceChange,
+  customerName = '',
+  onCustomerNameChange,
+  customerPhone = '',
+  onCustomerPhoneChange,
+  orderNotes = '',
+  onOrderNotesChange,
   selectedTable = null,
   onTableChange,
-  selectedStaff = null,
-  onStaffChange,
   tableOptions = [],
-  staffOptions = [],
   discountType = 'percent',
   discountValue = 0,
+  hideDiscount = false,
 }: OrderCartProps) => {
-  const { subtotal, discount, tax, finalTotal } = useMemo(() => {
+  const { data: posData } = usePosContext();
+
+  const { subtotal, discount, tax, serviceCharge, finalTotal } = useMemo(() => {
     const st = cartItems?.reduce((total, item) => total + item.price * item.quantity, 0) ?? 0;
     const disc = discountType === 'percent'
       ? st * (discountValue / 100)
       : Math.min(discountValue, st);
-    const tx = (st - disc) * 0.1;
+    const taxRate = posData?.restaurant?.tax_rate ?? 0.10;
+    const serviceRate = posData?.restaurant?.service_charge_rate ?? 0;
+    const tx = (st - disc) * taxRate;
+    const sc = (st - disc) * serviceRate;
     return {
       subtotal: st,
       discount: disc,
       tax: tx,
-      finalTotal: st - disc + tx
+      serviceCharge: sc,
+      finalTotal: st - disc + tx + sc,
     };
-  }, [cartItems, discountType, discountValue]);
+  }, [cartItems, discountType, discountValue, posData?.restaurant?.tax_rate, posData?.restaurant?.service_charge_rate]);
 
   if (cartItems?.length === 0) {
     return (
@@ -96,18 +120,7 @@ const OrderCart = ({
             <h2 className="text-lg font-semibold text-foreground">
               Đơn hàng ({cartItems?.length} món)
             </h2>
-            {draftOrderId ? (
-              <div className="space-y-0.5">
-                <p className="text-xs text-muted-foreground">
-                  Draft ID: <span className="font-mono font-medium text-primary">{draftOrderId.slice(-8)}</span>
-                </p>
-                {draftCustomerInfo && (
-                  <p className="text-xs text-muted-foreground">
-                    Khách: <span className="font-medium text-foreground">{draftCustomerInfo.name}</span>
-                  </p>
-                )}
-              </div>
-            ) : orderNumber ? (
+            {orderNumber ? (
               <p className="text-xs text-muted-foreground">
                 Mã: <span className="font-mono font-medium text-foreground">{orderNumber}</span>
               </p>
@@ -125,32 +138,50 @@ const OrderCart = ({
         </div>
 
         {/* Table Selection */}
-        {onTableChange && (
+
+        {onOrderSourceChange && (
+          <div className="flex items-start space-x-4">
+            <div className="flex-1">
+              <p className="text-sm font-medium text-foreground">Loại đơn</p>
+              <Select
+                value={selectedOrderType}
+                onChange={(e: ChangeEvent<HTMLSelectElement>) => onOrderTypeChange?.(e.target.value)}
+                options={[
+                  { value: '', label: 'Chọn loại đơn' },
+                  { value: 'dine_in', label: 'Tại chỗ' },
+                  { value: 'takeaway', label: 'Mang về' },
+                  { value: 'delivery', label: 'Giao hàng' },
+                ]}
+              />
+            </div>
+
+            <div className="w-36 flex-shrink-0">
+              <p className="text-sm font-medium text-foreground">Nguồn đơn</p>
+              <div className="flex items-center justify-between mt-1">
+                <p className="text-xs text-muted-foreground mr-2">Khách gọi điện</p>
+                <Switch
+                  checked={selectedOrderSource === 'phone'}
+                  onCheckedChange={(checked: boolean) => onOrderSourceChange?.(checked ? 'phone' : 'pos')}
+                  size="default"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {selectedOrderType === 'dine_in' && onTableChange && (
           <div className="space-y-1">
             <p className="text-sm font-medium text-foreground">Chọn bàn</p>
             <Select
               value={selectedTable ?? ''}
               onChange={(e: ChangeEvent<HTMLSelectElement>) => onTableChange(e.target.value)}
-              options={[
-                { value: 'takeaway', label: '🥡 Mang đi' },
-                { value: 'delivery', label: '🚚 Giao hàng' },
-                ...tableOptions,
-              ]}
+              placeholder="-- Chọn bàn --"
+              options={tableOptions}
             />
           </div>
         )}
 
-        {/* Staff Selection */}
-        {onStaffChange && (
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-foreground">Nhân viên phục vụ</p>
-            <Select
-              value={selectedStaff ?? ''}
-              onChange={(e: ChangeEvent<HTMLSelectElement>) => onStaffChange(e.target.value)}
-              options={staffOptions}
-            />
-          </div>
-        )}
+        {/* Staff selection removed per UI requirement */}
       </div>
 
       {/* Cart Items */}
@@ -210,39 +241,74 @@ const OrderCart = ({
         ))}
       </div>
 
+      {/* Customer info: đặt sau danh sách món */}
+      <div className="space-y-2">
+        {onCustomerNameChange && (
+          <Input
+            label="Tên khách hàng"
+            type="text"
+            placeholder="Nhập tên khách"
+            value={customerName}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => onCustomerNameChange(e.target.value)}
+          />
+        )}
+
+        {onCustomerPhoneChange && (
+          <Input
+            label="Số điện thoại"
+            type="tel"
+            placeholder="Nhập số điện thoại"
+            value={customerPhone}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => onCustomerPhoneChange(e.target.value)}
+          />
+        )}
+
+        {onOrderNotesChange && (
+          <Input
+            label="Ghi chú đơn hàng"
+            type="text"
+            placeholder="Nhập ghi chú đơn hàng"
+            value={orderNotes}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => onOrderNotesChange(e.target.value)}
+          />
+        )}
+      </div>
+
       {/* Order Summary */}
       <div className="border-t border-border pt-4 space-y-3">
-        {/* Discount Section */}
-        <div className="bg-muted/20 rounded-lg p-3 space-y-2">
-          <label className="text-sm font-medium text-foreground">Giảm giá</label>
-          <div className="flex space-x-2">
-            <div className="flex-1">
-              <Input
-                type="number"
-                placeholder="Nhập giảm giá"
-                value={discountValue || ''}
-                min="0"
-                max={discountType === 'percent' ? 100 : subtotal}
-                readOnly
+        {/* Discount Section (hidden for MainPos create flow) */}
+        {!hideDiscount && (
+          <div className="bg-muted/20 rounded-lg p-3 space-y-2">
+            <label className="text-sm font-medium text-foreground">Giảm giá</label>
+            <div className="flex space-x-2">
+              <div className="flex-1">
+                <Input
+                  type="number"
+                  placeholder="Nhập giảm giá"
+                  value={discountValue || ''}
+                  min="0"
+                  max={discountType === 'percent' ? 100 : subtotal}
+                  readOnly
+                />
+              </div>
+              <Select
+                value={discountType}
+                onChange={() => { }}
+                options={[
+                  { value: 'percent', label: '%' },
+                  { value: 'amount', label: 'VNĐ' },
+                ]}
+                className="w-24"
               />
             </div>
-            <Select
-              value={discountType}
-              onChange={() => {}}
-              options={[
-                { value: 'percent', label: '%' },
-                { value: 'amount', label: 'VNĐ' },
-              ]}
-              className="w-24"
-            />
+            {discountValue > 0 && (
+              <p className="text-xs text-success flex items-center">
+                <Icon name="Tag" size={12} className="mr-1" />
+                Tiết kiệm: {formatPrice(discount)}
+              </p>
+            )}
           </div>
-          {discountValue > 0 && (
-            <p className="text-xs text-success flex items-center">
-              <Icon name="Tag" size={12} className="mr-1" />
-              Tiết kiệm: {formatPrice(discount)}
-            </p>
-          )}
-        </div>
+        )}
 
         {/* Summary Breakdown */}
         <div className="space-y-2">
@@ -257,8 +323,12 @@ const OrderCart = ({
             </div>
           )}
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">VAT (10%):</span>
+            <span className="text-muted-foreground">VAT ({((posData?.restaurant?.tax_rate ?? 0.10) * 100).toFixed(0)}%):</span>
             <span className="text-foreground">{formatPrice(tax)}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Phí phục vụ ({((posData?.restaurant?.service_charge_rate ?? 0) * 100).toFixed(0)}%):</span>
+            <span className="text-foreground">{formatPrice(serviceCharge)}</span>
           </div>
           <div className="flex justify-between text-lg font-semibold border-t border-border pt-2">
             <span className="text-foreground">Tổng cộng:</span>

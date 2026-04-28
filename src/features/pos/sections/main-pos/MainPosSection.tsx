@@ -1,24 +1,35 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import MenuCategory from './components/MenuCategory';
 import MenuGrid from './components/MenuGrid';
 import OrderCart from './components/OrderCart';
-import QuickActions from './components/QuickActions';
-import RecentOrders from './components/RecentOrders';
 import Button from '../../components/Button';
+import Input from '../../components/Input';
 import Icon from '@/components/AppIcon';
 import ConfirmationDialog from '@/components/ui/ConfirmationDialog';
-import { usePOSStore } from '@/stores/pos-store';
 import { usePosContext } from '@/features/pos/contexts/usePosContext';
-import { useTableManagement } from '../table/hooks/useTableManagement';
+import { useMainPosMenuData } from './hooks/useMainPosMenuData';
+import { useOrderCreation } from './hooks/useOrderCreation';
+import { useFetch } from '@/hooks/useFetch';
+import { listTables } from '@/services/tables';
+import type { TableListResponse } from '@/types/table-type';
+
+type PosOrderType = '' | 'dine_in' | 'takeaway' | 'delivery';
+type PosOrderSource = 'pos' | 'phone';
+
+const fetchAvailableActiveTables = async (restaurantId: string): Promise<TableListResponse> => {
+  return listTables(restaurantId, {
+    status: 'available',
+    is_active: true,
+  });
+};
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const MainPosSection: React.FC = () => {
-  const categories = usePOSStore(state => state.menuCategories);
-  const menuItems = usePOSStore(state => state.menuItems);
   const { data: posData } = usePosContext();
+  const restaurantId = posData?.restaurant._id;
   const staff = posData?.current_staff ?? null;
-  const { tables } = useTableManagement();
+  const normalizedRestaurantId = restaurantId ?? '';
 
   const [cartItems, setCartItems] = useState<Array<{
     _id: string;
@@ -29,15 +40,23 @@ const MainPosSection: React.FC = () => {
   }>>([]);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [selectedStaff, setSelectedStaff] = useState<string | null>(staff?._id ?? null);
-  const [isCreatingOrder] = useState(false);
-  const customerOrders: Array<{
-    _id: string;
-    status: 'pending' | 'processing' | 'completed' | 'cancelled';
-    paymentStatus: 'paid' | 'unpaid';
-  }> = [];
-  const orderNumber: string | null = null;
-  const draftOrderId: string | null = null;
-  const draftCustomerInfo: { name: string } | null = null;
+  const [selectedOrderType, setSelectedOrderType] = useState<PosOrderType>('');
+  const [selectedOrderSource, setSelectedOrderSource] = useState<PosOrderSource>('pos');
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [orderNotes, setOrderNotes] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState('all');
+
+  const { data: availableTablesData } = useFetch(fetchAvailableActiveTables, [normalizedRestaurantId], {
+    enabled: Boolean(restaurantId),
+  });
+
+  const { uiCategories, uiMenuItems } = useMainPosMenuData({
+    restaurantId,
+    activeCategory,
+    searchQuery,
+  });
 
   const handleAddToCart = useCallback((item: { _id: string; name: string; price: number }) => {
     setCartItems(prev => {
@@ -73,55 +92,97 @@ const MainPosSection: React.FC = () => {
     setSelectedStaff(value || null);
   }, []);
 
+  const onOrderTypeChange = useCallback((value: string) => {
+    const nextType = (value || 'dine_in') as PosOrderType;
+    setSelectedOrderType(nextType);
+  }, []);
+
+  const onOrderSourceChange = useCallback((value: string) => {
+    const nextSource = (value || 'pos') as PosOrderSource;
+    setSelectedOrderSource(nextSource);
+  }, []);
+
+  useEffect(() => {
+    if (selectedOrderType !== 'dine_in') {
+      setSelectedTable(null);
+    }
+  }, [selectedOrderType]);
+
   const tableOptions = useMemo(() => {
-    return tables.map((table) => ({
-      value: table._id,
-      label: table.name?.trim() || table.table_number,
-    }));
-  }, [tables]);
+    const tables = availableTablesData?.data ?? [];
+    return tables.map((table) => {
+      // Ensure we have a valid ID
+      const tableId = table._id || table.id;
+      if (!tableId) {
+        console.warn('Table missing ID:', table);
+        return {
+          value: '',
+          label: `${table.table_number} (NO ID)`,
+        };
+      }
+      return {
+        value: tableId,
+        label: `${table.table_number}${table.name?.trim() ? ` - ${table.name.trim()}` : ''} (${table.capacity})`,
+      };
+    });
+  }, [availableTablesData]);
 
   const staffOptions = useMemo(() => {
     if (!staff) return [];
     return [{ value: staff._id, label: staff.full_name }];
   }, [staff]);
 
-  const uiCategories = useMemo(
-    () => categories.map((category) => ({ id: category._id, name: category.name })),
-    [categories]
-  );
-
-  const uiMenuItems = useMemo(
-    () => menuItems.map((item) => ({
-      _id: item._id,
-      name: item.name,
-      price: item.base_price,
-      image: item.images?.[0]?.url,
-      description: item.description ?? undefined,
-      status: item.is_available ? 'available' as const : 'unavailable' as const,
-      stock_quantity: item.is_available ? 99 : 0,
-    })),
-    [menuItems]
-  );
-
   // Stubs for functionality not fully implemented
   const onSummaryChange = () => { };
-  const onCreateOrder = () => { };
   const onGoToPayment = () => { };
-  const handleBarcodeSearch = () => { };
-  const handleCustomerSearch = () => { };
-  const onConfirmOrder = () => { };
-  const onReorderDraft = () => { };
 
-  // Redundant locally calculated dependency for format
-  const orderSummary = {
-    total: cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
+  const { isCreatingOrder, orderNumber: hookOrderNumber, createOrder } = useOrderCreation({
+    restaurantId,
+    onOrderCreated: () => {
+      setCartItems([]);
+      setCustomerName('');
+      setCustomerPhone('');
+      setOrderNotes('');
+      if (selectedOrderType === 'dine_in') {
+        setSelectedTable(null);
+      }
+    },
+  });
+
+  const onCreateOrder = () => {
+    createOrder({
+      selectedOrderType,
+      selectedOrderSource,
+      selectedTable,
+      customerName,
+      customerPhone,
+      orderNotes,
+      cartItems,
+    });
   };
-  const [showRecentOrders, setShowRecentOrders] = useState(false);
-  const [activeCategory, setActiveCategory] = useState('all');
+
+  // Get order number from hook
+  const orderNumber = hookOrderNumber;
+
   const [showMobileCart, setShowMobileCart] = useState(false);
   const [showClearCartDialog, setShowClearCartDialog] = useState(false);
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  // Calculate final total with tax and service charge rates from context (already in decimal form)
+  const orderSummary = useMemo(() => {
+    const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const taxRate = posData?.restaurant?.tax_rate ?? 0.10;
+    const serviceRate = posData?.restaurant?.service_charge_rate ?? 0;
+    const tax = subtotal * taxRate;
+    const serviceCharge = subtotal * serviceRate;
+    return {
+      subtotal,
+      tax,
+      serviceCharge,
+      total: subtotal + tax + serviceCharge,
+    };
+  }, [cartItems, posData?.restaurant?.tax_rate, posData?.restaurant?.service_charge_rate]);
 
   const formattedTotal = new Intl.NumberFormat('vi-VN', {
     style: 'currency',
@@ -138,40 +199,37 @@ const MainPosSection: React.FC = () => {
           'flex-1 bg-surface border-r border-border overflow-hidden flex-col',
           showMobileCart ? 'hidden lg:flex' : 'flex',
         ].join(' ')}>
+          <>
+            <div className="p-4 border-b border-border">
+              <h1 className="text-xl font-semibold text-foreground mb-4">Thực đơn</h1>
 
-          {showRecentOrders ? (
-            <RecentOrders
-              orders={customerOrders}
-              onClose={() => setShowRecentOrders(false)}
-              onConfirmOrder={onConfirmOrder}
-              onReorderDraft={onReorderDraft}
-            />
-          ) : (
-            <>
-              <div className="p-4 border-b border-border">
-                <h1 className="text-xl font-semibold text-foreground mb-4">Thực đơn</h1>
-
-                <QuickActions
-                  onBarcodeSearch={handleBarcodeSearch}
-                  onCustomerSearch={handleCustomerSearch}
-                  onQuickAdd={handleAddToCart}
-                  onShowRecentOrders={() => setShowRecentOrders(true)}
-                  isShowingRecentOrders={showRecentOrders}
-                  draftOrdersCount={customerOrders.length}
+              <div className="mb-4 relative">
+                <Input
+                  type="text"
+                  placeholder="Tìm món theo tên..."
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  className="w-full pr-10"
                 />
-
-                <MenuCategory
-                  categories={[{ id: 'all', name: 'Tất cả', icon: 'LayoutGrid' }, ...uiCategories]}
-                  activeCategory={activeCategory}
-                  onCategoryChange={setActiveCategory}
+                <Icon
+                  name="Search"
+                  size={18}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
                 />
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4">
-                <MenuGrid menuItems={uiMenuItems} onAddToCart={handleAddToCart} />
-              </div>
-            </>
-          )}
+              <p className="text-sm font-medium text-foreground mb-2">Danh mục</p>
+              <MenuCategory
+                categories={uiCategories}
+                activeCategory={activeCategory}
+                onCategoryChange={setActiveCategory}
+              />
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4">
+              <MenuGrid menuItems={uiMenuItems} onAddToCart={handleAddToCart} />
+            </div>
+          </>
         </div>
 
         {/* ── Right Panel: Cart ────────────────────────────────────────────── */}
@@ -200,15 +258,24 @@ const MainPosSection: React.FC = () => {
               onUpdateNote={handleUpdateNote}
               onClearCart={() => setShowClearCartDialog(true)}
               orderNumber={orderNumber}
-              draftOrderId={draftOrderId}
-              draftCustomerInfo={draftCustomerInfo}
               selectedTable={selectedTable}
               onTableChange={onTableChange}
               selectedStaff={selectedStaff}
               onStaffChange={onStaffChange}
+              selectedOrderType={selectedOrderType}
+              onOrderTypeChange={onOrderTypeChange}
+              selectedOrderSource={selectedOrderSource}
+              onOrderSourceChange={onOrderSourceChange}
+              customerName={customerName}
+              onCustomerNameChange={setCustomerName}
+              customerPhone={customerPhone}
+              onCustomerPhoneChange={setCustomerPhone}
+              orderNotes={orderNotes}
+              onOrderNotesChange={setOrderNotes}
               tableOptions={tableOptions}
               staffOptions={staffOptions}
               onSummaryChange={onSummaryChange}
+              hideDiscount={true}
             />
           </div>
 
