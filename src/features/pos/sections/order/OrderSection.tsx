@@ -1,73 +1,62 @@
-import React from 'react';
-import OrderSummaryCards from './components/OrderSummaryCards';
+import React, { useCallback } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import OrderFilters from './components/OrderFilters';
-import OrderTable, { type Order } from './components/OrderTable';
-import OrderDetailsModal from './components/OrderDetailsModal';
+import OrderTable from './components/OrderTable';
 import Button from '../../components/Button';
 import Icon from '../../components/AppIcon';
-
-// ─── Static mock data ────────────────────────────────────────────────────────
-
-const isLoadingOrders = false;
-const isLoadingMore = false;
-const hasMore = true;
-const totalFetched = 40;
-const highlightedOrderId: string | undefined = undefined;
-const showDetailsModal = false;
-const selectedOrder = null;
-const noop = () => { };
-
-const orders: Order[] = [
-    {
-        _id: 'ord001', orderId: 'HD-001', table: 'Bàn 1',
-        status: 'completed', paymentStatus: 'paid',
-        total: 104500, subtotal: 95000, tax: 9500, discount: 0,
-        timestamp: new Date().toISOString(),
-        items: [
-            { name: 'Cà phê sữa đá', quantity: 2, price: 35000 },
-            { name: 'Bánh mì thịt', quantity: 1, price: 25000 }
-        ]
-    },
-    {
-        _id: 'ord002', orderId: 'HD-002', table: 'Bàn 3',
-        status: 'pending', paymentStatus: 'unpaid',
-        total: 75000, subtotal: 68000, tax: 7000, discount: 0,
-        timestamp: new Date().toISOString(),
-        items: [
-            { name: 'Trà sữa trân châu', quantity: 3, price: 25000 }
-        ]
-    }
-];
-
-const filteredOrders: Order[] = orders;
-
-const filters = {
-    startDate: '',
-    endDate: '',
-    status: 'all',
-    paymentStatus: 'all',
-    table: 'all',
-    searchQuery: '',
-    minAmount: '',
-    maxAmount: ''
-};
-
-const summaryData = {
-    todayRevenue: 3250000,
-    revenueChange: 12.5,
-    totalOrders: 28,
-    ordersChange: 5,
-    averageOrderValue: 116071,
-    avgChange: -2.3,
-    unpaidOrders: 3,
-    pendingOrders: 2
-};
-
-const activeFiltersCount = Object.values(filters).filter((value) => value && value !== 'all').length;
+import { useOrderManagement } from './hooks/useOrderManagement';
+import { POS_BASE_PATH } from '@/routes/pos-route';
+import type { Order } from '@/types/order-type';
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const OrderSection: React.FC = () => {
+    const navigate = useNavigate();
+    const { slug } = useParams<{ slug: string }>();
+    const {
+        orders,
+        filters,
+        isLoadingOrders,
+        isLoadingMore,
+        hasMore,
+        totalFetched,
+        pagination,
+        onFilterChange,
+        onLoadOrderDetail,
+        onUpdateOrderStatus,
+        onPayOrder,
+        onLoadMore,
+        onClearFilters,
+        onRefresh,
+        onCancelOrder,
+        activeFiltersCount,
+    } = useOrderManagement();
+
+    // Handlers
+
+    const handlePayOrder = useCallback(
+        async (order: Order) => {
+            try {
+                await onPayOrder(order);
+            } catch {
+                // Error already toasted by hook
+            }
+        },
+        [onPayOrder]
+    );
+
+    const handleFilterChange = useCallback(
+        (key: string, value: string) => {
+            const filterKey = key as keyof typeof filters;
+            onFilterChange({ [filterKey]: value } as Partial<typeof filters>);
+        },
+        [filters, onFilterChange]
+    );
+
+    const handleCreateOrder = useCallback(() => {
+        navigate(`${POS_BASE_PATH}/${slug}`);
+    }, [navigate, slug]);
+
     return (
         <div className="p-4 space-y-4">
             {/* Page Header */}
@@ -83,7 +72,8 @@ const OrderSection: React.FC = () => {
                         variant="outline"
                         iconName="RefreshCw"
                         iconPosition="left"
-                        onClick={noop}
+                        onClick={onRefresh}
+                        disabled={isLoadingOrders}
                         className="hover-scale"
                     >
                         Làm mới
@@ -92,7 +82,7 @@ const OrderSection: React.FC = () => {
                         variant="default"
                         iconName="Plus"
                         iconPosition="left"
-                        onClick={noop}
+                        onClick={handleCreateOrder}
                         className="hover-scale"
                     >
                         Tạo đơn mới
@@ -100,21 +90,17 @@ const OrderSection: React.FC = () => {
                 </div>
             </div>
 
-            {/* Summary Cards */}
-            <OrderSummaryCards summaryData={summaryData} />
-
             {/* Filters */}
             <OrderFilters
                 filters={filters}
-                onFilterChange={noop}
-                onExport={noop}
-                onClearFilters={noop}
+                onFilterChange={handleFilterChange}
+                onClearFilters={onClearFilters}
             />
 
             {/* Results Summary */}
             <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                    Hiển thị {filteredOrders.length} đơn hàng từ tổng số {orders.length} đơn
+                    Hiển thị {orders.length} đơn hàng từ tổng số {pagination.total} đơn
                 </div>
                 <div className="flex items-center gap-2">
                     <Icon name="Filter" size={16} className="text-muted-foreground" />
@@ -138,11 +124,12 @@ const OrderSection: React.FC = () => {
             ) : (
                 <>
                     <OrderTable
-                        orders={filteredOrders}
-                        onViewDetails={noop}
-                        onReprintReceipt={noop}
-                        onPayOrder={noop}
-                        highlightedOrderId={highlightedOrderId}
+                        orders={orders}
+                        onLoadOrderDetail={onLoadOrderDetail}
+                        onUpdateOrderStatus={onUpdateOrderStatus}
+                        onReprintReceipt={() => { }}
+                        onPayOrder={handlePayOrder}
+                        onCancelOrder={onCancelOrder}
                     />
 
                     {/* Load More Button */}
@@ -150,7 +137,7 @@ const OrderSection: React.FC = () => {
                         <div className="flex flex-col items-center gap-2 py-4">
                             <Button
                                 variant="outline"
-                                onClick={noop}
+                                onClick={onLoadMore}
                                 disabled={isLoadingMore}
                                 iconName={isLoadingMore ? 'Loader2' : 'ChevronDown'}
                                 iconPosition="right"
@@ -177,7 +164,7 @@ const OrderSection: React.FC = () => {
             )}
 
             {/* Empty State */}
-            {!isLoadingOrders && filteredOrders.length === 0 && (
+            {!isLoadingOrders && orders.length === 0 && (
                 <div className="text-center py-12">
                     <Icon name="Search" size={48} className="text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-foreground mb-2">
@@ -192,7 +179,7 @@ const OrderSection: React.FC = () => {
                     {orders.length > 0 && (
                         <Button
                             variant="outline"
-                            onClick={noop}
+                            onClick={onClearFilters}
                             className="hover-scale"
                         >
                             Xóa tất cả bộ lọc
@@ -200,14 +187,6 @@ const OrderSection: React.FC = () => {
                     )}
                 </div>
             )}
-
-            {/* Order Details Modal */}
-            <OrderDetailsModal
-                order={selectedOrder}
-                isOpen={showDetailsModal}
-                onClose={noop}
-                onReprintReceipt={noop}
-            />
         </div>
     );
 };

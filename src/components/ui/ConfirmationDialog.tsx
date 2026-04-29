@@ -15,6 +15,7 @@ export interface ConfirmationDialogProps {
   variant?: 'default' | 'danger' | 'warning' | 'success';
   icon?: string;
   isLoading?: boolean;
+  children?: React.ReactNode;
 }
 
 const variantStyles = {
@@ -51,6 +52,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   variant = 'default',
   icon = 'AlertCircle',
   isLoading = false,
+  children,
 }) => {
   if (!isOpen) return null;
 
@@ -90,6 +92,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
               <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
                 {message}
               </p>
+              {children}
             </div>
           </div>
         </div>

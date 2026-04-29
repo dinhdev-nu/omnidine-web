@@ -1,178 +1,167 @@
-import React, { useMemo, useState } from 'react';
-import Button from '../../../components/Button';
-import Icon from '@/components/AppIcon';
+import React, { useMemo, useState, useCallback } from 'react';
 import ConfirmationDialog from '@/components/ui/ConfirmationDialog';
-
-type OrderStatus = 'completed' | 'processing' | 'pending' | 'cancelled' | 'refunded';
-type PaymentStatus = 'paid' | 'unpaid' | 'refunded';
-
-interface OrderItem {
-  name: string;
-  price: number;
-  quantity: number;
-  note?: string;
-}
-
-export interface Order {
-  _id: string;
-  orderId?: string;
-  timestamp: string;
-  table?: string;
-  staff?: string;
-  items?: OrderItem[];
-  subtotal?: number;
-  tax?: number;
-  discount?: number;
-  total: number;
-  status: OrderStatus;
-  paymentStatus: PaymentStatus;
-  specialInstructions?: string;
-}
+import OrderTableDesktopRow from './OrderTableDesktopRow';
+import OrderTableMobileCard from './OrderTableMobileCard';
+import { formatCurrency } from './order-display';
+import type { AllowedOrderStatusUpdate, Order } from '@/types/order-type';
 
 interface OrderTableProps {
   orders: Order[];
   highlightedOrderId?: string;
-  onViewDetails: (order: Order) => void;
+  onLoadOrderDetail: (orderId: string) => Promise<Order>;
+  onUpdateOrderStatus: (order: Order, status: AllowedOrderStatusUpdate) => Promise<void>;
   onReprintReceipt: (order: Order) => void;
   /** Called when user confirms payment for an unpaid order */
   onPayOrder: (order: Order) => void;
+  onCancelOrder: (order: Order, reason?: string) => Promise<void>;
 }
 
-// ── Display helpers ────────────────────────────────────────────────────────────
 
-const formatCurrency = (amount: number): string =>
-  new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
 
-const formatDateTime = (timestamp: string): string =>
-  new Intl.DateTimeFormat('vi-VN', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  }).format(new Date(timestamp));
 
-// ── Badge components ───────────────────────────────────────────────────────────
-
-const ORDER_STATUS_CONFIG: Record<OrderStatus, { color: string; label: string }> = {
-  completed: { color: 'bg-success text-success-foreground', label: 'Hoàn thành' },
-  processing: { color: 'bg-warning text-warning-foreground', label: 'Đang xử lý' },
-  pending: { color: 'bg-blue-500 text-white', label: 'Chờ xử lý' },
-  cancelled: { color: 'bg-error text-error-foreground', label: 'Đã hủy' },
-  refunded: { color: 'bg-secondary text-secondary-foreground', label: 'Đã hoàn tiền' },
+const STATUS_LABELS: Record<AllowedOrderStatusUpdate, string> = {
+  confirmed: 'Đã xác nhận',
+  preparing: 'Đang chuẩn bị',
+  ready: 'Sẵn sàng',
+  delivering: 'Đang giao',
+  completed: 'Hoàn thành',
 };
 
-const PAYMENT_STATUS_CONFIG: Record<PaymentStatus, { color: string; label: string; icon: string }> = {
-  paid: { color: 'bg-success text-success-foreground', label: 'Đã thanh toán', icon: 'CheckCircle' },
-  unpaid: { color: 'bg-orange-500 text-white', label: 'Chưa thanh toán', icon: 'AlertCircle' },
-  refunded: { color: 'bg-secondary text-secondary-foreground', label: 'Đã hoàn tiền', icon: 'RotateCcw' },
-};
-
-const StatusBadge: React.FC<{ status: OrderStatus }> = ({ status }) => {
-  const config = ORDER_STATUS_CONFIG[status] ?? ORDER_STATUS_CONFIG.completed;
-  return (
-    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${config.color}`}>
-      {config.label}
-    </span>
-  );
-};
-
-const PaymentStatusBadge: React.FC<{ status: PaymentStatus }> = ({ status }) => {
-  const config = PAYMENT_STATUS_CONFIG[status] ?? PAYMENT_STATUS_CONFIG.unpaid;
-  return (
-    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${config.color}`}>
-      <Icon name={config.icon} size={12} />
-      {config.label}
-    </span>
-  );
-};
-
-// ── Sort icon ──────────────────────────────────────────────────────────────────
-
-type SortKey = 'timestamp' | 'total';
-interface SortConfig { key: SortKey; direction: 'asc' | 'desc' }
-
-const SortIcon: React.FC<{ column: SortKey; sortConfig: SortConfig }> = ({ column, sortConfig }) => {
-  if (sortConfig.key !== column) {
-    return <Icon name="ArrowUpDown" size={16} className="text-muted-foreground" />;
+function getAllowedNextStatuses(order: Order): AllowedOrderStatusUpdate[] {
+  switch (order.status) {
+    case 'pending':
+      return ['confirmed'];
+    case 'confirmed':
+      return ['preparing'];
+    case 'preparing':
+      return ['ready'];
+    case 'ready':
+      return order.order_type === 'delivery' ? ['delivering', 'completed'] : ['completed'];
+    case 'delivering':
+      return ['completed'];
+    default:
+      return [];
   }
-  return (
-    <Icon
-      name={sortConfig.direction === 'asc' ? 'ArrowUp' : 'ArrowDown'}
-      size={16}
-      className="text-primary"
-    />
-  );
-};
+}
 
 // ── Main component ─────────────────────────────────────────────────────────────
 
 const OrderTable: React.FC<OrderTableProps> = ({
   orders,
   highlightedOrderId,
-  onViewDetails,
+  onLoadOrderDetail,
+  onUpdateOrderStatus,
   onReprintReceipt,
   onPayOrder,
+  onCancelOrder,
 }) => {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
-  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'timestamp', direction: 'desc' });
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [selectedOrderToCancel, setSelectedOrderToCancel] = useState<Order | null>(null);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [selectedOrderToUpdateStatus, setSelectedOrderToUpdateStatus] = useState<Order | null>(null);
+  const [showUpdateStatusDialog, setShowUpdateStatusDialog] = useState(false);
+  const [nextStatus, setNextStatus] = useState<AllowedOrderStatusUpdate | ''>('');
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [detailOrders, setDetailOrders] = useState<Record<string, Order>>({});
+  const [loadingDetailOrders, setLoadingDetailOrders] = useState<Record<string, boolean>>({});
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
-  const toggleRowExpansion = (orderId: string) => {
-    setExpandedRows((prev) => {
-      const next = new Set(prev);
-      if (next.has(orderId)) {
-        next.delete(orderId);
-      } else {
-        next.add(orderId);
-      }
-      return next;
-    });
-  };
 
-  const handleSort = (key: SortKey) => {
-    setSortConfig((prev) => ({
-      key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
-    }));
-  };
 
-  const handleOrderClick = (order: Order) => {
-    if (order.paymentStatus === 'unpaid') {
+  const handleOrderClick = useCallback((order: Order) => {
+    if (order.payment_status === 'unpaid') {
       setSelectedOrder(order);
       setShowPaymentDialog(true);
-    } else {
-      onViewDetails(order);
     }
-  };
+  }, []);
 
-  const handleConfirmPayment = () => {
+  const handleCancelClick = useCallback((order: Order) => {
+    setSelectedOrderToCancel(order);
+    setShowCancelDialog(true);
+  }, []);
+
+  const handleUpdateStatusClick = useCallback((order: Order) => {
+    const allowedStatuses = getAllowedNextStatuses(order);
+    if (allowedStatuses.length === 0) {
+      return;
+    }
+
+    setSelectedOrderToUpdateStatus(order);
+    setNextStatus(allowedStatuses[0]);
+    setShowUpdateStatusDialog(true);
+  }, []);
+
+  const handleConfirmPayment = useCallback(() => {
     if (selectedOrder) onPayOrder(selectedOrder);
     setShowPaymentDialog(false);
     setSelectedOrder(null);
-  };
+  }, [selectedOrder, onPayOrder]);
 
-  const handleCancelPayment = () => {
+  const handleConfirmCancel = useCallback(async () => {
+    if (!selectedOrderToCancel) return;
+    try {
+      setIsCancelling(true);
+      await onCancelOrder(selectedOrderToCancel, cancelReason || undefined);
+    } finally {
+      setIsCancelling(false);
+      setShowCancelDialog(false);
+      setSelectedOrderToCancel(null);
+      setCancelReason('');
+    }
+  }, [selectedOrderToCancel, cancelReason, onCancelOrder]);
+
+  const handleConfirmUpdateStatus = useCallback(async () => {
+    if (!selectedOrderToUpdateStatus || !nextStatus) return;
+    try {
+      setIsUpdatingStatus(true);
+      await onUpdateOrderStatus(selectedOrderToUpdateStatus, nextStatus);
+    } finally {
+      setIsUpdatingStatus(false);
+      setShowUpdateStatusDialog(false);
+      setSelectedOrderToUpdateStatus(null);
+      setNextStatus('');
+    }
+  }, [selectedOrderToUpdateStatus, nextStatus, onUpdateOrderStatus]);
+
+  const handleCancelPayment = useCallback(() => {
     setShowPaymentDialog(false);
     setSelectedOrder(null);
-  };
+  }, []);
 
-  // ── Sorted data ────────────────────────────────────────────────────────────
+  const handleToggleExpand = useCallback((order: Order) => {
+    const isExpanding = !expandedRows.has(order._id);
 
-  const sortedOrders = useMemo(
-    () =>
-      [...orders].sort((a, b) => {
-        if (sortConfig.key === 'timestamp') {
-          const diff = new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
-          return sortConfig.direction === 'asc' ? diff : -diff;
-        }
-        if (sortConfig.key === 'total') {
-          return sortConfig.direction === 'asc' ? a.total - b.total : b.total - a.total;
-        }
-        return 0;
-      }),
-    [orders, sortConfig]
-  );
+    setExpandedRows((prev) => {
+      const next = new Set(prev);
+      if (next.has(order._id)) {
+        next.delete(order._id);
+      } else {
+        next.add(order._id);
+      }
+      return next;
+    });
+
+    if (!isExpanding || detailOrders[order._id] || loadingDetailOrders[order._id]) {
+      return;
+    }
+
+    setLoadingDetailOrders((prev) => ({ ...prev, [order._id]: true }));
+    void (async () => {
+      try {
+        const detailOrder = await onLoadOrderDetail(order._id);
+        setDetailOrders((prev) => ({ ...prev, [order._id]: detailOrder }));
+      } finally {
+        setLoadingDetailOrders((prev) => ({ ...prev, [order._id]: false }));
+      }
+    })();
+  }, [expandedRows, detailOrders, loadingDetailOrders, onLoadOrderDetail]);
+
+
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -185,239 +174,36 @@ const OrderTable: React.FC<OrderTableProps> = ({
             <tr>
               <th className="text-left p-4 font-medium text-muted-foreground">
                 <div className="flex items-center space-x-2">
-                  <span>Mã đơn</span>
+                  <span>Số đơn</span>
                 </div>
               </th>
               <th className="text-left p-4 font-medium text-muted-foreground">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleSort('timestamp')}
-                  className="flex items-center space-x-2 hover:bg-transparent p-0"
-                >
-                  <span>Thời gian</span>
-                  <SortIcon column="timestamp" sortConfig={sortConfig} />
-                </Button>
+                <span>Ngày tạo</span>
               </th>
-              <th className="text-left p-4 font-medium text-muted-foreground">Bàn</th>
-              <th className="text-left p-4 font-medium text-muted-foreground">Nhân viên</th>
-              <th className="text-left p-4 font-medium text-muted-foreground">Món ăn</th>
-              <th className="text-left p-4 font-medium text-muted-foreground">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleSort('total')}
-                  className="flex items-center space-x-2 hover:bg-transparent p-0"
-                >
-                  <span>Tổng tiền</span>
-                  <SortIcon column="total" sortConfig={sortConfig} />
-                </Button>
-              </th>
+              <th className="text-left p-4 font-medium text-muted-foreground">Loại đơn</th>
+              <th className="text-left p-4 font-medium text-muted-foreground">Khách hàng</th>
+              <th className="text-left p-4 font-medium text-muted-foreground">Tổng tiền</th>
+              <th className="text-left p-4 font-medium text-muted-foreground">Nguồn đơn</th>
               <th className="text-left p-4 font-medium text-muted-foreground">Trạng thái</th>
               <th className="text-left p-4 font-medium text-muted-foreground">TT Thanh toán</th>
               <th className="text-left p-4 font-medium text-muted-foreground">Thao tác</th>
             </tr>
           </thead>
           <tbody>
-            {sortedOrders.map((order) => (
-              <React.Fragment key={order._id}>
-                <tr className={`border-b border-border hover:bg-muted/30 transition-smooth ${highlightedOrderId === order._id ? 'bg-primary/10 animate-pulse' : ''
-                  }`}>
-                  <td className="p-4">
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => toggleRowExpansion(order._id)}
-                        className="w-6 h-6"
-                      >
-                        <Icon
-                          name={expandedRows.has(order._id) ? 'ChevronDown' : 'ChevronRight'}
-                          size={16}
-                        />
-                      </Button>
-                      <span className="font-mono text-sm font-medium">
-                        #{order.orderId ?? order._id}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <div className="text-sm font-medium text-foreground">
-                      {formatDateTime(order.timestamp)}
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <div className="text-sm font-medium text-foreground">{order.table}</div>
-                  </td>
-                  <td className="p-4">
-                    <div className="text-sm text-muted-foreground">{order.staff}</div>
-                  </td>
-                  <td className="p-4">
-                    <div className="text-sm text-muted-foreground">
-                      {order.items?.length} món
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <div className="font-semibold text-foreground">
-                      {formatCurrency(order.total)}
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <StatusBadge status={order.status} />
-                  </td>
-                  <td className="p-4">
-                    <PaymentStatusBadge status={order.paymentStatus ?? 'unpaid'} />
-                  </td>
-                  <td className="p-4">
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleOrderClick(order)}
-                        className="hover-scale"
-                        title={order.paymentStatus === 'unpaid' ? 'Thanh toán' : 'Xem chi tiết'}
-                      >
-                        <Icon
-                          name={order.paymentStatus === 'unpaid' ? 'CreditCard' : 'Eye'}
-                          size={16}
-                        />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onReprintReceipt(order)}
-                        className="hover-scale"
-                      >
-                        <Icon name="Printer" size={16} />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-
-                {/* Expanded Row */}
-                {expandedRows.has(order._id) && (
-                  <tr className="bg-gradient-to-b from-muted/30 to-muted/10">
-                    <td colSpan={7} className="p-0">
-                      <div className="px-4 py-4 space-y-4">
-                        <div className="flex items-center justify-between pb-2 border-b border-border">
-                          <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                            <Icon name="FileText" size={16} className="text-primary" />
-                            Chi tiết đơn hàng
-                          </h4>
-                          <span className="text-xs text-muted-foreground">
-                            {formatDateTime(order.timestamp)}
-                          </span>
-                        </div>
-
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                          {/* Items List */}
-                          <div className="lg:col-span-2">
-                            <div className="bg-card border border-border rounded-md overflow-hidden">
-                              <div className="bg-muted/50 px-3 py-1.5 border-b border-border">
-                                <h5 className="text-xs font-semibold text-foreground flex items-center gap-2">
-                                  <Icon name="ShoppingBag" size={12} />
-                                  Món ăn ({order.items?.length})
-                                </h5>
-                              </div>
-                              <div className="divide-y divide-border max-h-[200px] overflow-y-auto">
-                                {order.items?.map((item, index) => (
-                                  <div key={index} className="px-3 py-2 hover:bg-muted/30 transition-colors">
-                                    <div className="flex justify-between items-start gap-2">
-                                      <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2">
-                                          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-semibold flex-shrink-0">
-                                            {item.quantity}
-                                          </span>
-                                          <span className="text-sm font-medium text-foreground truncate">
-                                            {item.name}
-                                          </span>
-                                        </div>
-                                        {item.note && (
-                                          <p className="text-xs text-muted-foreground mt-0.5 ml-7 italic">
-                                            {item.note}
-                                          </p>
-                                        )}
-                                      </div>
-                                      <span className="text-sm font-semibold text-foreground whitespace-nowrap">
-                                        {formatCurrency(item.price * item.quantity)}
-                                      </span>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Summary & Info */}
-                          <div className="space-y-3">
-                            {/* Payment Summary */}
-                            <div className="bg-card border border-border rounded-md overflow-hidden">
-                              <div className="bg-muted/50 px-3 py-1.5 border-b border-border">
-                                <h5 className="text-xs font-semibold text-foreground flex items-center gap-2">
-                                  <Icon name="Calculator" size={12} />
-                                  Tổng kết
-                                </h5>
-                              </div>
-                              <div className="p-3 space-y-1.5 text-xs">
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Tạm tính:</span>
-                                  <span className="font-medium text-foreground">{formatCurrency(order.subtotal ?? 0)}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Thuế:</span>
-                                  <span className="font-medium text-foreground">{formatCurrency(order.tax ?? 0)}</span>
-                                </div>
-                                {(order.discount ?? 0) > 0 && (
-                                  <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Giảm giá:</span>
-                                    <span className="font-medium text-error">-{formatCurrency(order.discount!)}</span>
-                                  </div>
-                                )}
-                                <div className="border-t border-border pt-1.5 mt-1.5">
-                                  <div className="flex justify-between items-center">
-                                    <span className="font-semibold text-foreground">Tổng:</span>
-                                    <span className="text-base font-bold text-primary">{formatCurrency(order.total)}</span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Additional Info */}
-                            <div className="bg-card border border-border rounded-md overflow-hidden">
-                              <div className="bg-muted/50 px-3 py-1.5 border-b border-border">
-                                <h5 className="text-xs font-semibold text-foreground flex items-center gap-2">
-                                  <Icon name="Info" size={12} />
-                                  Thông tin
-                                </h5>
-                              </div>
-                              <div className="p-3 space-y-2 text-xs">
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Bàn:</span>
-                                  <span className="font-medium text-foreground">{order.table}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">NV:</span>
-                                  <span className="font-medium text-foreground truncate ml-2">{order.staff}</span>
-                                </div>
-                                {order.specialInstructions && (
-                                  <div className="pt-1.5 border-t border-border">
-                                    <span className="text-muted-foreground block mb-1">Ghi chú:</span>
-                                    <p className="text-foreground bg-muted/30 p-1.5 rounded text-xs italic">
-                                      {order.specialInstructions}
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-                      <div className="h-2 bg-muted/20" />
-                    </td>
-                  </tr>
-                )}
-              </React.Fragment>
+            {orders.map((order) => (
+              <OrderTableDesktopRow
+                key={order._id}
+                order={order}
+                detailOrder={detailOrders[order._id]}
+                isLoadingDetail={loadingDetailOrders[order._id]}
+                highlighted={highlightedOrderId === order._id}
+                expanded={expandedRows.has(order._id)}
+                onToggleExpand={handleToggleExpand}
+                onOrderClick={handleOrderClick}
+                onUpdateStatusClick={handleUpdateStatusClick}
+                onReprintReceipt={onReprintReceipt}
+                onCancelOrder={handleCancelClick}
+              />
             ))}
           </tbody>
         </table>
@@ -425,62 +211,20 @@ const OrderTable: React.FC<OrderTableProps> = ({
 
       {/* Mobile Card Layout */}
       <div className="lg:hidden space-y-4 p-4">
-        {sortedOrders.map((order) => (
-          <div
+        {orders.map((order) => (
+          <OrderTableMobileCard
             key={order._id}
-            className={`border border-border rounded-lg p-4 space-y-3 ${highlightedOrderId === order._id ? 'bg-primary/10 border-primary animate-pulse' : ''
-              }`}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 flex-wrap gap-2">
-                <span className="font-mono text-sm font-medium">#{order.orderId ?? order._id}</span>
-                <StatusBadge status={order.status} />
-                <PaymentStatusBadge status={order.paymentStatus ?? 'unpaid'} />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleOrderClick(order)}
-                  className="w-8 h-8"
-                  title={order.paymentStatus === 'unpaid' ? 'Thanh toán' : 'Xem chi tiết'}
-                >
-                  <Icon name={order.paymentStatus === 'unpaid' ? 'CreditCard' : 'Eye'} size={16} />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onReprintReceipt(order)}
-                  className="w-8 h-8"
-                >
-                  <Icon name="Printer" size={16} />
-                </Button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <span className="text-muted-foreground">Thời gian:</span>
-                <p className="font-medium text-foreground">{formatDateTime(order.timestamp)}</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Tổng tiền:</span>
-                <p className="font-semibold text-foreground">{formatCurrency(order.total)}</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Bàn:</span>
-                <p className="font-medium text-foreground">{order.table}</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Nhân viên:</span>
-                <p className="font-medium text-foreground">{order.staff}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between pt-2 border-t border-border">
-              <span className="text-sm text-muted-foreground">{order.items?.length} món</span>
-            </div>
-          </div>
+            order={order}
+            detailOrder={detailOrders[order._id]}
+            isLoadingDetail={loadingDetailOrders[order._id]}
+            highlighted={highlightedOrderId === order._id}
+            expanded={expandedRows.has(order._id)}
+            onToggleExpand={handleToggleExpand}
+            onOrderClick={handleOrderClick}
+            onUpdateStatusClick={handleUpdateStatusClick}
+            onReprintReceipt={onReprintReceipt}
+            onCancelOrder={handleCancelClick}
+          />
         ))}
       </div>
 
@@ -490,12 +234,65 @@ const OrderTable: React.FC<OrderTableProps> = ({
         onClose={handleCancelPayment}
         onConfirm={handleConfirmPayment}
         title="Thanh toán đơn hàng"
-        message={`Bạn có muốn thanh toán đơn hàng ${selectedOrder?.orderId ?? selectedOrder?._id}? Tổng tiền: ${selectedOrder ? formatCurrency(selectedOrder.total) : ''}`}
+        message={`Bạn có muốn thanh toán đơn hàng ${selectedOrder?.order_number}? Tổng tiền: ${selectedOrder ? formatCurrency(selectedOrder.total_amount) : ''}`}
         confirmText="Thanh toán ngay"
         cancelText="Hủy"
         variant="success"
         icon="CreditCard"
       />
+      <ConfirmationDialog
+        isOpen={showUpdateStatusDialog}
+        onClose={() => {
+          setShowUpdateStatusDialog(false);
+          setSelectedOrderToUpdateStatus(null);
+          setNextStatus('');
+        }}
+        onConfirm={handleConfirmUpdateStatus}
+        title="Cập nhật trạng thái đơn"
+        message={`Chọn trạng thái mới cho đơn ${selectedOrderToUpdateStatus?.order_number ?? ''}.`}
+        confirmText="Cập nhật"
+        cancelText="Đóng"
+        variant="default"
+        icon="GitBranch"
+        isLoading={isUpdatingStatus}
+      >
+        <div className="mt-3">
+          <label className="block text-xs text-muted-foreground mb-1">Trạng thái mới</label>
+          <select
+            className="w-full h-9 px-2 border border-border rounded text-sm bg-background"
+            value={nextStatus}
+            onChange={(e) => setNextStatus(e.target.value as AllowedOrderStatusUpdate)}
+          >
+            {(selectedOrderToUpdateStatus ? getAllowedNextStatuses(selectedOrderToUpdateStatus) : []).map((status) => (
+              <option key={status} value={status}>
+                {STATUS_LABELS[status]}
+              </option>
+            ))}
+          </select>
+        </div>
+      </ConfirmationDialog>
+      <ConfirmationDialog
+        isOpen={showCancelDialog}
+        onClose={() => { setShowCancelDialog(false); setSelectedOrderToCancel(null); setCancelReason(''); }}
+        onConfirm={handleConfirmCancel}
+        title="Hủy đơn hàng"
+        message={`Bạn có chắc muốn hủy đơn ${selectedOrderToCancel?.order_number}? Hành động này không thể hoàn tác.`}
+        confirmText="Hủy đơn"
+        cancelText="Đóng"
+        variant="danger"
+        icon="Trash"
+        isLoading={isCancelling}
+      >
+        <div className="mt-3">
+          <label className="block text-xs text-muted-foreground mb-1">Lý do hủy (tuỳ chọn)</label>
+          <textarea
+            className="w-full min-h-[80px] p-2 border border-border rounded text-sm"
+            placeholder="Nhập lý do hủy để lưu lại (ví dụ: Khách đổi ý)"
+            value={cancelReason}
+            onChange={(e) => setCancelReason(e.target.value)}
+          />
+        </div>
+      </ConfirmationDialog>
     </div>
   );
 };

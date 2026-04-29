@@ -1563,7 +1563,7 @@ Right: [Xuất báo cáo ↓]
 
 **Filter row:**
 ```
-[Tất cả trạng thái ▾] [Tất cả loại ▾] [Nguồn ▾] [Thanh toán ▾] [Tìm mã đơn...]
+[Ngày ▾] [Nguồn đơn ▾] [Bàn/Khu vực ▾] [Tất cả trạng thái ▾] [Thanh toán ▾]
 ```
 
 **Bảng đơn hàng:**
