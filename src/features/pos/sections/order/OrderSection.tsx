@@ -6,7 +6,6 @@ import Button from '../../components/Button';
 import Icon from '../../components/AppIcon';
 import { useOrderManagement } from './hooks/useOrderManagement';
 import { POS_BASE_PATH } from '@/routes/pos-route';
-import type { Order } from '@/types/order-type';
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -29,21 +28,13 @@ const OrderSection: React.FC = () => {
         onClearFilters,
         onRefresh,
         onCancelOrder,
+        onUpdateOrderItemStatus,
+        onCancelOrderItem,
+        onUpdateOrderDiscount,
         activeFiltersCount,
     } = useOrderManagement();
 
     // Handlers
-
-    const handlePayOrder = useCallback(
-        async (order: Order) => {
-            try {
-                await onPayOrder(order);
-            } catch {
-                // Error already toasted by hook
-            }
-        },
-        [onPayOrder]
-    );
 
     const handleFilterChange = useCallback(
         (key: string, value: string) => {
@@ -127,9 +118,11 @@ const OrderSection: React.FC = () => {
                         orders={orders}
                         onLoadOrderDetail={onLoadOrderDetail}
                         onUpdateOrderStatus={onUpdateOrderStatus}
-                        onReprintReceipt={() => { }}
-                        onPayOrder={handlePayOrder}
+                        onPayOrder={onPayOrder}
                         onCancelOrder={onCancelOrder}
+                        onUpdateOrderItemStatus={onUpdateOrderItemStatus}
+                        onCancelOrderItem={onCancelOrderItem}
+                        onUpdateOrderDiscount={onUpdateOrderDiscount}
                     />
 
                     {/* Load More Button */}

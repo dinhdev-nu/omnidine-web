@@ -738,6 +738,7 @@ app.com/
 │   ├── restaurants/:slug/menu             → Menu công khai (UC-M16)
 │   └── tables/:qrCode                     → Quét QR → thông tin bàn + menu
 │
+
 ├── dashboard/                             → Require: JWT + owner/admin
 │   ├── (Tổng quan chung)
 │   │

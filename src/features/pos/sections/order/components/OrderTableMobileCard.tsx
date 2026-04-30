@@ -1,9 +1,16 @@
 import React from 'react';
 import Button from '../../../components/Button';
 import Icon from '@/components/AppIcon';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 import { formatCurrency, formatDateTime, TableOrderStatusBadge, TablePaymentStatusBadge, TableOrderItemStatusBadge } from './order-display';
 import { getCustomerDisplayName, getOrderSourceLabel, getOrderTypeLabel } from './order-table-utils';
-import type { Order } from '@/types/order-type';
+import type { AllowedOrderItemStatusUpdate, Order } from '@/types/order-type';
 
 interface OrderTableMobileCardProps {
     order: Order;
@@ -14,8 +21,10 @@ interface OrderTableMobileCardProps {
     onToggleExpand: (order: Order) => void;
     onOrderClick: (order: Order) => void;
     onUpdateStatusClick: (order: Order) => void;
-    onReprintReceipt: (order: Order) => void;
     onCancelOrder: (order: Order) => void;
+    onUpdateOrderItemStatus?: (order: Order, itemId: string, status: AllowedOrderItemStatusUpdate) => void;
+    onCancelOrderItemClick?: (order: Order, itemId: string) => void;
+    onEditDiscountClick?: (order: Order) => void;
 }
 
 const OrderTableMobileCard: React.FC<OrderTableMobileCardProps> = ({
@@ -27,11 +36,24 @@ const OrderTableMobileCard: React.FC<OrderTableMobileCardProps> = ({
     onToggleExpand,
     onOrderClick,
     onUpdateStatusClick,
-    onReprintReceipt,
     onCancelOrder,
+    onUpdateOrderItemStatus,
+    onCancelOrderItemClick,
+    onEditDiscountClick,
 }) => {
+    const isActionable = order.status !== 'completed' && order.status !== 'cancelled' && order.status !== 'refunded';
     const items = detailOrder?.items ?? [];
     const subtotal = detailOrder?.subtotal ?? 0;
+    const discountAmount = detailOrder?.discount_amount ?? 0;
+    const discountTypeLabel = detailOrder
+        ? detailOrder.discount_type === 'none'
+            ? 'Không giảm giá'
+            : detailOrder.discount_type === 'percent'
+                ? `${((detailOrder.discount_value ?? 0) * 100).toFixed(0)}%`
+                : detailOrder.discount_type === 'coupon'
+                    ? 'Mã giảm giá'
+                    : 'Tiền mặt'
+        : 'Không giảm giá';
 
     const total = detailOrder?.total_amount ?? 0;
     return (
@@ -60,9 +82,6 @@ const OrderTableMobileCard: React.FC<OrderTableMobileCardProps> = ({
                             disabled={order.payment_status !== 'unpaid'}
                         >
                             <Icon name={order.payment_status === 'unpaid' ? 'CreditCard' : 'Eye'} size={16} />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => onReprintReceipt(order)} className="w-8 h-8">
-                            <Icon name="Printer" size={16} />
                         </Button>
                         {order.status !== 'cancelled' && order.status !== 'completed' && order.status !== 'refunded' && (
                             <Button
@@ -162,7 +181,33 @@ const OrderTableMobileCard: React.FC<OrderTableMobileCardProps> = ({
                                                         <span className={`font-medium ${isCancelled ? 'text-muted-foreground line-through' : 'text-foreground'}`}>{item.item_name}</span>
                                                         <TableOrderItemStatusBadge status={item.status} />
                                                     </div>
-                                                    <span className={`font-medium whitespace-nowrap ${isCancelled ? 'text-muted-foreground line-through' : 'text-foreground'}`}>{formatCurrency(item.total_price)}</span>
+                                                    <div className="flex items-center gap-1">
+                                                        <span className={`font-medium whitespace-nowrap ${isCancelled ? 'text-muted-foreground line-through' : 'text-foreground'}`}>{formatCurrency(item.total_price)}</span>
+                                                        {isActionable && !isCancelled && (
+                                                            <DropdownMenu>
+                                                                <DropdownMenuTrigger asChild>
+                                                                    <Button variant="ghost" size="icon" className="h-6 w-6 ml-1 text-muted-foreground hover:text-foreground">
+                                                                        <Icon name="MoreVertical" size={14} />
+                                                                    </Button>
+                                                                </DropdownMenuTrigger>
+                                                                <DropdownMenuContent align="end" className="w-36">
+                                                                    <DropdownMenuItem onClick={() => onUpdateOrderItemStatus?.(order, item._id || '', 'preparing')}>
+                                                                        Báo đang làm
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem onClick={() => onUpdateOrderItemStatus?.(order, item._id || '', 'ready')}>
+                                                                        Báo làm xong
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem onClick={() => onUpdateOrderItemStatus?.(order, item._id || '', 'served')}>
+                                                                        Đã lên món
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuSeparator />
+                                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => onCancelOrderItemClick?.(order, item._id || '')}>
+                                                                        Hủy món
+                                                                    </DropdownMenuItem>
+                                                                </DropdownMenuContent>
+                                                            </DropdownMenu>
+                                                        )}
+                                                    </div>
                                                 </div>
                                                 <div className="text-muted-foreground text-xs mt-1">{formatCurrency(item.unit_price)} × {item.quantity}</div>
                                                 {item.notes && <p className="text-warning mt-1 text-xs">📝 {item.notes}</p>}
@@ -177,11 +222,20 @@ const OrderTableMobileCard: React.FC<OrderTableMobileCardProps> = ({
                                 <div className="font-medium text-foreground mb-2">Thanh toán</div>
                                 <div className="flex justify-between"><span className="text-muted-foreground">Tạm tính</span><span>{formatCurrency(subtotal)}</span></div>
                                 <div className="flex justify-between"><span className="text-muted-foreground">Phí dịch vụ ({((detailOrder.service_charge_rate ?? 0) * 100).toFixed(0)}%)</span><span>+{formatCurrency(detailOrder.service_charge_amount ?? 0)}</span></div>
-                                {/* Discount (always shown) */}
-                                <>
-                                    <div className="flex justify-between"><span className="text-muted-foreground">Giảm giá ({detailOrder.discount_type === 'percent' ? `${((detailOrder.discount_value ?? 0) * 100).toFixed(0)}%` : detailOrder.discount_type})</span><span>-{formatCurrency(detailOrder.discount_amount ?? 0)}</span></div>
-                                    {detailOrder.discount_ref && <div className="flex justify-between text-xs text-muted-foreground"><span>Mã:</span><span>{detailOrder.discount_ref}</span></div>}
-                                </>
+                                <div className="space-y-1">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <div className="flex min-w-0 items-center gap-2">
+                                            <span className="text-muted-foreground truncate">Giảm giá ({discountTypeLabel})</span>
+                                            {isActionable && (
+                                                <Button variant="ghost" size="icon" className="h-5 w-5 shrink-0 text-muted-foreground hover:text-foreground" onClick={(e) => { e.stopPropagation(); onEditDiscountClick?.(order); }}>
+                                                    <Icon name="Edit2" size={12} />
+                                                </Button>
+                                            )}
+                                        </div>
+                                        <span className="whitespace-nowrap">{discountAmount > 0 ? `-${formatCurrency(discountAmount)}` : formatCurrency(0)}</span>
+                                    </div>
+                                    {detailOrder.discount_ref && <div className="flex justify-between gap-2 text-xs text-muted-foreground"><span className="shrink-0">Mã:</span><span className="min-w-0 truncate text-right">{detailOrder.discount_ref}</span></div>}
+                                </div>
                                 <div className="flex justify-between"><span className="text-muted-foreground">Thuế ({((detailOrder.tax_rate ?? 0) * 100).toFixed(0)}%)</span><span>+{formatCurrency(detailOrder.tax_amount ?? 0)}</span></div>
                                 <div className="flex justify-between font-bold pt-2 border-t border-border"><span>Tổng</span><span className="text-primary">{formatCurrency(total)} {detailOrder.currency}</span></div>
                             </div>

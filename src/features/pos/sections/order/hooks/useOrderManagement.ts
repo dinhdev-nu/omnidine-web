@@ -4,6 +4,9 @@ import {
   listOrders,
   getOrderDetail,
   updateOrderStatus,
+  updateOrderItemStatus,
+  cancelOrderItem,
+  updateOrderDiscount,
   cancelOrder,
   toOrderEndpointError,
 } from '@/services/orders';
@@ -16,6 +19,8 @@ import type {
   OrderPaymentStatus,
   OrderSource,
   Order,
+  AllowedOrderItemStatusUpdate,
+  OrderDiscountType,
 } from '@/types/order-type';
 
 /**
@@ -93,9 +98,16 @@ interface UseOrderManagementReturn {
   onViewDetails: (order: Order) => Promise<void>;
   onLoadOrderDetail: (orderId: string) => Promise<Order>;
   onUpdateOrderStatus: (order: Order, status: AllowedOrderStatusUpdate) => Promise<void>;
-  onReprintReceipt: (order: Order) => void;
   onCancelOrder: (order: Order, reason?: string) => Promise<void>;
   onPayOrder: (order: Order) => Promise<void>;
+  onUpdateOrderItemStatus: (order: Order, itemId: string, status: AllowedOrderItemStatusUpdate) => Promise<void>;
+  onCancelOrderItem: (order: Order, itemId: string, reason?: string) => Promise<void>;
+  onUpdateOrderDiscount: (
+    order: Order,
+    type: OrderDiscountType,
+    value: number,
+    discountRef?: string
+  ) => Promise<void>;
   onLoadMore: () => Promise<void>;
   onClearFilters: () => void;
   onRefresh: () => Promise<void>;
@@ -263,11 +275,6 @@ export function useOrderManagement(): UseOrderManagementReturn {
     [loadOrderDetail]
   );
 
-  const handleReprintReceipt = useCallback((order: Order) => {
-    // TODO: Implement receipt printing
-    toast.info(`Sắp in hóa đơn ${order.order_number}`);
-  }, []);
-
   const handlePayOrder = useCallback(
     async (order: Order) => {
       try {
@@ -294,6 +301,50 @@ export function useOrderManagement(): UseOrderManagementReturn {
         void fetchOrders(pagination.page);
       } catch (error) {
         toast.error(toOrderEndpointError('update-status', error).message);
+      }
+    },
+    [restaurantId, pagination.page, fetchOrders]
+  );
+
+  const handleUpdateOrderItemStatus = useCallback(
+    async (order: Order, itemId: string, status: AllowedOrderItemStatusUpdate) => {
+      try {
+        await updateOrderItemStatus(restaurantId, order._id, itemId, { status });
+        toast.success('Đã cập nhật trạng thái món');
+      } catch (error) {
+        toast.error(toOrderEndpointError('update-item-status', error).message);
+        throw error;
+      }
+    },
+    [restaurantId]
+  );
+
+  const handleCancelOrderItem = useCallback(
+    async (order: Order, itemId: string, reason?: string) => {
+      try {
+        await cancelOrderItem(restaurantId, order._id, itemId, { cancel_reason: reason });
+        toast.success('Đã hủy món trong đơn');
+      } catch (error) {
+        toast.error(toOrderEndpointError('cancel-item', error).message);
+        throw error;
+      }
+    },
+    [restaurantId]
+  );
+
+  const handleUpdateOrderDiscount = useCallback(
+    async (order: Order, type: OrderDiscountType, value: number, discountRef?: string) => {
+      try {
+        await updateOrderDiscount(restaurantId, order._id, {
+          discount_type: type,
+          discount_value: value,
+          discount_ref: discountRef?.trim() || undefined,
+        });
+        toast.success('Đã cập nhật giảm giá đơn hàng');
+        void fetchOrders(pagination.page);
+      } catch (error) {
+        toast.error(toOrderEndpointError('update-discount', error).message);
+        throw error;
       }
     },
     [restaurantId, pagination.page, fetchOrders]
@@ -359,9 +410,11 @@ export function useOrderManagement(): UseOrderManagementReturn {
     onViewDetails: handleViewDetails,
     onLoadOrderDetail: handleLoadOrderDetail,
     onUpdateOrderStatus: handleUpdateOrderStatus,
-    onReprintReceipt: handleReprintReceipt,
     onCancelOrder: handleCancelOrder,
     onPayOrder: handlePayOrder,
+    onUpdateOrderItemStatus: handleUpdateOrderItemStatus,
+    onCancelOrderItem: handleCancelOrderItem,
+    onUpdateOrderDiscount: handleUpdateOrderDiscount,
     onLoadMore: handleLoadMore,
     onClearFilters: handleClearFilters,
     onRefresh: handleRefresh,

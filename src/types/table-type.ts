@@ -10,6 +10,12 @@ export interface TablePosition {
   y: number;
 }
 
+export interface PosTablePosition {
+  x: number;
+  y: number;
+  restaurant_id?: string;
+}
+
 export interface TableRecord extends TableIdentity {
   restaurant_id: string;
   table_number: string;

@@ -1,19 +1,25 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import ConfirmationDialog from '@/components/ui/ConfirmationDialog';
 import OrderTableDesktopRow from './OrderTableDesktopRow';
 import OrderTableMobileCard from './OrderTableMobileCard';
 import { formatCurrency } from './order-display';
-import type { AllowedOrderStatusUpdate, Order } from '@/types/order-type';
+import type { AllowedOrderItemStatusUpdate, AllowedOrderStatusUpdate, Order, OrderDiscountType } from '@/types/order-type';
 
 interface OrderTableProps {
   orders: Order[];
   highlightedOrderId?: string;
   onLoadOrderDetail: (orderId: string) => Promise<Order>;
   onUpdateOrderStatus: (order: Order, status: AllowedOrderStatusUpdate) => Promise<void>;
-  onReprintReceipt: (order: Order) => void;
-  /** Called when user confirms payment for an unpaid order */
   onPayOrder: (order: Order) => void;
   onCancelOrder: (order: Order, reason?: string) => Promise<void>;
+  onUpdateOrderItemStatus?: (order: Order, itemId: string, status: AllowedOrderItemStatusUpdate) => Promise<void>;
+  onCancelOrderItem?: (order: Order, itemId: string, reason?: string) => Promise<void>;
+  onUpdateOrderDiscount?: (
+    order: Order,
+    type: OrderDiscountType,
+    value: number,
+    discountRef?: string
+  ) => Promise<void>;
 }
 
 
@@ -51,9 +57,11 @@ const OrderTable: React.FC<OrderTableProps> = ({
   highlightedOrderId,
   onLoadOrderDetail,
   onUpdateOrderStatus,
-  onReprintReceipt,
   onPayOrder,
   onCancelOrder,
+  onUpdateOrderItemStatus,
+  onCancelOrderItem,
+  onUpdateOrderDiscount,
 }) => {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -68,6 +76,18 @@ const OrderTable: React.FC<OrderTableProps> = ({
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [detailOrders, setDetailOrders] = useState<Record<string, Order>>({});
   const [loadingDetailOrders, setLoadingDetailOrders] = useState<Record<string, boolean>>({});
+
+  const [selectedOrderToDiscount, setSelectedOrderToDiscount] = useState<Order | null>(null);
+  const [showDiscountDialog, setShowDiscountDialog] = useState(false);
+  const [discountType, setDiscountType] = useState<'fixed' | 'percent'>('fixed');
+  const [discountValue, setDiscountValue] = useState<number>(0);
+  const [discountRef, setDiscountRef] = useState('');
+  const [isUpdatingDiscount, setIsUpdatingDiscount] = useState(false);
+
+  const [selectedItemToCancel, setSelectedItemToCancel] = useState<{ order: Order, itemId: string } | null>(null);
+  const [showCancelItemDialog, setShowCancelItemDialog] = useState(false);
+  const [cancelItemReason, setCancelItemReason] = useState('');
+  const [isCancellingItem, setIsCancellingItem] = useState(false);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
@@ -161,7 +181,55 @@ const OrderTable: React.FC<OrderTableProps> = ({
     })();
   }, [expandedRows, detailOrders, loadingDetailOrders, onLoadOrderDetail]);
 
+  const handleUpdateOrderItemStatus = useCallback(async (order: Order, itemId: string, status: AllowedOrderItemStatusUpdate) => {
+    if (!onUpdateOrderItemStatus) return;
+    await onUpdateOrderItemStatus(order, itemId, status);
+    const detailOrder = await onLoadOrderDetail(order._id);
+    setDetailOrders((prev) => ({ ...prev, [order._id]: detailOrder }));
+  }, [onUpdateOrderItemStatus, onLoadOrderDetail]);
 
+  const handleEditDiscountClick = useCallback((order: Order) => {
+    setSelectedOrderToDiscount(order);
+    const detail = detailOrders[order._id] || order;
+    setDiscountType((detail.discount_type as any) === 'percent' ? 'percent' : 'fixed');
+    setDiscountValue(detail.discount_value || 0);
+    setDiscountRef(detail.discount_ref ?? '');
+    setShowDiscountDialog(true);
+  }, [detailOrders]);
+
+  const handleCancelItemClick = useCallback((order: Order, itemId: string) => {
+    setSelectedItemToCancel({ order, itemId });
+    setCancelItemReason('');
+    setShowCancelItemDialog(true);
+  }, []);
+
+  const handleConfirmDiscount = useCallback(async () => {
+    if (!selectedOrderToDiscount || !onUpdateOrderDiscount) return;
+    try {
+      setIsUpdatingDiscount(true);
+      await onUpdateOrderDiscount(selectedOrderToDiscount, discountType, discountValue, discountRef);
+      const detailOrder = await onLoadOrderDetail(selectedOrderToDiscount._id);
+      setDetailOrders((prev) => ({ ...prev, [selectedOrderToDiscount._id]: detailOrder }));
+    } finally {
+      setIsUpdatingDiscount(false);
+      setShowDiscountDialog(false);
+      setSelectedOrderToDiscount(null);
+    }
+  }, [selectedOrderToDiscount, discountType, discountValue, discountRef, onUpdateOrderDiscount, onLoadOrderDetail]);
+
+  const handleConfirmCancelItem = useCallback(async () => {
+    if (!selectedItemToCancel || !onCancelOrderItem) return;
+    try {
+      setIsCancellingItem(true);
+      await onCancelOrderItem(selectedItemToCancel.order, selectedItemToCancel.itemId, cancelItemReason);
+      const detailOrder = await onLoadOrderDetail(selectedItemToCancel.order._id);
+      setDetailOrders((prev) => ({ ...prev, [selectedItemToCancel.order._id]: detailOrder }));
+    } finally {
+      setIsCancellingItem(false);
+      setShowCancelItemDialog(false);
+      setSelectedItemToCancel(null);
+    }
+  }, [selectedItemToCancel, cancelItemReason, onCancelOrderItem, onLoadOrderDetail]);
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -201,8 +269,10 @@ const OrderTable: React.FC<OrderTableProps> = ({
                 onToggleExpand={handleToggleExpand}
                 onOrderClick={handleOrderClick}
                 onUpdateStatusClick={handleUpdateStatusClick}
-                onReprintReceipt={onReprintReceipt}
                 onCancelOrder={handleCancelClick}
+                onUpdateOrderItemStatus={handleUpdateOrderItemStatus}
+                onCancelOrderItemClick={handleCancelItemClick}
+                onEditDiscountClick={handleEditDiscountClick}
               />
             ))}
           </tbody>
@@ -222,8 +292,10 @@ const OrderTable: React.FC<OrderTableProps> = ({
             onToggleExpand={handleToggleExpand}
             onOrderClick={handleOrderClick}
             onUpdateStatusClick={handleUpdateStatusClick}
-            onReprintReceipt={onReprintReceipt}
             onCancelOrder={handleCancelClick}
+            onUpdateOrderItemStatus={handleUpdateOrderItemStatus}
+            onCancelOrderItemClick={handleCancelItemClick}
+            onEditDiscountClick={handleEditDiscountClick}
           />
         ))}
       </div>
@@ -290,6 +362,75 @@ const OrderTable: React.FC<OrderTableProps> = ({
             placeholder="Nhập lý do hủy để lưu lại (ví dụ: Khách đổi ý)"
             value={cancelReason}
             onChange={(e) => setCancelReason(e.target.value)}
+          />
+        </div>
+      </ConfirmationDialog>
+
+      <ConfirmationDialog
+        isOpen={showDiscountDialog}
+        onClose={() => { setShowDiscountDialog(false); setSelectedOrderToDiscount(null); setDiscountRef(''); }}
+        onConfirm={handleConfirmDiscount}
+        title="Cập nhật giảm giá"
+        message={`Cập nhật giảm giá cho đơn ${selectedOrderToDiscount?.order_number}.`}
+        confirmText="Cập nhật"
+        cancelText="Đóng"
+        variant="default"
+        icon="Tag"
+        isLoading={isUpdatingDiscount}
+      >
+        <div className="mt-3 space-y-3">
+          <div>
+            <label className="block text-xs text-muted-foreground mb-1">Loại giảm giá</label>
+            <select
+              className="w-full h-9 px-2 border border-border rounded text-sm bg-background"
+              value={discountType}
+              onChange={(e) => setDiscountType(e.target.value as 'fixed' | 'percent')}
+            >
+              <option value="fixed">Tiền mặt</option>
+              <option value="percent">Phần trăm (%)</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs text-muted-foreground mb-1">Giá trị</label>
+            <input
+              type="number"
+              className="w-full h-9 px-2 border border-border rounded text-sm bg-background"
+              value={discountValue}
+              onChange={(e) => setDiscountValue(Number(e.target.value))}
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-muted-foreground mb-1">Mã giảm giá / chương trình</label>
+            <input
+              type="text"
+              className="w-full h-9 px-2 border border-border rounded text-sm bg-background"
+              placeholder="Nhập mã voucher hoặc tên chương trình"
+              value={discountRef}
+              onChange={(e) => setDiscountRef(e.target.value)}
+            />
+          </div>
+        </div>
+      </ConfirmationDialog>
+
+      <ConfirmationDialog
+        isOpen={showCancelItemDialog}
+        onClose={() => { setShowCancelItemDialog(false); setSelectedItemToCancel(null); setCancelItemReason(''); }}
+        onConfirm={handleConfirmCancelItem}
+        title="Hủy món ăn"
+        message={`Bạn có chắc muốn hủy món này trong đơn?`}
+        confirmText="Hủy món"
+        cancelText="Đóng"
+        variant="danger"
+        icon="Trash"
+        isLoading={isCancellingItem}
+      >
+        <div className="mt-3">
+          <label className="block text-xs text-muted-foreground mb-1">Lý do hủy (tuỳ chọn)</label>
+          <textarea
+            className="w-full min-h-[80px] p-2 border border-border rounded text-sm"
+            placeholder="Nhập lý do hủy món..."
+            value={cancelItemReason}
+            onChange={(e) => setCancelItemReason(e.target.value)}
           />
         </div>
       </ConfirmationDialog>
