@@ -536,7 +536,6 @@ HTTP 200
   "data": {
     "table_id": "string",
     "qr_code": "06d66ff8-7f8d-4df4-97b7-b04b774706f7",
-    "qr_url": "https://api.example.com/public/tables/06d66ff8-7f8d-4df4-97b7-b04b774706f7",
     "updated_at": "date-time"
   },
   "correlationId": "string",

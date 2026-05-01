@@ -134,7 +134,6 @@ const MainPosSection: React.FC = () => {
 
   // Stubs for functionality not fully implemented
   const onSummaryChange = () => { };
-  const onGoToPayment = () => { };
 
   const { isCreatingOrder, orderNumber: hookOrderNumber, createOrder } = useOrderCreation({
     restaurantId,
@@ -282,7 +281,7 @@ const MainPosSection: React.FC = () => {
           {cartItems.length > 0 && (
             <div className="border-t border-border p-4 flex-shrink-0 bg-surface space-y-2">
               <Button
-                variant="outline"
+                variant="default"
                 size="default"
                 fullWidth
                 iconName={isCreatingOrder ? 'Loader2' : 'FileText'}
@@ -293,24 +292,6 @@ const MainPosSection: React.FC = () => {
               >
                 {isCreatingOrder ? 'Đang tạo đơn...' : 'Tạo đơn hàng'}
               </Button>
-
-              <Button
-                variant="success"
-                size="lg"
-                fullWidth
-                iconName="CreditCard"
-                iconPosition="left"
-                onClick={onGoToPayment}
-                className="hover-scale touch-target"
-              >
-                Thanh toán ({formattedTotal})
-              </Button>
-
-              <p className="text-xs text-muted-foreground text-center">
-                Nhấn{' '}
-                <kbd className="px-1.5 py-0.5 bg-muted rounded text-foreground font-mono">F2</kbd>
-                {' '}để thanh toán nhanh
-              </p>
             </div>
           )}
         </div>

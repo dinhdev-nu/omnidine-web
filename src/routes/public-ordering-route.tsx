@@ -1,15 +1,13 @@
 import { Route } from "react-router-dom"
 
-import PublicOrderingPage from "@/pages/public/ordering/PublicOrderingPage"
-
-export const PUBLIC_ORDERING_ROUTE_PATH = "/public/ordering/*"
+import PublicMenuPage from "@/pages/public/ordering/PublicMenuPage"
+import TableOrderingPage from "@/pages/public/ordering/TableOrderingPage"
 
 export function PublicOrderingRoute() {
     return (
         <>
-            <Route path={PUBLIC_ORDERING_ROUTE_PATH} element={<PublicOrderingPage />} />
-            <Route path="/public/restaurants/:slug/menu" element={<PublicOrderingPage />} />
-            <Route path="/public/tables/:qrCode" element={<PublicOrderingPage />} />
+            <Route path="/public/restaurants/:slug/menu" element={<PublicMenuPage />} />
+            <Route path="/public/tables/:qrCode" element={<TableOrderingPage />} />
         </>
     )
 }

@@ -2,12 +2,11 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Icon from '@/components/AppIcon';
 import Button from '@/features/pos/components/Button';
-import OrdersDropdown from './OrdersDropdown';
 import { logout as logoutApi } from '@/services/auths';
 import { useAuthStore } from '@/stores/auth-store';
 import { useUserStore } from '@/stores/user-store';
 
-import type { CustomerOrder, OrderingNotification, OrderingUser } from '../types';
+import type { OrderingNotification, OrderingUser } from '../types';
 
 const DEFAULT_RESTAURANT_LOGO = '/assets/images/restaurant_logo.png';
 const DEFAULT_USER_AVATAR = '/assets/images/user_avatar.jpg';
@@ -57,9 +56,6 @@ const HeaderClock = () => {
 
 interface HeaderProps {
   isOperational?: boolean;
-  ordersCount?: number;
-  draftOrders?: CustomerOrder[];
-  confirmedOrders?: CustomerOrder[];
   notifications?: OrderingNotification[];
   user?: OrderingUser | null;
   restaurantName?: string | null;
@@ -68,9 +64,6 @@ interface HeaderProps {
 
 const Header = ({
   isOperational = true,
-  ordersCount = 0,
-  draftOrders = [],
-  confirmedOrders = [],
   notifications = [],
   user = null,
   restaurantName: restaurantNameProp = null,
@@ -82,7 +75,6 @@ const Header = ({
 
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showOrders, setShowOrders] = useState(false);
   const displayStoreName = restaurantNameProp || 'Nhà hàng';
   const [brokenRestaurantLogo, setBrokenRestaurantLogo] = useState<string | null>(null);
   const [brokenUserAvatar, setBrokenUserAvatar] = useState<string | null>(null);
@@ -205,30 +197,6 @@ const Header = ({
               <span className="hidden sm:inline">{isOperational ? "Mở cửa" : "Đóng cửa"}</span>
               <span className="sm:hidden">{isOperational ? "Mở" : "Đóng"}</span>
             </Button>
-          </div>
-
-          {/* Cart Icon with Orders Dropdown */}
-          {/* Hiển thị danh sách orders đã tạo (cả desktop và mobile) */}
-          <div className="relative">
-            <button
-              onClick={() => setShowOrders(!showOrders)}
-              className="relative w-9 h-9 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200"
-            >
-              <Icon name="ClipboardList" size={20} />
-              {ordersCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-accent text-white text-xs font-semibold flex items-center justify-center">
-                  {ordersCount > 99 ? '99+' : ordersCount}
-                </span>
-              )}
-            </button>
-
-            {/* Orders History Dropdown */}
-            {showOrders && (
-              <OrdersDropdown
-                draftOrders={draftOrders}
-                confirmedOrders={confirmedOrders}
-              />
-            )}
           </div>
 
           {/* Notifications */}
@@ -415,13 +383,12 @@ const Header = ({
         </div>
       </div>
       {/* Click outside handlers */}
-      {(showUserMenu || showNotifications || showOrders) && (
+      {(showUserMenu || showNotifications) && (
         <div
           className="fixed inset-0 z-1000"
           onClick={() => {
             setShowUserMenu(false);
             setShowNotifications(false);
-            setShowOrders(false);
           }}
         />
       )}

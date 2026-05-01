@@ -1,4 +1,4 @@
-import type { UserProfile } from "@/services/types"
+import type { UserProfile } from "@/types/user-type"
 
 export type NotificationType = "success" | "warning" | "error" | "info"
 
@@ -14,6 +14,9 @@ export interface OrderingCategory {
   id: string
   name: string
   icon?: string
+  description?: string | null
+  itemCount?: number
+  imageUrl?: string | null
 }
 
 export interface OrderingMenuItem {

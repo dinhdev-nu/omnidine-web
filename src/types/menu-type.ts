@@ -1,3 +1,5 @@
+import type { OperatingHours } from './restaurant-type';
+
 export interface MenuImage {
     url: string;
     alt?: string;
@@ -129,6 +131,7 @@ export interface PublicMenuCategory {
 }
 
 export interface PublicMenuRestaurant {
+    _id: string;
     name: string;
     description: string | null;
     cuisine_type: string | null;
@@ -149,7 +152,7 @@ export interface PublicMenuRestaurant {
     phone: string | null;
     email: string | null;
     website: string | null;
-    operating_hours: string | Record<string, any>;
+    operating_hours: OperatingHours;
     timezone: string;
     currency: string;
     tax_rate: number;

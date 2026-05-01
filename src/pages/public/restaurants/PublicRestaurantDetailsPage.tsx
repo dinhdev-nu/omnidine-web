@@ -213,6 +213,7 @@ export default function PublicRestaurantDetailsPage() {
                                     type="button"
                                     size="lg"
                                     disabled={!detail?.accepts_online_orders}
+                                    onClick={() => slug && navigate(`/public/restaurants/${slug}/menu`)}
                                 >
                                     <Store className="h-4 w-4" />
                                     {detail?.accepts_online_orders ? "Đặt món online" : "Chưa hỗ trợ online"}

@@ -94,7 +94,7 @@ Tat ca endpoint duoc wrap boi TransformResponseInterceptor.
 | Field | Create category | List categories | Update category | Toggle category | Delete category | Public menu | Ghi chu |
 |---|---|---|---|---|---|---|---|
 | _id | co | co | co (nested category) | khong | khong | khong | Public menu co category summary khong tra id |
-| restaurant_id | co | co | co (nested category) | khong | khong | khong | Public payload da omit restaurant_id |
+| restaurant_id | co | co | co (nested category) | khong | khong | khong | Public payload tra restaurant._id thay vi restaurant_id |
 | name | co | co | co | khong | khong | co | |
 | description | co | co | co | khong | khong | co | |
 | image_url | co | co | co | khong | khong | co | |
@@ -124,10 +124,10 @@ Tat ca endpoint duoc wrap boi TransformResponseInterceptor.
 | score (derived) | khong | khong | khong | khong | khong | khong | khong | khong | khong | co | Text score cua full-text search |
 
 ### Restaurant fields trong public menu response
-Public endpoint `GET /public/restaurants/{slug}/menu` tra object `restaurant` duoc lay tu RestaurantService/getRestaurantDetailsBySlug va tiep tuc omit them cac field `_id`, `slug`, `owner_id`, `settings`, `created_at`, `updated_at`, `__v`.
+Public endpoint `GET /public/restaurants/{slug}/menu` tra object `restaurant` duoc lay tu RestaurantService/getRestaurantDetailsBySlug va giu lai `_id` de client co the tao public order ma khong can goi details.
 
 Field con lai trong `restaurant` public menu:
-- name, description, cuisine_type, price_range, logo_url, cover_image_url, gallery_urls
+- _id, name, description, cuisine_type, price_range, logo_url, cover_image_url, gallery_urls
 - address, city, district, ward, latitude, longitude, location
 - phone, email, website, operating_hours, timezone
 - currency, tax_rate, service_charge_rate
@@ -1031,6 +1031,7 @@ HTTP 200
   "message": "Request was successful",
   "data": {
     "restaurant": {
+      "_id": "string",
       "name": "string",
       "description": "string|null",
       "cuisine_type": "string|null",

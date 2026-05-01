@@ -16,20 +16,6 @@ type WalletMethod = Extract<PaymentMethodId, 'momo' | 'zalopay' | 'banking' | 'q
 
 const WALLET_METHODS: WalletMethod[] = ['momo', 'zalopay', 'banking', 'qr'];
 
-const ORDER_DATA = {
-    _id: 'HD1234567890',
-    orderId: 'HD-001',
-    tableNumber: 'Bàn 5',
-    items: [
-        { itemId: '1', name: 'Cà phê sữa đá', quantity: 2, price: 35000, total: 70000, notes: '' },
-        { itemId: '2', name: 'Bánh mì thịt', quantity: 1, price: 25000, total: 25000, notes: 'Ít cay' },
-    ],
-    subtotal: 95000,
-    tax: 9500,
-    discount: 0,
-    total: 104500,
-};
-
 const steps = [
     { id: 'method', name: 'Phương thức', icon: 'CreditCard' },
     { id: 'payment', name: 'Thanh toán', icon: 'DollarSign' },

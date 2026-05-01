@@ -121,10 +121,11 @@ export const useTableManagement = () => {
                         return table;
                     }
 
+                    const qrCode = table.qr_code ?? previous.qr_code;
                     return {
                         ...table,
-                        qr_code: table.qr_code ?? previous.qr_code,
-                        qr_url: table.qr_url ?? previous.qr_url,
+                        qr_code: qrCode,
+                        qr_url: qrCode ? `${window.location.origin}/public/tables/${qrCode}` : null,
                     };
                 }));
                 setSelectedTableId((prev) => {
@@ -354,7 +355,7 @@ export const useTableManagement = () => {
                         is_active: response.table.is_active,
                         has_qr: Boolean(response.table.qr_code),
                         qr_code: response.table.qr_code,
-                        qr_url: table.qr_url ?? null,
+                        qr_url: response.table.qr_code ? `${window.location.origin}/public/tables/${response.table.qr_code}` : null,
                     };
                 }));
                 setTableOccupancyById((prev) => ({
@@ -418,7 +419,7 @@ export const useTableManagement = () => {
                         ...table,
                         has_qr: true,
                         qr_code: result.qr_code,
-                        qr_url: result.qr_url,
+                        qr_url: `${window.location.origin}/public/tables/${result.qr_code}`,
                     };
                 }));
                 toast.success('Đã tạo lại QR cho bàn');

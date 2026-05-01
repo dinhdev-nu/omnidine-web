@@ -83,7 +83,7 @@ export function ListRestaurantsSection() {
     const [shareMode, setShareMode] = useState<"public" | "pos">("public");
 
     const sharePublicUrl = shareTarget
-        ? `${window.location.origin}/public/restaurants/${shareTarget.slug}`
+        ? `${window.location.origin}/public/restaurants/${shareTarget.slug}/menu`
         : "";
 
     const sharePosUrl = shareTarget
