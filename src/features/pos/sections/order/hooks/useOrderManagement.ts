@@ -99,7 +99,6 @@ interface UseOrderManagementReturn {
   onLoadOrderDetail: (orderId: string) => Promise<Order>;
   onUpdateOrderStatus: (order: Order, status: AllowedOrderStatusUpdate) => Promise<void>;
   onCancelOrder: (order: Order, reason?: string) => Promise<void>;
-  onPayOrder: (order: Order) => Promise<void>;
   onUpdateOrderItemStatus: (order: Order, itemId: string, status: AllowedOrderItemStatusUpdate) => Promise<void>;
   onCancelOrderItem: (order: Order, itemId: string, reason?: string) => Promise<void>;
   onUpdateOrderDiscount: (
@@ -275,24 +274,6 @@ export function useOrderManagement(): UseOrderManagementReturn {
     [loadOrderDetail]
   );
 
-  const handlePayOrder = useCallback(
-    async (order: Order) => {
-      try {
-        // Update order status to paid
-        await updateOrderStatus(restaurantId, order._id, {
-          status: 'completed',
-        });
-        toast.success(`Thanh toán đơn hàng ${order.order_number} thành công`);
-
-        // Refresh orders
-        void fetchOrders(pagination.page);
-      } catch (error) {
-        toast.error(toOrderEndpointError('update-status', error).message);
-      }
-    },
-    [restaurantId, pagination.page, fetchOrders]
-  );
-
   const handleUpdateOrderStatus = useCallback(
     async (order: Order, status: AllowedOrderStatusUpdate) => {
       try {
@@ -411,7 +392,6 @@ export function useOrderManagement(): UseOrderManagementReturn {
     onLoadOrderDetail: handleLoadOrderDetail,
     onUpdateOrderStatus: handleUpdateOrderStatus,
     onCancelOrder: handleCancelOrder,
-    onPayOrder: handlePayOrder,
     onUpdateOrderItemStatus: handleUpdateOrderItemStatus,
     onCancelOrderItem: handleCancelOrderItem,
     onUpdateOrderDiscount: handleUpdateOrderDiscount,

@@ -1,80 +1,91 @@
 import React, { useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import Icon from '../../components/AppIcon';
 import Button from '../../components/Button';
+import { POS_BASE_PATH } from '@/routes/pos-route';
+import { useRequiredPosData } from '@/features/pos/contexts/usePosContext';
+import { createCashPayment, toPaymentEndpointError } from '@/services/payments';
+import type { PaymentMethodId } from './components/PaymentMethodSelector';
+import type { PaymentData } from './components/PaymentSuccess';
 
-import PaymentMethodSelector, { type PaymentMethodId } from './components/PaymentMethodSelector';
+import PaymentMethodSelector from './components/PaymentMethodSelector';
 import OrderSummary from './components/OrderSummary';
 import CashPaymentForm from './components/CashPaymentForm';
 import CardPaymentForm from './components/CardPaymentForm';
 import DigitalWalletForm from './components/DigitalWalletForm';
-import CustomerInfoForm, { type CustomerInfo } from './components/CustomerInfoForm';
-import PaymentSuccess, { type PaymentData } from './components/PaymentSuccess';
+import PaymentSuccess from './components/PaymentSuccess';
 
-type Step = 'method' | 'payment' | 'customer' | 'success';
-type PaymentMethod = PaymentMethodId | '';
+import { useOrderData, useIdempotencyKey } from './hooks';
+import { mapOrderItemsToSummaryItems, generateQRCodeUrl } from './utils/payment';
+
+type Step = 'method' | 'payment' | 'success';
 type WalletMethod = Extract<PaymentMethodId, 'momo' | 'zalopay' | 'banking' | 'qr'>;
+
+interface PaymentSectionProps {
+    orderId?: string | null;
+}
 
 const WALLET_METHODS: WalletMethod[] = ['momo', 'zalopay', 'banking', 'qr'];
 
-const steps = [
-    { id: 'method', name: 'Phương thức', icon: 'CreditCard' },
-    { id: 'payment', name: 'Thanh toán', icon: 'DollarSign' },
-    { id: 'success', name: 'Hoàn tất', icon: 'CheckCircle' },
-] as const;
-
-const isWalletMethod = (method: PaymentMethod): method is WalletMethod =>
+const isWalletMethod = (method: PaymentMethodId | ''): method is WalletMethod =>
     WALLET_METHODS.includes(method as WalletMethod);
 
-const PaymentSection: React.FC = () => {
-    const [currentStep, setCurrentStep] = useState<Step>('method');
-    const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('');
-    const [customerInfo, setCustomerInfo] = useState<Partial<CustomerInfo>>({ name: '', phone: '' });
-    const [paymentResult, setPaymentResult] = useState<PaymentData>({});
-    const [cashAmountDigits, setCashAmountDigits] = useState('');
+const PaymentSection: React.FC<PaymentSectionProps> = ({ orderId }) => {
+    const navigate = useNavigate();
+    const { slug } = useParams<{ slug: string }>();
+    const { restaurant } = useRequiredPosData();
 
-    const isLoadingOrderDetails = false;
-    const isLoadingQR = false;
-    const selectedLoadingMethod = '';
+    // State management
+    const [currentStep, setCurrentStep] = useState<Step>('method');
+    const [selectedMethod, setSelectedMethod] = useState<PaymentMethodId | ''>('');
+    const [amountDigits, setAmountDigits] = useState('');
+    const [paymentResult, setPaymentResult] = useState<PaymentData>({});
+
+    const resolvedOrderId = orderId?.trim() ?? '';
+    const restaurantId = restaurant._id;
+
+    // Fetch order data
+    const { orderData, isLoading: isLoadingOrderDetails, error: orderDetailError } = useOrderData(
+        restaurantId,
+        resolvedOrderId
+    );
+
+    // Generate idempotency key
+    const idempotencyKey = useIdempotencyKey(restaurantId, orderData);
+
+    // Derived state
+    const orderItems = useMemo(() => mapOrderItemsToSummaryItems(orderData), [orderData]);
+    const subtotal = orderData?.subtotal ?? 0;
+    const discountAmount = orderData?.discount_amount ?? 0;
+    const taxAmount = orderData?.tax_amount ?? 0;
+    const totalAmount = orderData?.total_amount ?? 0;
+    const tableNumber = orderData?.table_id ?? null;
+
+    const cashPaidAmount = amountDigits ? Number(amountDigits) : 0;
+    const cashChange = Math.max(cashPaidAmount - totalAmount, 0);
+    const cashAmountError = amountDigits && cashPaidAmount < totalAmount ? 'Số tiền nhận không đủ.' : '';
+    const quickAmounts = useMemo(() => [totalAmount, totalAmount + 50000, totalAmount + 100000], [totalAmount]);
 
     const qrCodeUrl = useMemo(() => {
-        if (!isWalletMethod(selectedMethod)) {
-            return '';
+        if (!isWalletMethod(selectedMethod) || !orderData) return '';
+        return generateQRCodeUrl(orderData.order_number, selectedMethod, totalAmount, idempotencyKey);
+    }, [idempotencyKey, orderData, selectedMethod, totalAmount]);
+
+    // Reset when order changes
+    React.useEffect(() => {
+        if (!resolvedOrderId) {
+            setCurrentStep('method');
+            setSelectedMethod('');
+            setAmountDigits('');
+            setPaymentResult({});
         }
+    }, [resolvedOrderId]);
 
-        const payload = `PAY|${ORDER_DATA.orderId}|${selectedMethod}|${ORDER_DATA.total}`;
-        return `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(payload)}`;
-    }, [selectedMethod]);
-
-    const quickAmounts = useMemo(() => {
-        const total = ORDER_DATA.total;
-        return [total, total + 50000, total + 100000];
-    }, []);
-
-    const cashPaidAmount = cashAmountDigits ? Number(cashAmountDigits) : 0;
-    const cashChange = Math.max(cashPaidAmount - ORDER_DATA.total, 0);
-    const cashAmountError = cashAmountDigits && cashPaidAmount < ORDER_DATA.total
-        ? 'Số tiền nhận không đủ.'
-        : '';
-
-    const getStepTitle = (): string => {
-        switch (currentStep) {
-            case 'method':
-                return 'Chọn phương thức thanh toán';
-            case 'payment':
-                return 'Xử lý thanh toán';
-            case 'customer':
-                return 'Thông tin khách hàng';
-            case 'success':
-                return 'Thanh toán thành công';
-            default:
-                return 'Thanh toán';
-        }
-    };
-
+    // Handlers
     const handleBackToMethod = () => {
         setCurrentStep('method');
         setSelectedMethod('');
-        setCashAmountDigits('');
+        setAmountDigits('');
     };
 
     const handleMethodSelect = (method: PaymentMethodId) => {
@@ -83,109 +94,101 @@ const PaymentSection: React.FC = () => {
     };
 
     const completePayment = (method: PaymentMethodId, paidAmount: number, changeAmount: number) => {
+        if (!orderData) return;
         setPaymentResult({
-            _id: `PAY-MOCK-${Date.now().toString().slice(-6)}`,
+            _id: idempotencyKey,
             createdAt: new Date().toISOString(),
             method,
             paidAmount,
-            orderAmount: ORDER_DATA.total,
+            orderAmount: totalAmount,
             changeAmount,
         });
         setCurrentStep('success');
     };
 
-    const handleCashComplete = () => {
-        if (cashPaidAmount < ORDER_DATA.total) {
-            return;
+    const handleCashComplete = async () => {
+        if (cashPaidAmount < totalAmount || !orderData) return;
+        try {
+            await createCashPayment(restaurantId, resolvedOrderId, {
+                method: 'cash',
+                amount: totalAmount,
+                cash_tendered: cashPaidAmount,
+                idempotency_key: idempotencyKey,
+            });
+            completePayment('cash', cashPaidAmount, cashChange);
+        } catch (error) {
+            console.error('Cash payment error:', toPaymentEndpointError('create', error));
         }
-
-        completePayment('cash', cashPaidAmount, cashChange);
     };
 
-    const handleCardComplete = () => {
-        completePayment('card', ORDER_DATA.total, 0);
-    };
+    const handleCardComplete = () => completePayment('card', totalAmount, 0);
 
     const handleWalletComplete = () => {
-        if (!isWalletMethod(selectedMethod)) {
-            return;
+        if (!isWalletMethod(selectedMethod)) return;
+        completePayment(selectedMethod, totalAmount, 0);
+    };
+
+    const handleLeavePayment = () => {
+        if (slug) {
+            navigate(`${POS_BASE_PATH}/${slug}/orders`);
+        } else {
+            setCurrentStep('method');
         }
-
-        completePayment(selectedMethod, ORDER_DATA.total, 0);
-    };
-
-    const handleCustomerFieldChange = (field: keyof CustomerInfo, value: string | boolean) => {
-        setCustomerInfo((prev) => ({ ...prev, [field]: value }));
-    };
-
-    const handleCustomerInfoSave = (info: CustomerInfo) => {
-        setCustomerInfo(info);
-        setCurrentStep('method');
-    };
-
-    const handleCustomerInfoSkip = () => {
-        setCurrentStep('method');
-    };
-
-    const handleShowCustomerForm = () => {
-        setCurrentStep('customer');
     };
 
     const handleResetFlow = () => {
         setCurrentStep('method');
         setSelectedMethod('');
-        setCashAmountDigits('');
+        setAmountDigits('');
         setPaymentResult({});
+        if (slug) navigate(`${POS_BASE_PATH}/${slug}/orders`);
     };
 
-    const renderPaymentForm = (): React.ReactNode => {
-        switch (selectedMethod) {
-            case 'cash':
-                return (
-                    <CashPaymentForm
-                        totalAmount={ORDER_DATA.total}
-                        change={cashChange}
-                        amountError={cashAmountError}
-                        quickAmounts={quickAmounts}
-                        onAmountChange={setCashAmountDigits}
-                        onPaymentComplete={handleCashComplete}
-                        onCancel={handleBackToMethod}
-                    />
-                );
-            case 'card':
-                return (
-                    <CardPaymentForm
-                        totalAmount={ORDER_DATA.total}
-                        onPaymentSubmit={handleCardComplete}
-                        onCancel={handleBackToMethod}
-                    />
-                );
-            case 'momo':
-            case 'zalopay':
-            case 'banking':
-            case 'qr':
-                return (
-                    <DigitalWalletForm
-                        totalAmount={ORDER_DATA.total}
-                        walletType={selectedMethod}
-                        qrCodeUrl={qrCodeUrl}
-                        onPaymentComplete={handleWalletComplete}
-                        onCancel={handleBackToMethod}
-                    />
-                );
-            default:
-                return null;
-        }
-    };
-
+    // Render step content
     const renderStepContent = (): React.ReactNode => {
+        if (!resolvedOrderId) {
+            return (
+                <div className="text-center py-12 space-y-4">
+                    <Icon name="FileText" size={48} className="text-muted-foreground mx-auto" />
+                    <div>
+                        <h3 className="text-lg font-semibold text-foreground">Chưa chọn đơn hàng</h3>
+                        <p className="text-sm text-muted-foreground">
+                            Chọn một đơn từ danh sách để chuyển sang thanh toán.
+                        </p>
+                    </div>
+                    <Button variant="default" onClick={handleLeavePayment} iconName="ArrowLeft" iconPosition="left">
+                        Quay về danh sách đơn
+                    </Button>
+                </div>
+            );
+        }
+
         if (isLoadingOrderDetails) {
             return (
                 <div className="text-center py-12">
                     <Icon name="Loader" size={48} className="text-muted-foreground mx-auto mb-4 animate-spin" />
-                    <p className="text-muted-foreground">Đang tải dữ liệu đơn hàng từ server...</p>
+                    <p className="text-muted-foreground">Đang tải chi tiết đơn hàng...</p>
                 </div>
             );
+        }
+
+        if (orderDetailError) {
+            return (
+                <div className="text-center py-12 space-y-4">
+                    <Icon name="AlertCircle" size={48} className="text-destructive mx-auto" />
+                    <div>
+                        <h3 className="text-lg font-semibold text-foreground">Không thể tải đơn hàng</h3>
+                        <p className="text-sm text-muted-foreground">{orderDetailError}</p>
+                    </div>
+                    <Button variant="default" onClick={handleLeavePayment} iconName="ArrowLeft" iconPosition="left">
+                        Quay về danh sách đơn
+                    </Button>
+                </div>
+            );
+        }
+
+        if (!orderData) {
+            return null;
         }
 
         switch (currentStep) {
@@ -194,13 +197,24 @@ const PaymentSection: React.FC = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div>
                             <OrderSummary
-                                orderItems={ORDER_DATA.items}
-                                subtotal={ORDER_DATA.subtotal}
-                                tax={ORDER_DATA.tax}
-                                discount={ORDER_DATA.discount}
-                                total={ORDER_DATA.total}
-                                orderNumber={ORDER_DATA.orderId}
-                                tableNumber={ORDER_DATA.tableNumber}
+                                orderItems={orderItems}
+                                subtotal={subtotal}
+                                tax={taxAmount}
+                                discount={discountAmount}
+                                discountValue={orderData.discount_value ?? 0}
+                                discountRef={orderData.discount_ref ?? null}
+                                discountType={orderData.discount_type as 'none' | 'percent' | 'fixed' | 'coupon'}
+                                serviceChargeAmount={orderData.service_charge_amount ?? 0}
+                                serviceChargeRate={orderData.service_charge_rate ?? 0}
+                                taxRate={orderData.tax_rate ?? 0}
+                                total={totalAmount}
+                                orderNumber={orderData.order_number}
+                                tableNumber={tableNumber}
+                                customerName={orderData.customer_name ?? null}
+                                customerPhone={orderData.customer_phone ?? null}
+                                orderType={orderData.order_type as 'dine_in' | 'takeaway' | 'delivery' | 'online'}
+                                source={orderData.source as 'pos' | 'online' | 'qr' | 'app' | 'phone'}
+                                notes={orderData.notes ?? null}
                             />
                         </div>
                         <div>
@@ -208,29 +222,23 @@ const PaymentSection: React.FC = () => {
                                 selectedMethod={selectedMethod}
                                 onMethodSelect={handleMethodSelect}
                                 availableMethods={['cash', 'card', 'momo', 'zalopay', 'banking', 'qr']}
-                                isLoading={isLoadingQR}
-                                loadingMethod={selectedLoadingMethod}
+                                enabledMethods={['cash']}
+                                isLoading={false}
+                                loadingMethod=""
                             />
-
-                            <div className="mt-6 p-4 bg-muted/30 rounded-lg">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <h4 className="font-medium text-foreground">Thông tin khách hàng</h4>
-                                        <p className="text-sm text-muted-foreground">
-                                            {customerInfo.name
-                                                ? `${customerInfo.name} - ${customerInfo.phone ?? ''}`
-                                                : 'Chưa có thông tin'}
-                                        </p>
+                            <div className="mt-6 p-4 bg-surface border border-border rounded-lg">
+                                <div className="text-xs font-semibold text-muted-foreground mb-3 uppercase">Thông tin khách hàng</div>
+                                <div className="space-y-2 text-sm">
+                                    <div className="flex items-center space-x-2 text-foreground">
+                                        <Icon name="User" size={16} className="text-muted-foreground flex-shrink-0" />
+                                        <span className="font-medium">{orderData.customer_name || 'Không xác định'}</span>
                                     </div>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={handleShowCustomerForm}
-                                        iconName="User"
-                                        iconPosition="left"
-                                    >
-                                        {customerInfo.name ? 'Sửa' : 'Thêm'}
-                                    </Button>
+                                    {orderData.customer_phone && (
+                                        <div className="flex items-center space-x-2 text-foreground">
+                                            <Icon name="Phone" size={16} className="text-muted-foreground flex-shrink-0" />
+                                            <span className="font-medium">{orderData.customer_phone}</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -240,19 +248,33 @@ const PaymentSection: React.FC = () => {
             case 'payment':
                 return (
                     <div className="max-w-md mx-auto">
-                        {renderPaymentForm()}
-                    </div>
-                );
-
-            case 'customer':
-                return (
-                    <div className="max-w-md mx-auto">
-                        <CustomerInfoForm
-                            onFieldChange={handleCustomerFieldChange}
-                            onSave={handleCustomerInfoSave}
-                            onSkip={handleCustomerInfoSkip}
-                            initialData={customerInfo}
-                        />
+                        {selectedMethod === 'cash' && (
+                            <CashPaymentForm
+                                totalAmount={totalAmount}
+                                change={cashChange}
+                                amountError={cashAmountError}
+                                quickAmounts={quickAmounts}
+                                onAmountChange={setAmountDigits}
+                                onPaymentComplete={handleCashComplete}
+                                onCancel={handleBackToMethod}
+                            />
+                        )}
+                        {selectedMethod === 'card' && (
+                            <CardPaymentForm
+                                totalAmount={totalAmount}
+                                onPaymentSubmit={handleCardComplete}
+                                onCancel={handleBackToMethod}
+                            />
+                        )}
+                        {['momo', 'zalopay', 'banking', 'qr'].includes(selectedMethod) && (
+                            <DigitalWalletForm
+                                totalAmount={totalAmount}
+                                walletType={selectedMethod as WalletMethod}
+                                qrCodeUrl={qrCodeUrl}
+                                onPaymentComplete={handleWalletComplete}
+                                onCancel={handleBackToMethod}
+                            />
+                        )}
                     </div>
                 );
 
@@ -261,11 +283,21 @@ const PaymentSection: React.FC = () => {
                     <div className="max-w-lg mx-auto">
                         <PaymentSuccess
                             paymentData={paymentResult}
-                            orderData={ORDER_DATA}
+                            orderData={{
+                                _id: orderData._id,
+                                customerName: orderData.customer_name ?? undefined,
+                                tableNumber: orderData.table_id ?? undefined,
+                                items: orderItems,
+                                subtotal,
+                                serviceCharge: orderData.service_charge_amount ?? 0,
+                                discount: discountAmount,
+                                tax: taxAmount,
+                                total: totalAmount,
+                            }}
                             onPrintReceipt={() => { }}
                             onSendDigitalReceipt={() => { }}
                             onNewOrder={handleResetFlow}
-                            onBackToDashboard={handleResetFlow}
+                            onBackToDashboard={handleLeavePayment}
                         />
                     </div>
                 );
@@ -285,20 +317,12 @@ const PaymentSection: React.FC = () => {
                             size="icon"
                             onClick={() => {
                                 if (currentStep === 'method') {
-                                    return;
-                                }
-
-                                if (currentStep === 'payment') {
+                                    handleLeavePayment();
+                                } else if (currentStep === 'payment') {
                                     handleBackToMethod();
-                                    return;
+                                } else {
+                                    handleLeavePayment();
                                 }
-
-                                if (currentStep === 'customer') {
-                                    setCurrentStep('method');
-                                    return;
-                                }
-
-                                handleResetFlow();
                             }}
                             className="hover-scale"
                         >
@@ -306,56 +330,48 @@ const PaymentSection: React.FC = () => {
                         </Button>
                         <div>
                             <h1 className="text-xl font-bold leading-tight text-foreground md:text-2xl">
-                                {getStepTitle()}
+                                {currentStep === 'method'
+                                    ? 'Chọn phương thức thanh toán'
+                                    : currentStep === 'payment'
+                                        ? 'Xử lý thanh toán'
+                                        : 'Thanh toán thành công'}
                             </h1>
-                            <p className="text-sm text-muted-foreground">
-                                Xử lý thanh toán an toàn và nhanh chóng
-                            </p>
+                            <p className="text-sm text-muted-foreground">Xử lý thanh toán an toàn và nhanh chóng</p>
                         </div>
                     </div>
-
-                    <div className="hidden items-center gap-3 whitespace-nowrap text-xs text-muted-foreground lg:flex">
-                        <span>Đơn hàng: {ORDER_DATA.orderId}</span>
-                        <span className="text-xs font-mono">({ORDER_DATA._id})</span>
+                    <div className="hidden items-center gap-2 whitespace-nowrap text-xs text-muted-foreground lg:flex">
+                        <span>Đơn hàng: {orderData?.order_number ?? resolvedOrderId}</span>
+                        <span>({orderData?._id ?? resolvedOrderId})</span>
                         <span>•</span>
-                        <span>Bàn: {ORDER_DATA.tableNumber}</span>
+                        <span>Bàn: {tableNumber ?? 'N/A'}</span>
                         <span>•</span>
                         <span>{new Date().toLocaleString('vi-VN')}</span>
                     </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                    {steps.map((step, index) => {
+                    {[
+                        { id: 'method', name: 'Phương thức', icon: 'CreditCard' },
+                        { id: 'payment', name: 'Thanh toán', icon: 'DollarSign' },
+                        { id: 'success', name: 'Hoàn tất', icon: 'CheckCircle' },
+                    ].map((step, index, steps) => {
                         const isActive = step.id === currentStep;
-                        const isCompleted = steps.findIndex((s) => s.id === currentStep) > index;
-
+                        const isCompleted = steps.findIndex(s => s.id === currentStep) > index;
                         return (
                             <div key={step.id} className="flex items-center">
                                 <div
-                                    className={`
-                  flex items-center space-x-2 rounded-lg px-2.5 py-1.5 transition-smooth
-                  ${isActive
-                                            ? 'bg-primary text-primary-foreground'
-                                            : isCompleted
-                                                ? 'bg-success text-success-foreground'
-                                                : 'bg-muted text-muted-foreground'
-                                        }
-                `}
+                                    className={`flex items-center space-x-2 rounded-lg px-2.5 py-1.5 transition-smooth ${isActive
+                                        ? 'bg-primary text-primary-foreground'
+                                        : isCompleted
+                                            ? 'bg-success text-success-foreground'
+                                            : 'bg-muted text-muted-foreground'
+                                        }`}
                                 >
-                                    <Icon
-                                        name={isCompleted ? 'Check' : step.icon}
-                                        size={16}
-                                    />
-                                    <span className="text-sm font-medium hidden sm:block">
-                                        {step.name}
-                                    </span>
+                                    <Icon name={isCompleted ? 'Check' : step.icon} size={16} />
+                                    <span className="text-sm font-medium hidden sm:block">{step.name}</span>
                                 </div>
                                 {index < steps.length - 1 && (
-                                    <Icon
-                                        name="ChevronRight"
-                                        size={14}
-                                        className="mx-1.5 text-muted-foreground"
-                                    />
+                                    <Icon name="ChevronRight" size={14} className="mx-1.5 text-muted-foreground" />
                                 )}
                             </div>
                         );

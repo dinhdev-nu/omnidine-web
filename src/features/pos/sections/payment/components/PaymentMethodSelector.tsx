@@ -18,6 +18,7 @@ interface PaymentMethodSelectorProps {
   availableMethods?: PaymentMethodId[];
   isLoading?: boolean;
   loadingMethod?: string;
+  enabledMethods?: PaymentMethodId[];
 }
 
 const PAYMENT_METHODS: PaymentMethod[] = [
@@ -77,6 +78,7 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
   availableMethods = [],
   isLoading = false,
   loadingMethod = '',
+  enabledMethods,
 }) => {
   const filteredMethods =
     availableMethods.length > 0
@@ -92,16 +94,17 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
         {filteredMethods.map((method) => {
           const isMethodLoading = isLoading && loadingMethod === method.id;
           const isSelected = selectedMethod === method.id;
+          const isDisabled = Array.isArray(enabledMethods) && !enabledMethods.includes(method.id);
 
           return (
             <button
               key={method.id}
               onClick={() => onMethodSelect(method.id)}
-              disabled={isLoading}
+              disabled={isLoading || isDisabled}
               className={`
                 relative rounded-lg border-2 p-3 transition-all duration-200 hover-scale
                 ${isSelected ? `${method.color} border-current shadow-md` : 'bg-surface border-border hover:border-muted-foreground/30'}
-                ${isLoading ? 'cursor-not-allowed opacity-60' : ''}
+                ${isLoading || isDisabled ? 'cursor-not-allowed opacity-60' : ''}
               `}
             >
               <div className="flex items-center gap-2.5">
@@ -122,7 +125,7 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
                     {isMethodLoading ? 'Đang tạo mã QR...' : method.name}
                   </h4>
                   <p className={`mt-0.5 text-xs ${isSelected ? 'text-current/80' : 'text-muted-foreground'}`}>
-                    {method.description}
+                    {method.description}{isDisabled ? ' — Không khả dụng' : ''}
                   </p>
                 </div>
 

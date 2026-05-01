@@ -19,7 +19,7 @@ interface OrderTableMobileCardProps {
     highlighted: boolean;
     expanded: boolean;
     onToggleExpand: (order: Order) => void;
-    onOrderClick: (order: Order) => void;
+    onPaymentClick: (order: Order) => void;
     onUpdateStatusClick: (order: Order) => void;
     onCancelOrder: (order: Order) => void;
     onUpdateOrderItemStatus?: (order: Order, itemId: string, status: AllowedOrderItemStatusUpdate) => void;
@@ -34,7 +34,7 @@ const OrderTableMobileCard: React.FC<OrderTableMobileCardProps> = ({
     highlighted,
     expanded,
     onToggleExpand,
-    onOrderClick,
+    onPaymentClick,
     onUpdateStatusClick,
     onCancelOrder,
     onUpdateOrderItemStatus,
@@ -73,16 +73,17 @@ const OrderTableMobileCard: React.FC<OrderTableMobileCardProps> = ({
                         <TablePaymentStatusBadge status={order.payment_status} />
                     </div>
                     <div className="flex items-center space-x-2">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => onOrderClick(order)}
-                            className="w-8 h-8"
-                            title={order.payment_status === 'unpaid' ? 'Thanh toán' : ''}
-                            disabled={order.payment_status !== 'unpaid'}
-                        >
-                            <Icon name={order.payment_status === 'unpaid' ? 'CreditCard' : 'Eye'} size={16} />
-                        </Button>
+                        {order.payment_status === 'unpaid' && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => onPaymentClick(order)}
+                                className="w-8 h-8"
+                                title="Thanh toán"
+                            >
+                                <Icon name="CreditCard" size={16} />
+                            </Button>
+                        )}
                         {order.status !== 'cancelled' && order.status !== 'completed' && order.status !== 'refunded' && (
                             <Button
                                 variant="ghost"

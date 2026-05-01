@@ -6,6 +6,7 @@ import Button from '../../components/Button';
 import Icon from '../../components/AppIcon';
 import { useOrderManagement } from './hooks/useOrderManagement';
 import { POS_BASE_PATH } from '@/routes/pos-route';
+import type { Order } from '@/types/order-type';
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -23,7 +24,6 @@ const OrderSection: React.FC = () => {
         onFilterChange,
         onLoadOrderDetail,
         onUpdateOrderStatus,
-        onPayOrder,
         onLoadMore,
         onClearFilters,
         onRefresh,
@@ -46,6 +46,10 @@ const OrderSection: React.FC = () => {
 
     const handleCreateOrder = useCallback(() => {
         navigate(`${POS_BASE_PATH}/${slug}`);
+    }, [navigate, slug]);
+
+    const handleGoToPayment = useCallback((order: Order) => {
+        navigate(`${POS_BASE_PATH}/${slug}/payments/${order._id}`);
     }, [navigate, slug]);
 
     return (
@@ -118,7 +122,7 @@ const OrderSection: React.FC = () => {
                         orders={orders}
                         onLoadOrderDetail={onLoadOrderDetail}
                         onUpdateOrderStatus={onUpdateOrderStatus}
-                        onPayOrder={onPayOrder}
+                        onPaymentClick={handleGoToPayment}
                         onCancelOrder={onCancelOrder}
                         onUpdateOrderItemStatus={onUpdateOrderItemStatus}
                         onCancelOrderItem={onCancelOrderItem}

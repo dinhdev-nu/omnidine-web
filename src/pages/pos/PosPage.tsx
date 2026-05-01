@@ -18,6 +18,8 @@ import StaffSection from '@/features/pos/sections/staff/StaffSection';
 
 type POSSection = 'main-pos' | 'table' | 'payment' | 'order' | 'menu' | 'staff';
 
+const PAYMENT_ROUTE_PATTERN = /^\/payments\/([^/]+)$/;
+
 const ROUTE_TO_SECTION: Record<string, POSSection> = {
   '': 'main-pos',
   '/': 'main-pos',
@@ -51,6 +53,19 @@ const getPosSubPath = (pathname: string, slug: string) => {
   return subPath || '/';
 };
 
+const normalizePosSubPath = (subPath: string) => {
+  if (PAYMENT_ROUTE_PATTERN.test(subPath)) {
+    return '/payments';
+  }
+
+  return subPath;
+};
+
+const getPaymentOrderIdFromSubPath = (subPath: string) => {
+  const match = subPath.match(PAYMENT_ROUTE_PATTERN);
+  return match?.[1] ?? null;
+};
+
 const PosPageContent: React.FC<{ slug: string }> = ({ slug }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -58,13 +73,15 @@ const PosPageContent: React.FC<{ slug: string }> = ({ slug }) => {
 
   const [isOperational, setIsOperational] = useState(true);
   const subPath = getPosSubPath(location.pathname, slug);
-  const activeSection = ROUTE_TO_SECTION[subPath] ?? 'main-pos';
+  const normalizedSubPath = normalizePosSubPath(subPath);
+  const paymentOrderId = getPaymentOrderIdFromSubPath(subPath);
+  const activeSection = ROUTE_TO_SECTION[normalizedSubPath] ?? 'main-pos';
 
   useEffect(() => {
-    if (!ROUTE_TO_SECTION[subPath]) {
+    if (!ROUTE_TO_SECTION[normalizedSubPath]) {
       navigate(`${POS_BASE_PATH}/${slug}`, { replace: true });
     }
-  }, [navigate, slug, subPath]);
+  }, [navigate, slug, normalizedSubPath]);
 
   const handleToggleOperational = React.useCallback(() => {
     setIsOperational(prev => !prev);
@@ -87,7 +104,7 @@ const PosPageContent: React.FC<{ slug: string }> = ({ slug }) => {
       case 'table':
         return <TableSection />;
       case 'payment':
-        return <PaymentSection />;
+        return <PaymentSection orderId={paymentOrderId} />;
       case 'order':
         return <OrderSection />;
       case 'menu':

@@ -2,7 +2,6 @@ import React, { useState, useCallback } from 'react';
 import ConfirmationDialog from '@/components/ui/ConfirmationDialog';
 import OrderTableDesktopRow from './OrderTableDesktopRow';
 import OrderTableMobileCard from './OrderTableMobileCard';
-import { formatCurrency } from './order-display';
 import type { AllowedOrderItemStatusUpdate, AllowedOrderStatusUpdate, Order, OrderDiscountType } from '@/types/order-type';
 
 interface OrderTableProps {
@@ -10,7 +9,7 @@ interface OrderTableProps {
   highlightedOrderId?: string;
   onLoadOrderDetail: (orderId: string) => Promise<Order>;
   onUpdateOrderStatus: (order: Order, status: AllowedOrderStatusUpdate) => Promise<void>;
-  onPayOrder: (order: Order) => void;
+  onPaymentClick: (order: Order) => void;
   onCancelOrder: (order: Order, reason?: string) => Promise<void>;
   onUpdateOrderItemStatus?: (order: Order, itemId: string, status: AllowedOrderItemStatusUpdate) => Promise<void>;
   onCancelOrderItem?: (order: Order, itemId: string, reason?: string) => Promise<void>;
@@ -57,15 +56,13 @@ const OrderTable: React.FC<OrderTableProps> = ({
   highlightedOrderId,
   onLoadOrderDetail,
   onUpdateOrderStatus,
-  onPayOrder,
+  onPaymentClick,
   onCancelOrder,
   onUpdateOrderItemStatus,
   onCancelOrderItem,
   onUpdateOrderDiscount,
 }) => {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [selectedOrderToCancel, setSelectedOrderToCancel] = useState<Order | null>(null);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
@@ -94,11 +91,9 @@ const OrderTable: React.FC<OrderTableProps> = ({
 
 
   const handleOrderClick = useCallback((order: Order) => {
-    if (order.payment_status === 'unpaid') {
-      setSelectedOrder(order);
-      setShowPaymentDialog(true);
-    }
-  }, []);
+    if (order.payment_status !== 'unpaid') return;
+    onPaymentClick(order);
+  }, [onPaymentClick]);
 
   const handleCancelClick = useCallback((order: Order) => {
     setSelectedOrderToCancel(order);
@@ -115,12 +110,6 @@ const OrderTable: React.FC<OrderTableProps> = ({
     setNextStatus(allowedStatuses[0]);
     setShowUpdateStatusDialog(true);
   }, []);
-
-  const handleConfirmPayment = useCallback(() => {
-    if (selectedOrder) onPayOrder(selectedOrder);
-    setShowPaymentDialog(false);
-    setSelectedOrder(null);
-  }, [selectedOrder, onPayOrder]);
 
   const handleConfirmCancel = useCallback(async () => {
     if (!selectedOrderToCancel) return;
@@ -147,11 +136,6 @@ const OrderTable: React.FC<OrderTableProps> = ({
       setNextStatus('');
     }
   }, [selectedOrderToUpdateStatus, nextStatus, onUpdateOrderStatus]);
-
-  const handleCancelPayment = useCallback(() => {
-    setShowPaymentDialog(false);
-    setSelectedOrder(null);
-  }, []);
 
   const handleToggleExpand = useCallback((order: Order) => {
     const isExpanding = !expandedRows.has(order._id);
@@ -267,7 +251,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
                 highlighted={highlightedOrderId === order._id}
                 expanded={expandedRows.has(order._id)}
                 onToggleExpand={handleToggleExpand}
-                onOrderClick={handleOrderClick}
+                onPaymentClick={handleOrderClick}
                 onUpdateStatusClick={handleUpdateStatusClick}
                 onCancelOrder={handleCancelClick}
                 onUpdateOrderItemStatus={handleUpdateOrderItemStatus}
@@ -290,7 +274,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
             highlighted={highlightedOrderId === order._id}
             expanded={expandedRows.has(order._id)}
             onToggleExpand={handleToggleExpand}
-            onOrderClick={handleOrderClick}
+            onPaymentClick={handleOrderClick}
             onUpdateStatusClick={handleUpdateStatusClick}
             onCancelOrder={handleCancelClick}
             onUpdateOrderItemStatus={handleUpdateOrderItemStatus}
@@ -299,19 +283,6 @@ const OrderTable: React.FC<OrderTableProps> = ({
           />
         ))}
       </div>
-
-      {/* Payment Confirmation Dialog */}
-      <ConfirmationDialog
-        isOpen={showPaymentDialog}
-        onClose={handleCancelPayment}
-        onConfirm={handleConfirmPayment}
-        title="Thanh toán đơn hàng"
-        message={`Bạn có muốn thanh toán đơn hàng ${selectedOrder?.order_number}? Tổng tiền: ${selectedOrder ? formatCurrency(selectedOrder.total_amount) : ''}`}
-        confirmText="Thanh toán ngay"
-        cancelText="Hủy"
-        variant="success"
-        icon="CreditCard"
-      />
       <ConfirmationDialog
         isOpen={showUpdateStatusDialog}
         onClose={() => {

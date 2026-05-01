@@ -20,10 +20,12 @@ export interface PaymentData {
 
 export interface OrderData {
   _id?: string;
+  customerName?: string;
   tableNumber?: string;
   table?: string;
   items?: ReceiptItem[];
   subtotal?: number;
+  serviceCharge?: number;
   discount?: number;
   tax?: number;
   total?: number;
@@ -73,6 +75,15 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
   const items = orderData.items ?? [];
   const hasChange = (paymentData.changeAmount ?? 0) > 0;
   const tableDisplay = orderData.tableNumber ?? orderData.table;
+  const customerDisplay = orderData.customerName?.trim() || 'Khách Vãng Lai';
+  const serviceCharge = orderData.serviceCharge ?? 0;
+  const discountAmount = orderData.discount ?? 0;
+  const taxAmount = orderData.tax ?? 0;
+  const paymentMethodLabel = paymentData.method
+    ? (PAYMENT_METHOD_LABELS[paymentData.method] ?? paymentData.method)
+    : 'Tiền mặt';
+  const paidAmount = paymentData.paidAmount ?? paymentData.orderAmount ?? orderData.total ?? 0;
+  const totalAmount = paymentData.orderAmount ?? orderData.total ?? 0;
 
   return (
     <div className="space-y-4">
@@ -91,6 +102,10 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
 
         {/* Order Info */}
         <div className="px-4 py-3 border-b border-dashed border-border text-xs">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Khách hàng:</span>
+            <span>{customerDisplay}</span>
+          </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Mã GD:</span>
             <span>{paymentData._id ?? 'N/A'}</span>
@@ -129,18 +144,22 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
             <span>{formatCurrency(orderData.subtotal ?? 0)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Giảm giá</span>
-            <span>-{formatCurrency(orderData.discount ?? 0)}</span>
+            <span className="text-muted-foreground">Phí dịch vụ</span>
+            <span>{formatCurrency(serviceCharge)}</span>
           </div>
-          {(orderData.tax ?? 0) > 0 && (
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Giảm giá</span>
+            <span>-{formatCurrency(discountAmount)}</span>
+          </div>
+          {taxAmount > 0 && (
             <div className="flex justify-between">
               <span className="text-muted-foreground">Thuế (10%)</span>
-              <span>{formatCurrency(orderData.tax!)}</span>
+              <span>{formatCurrency(taxAmount)}</span>
             </div>
           )}
           <div className="flex justify-between font-bold text-base mt-2 pt-2 border-t border-border">
             <span>TỔNG CỘNG</span>
-            <span>{formatCurrency(paymentData.orderAmount ?? orderData.total ?? 0)}</span>
+            <span>{formatCurrency(totalAmount)}</span>
           </div>
         </div>
 
@@ -148,13 +167,11 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
         <div className="px-4 py-3 border-b border-dashed border-border text-xs">
           <div className="flex justify-between">
             <span className="text-muted-foreground">Thanh toán</span>
-            <span>{paymentData.method ? (PAYMENT_METHOD_LABELS[paymentData.method] ?? 'Tiền mặt') : 'Tiền mặt'}</span>
+            <span>{paymentMethodLabel}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Tiền nhận</span>
-            <span>
-              {formatCurrency(paymentData.paidAmount ?? paymentData.orderAmount ?? orderData.total ?? 0)}
-            </span>
+            <span>{formatCurrency(paidAmount)}</span>
           </div>
           {hasChange && (
             <div className="flex justify-between font-bold">
@@ -177,7 +194,6 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
           variant="outline"
           size="sm"
           onClick={onPrintReceipt}
-          loading={isPrinting}
           disabled={isPrinting}
           iconName="Printer"
           iconPosition="left"
@@ -188,7 +204,6 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
           variant="outline"
           size="sm"
           onClick={onSendDigitalReceipt}
-          loading={isSending}
           disabled={isSending}
           iconName="Mail"
           iconPosition="left"

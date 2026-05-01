@@ -25,7 +25,7 @@ interface OrderTableDesktopRowProps {
     highlighted: boolean;
     expanded: boolean;
     onToggleExpand: (order: Order) => void;
-    onOrderClick: (order: Order) => void;
+    onPaymentClick: (order: Order) => void;
     onUpdateStatusClick: (order: Order) => void;
     onCancelOrder: (order: Order) => void;
     onUpdateOrderItemStatus?: (order: Order, itemId: string, status: AllowedOrderItemStatusUpdate) => void;
@@ -40,7 +40,7 @@ const OrderTableDesktopRow: React.FC<OrderTableDesktopRowProps> = ({
     highlighted,
     expanded,
     onToggleExpand,
-    onOrderClick,
+    onPaymentClick,
     onUpdateStatusClick,
     onCancelOrder,
     onUpdateOrderItemStatus,
@@ -97,15 +97,17 @@ const OrderTableDesktopRow: React.FC<OrderTableDesktopRowProps> = ({
                 </td>
                 <td className="p-4">
                     <div className="flex items-center space-x-2">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => onOrderClick(order)}
-                            className="hover-scale"
-                            title={order.payment_status === 'unpaid' ? 'Thanh toán' : 'Xem chi tiết'}
-                        >
-                            <Icon name={order.payment_status === 'unpaid' ? 'CreditCard' : 'Eye'} size={16} />
-                        </Button>
+                        {order.payment_status === 'unpaid' && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => onPaymentClick(order)}
+                                className="hover-scale"
+                                title="Thanh toán"
+                            >
+                                <Icon name="CreditCard" size={16} />
+                            </Button>
+                        )}
                         {order.status !== 'cancelled' && order.status !== 'completed' && order.status !== 'refunded' && (
                             <Button
                                 variant="ghost"
