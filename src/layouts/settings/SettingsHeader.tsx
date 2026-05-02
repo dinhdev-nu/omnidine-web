@@ -58,10 +58,11 @@ export function SettingsHeader({ isDark, onToggle }: SettingsHeaderProps) {
         <header className="h-16 border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6">
             <div className="flex items-center gap-3 sm:gap-6">
                 <a href="/" className="flex items-center">
-                    <span className="text-2xl font-black tracking-tighter leading-none">
-                        <span className="text-foreground">Gi</span>
-                        <span className="text-accent">Gi</span>
-                    </span>
+                    <img
+                        src="/assets/home/brand-logo.png"
+                        alt="OmniDine"
+                        className="h-6 w-auto object-contain"
+                    />
                 </a>
             </div>
 
