@@ -16,6 +16,7 @@ import DigitalWalletForm from './components/DigitalWalletForm';
 import PaymentSuccess from './components/PaymentSuccess';
 
 import { useOrderData, useIdempotencyKey } from './hooks';
+import { toast } from 'sonner';
 import { mapOrderItemsToSummaryItems, generateQRCodeUrl } from './utils/payment';
 
 type Step = 'method' | 'payment' | 'success';
@@ -117,7 +118,9 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ orderId }) => {
             });
             completePayment('cash', cashPaidAmount, cashChange);
         } catch (error) {
-            console.error('Cash payment error:', toPaymentEndpointError('create', error));
+            const appError = toPaymentEndpointError('create', error);
+            console.error('Cash payment error:', appError);
+            toast.error(appError.message);
         }
     };
 

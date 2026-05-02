@@ -116,7 +116,7 @@ export function ListRestaurantsSection() {
                 setError(null);
 
                 const response = await getOwnerRestaurants({ page: 1, limit: 10 });
-                console.log("Fetched restaurants:", response);
+                console.log("Đã tải danh sách nhà hàng:", response);
                 if (!isActive) return;
 
                 setRestaurants(response.data);
@@ -225,8 +225,8 @@ export function ListRestaurantsSection() {
                                             </div>
                                         </div>
                                         <Badge className={`${tierColors[tier]} shrink-0 border`}>
-                                            {tier === "Công khai" ? "Công khai" : "Chưa mở công khai"}
-                                        </Badge>
+                                                        {tier === "Công khai" ? "Công khai" : "Chưa công khai"}
+                                                    </Badge>
                                     </div>
 
                                     <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -246,13 +246,13 @@ export function ListRestaurantsSection() {
                                         </div>
                                         <div className="space-y-2">
                                             <div className="flex items-center justify-between gap-3 text-sm">
-                                                <span className="text-muted-foreground">Mã slug</span>
+                                                <span className="text-muted-foreground">Slug</span>
                                                 <span className="font-medium text-foreground tabular-nums">
                                                     {restaurant.slug}
                                                 </span>
                                             </div>
                                             <div className="flex items-center justify-between gap-3 text-sm">
-                                                <span className="text-muted-foreground">Đơn online</span>
+                                                <span className="text-muted-foreground">Đơn hàng trực tuyến</span>
                                                 <span className="font-medium text-foreground tabular-nums">
                                                     {restaurant.accepts_online_orders ? "Bật" : "Tắt"}
                                                 </span>
@@ -357,7 +357,7 @@ export function ListRestaurantsSection() {
                     <DialogHeader>
                         <DialogTitle className="text-base font-semibold">Chia sẻ nhà hàng</DialogTitle>
                         <DialogDescription>
-                            Có 2 link chia sẻ: trang Public và trang POS.
+                            Có 2 liên kết chia sẻ: trang công khai và trang POS.
                         </DialogDescription>
                     </DialogHeader>
 
@@ -368,7 +368,7 @@ export function ListRestaurantsSection() {
                                     value="public"
                                     className="flex-1 data-[state=active]:bg-card data-[state=active]:text-foreground"
                                 >
-                                    Public
+                                    Công khai
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="pos"
@@ -385,33 +385,33 @@ export function ListRestaurantsSection() {
                                 style={{ transform: shareMode === "public" ? "translateX(0%)" : "translateX(-50%)" }}
                             >
                                 <div className="w-1/2 p-3">
-                                    <p className="mb-3 text-sm font-medium text-foreground">Link Public</p>
+                                    <p className="mb-3 text-sm font-medium text-foreground">Liên kết công khai</p>
                                     <div className="mb-3 flex justify-center rounded-lg border border-border bg-background p-3">
                                         <QRCodeSVG value={sharePublicUrl} size={140} includeMargin />
                                     </div>
                                     <div className="flex gap-2">
-                                        <Input value={sharePublicUrl} readOnly aria-label="Link public nhà hàng" />
+                                        <Input value={sharePublicUrl} readOnly aria-label="Liên kết công khai của nhà hàng" />
                                         <Button
                                             variant="default"
-                                            onClick={() => handleCopyShareLink(sharePublicUrl, "Public")}
+                                            onClick={() => handleCopyShareLink(sharePublicUrl, "Công khai")}
                                         >
-                                            Copy
+                                            Sao chép
                                         </Button>
                                     </div>
                                 </div>
 
                                 <div className="w-1/2 p-3 border-l border-border">
-                                    <p className="mb-3 text-sm font-medium text-foreground">Link POS</p>
+                                    <p className="mb-3 text-sm font-medium text-foreground">Liên kết POS</p>
                                     <div className="mb-3 flex justify-center rounded-lg border border-border bg-background p-3">
                                         <QRCodeSVG value={sharePosUrl} size={140} includeMargin />
                                     </div>
                                     <div className="flex gap-2">
-                                        <Input value={sharePosUrl} readOnly aria-label="Link POS nhà hàng" />
+                                        <Input value={sharePosUrl} readOnly aria-label="Liên kết POS của nhà hàng" />
                                         <Button
                                             variant="default"
                                             onClick={() => handleCopyShareLink(sharePosUrl, "POS")}
                                         >
-                                            Copy
+                                            Sao chép
                                         </Button>
                                     </div>
                                 </div>

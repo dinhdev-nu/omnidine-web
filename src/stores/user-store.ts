@@ -4,8 +4,8 @@ import type { AppError } from "@/services/types"
 import { toAppError } from "@/services/error"
 import { getMe, mapPreferencesToUi, updateMe, updateMyPreferences, type UiPreferences } from "@/services/users"
 
-const PROFILE_STORAGE_KEY = "gigi_profile"
-const PREFERENCES_STORAGE_KEY = "gigi_preferences"
+const PROFILE_STORAGE_KEY = "omnidine_profile"
+const PREFERENCES_STORAGE_KEY = "omnidine_preferences"
 
 function readStoredProfile(): UserProfile | null {
   const raw = localStorage.getItem(PROFILE_STORAGE_KEY)

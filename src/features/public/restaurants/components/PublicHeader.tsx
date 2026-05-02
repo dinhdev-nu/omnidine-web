@@ -1,6 +1,7 @@
 import { Bell, Building2, LogOut, Search, UserCircle } from "lucide-react"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { resolveUserAvatar } from '@/lib/avatar'
 
 import {
     DropdownMenu,
@@ -25,14 +26,11 @@ function getDisplayName(user: FeedUser | null): string {
     return user?.full_name ?? user?.user_name ?? "User"
 }
 
-function getAvatarUrl(user: FeedUser | null): string | null {
-    return user?.avatar_url ?? user?.avatar ?? user?.profileImage ?? null
+function getAvatarUrl(user: FeedUser | null): string {
+    return resolveUserAvatar(user)
 }
 
-function getInitial(user: FeedUser | null): string {
-    const candidate = user?.email?.[0] ?? user?.full_name?.[0] ?? user?.user_name?.[0] ?? "U"
-    return candidate.toUpperCase()
-}
+
 
 export default function FeedHeader({ user, onLocationChange, onLogout }: FeedHeaderProps) {
     const navigate = useNavigate()
@@ -47,12 +45,13 @@ export default function FeedHeader({ user, onLocationChange, onLogout }: FeedHea
                         onClick={() => navigate("/")}
                         className="flex cursor-pointer items-center space-x-3"
                     >
-                        <div className="rounded-xl bg-gray-900 px-3 py-1.5">
-                            <span className="text-xl font-black tracking-tight text-white">
-                                GI<span className="text-[#AFFF00]">GI</span>
-                            </span>
+                        <div className="rounded-xl px-3 py-1.5">
+                            <img
+                                src="/assets/home/brand-logo.png"
+                                alt="OmniDine"
+                                className="h-6 w-auto object-contain"
+                            />
                         </div>
-                        <h1 className="hidden text-xl font-bold text-foreground sm:block">Feed</h1>
                     </button>
 
                     <PublicHeaderSearch isOpen={isSearchOpen} onOpenChange={setIsSearchOpen} />
@@ -86,15 +85,15 @@ export default function FeedHeader({ user, onLocationChange, onLogout }: FeedHea
                                         className="flex items-center space-x-2 rounded-full px-3 py-1.5 transition-colors hover:bg-secondary"
                                     >
                                         <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-gray-900">
-                                            {getAvatarUrl(user) ? (
-                                                <img
-                                                    src={getAvatarUrl(user) ?? ""}
-                                                    alt={getDisplayName(user)}
-                                                    className="h-full w-full object-cover"
-                                                />
-                                            ) : (
-                                                <span className="text-sm font-medium text-white">{getInitial(user)}</span>
-                                            )}
+                                            <img
+                                                src={getAvatarUrl(user)}
+                                                alt={getDisplayName(user)}
+                                                className="h-full w-full object-cover"
+                                                onError={(ev) => {
+                                                    ev.currentTarget.onerror = null
+                                                    ev.currentTarget.src = '/assets/home/iVBORw0KGg.png'
+                                                }}
+                                            />
                                         </div>
                                         <span className="hidden max-w-[100px] truncate text-sm font-medium text-foreground md:block">
                                             {getDisplayName(user)}

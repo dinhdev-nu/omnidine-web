@@ -153,7 +153,7 @@ function BrandIdentitySection({
                             <InputGroupAddon align="inline-start">
                                 <InputGroupText>
                                     <LinkIcon className="size-4 text-muted-foreground" />
-                                    <span className="text-xs border-r border-border pr-2">gigi.vn/r/</span>
+                                    <span className="text-xs border-r border-border pr-2">omnidine.vn/r/</span>
                                 </InputGroupText>
                             </InputGroupAddon>
                             <InputGroupInput

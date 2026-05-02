@@ -39,9 +39,9 @@ export const ACCOUNT_SECTION_PATHS: Record<AccountSectionId, string> = {
 export const ACCOUNT_DEFAULT_PATH = ACCOUNT_SECTION_PATHS.profile
 
 const ACCOUNT_ITEMS: Array<Pick<SettingsNavItem, "id" | "label" | "icon">> = [
-  { id: "profile", label: "Profile", icon: User },
-  { id: "notifications", label: "Notifications", icon: Bell },
-  { id: "security", label: "Security", icon: Shield },
+  { id: "profile", label: "Hồ sơ", icon: User },
+  { id: "notifications", label: "Thông báo", icon: Bell },
+  { id: "security", label: "Bảo mật", icon: Shield },
 ]
 
 export const ACCOUNT_NAV_ITEMS: SettingsNavItem[] = ACCOUNT_ITEMS.map((item) => ({

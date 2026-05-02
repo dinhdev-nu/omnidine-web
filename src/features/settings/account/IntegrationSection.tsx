@@ -15,8 +15,8 @@ export function IntegrationsSection() {
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <Card className="border-border bg-card">
                 <CardHeader>
-                    <CardTitle className="text-base font-medium">Connected Services</CardTitle>
-                    <CardDescription>Manage your third-party integrations</CardDescription>
+                    <CardTitle className="text-base font-medium">Dịch vụ đã kết nối</CardTitle>
+                    <CardDescription>Quản lý các tích hợp của bên thứ ba</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -40,22 +40,22 @@ export function IntegrationsSection() {
                                         </div>
                                     </div>
                                     <Badge className={integration.connected ? "bg-success/20 text-success border-success/30" : "bg-muted text-muted-foreground border-border"}>
-                                        {integration.connected ? "Connected" : "Not connected"}
+                                        {integration.connected ? "Đã kết nối" : "Chưa kết nối"}
                                     </Badge>
                                 </div>
                                 <div className="mt-4 flex items-center justify-between">
                                     {integration.connected ? (
                                         <>
-                                            <span className="text-xs text-muted-foreground">Last sync: {integration.lastSync}</span>
+                                            <span className="text-xs text-muted-foreground">Lần đồng bộ cuối: {integration.lastSync}</span>
                                             <div className="flex items-center gap-2">
-                                                <Button variant="ghost" size="sm" className="h-8"><RefreshCw className="w-3.5 h-3.5 mr-1.5" />Sync</Button>
-                                                <Button variant="ghost" size="sm" className="h-8 text-destructive hover:text-destructive">Disconnect</Button>
+                                                <Button variant="ghost" size="sm" className="h-8"><RefreshCw className="w-3.5 h-3.5 mr-1.5" />Đồng bộ</Button>
+                                                <Button variant="ghost" size="sm" className="h-8 text-destructive hover:text-destructive">Ngắt kết nối</Button>
                                             </div>
                                         </>
                                     ) : (
                                         <>
-                                            <span className="text-xs text-muted-foreground">Not configured</span>
-                                            <Button size="sm" className="h-8">Connect<ExternalLink className="w-3.5 h-3.5 ml-1.5" /></Button>
+                                            <span className="text-xs text-muted-foreground">Chưa cấu hình</span>
+                                            <Button size="sm" className="h-8">Kết nối<ExternalLink className="w-3.5 h-3.5 ml-1.5" /></Button>
                                         </>
                                     )}
                                 </div>
@@ -70,10 +70,10 @@ export function IntegrationsSection() {
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div>
-                            <CardTitle className="text-base font-medium">API Tokens</CardTitle>
-                            <CardDescription>Manage API keys for programmatic access</CardDescription>
+                            <CardTitle className="text-base font-medium">Token API</CardTitle>
+                            <CardDescription>Quản lý khóa API cho truy cập tự động</CardDescription>
                         </div>
-                        <Button size="sm" variant="outline">Generate Token</Button>
+                        <Button size="sm" variant="outline">Tạo token</Button>
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -102,7 +102,7 @@ export function IntegrationsSection() {
                                 />
                                 <InputGroupAddon align="inline-end">
                                     <InputGroupButton size="icon-sm" variant="ghost"
-                                        onClick={() => { void navigator.clipboard.writeText(token.masked); toast.success("Copied!"); }}>
+                                        onClick={() => { void navigator.clipboard.writeText(token.masked); toast.success("Đã sao chép"); }}>
                                         <Copy className="w-3.5 h-3.5" />
                                     </InputGroupButton>
                                 </InputGroupAddon>

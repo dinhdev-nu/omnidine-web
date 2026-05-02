@@ -32,27 +32,27 @@ type IconFeature = {
 
 const TESTIMONIALS: Testimonial[] = [
   {
-    text: "“Our team's productivity soared with this messaging tool.\nIts simplicity fosters quick decision-making and seamless\ncollaboration, essential for our fast-paced product\ndevelopment.”",
-    name: "Emily Rodriguez",
-    role: "Emily Rodriguez, PinPoint",
+    text: "“Từ ngày dùng OmniDine để quản lý hệ thống bán hàng, mọi thông tin\ntừ quầy tính tiền lên bếp đều diễn ra cực kì chính xác và minh bạch.\nCửa hàng đạt hiệu suất cao với hàng trăm đơn đặt.”",
+    name: "Emilia Trần",
+    role: "Chủ thương hiệu, Cơm Tấm ABC",
     avatarSrc: "/assets/home/iVBORw0KGg_3.png",
     companyAlt: "PinPoint",
     companySrc: "/assets/home/PHN2ZyB3aW_10.svg",
     companyWidth: 48,
   },
   {
-    text: "“With this tool, our team's workflow has become more\nefficient and organized. We spend less time navigating\ncomplex interfaces and more time focusing on what matters:\ndelivering quality products to our customers.”",
-    name: "David Patel",
-    role: "David Patel, Hues",
+    text: "“Chúng tôi kiểm soát mọi chi nhánh hiệu quả hơn rất nhiều.\nViệc quản lý nhân viên và báo cáo doanh thu tập trung về 1 màn hình\ngiúp theo dõi và phân tích chiến lược nhanh hơn bao giờ hết.”",
+    name: "Bảo Phát",
+    role: "Điều hành, Phở Phát Phát",
     avatarSrc: `/assets/home/iVBORw0KGg_2.png`,
     companyAlt: "Hues",
     companySrc: `/assets/home/PHN2ZyB3aW_5.svg`,
     companyWidth: 48,
   },
   {
-    text: "“We've seen remarkable results since integrating AI\nsolutions from this company into our workflows.Their\ncomputer vision technology has enabled us to automate\ntasks and extract valuable insights from visual data.”",
+    text: "“Tương tác đặt hàng online mượt mà và menu số siêu việt.\nHệ thống này không chỉ nâng tầm tính chuyên nghiệp của cửa hàng\nmà còn tối ưu hoá dịch vụ khiến khách hàng rất hài lòng.”",
     name: "Rachel Kim",
-    role: "Rachel Kim, Greenish",
+    role: "Quản lý, Bếp chay Xinh",
     avatarSrc: `/assets/home/iVBORw0KGg.png`,
     companyAlt: "Greenish",
     companySrc: `/assets/home/PHN2ZyB3aW_6.svg`,
@@ -78,146 +78,146 @@ const COMPANY_LOGOS: CompanyLogo[] = [
 const COMMUNICATION_FEATURES: CommunicationFeature[] = [
   {
     imageSrc: "/assets/home/9j_4AAQSk.jpg",
-    title: "Real-Time Messaging",
+    title: "Quản Lý Đa Nhà Hàng Tập Trung",
     description:
-      "Our platform offers instantaneous messaging to keep your team connected and responsive. This ensures that all team members are aligned and can react quickly to any updates or changes.",
+      "Nền tảng của chúng tôi cung cấp giao diện quản lý thiết yếu để bạn kiểm soát tất cả cửa hàng từ một nơi. Theo dõi trạng thái, thực đơn và nhân viên dễ dàng.",
     bullets: [
-      "Instant message delivery",
-      "User status indicators (online, offline, busy)",
-      "Group and private chat options",
+      "Quản lý nhiều chi nhánh trong một hệ thống",
+      "Giao diện trực quan, dễ theo dõi",
+      "Phân quyền nhân viên theo cửa hàng",
     ],
   },
   {
     imageSrc: "/assets/home/9j_4AAQSk_2.jpg",
-    title: "Integrated Task Management",
+    title: "Menu Số & Đặt Món Trực Tuyến",
     description:
-      "Enhance communication by integrating discussions directly with tasks. This feature allows team members to collaborate more effectively by linking conversations to specific projects or tasks.",
+      "Hệ thống menu số tích hợp QR code cho phép khách hàng đặt món nhanh chóng. Dữ liệu được đồng bộ ngay tới bếp và điểm bán hàng.",
     bullets: [],
   },
   {
     imageSrc: "/assets/home/9j_4AAQSk_3.jpg",
-    title: "Secure Communication Channels",
+    title: "Hệ Thống Dữ Liệu An Toàn",
     description:
-      "Prioritize security in team communications with end-to-end encryption. This feature helps in protecting sensitive information while allowing team members to collaborate in a secure environment.",
+      "Bảo vệ toàn vẹn dữ liệu doanh thu và thông tin khách hàng với hệ thống bảo mật đám mây đạt chuẩn, quy trình sao lưu liên tục.",
     bullets: [
-      "End-to-end encryption",
-      "Secure file sharing and storage",
-      "Compliance with global security standards",
+      "Mã hóa dữ liệu đầu cuối",
+      "Kiểm soát luồng thao tác an toàn",
+      "Tuân thủ tiêu chuẩn thanh toán",
     ],
   },
 ]
 
 const MANAGEMENT_FEATURES: IconFeature[] = [
   {
-    iconAlt: "Sprint Planning",
+    iconAlt: "Menu",
     iconSrc: "/assets/home/PHN2ZyB3aW_11.svg",
-    title: "Sprint Planning",
+    title: "Quản Lý Thực Đơn",
     description:
-      "Plan and execute project tasks efficiently within iterative sprint cycles.",
+      "Cập nhật món ăn, hình ảnh, thay đổi giá theo từng chi nhánh nhanh chóng.",
   },
   {
-    iconAlt: "Kanban Boards",
+    iconAlt: "Tables",
     iconSrc: "/assets/home/PHN2ZyB3aW_12.svg",
-    title: "Kanban Boards",
+    title: "Quản Lý Bàn",
     description:
-      "Visualize project workflow and track task progress with customizable Kanban boards.",
+      "Giám sát tình trạng bàn ăn thực tế, hỗ trợ quá trình xếp bàn cho khách.",
   },
   {
-    iconAlt: "Task Prioritization",
+    iconAlt: "Staff",
     iconSrc: "/assets/home/PHN2ZyB3aW_13.svg",
-    title: "Task Prioritization",
+    title: "Quản Lý Nhân Viên",
     description:
-      "Prioritize tasks based on urgency and importance to ensure efficient use of resources.",
+      "Kiểm soát vai trò thành viên từ thu ngân đến quản lý hệ thống.",
   },
   {
-    iconAlt: "Collaborative Task Boards",
+    iconAlt: "Management",
     iconSrc: "/assets/home/PHN2ZyB3aW_14.svg",
-    title: "Collaborative Task Boards",
+    title: "Điểm Bán Hàng",
     description:
-      "Collaboratively manage tasks and assignments in real-time, fostering teamwork and accountability.",
+      "Tương tác mượt mà trong việc gọi và tính tiền mọi đơn hàng tại quầy.",
   },
   {
-    iconAlt: "Backlog Management",
+    iconAlt: "Đơn hàng",
     iconSrc: "/assets/home/PHN2ZyB3aW_15.svg",
-    title: "Backlog Management",
+    title: "Quản Lý Đơn Hàng",
     description:
-      "Maintain a backlog of tasks and user stories, ensuring a steady flow of work for your team.",
+      "Duy trì luồng xử lý đơn minh bạch từ lúc nhận yêu cầu đến khi phục vụ.",
   },
   {
-    iconAlt: "Burndown Charts",
+    iconAlt: "Report",
     iconSrc: "/assets/home/PHN2ZyB3aW_16.svg",
-    title: "Burndown Charts",
+    title: "Báo Cáo Thống Kê",
     description:
-      "Monitor project progress and identify potential bottlenecks with easy-to-read burndown charts.",
+      "Kiểm soát hiệu suất nhà hàng qua dữ liệu về món bán chạy và doanh thu.",
   },
 ]
 
 const COLLABORATION_FEATURES: IconFeature[] = [
   {
-    iconAlt: "Real-time Messaging",
+    iconAlt: "Tương tác thời gian thực",
     iconSrc: "/assets/home/PHN2ZyB3aW_11.svg",
-    title: "Real-time Messaging",
+    title: "Tương tác thời gian thực",
     description:
-      "Instantly communicate and collaborate with team members, keeping everyone aligned and informed.",
+      "Tương tác giao việc liên quán tức thì để duy trì luồng làm việc cho nhân viên.",
   },
   {
-    iconAlt: "File Sharing",
+    iconAlt: "Lưu giữ dữ liệu",
     iconSrc: "/assets/home/PHN2ZyB3aW_12.svg",
-    title: "File Sharing",
+    title: "Lưu Giữ Dữ Liệu",
     description:
-      "Share documents, images, and files effortlessly within your team, ensuring easy access to important resources.",
+      "Lưu lại các thông tin của đơn hàng để trích xuất về sau một cách nhanh chóng và an toàn.",
   },
   {
-    iconAlt: "Task Management",
+    iconAlt: "Quản lý công việc",
     iconSrc: "/assets/home/PHN2ZyB3aW_13.svg",
-    title: "Task Management",
+    title: "Quản Lý Công Việc",
     description:
-      "Organize tasks, assign responsibilities, and track progress in one centralized platform, promoting accountability and efficiency.",
+      "Sắp xếp và quản lý toàn bộ các khu vực thông qua những phòng bếp, điểm bán hàng.",
   },
 ]
 
 const PRODUCTIVITY_FEATURES: IconFeature[] = [
   {
-    iconAlt: "Real-time Messaging",
+    iconAlt: "Tích Hợp",
     iconSrc: "/assets/home/PHN2ZyB3aW_17.svg",
-    title: "Real-time Messaging",
+    title: "Vận Hành Xuyên Suốt",
     description:
-      "Instantly communicate with your team, ensuring swift decision-making and seamless collaboration on project tasks and updates.",
+      "Quy trình thanh toán và đặt món thông minh giúp phục vụ khách siêu tốc độ.",
   },
   {
-    iconAlt: "Task Management",
+    iconAlt: "Quy trình",
     iconSrc: "/assets/home/PHN2ZyB3aW_18.svg",
-    title: "Task Management",
+    title: "Quy Trình Chuẩn Hoá",
     description:
-      "Organize and prioritize tasks effectively, assigning responsibilities and tracking progress to keep projects on schedule and within scope.",
+      "Tổ chức và ưu tiến các đơn hàng tùy theo trạng thái, tránh nhầm lẫn hóa đơn.",
   },
   {
-    iconAlt: "File Sharing",
+    iconAlt: "Quản lý dữ liệu",
     iconSrc: "/assets/home/PHN2ZyB3aW_19.svg",
-    title: "File Sharing",
+    title: "Lưu Trữ Dữ Liệu",
     description:
-      "Share documents, images, and other files effortlessly within your team, enabling easy access to project resources and materials.",
+      "Chia sẻ hóa đơn, in phiếu biên nhận và quản lý thông tin khách hoàn hảo.",
   },
   {
-    iconAlt: "Real-time Insights",
+    iconAlt: "Dự Trữ Kho",
     iconSrc: "/assets/home/PHN2ZyB3aW_20.svg",
-    title: "Real-time Insights",
+    title: "Thống Kê",
     description:
-      "Gain actionable insights instantly with real-time data analysis and visualization.",
+      "Phân tích nhanh chóng số lượng món hiện hữu và lượng đơn hàng theo thời gian.",
   },
   {
     iconAlt: "Smart Notifications",
     iconSrc: "/assets/home/PHN2ZyB3aW_21.svg",
-    title: "Smart Notifications",
+    title: "Thông Báo Tức Thời",
     description:
-      "Stay informed about project updates and important discussions without being overwhelmed, thanks to customizable notification settings.",
+      "Nhận ngay báo cáo đơn hàng lúc lên món tại quầy giúp đầu bếp có thông tin.",
   },
   {
-    iconAlt: "Team Analytics",
+    iconAlt: "Phân Tích Cửa Hàng",
     iconSrc: "/assets/home/PHN2ZyB3aW_22.svg",
-    title: "Team Analytics",
+    title: "Phân Tích Doanh Thu",
     description:
-      "Gain insights into team performance and communication trends with built-in analytics, empowering you to optimize workflows and enhance productivity.",
+      "Nắm bắt điểm nổi bật kinh doanh dựa trên báo cáo để tối ưu quản lý hoạt động.",
   },
 ]
 
@@ -425,19 +425,18 @@ export default function LandingMain() {
                 ))}
               </div>
               <p className="text-sm tracking-tight text-[--text-tertiary] dark:text-[--dark-text-tertiary]">
-                1,254 happy customers
+                1,254 đối tác tin dùng
               </p>
             </div>
           </div>
           <div>
             <div className="mx-auto flex min-h-[288px] max-w-[80vw] shrink-0 flex-col items-center justify-center gap-2 px-2 py-4 sm:px-16 lg:px-24">
               <h1 className="!max-w-screen-lg text-center text-[clamp(32px,7vw,64px)] leading-none font-medium tracking-[-1.44px] text-pretty text-[--text-primary] md:tracking-[-2.16px] dark:text-[--dark-text-primary]">
-                Streamlined Communication for Iterating Fast
+                Quản Lý Chuỗi Nhà Hàng Đa Chi Nhánh
               </h1>
               <h2 className="text-md max-w-2xl text-center text-pretty text-[--text-tertiary] md:text-lg dark:text-[--dark-text-tertiary]">
-                Acme is an installable, self-hosted team chat system. You can
-                have several paragraphs in here and the thing will wrap
-                gracefully.
+                OmniDine là hệ thống quản lý chuyên nghiệp giúp bạn tự động hoá việc đặt món của khách hàng,
+                chuẩn hoá quy trình phục vụ và nắm bắt báo cáo ngay tại thời gian thực.
               </h2>
             </div>
           </div>
@@ -445,15 +444,15 @@ export default function LandingMain() {
             <div className="flex w-full max-w-[80vw] flex-col items-center justify-start md:!max-w-[392px]">
               <a
                 className="max-w-sm:!border-x-0 flex inline-flex !h-14 h-8 w-full shrink-0 flex-col items-center justify-center gap-1 rounded-full rounded-none border !border-x !border-y-0 border-[--border] !bg-transparent bg-[--surface-secondary] px-3.5 !text-base text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 backdrop-blur-xl transition-colors duration-150 hover:!bg-black/5 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:px-5 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:!bg-white/5 dark:hover:bg-[--dark-surface-tertiary]"
-                href="/#request-demo"
+                href="/auth/register"
               >
-                Request Demo
+                Dùng Thử Ngay
               </a>
               <a
                 className="flex inline-flex !h-14 h-8 w-full shrink-0 flex-col items-center justify-center gap-1 rounded-full rounded-none border-[--accent-600] bg-[--accent-500] px-3.5 !text-base text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:px-5"
-                href="/auth/register"
+                href="/auth/login"
               >
-                Get Started for Free
+                Trải Nghiệm Hệ Thống
               </a>
             </div>
           </div>
@@ -461,7 +460,7 @@ export default function LandingMain() {
       </section>
       <section className="relative flex flex-col items-center gap-10 py-14 md:py-[72px]">
         <h2 className="text-center tracking-tight text-[--dark-text-tertiary] opacity-50">
-          Join 4,000+ companies already growing
+          Các chuỗi nhà hàng đang dùng hệ thống
         </h2>
         <div className="no-scrollbar flex max-w-full justify-center overflow-auto">
           <div className="from-surface-primary dark:from-dark-surface-primary sf-hidden pointer-events-none absolute top-0 left-0 h-full w-[30vw] bg-transparent bg-linear-to-r xl:hidden"></div>
@@ -491,15 +490,14 @@ export default function LandingMain() {
       <section className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]">
         <div className="flex flex-col items-center gap-3 self-center">
           <h3 className="flex min-h-7 items-center justify-center gap-2 rounded-full bg-[--surface-secondary] px-3.5 pb-px text-sm font-medium text-[--text-tertiary] md:text-base dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-tertiary]">
-            Communication
+            Hệ sinh thái
           </h3>
           <div className="flex max-w-[800px] flex-col items-center justify-center gap-1 self-center [&>*]:text-center [&>*]:text-3xl [&>*]:font-medium [&>*]:text-pretty md:[&>*]:text-4xl">
-            <h4>Enhanced Team Communication</h4>
+            <h4>Báo Cáo Phân Tích Thông Minh</h4>
           </div>
           <p className="max-w-screen-md text-center text-lg font-light text-pretty text-[--text-tertiary] md:text-xl dark:text-[--dark-text-tertiary]">
-            Simplify team discussions and collaboration with our efficient
-            messaging features, enabling swift decision-making and project
-            progress tracking.
+            Kiểm soát hiệu suất chặt chẽ của từng nhân viên cũng như từng cửa hàng.
+            Giảm thiểu tỷ lệ sai sót đơn hàng và theo dõi lợi nhuận chính xác.
           </p>
         </div>
         <div className="flex flex-col gap-6">
@@ -511,14 +509,13 @@ export default function LandingMain() {
       <section className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]">
         <div className="flex flex-col items-center gap-3 self-center">
           <h3 className="flex min-h-7 items-center justify-center gap-2 rounded-full bg-[--surface-secondary] px-3.5 pb-px text-sm font-medium text-[--text-tertiary] md:text-base dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-tertiary]">
-            Management
+            Trọng tâm
           </h3>
           <div className="flex max-w-[800px] flex-col items-center justify-center gap-1 self-center [&>*]:text-center [&>*]:text-3xl [&>*]:font-medium [&>*]:text-pretty md:[&>*]:text-4xl">
-            <h4 title="Agile Project Planning">Agile Project Planning</h4>
+            <h4 title="Quản Lý Chuyên Sâu">Giải Pháp Khép Kín</h4>
           </div>
           <p className="max-w-screen-md text-center text-lg font-light text-pretty text-[--text-tertiary] md:text-xl dark:text-[--dark-text-tertiary]">
-            Drive project success with agile project management capabilities
-            tailored for small teams focused on rapid product development.
+            Liên kết hoàn hảo giữa khu phục vụ (điểm bán hàng) và hệ thống điều hành (trung tâm) với khả năng truy cập thời gian thực.
           </p>
         </div>
         <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-5">
@@ -531,13 +528,13 @@ export default function LandingMain() {
             className="inline-flex h-9 shrink-0 items-center justify-center gap-1 rounded-full border-[--accent-600] bg-[--accent-500] px-5 text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:h-10 md:text-base"
             href="/auth/register"
           >
-            Get started
+            Đăng ký dùng thử
           </a>
           <a
             className="inline-flex h-9 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-5 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:h-10 md:text-base dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
-            href="/#features-collaborative-task-boards"
+            href="#features"
           >
-            See more
+            Xem thêm
           </a>
         </div>
       </section>
@@ -545,10 +542,10 @@ export default function LandingMain() {
         <article className="flex flex-col justify-center gap-9 self-stretch rounded-xl bg-[rgba(var(--accent-500),0.1)] p-6 lg:flex-row lg:justify-between lg:p-10 dark:bg-[rgba(var(--accent-600),0.1)]">
           <div className="flex flex-col gap-2">
             <h4 className="text-3xl font-medium text-[--text-primary] lg:text-4xl dark:text-[--dark-text-primary]">
-              Enhance your team's productivity with Acme
+              Đẩy mạnh hiệu suất nhà hàng của bạn với OmniDine
             </h4>
             <p className="text-lg text-[--text-secondary] lg:text-xl dark:text-[--dark-text-secondary]">
-              Write in threads, focus, and collaborate without video calls.
+              Xoá bỏ hoàn toàn điểm nghẽn bằng nghiệp vụ quản lý hiện đại.
             </p>
           </div>
           <div className="grid grid-cols-2 items-center gap-2 md:flex lg:flex-col">
@@ -556,13 +553,13 @@ export default function LandingMain() {
               className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-full border-[--accent-600] bg-[--accent-500] px-3.5 text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:px-5"
               href="/auth/register"
             >
-              Get started
+              Đăng ký
             </a>
             <a
               className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-3.5 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:px-5 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
               href="#"
             >
-              See more
+              Hỗ trợ
             </a>
           </div>
         </article>
@@ -592,17 +589,16 @@ export default function LandingMain() {
         />
         <div className="flex flex-col items-center gap-3 self-center">
           <h3 className="flex min-h-7 items-center justify-center gap-2 rounded-full bg-[--surface-secondary] px-3.5 pb-px text-sm font-medium text-[--text-tertiary] md:text-base dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-tertiary]">
-            Collaboration
+            Tự Lập Trình Và Dễ Dàng Đồng Bộ
           </h3>
           <div className="flex max-w-[800px] flex-col items-center justify-center gap-1 self-center [&>*]:text-center [&>*]:text-3xl [&>*]:font-medium [&>*]:text-pretty md:[&>*]:text-4xl">
-            <h4 title="Seamless Collaboration, Enhanced Productivity">
-              Seamless Collaboration, Enhanced Productivity
+            <h4 title="Khả Năng Vận Hành Xuyên Suốt">
+              Khả Năng Vận Hành Xuyên Suốt
             </h4>
           </div>
           <p className="max-w-screen-md text-center text-lg font-light text-pretty text-[--text-tertiary] md:text-xl dark:text-[--dark-text-tertiary]">
-            Empower your team with integrated tools for file sharing, task
-            management, and real-time collaboration, ensuring smooth project
-            workflows from start to finish.
+            Được trang bị hàng loạt các công cụ làm việc nhóm, chia sẻ dữ liệu và lưu trữ
+            các file giúp duy trì sự liên tục mượt mà từ lúc nhận cho đến khi phát hành sản phẩm.
           </p>
         </div>
         <div className="flex w-full flex-col items-start gap-4 md:order-2 md:grid md:grid-cols-3 md:gap-16">
@@ -616,16 +612,15 @@ export default function LandingMain() {
           <div className="sticky top-[calc(var(--header-height)+40px)] bottom-0 flex flex-col gap-10">
             <div className="flex flex-col items-start gap-3 self-start">
               <h3 className="flex min-h-7 items-center justify-center gap-2 rounded-full bg-[--surface-secondary] px-3.5 pb-px text-sm font-medium text-[--text-tertiary] md:text-base dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-tertiary]">
-                Productivity
+                Hiệu Suất
               </h3>
               <div className="flex max-w-[800px] flex-col items-start justify-center gap-1 self-start [&>*]:text-left [&>*]:text-3xl [&>*]:font-medium [&>*]:text-pretty md:[&>*]:text-4xl">
-                <h4 title="Supercharge Team Productivity">
-                  Supercharge Team Productivity
+                <h4 title="Tối ưu luồng công việc">
+                  Tối ưu luồng công việc
                 </h4>
               </div>
               <p className="max-w-screen-md text-left text-lg font-light text-pretty text-[--text-tertiary] md:text-xl dark:text-[--dark-text-tertiary]">
-                Keep your team focused and productive as they collaborate on
-                building and shipping products swiftly.
+                Hỗ trợ đội ngũ nhân viên duy trì tốc độ và làm việc liền mạch khi xử lý hàng trăm đơn hàng một cách nhanh chóng.
               </p>
             </div>
             <div className="flex items-center gap-3 md:order-3">
@@ -633,13 +628,13 @@ export default function LandingMain() {
                 className="inline-flex h-9 shrink-0 items-center justify-center gap-1 rounded-full border-[--accent-600] bg-[--accent-500] px-5 text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:h-10 md:text-base"
                 href="/auth/register"
               >
-                Get started
+                Trải nghiệm
               </a>
               <a
                 className="inline-flex h-9 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-5 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:h-10 md:text-base dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
-                href="/#features-realtime-insights"
+                href="#"
               >
-                See more
+                Chi tiết
               </a>
             </div>
           </div>
@@ -660,10 +655,10 @@ export default function LandingMain() {
           <div className="absolute top-0 left-0 z-10 h-full w-full bg-[--surface-secondary] blur-3xl filter dark:bg-[--dark-surface-secondary]"></div>
           <div className="relative z-20 flex flex-col items-center gap-2 text-center">
             <h4 className="text-center text-3xl font-medium tracking-tighter text-[--text-primary] sm:max-w-full sm:px-0 md:text-4xl dark:text-[--dark-text-primary]">
-              Enhance your team's productivity with Acme
+              Đẩy mạnh hiệu suất nhà hàng cùng OmniDine
             </h4>
             <p className="text-lg text-[--text-secondary] md:text-xl dark:text-[--dark-text-secondary]">
-              Write in threads, focus, and collaborate without video calls.
+              Mọi tính năng mạnh mẽ được hội tụ trong một hệ thống vận hành.
             </p>
           </div>
           <div className="relative z-10 flex items-center gap-2">
@@ -671,13 +666,13 @@ export default function LandingMain() {
               className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-full border-[--accent-600] bg-[--accent-500] px-3.5 text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:px-5"
               href="/auth/register"
             >
-              Get started
+              Đăng ký
             </a>
             <a
               className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-3.5 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:px-5 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
               href="#"
             >
-              See more
+              Tìm hiểu thêm
             </a>
           </div>
         </article>
@@ -688,7 +683,7 @@ export default function LandingMain() {
             <div className="flex justify-between">
               <div className="flex flex-col items-start gap-3 self-start self-stretch">
                 <div className="flex max-w-[800px] flex-col items-start justify-center gap-1 self-start [&>*]:text-left [&>*]:text-3xl [&>*]:font-medium [&>*]:text-pretty md:[&>*]:text-4xl">
-                  <h4 title="What our clients say">What our clients say</h4>
+                  <h4 title="Khách hàng nói gì">Hơn 1200 Đối Tác Tin Dùng</h4>
                 </div>
               </div>
               <div className="hidden gap-4 sm:flex">

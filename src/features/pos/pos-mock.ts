@@ -16,9 +16,9 @@ export interface PosNotification {
 
 export const demoRestaurant: PosRestaurantInfo = {
   id: '1',
-  name: 'GiGi Energy Restaurant',
+  name: 'OmniDine Energy Restaurant',
   logo: '/assets/images/restaurant_logo.png',
-  orderUrl: 'https://example.com/order/gigi-energy',
+  orderUrl: 'https://example.com/order/omnidine-energy',
 };
 
 export const demoNotifications: PosNotification[] = [

@@ -9,7 +9,7 @@ import { useUserStore } from '@/stores/user-store';
 import type { OrderingNotification, OrderingUser } from '../types';
 
 const DEFAULT_RESTAURANT_LOGO = '/assets/images/restaurant_logo.png';
-const DEFAULT_USER_AVATAR = '/assets/images/user_avatar.jpg';
+import { resolveUserAvatar } from '@/lib/avatar'
 
 const HeaderClock = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -82,7 +82,7 @@ const Header = ({
   // User info with fallback - Map API data correctly
   const { isGuest, avatar: userAvatar, name: userName } = useMemo(() => ({
     isGuest: !user,
-    avatar: user?.avatar_url || user?.avatar || DEFAULT_USER_AVATAR,
+    avatar: resolveUserAvatar(user),
     name: user?.full_name || user?.user_name || 'Khách lạ'
   }), [user]);
 
@@ -91,7 +91,7 @@ const Header = ({
     ? DEFAULT_RESTAURANT_LOGO
     : originalRestaurantLogo;
   const userAvatarSrc = brokenUserAvatar === userAvatar
-    ? DEFAULT_USER_AVATAR
+    ? '/assets/home/iVBORw0KGg.png'
     : userAvatar;
 
   const formatNotificationTime = (isoString: string) => {
@@ -157,9 +157,11 @@ const Header = ({
             className="flex items-center space-x-2 sm:space-x-3 cursor-pointer"
           >
             <div className="hidden sm:flex items-center pr-3 mr-1 border-r border-border/70">
-              <span className="text-base sm:text-lg font-black tracking-tight text-foreground">
-                GI<span className="text-[#AFFF00]">GI</span>
-              </span>
+              <img
+                src="/assets/home/brand-logo.png"
+                alt="OmniDine"
+                className="h-6 w-auto object-contain"
+              />
             </div>
             <img
               src={restaurantLogo}
@@ -309,7 +311,7 @@ const Header = ({
                         className="justify-start"
                         onClick={() => {
                           setShowUserMenu(false);
-                          navigate('/auth?mode=login');
+                          navigate('/auth/login');
                         }}
                       >
                         Đăng nhập
@@ -323,7 +325,7 @@ const Header = ({
                         className="justify-start"
                         onClick={() => {
                           setShowUserMenu(false);
-                          navigate('/auth?mode=signup');
+                          navigate('/auth/register');
                         }}
                       >
                         Đăng ký

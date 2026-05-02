@@ -58,13 +58,13 @@ export const AUDIT_LOG = [
 ] as const
 
 export const STATUS_BADGE: Record<string, { label: string; className: string }> = {
-  active: { label: "Active", className: "bg-success/20 text-success border-success/30" },
-  inactive: { label: "Inactive", className: "bg-muted text-muted-foreground border-border" },
-  banned: { label: "Banned", className: "bg-destructive/20 text-destructive border-destructive/30" },
-  pending: { label: "Pending", className: "bg-yellow-500/20 text-yellow-600 border-yellow-500/30" },
+  active: { label: "Đang hoạt động", className: "bg-success/20 text-success border-success/30" },
+  inactive: { label: "Không hoạt động", className: "bg-muted text-muted-foreground border-border" },
+  banned: { label: "Đã khóa", className: "bg-destructive/20 text-destructive border-destructive/30" },
+  pending: { label: "Đang chờ", className: "bg-yellow-500/20 text-yellow-600 border-yellow-500/30" },
 }
 
-export const ROLE_LABEL: Record<string, string> = { admin: "Administrator", user: "Member" }
+export const ROLE_LABEL: Record<string, string> = { admin: "Quản trị viên", user: "Thành viên" }
 
 export function getInitials(fullName: string | undefined | null): string {
   if (!fullName?.trim()) return "?"
@@ -79,17 +79,17 @@ export function getInitials(fullName: string | undefined | null): string {
 
 
 export const integrations = [
-  { id: "salesforce", name: "Salesforce",       description: "Sync contacts and opportunities",    connected: true,  lastSync: "2 hours ago" },
-  { id: "hubspot",    name: "HubSpot",           description: "Marketing automation and CRM",       connected: true,  lastSync: "5 mins ago"  },
-  { id: "slack",      name: "Slack",             description: "Team notifications and alerts",      connected: true,  lastSync: "Real-time"   },
-  { id: "gmail",      name: "Gmail",             description: "Email tracking and sync",            connected: false, lastSync: null          },
-  { id: "calendar",   name: "Google Calendar",   description: "Meeting scheduling",                 connected: false, lastSync: null          },
-  { id: "zoom",       name: "Zoom",              description: "Video conferencing integration",     connected: true,  lastSync: "1 hour ago"  },
+  { id: "salesforce", name: "Salesforce",       description: "Đồng bộ liên hệ và cơ hội",             connected: true,  lastSync: "2 giờ trước" },
+  { id: "hubspot",    name: "HubSpot",           description: "Tự động hóa marketing và CRM",          connected: true,  lastSync: "5 phút trước" },
+  { id: "slack",      name: "Slack",             description: "Thông báo và cảnh báo cho đội nhóm",   connected: true,  lastSync: "Theo thời gian thực" },
+  { id: "gmail",      name: "Gmail",             description: "Theo dõi và đồng bộ email",            connected: false, lastSync: null },
+  { id: "calendar",   name: "Google Calendar",   description: "Lên lịch cuộc họp",                    connected: false, lastSync: null },
+  { id: "zoom",       name: "Zoom",              description: "Tích hợp họp video",                  connected: true,  lastSync: "1 giờ trước" },
 ];
 
 
 export const MOCK_TOKENS = [
-  { id: "t1", name: "Production API Key",   prefix: "gigi_pk_", masked: "••••••••••••••••3f8a", createdAt: "2026-01-15", lastUsed: "2 hours ago" },
-  { id: "t2", name: "Development API Key",  prefix: "gigi_sk_", masked: "••••••••••••••••9b2c", createdAt: "2026-02-01", lastUsed: "5 days ago"  },
+  { id: "t1", name: "Khóa API môi trường thật",   prefix: "omnidine_pk_", masked: "••••••••••••••••3f8a", createdAt: "2026-01-15", lastUsed: "2 giờ trước" },
+  { id: "t2", name: "Khóa API môi trường phát triển",  prefix: "omnidine_sk_", masked: "••••••••••••••••9b2c", createdAt: "2026-02-01", lastUsed: "5 ngày trước"  },
 ];
 

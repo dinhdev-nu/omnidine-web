@@ -20,7 +20,7 @@ interface StatusConfig {
 
 const deals: Deal[] = [
     {
-        company: "Acme Corp",
+        company: "OmniDine Corp",
         value: "125.000.000đ",
         status: "won",
         date: "2 giờ trước",

@@ -24,7 +24,7 @@ export default function LandingHeader() {
                 data-nimg={1}
                 decoding="async"
                 height={20}
-                src="/assets/home/PD94bWwgdm.svg"
+                src="/assets/home/brand-logo.png"
                 style={{ color: "transparent", aspectRatio: "101/20" }}
                 width={101}
               />
@@ -50,7 +50,7 @@ export default function LandingHeader() {
                       data-state="closed"
                       id="radix-_r_0_-trigger-radix-_r_1_"
                     >
-                      <span className="cursor-default">Features</span>
+                      <span className="cursor-default">Tính năng</span>
                       <svg
                         className="text-[--text-tertiary] dark:text-[--dark-text-tertiary]"
                         fill="none"
@@ -74,25 +74,7 @@ export default function LandingHeader() {
                       data-radix-collection-item=""
                       href="/#pricing"
                     >
-                      Pricing
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      className="gap-1 font-normal shrink-0 rounded-full ring-[--control] focus-visible:ring-2 outline-hidden outline-0 inline-flex h-6 items-center justify-center px-3 pb-px tracking-tight hover:bg-[--surface-tertiary] dark:hover:bg-[--dark-surface-tertiary] lg:h-7"
-                      data-radix-collection-item=""
-                      href="/#blog"
-                    >
-                      Blog
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      className="gap-1 font-normal shrink-0 rounded-full ring-[--control] focus-visible:ring-2 outline-hidden outline-0 inline-flex h-6 items-center justify-center px-3 pb-px tracking-tight hover:bg-[--surface-tertiary] dark:hover:bg-[--dark-surface-tertiary] lg:h-7"
-                      data-radix-collection-item=""
-                      href="/#changelog"
-                    >
-                      Changelog
+                      Bảng Giá
                     </a>
                   </li>
                 </ul>
@@ -103,13 +85,13 @@ export default function LandingHeader() {
                 className="gap-1 font-normal shrink-0 rounded-full ring-[--control] focus-visible:ring-2 outline-hidden outline-0 bg-[--surface-secondary] text-[--text-primary] border-[--border] border dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:border-[--dark-border] hover:bg-[--surface-tertiary] dark:hover:bg-[--dark-surface-tertiary] inline-flex items-center justify-center px-3.5 text-sm h-8 md:px-5 !px-3.5"
                 href="/auth/login"
               >
-                Log In
+                Đăng Nhập
               </a>
               <a
                 className="gap-1 font-normal shrink-0 rounded-full ring-[--control] focus-visible:ring-2 outline-hidden outline-0 bg-[--accent-500] hover:bg-[--accent-600] text-[--text-on-accent-primary] border-[--accent-600] inline-flex items-center justify-center px-3.5 text-sm h-8 md:px-5 !px-3.5"
                 href="/auth/register"
               >
-                Get Started Today
+                Dùng Thử Miễn Phí
               </a>
             </div>
           </div>

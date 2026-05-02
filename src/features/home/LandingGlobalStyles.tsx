@@ -22,7 +22,7 @@ export default function LandingGlobalStyles() {
       <meta content="width=device-width, initial-scale=1" name="viewport" />
       <title>Home</title>
       <meta
-        content="Discover Acme, your go-to destination for innovative solutions and exceptional service. Explore our wide range of products and services designed to meet your unique needs."
+        content="Discover OmniDine, your go-to destination for innovative solutions and exceptional service. Explore our wide range of products and services designed to meet your unique needs."
         name="description"
       />
       <meta content="v0.dev" name="generator" />

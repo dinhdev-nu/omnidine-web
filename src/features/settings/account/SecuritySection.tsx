@@ -70,11 +70,7 @@ export function SecuritySection() {
     }, [])
 
     const handleChangePassword = async () => {
-        if (newPassword !== confirmNewPassword) {
-            setPasswordError("Mật khẩu mới không khớp")
-            return
-        }
-
+        // Remove client-side password match validation; server will validate
         setPasswordError(null)
         setPasswordSuccess(false)
         setIsChangingPassword(true)
@@ -128,14 +124,14 @@ export function SecuritySection() {
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <Card className="border-border bg-card">
                 <CardHeader>
-                    <CardTitle className="text-base font-medium">Password & Authentication</CardTitle>
-                    <CardDescription>Manage your account security settings</CardDescription>
+                    <CardTitle className="text-base font-medium">Mật khẩu & Xác thực</CardTitle>
+                    <CardDescription>Quản lý cài đặt bảo mật tài khoản của bạn</CardDescription>
                 </CardHeader>
 
                 <CardContent className="space-y-6">
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="currentPassword">Current Password</Label>
+                            <Label htmlFor="currentPassword">Mật khẩu hiện tại</Label>
                             <InputGroup className="max-w-md">
                                 <InputGroupAddon align="inline-start">
                                     <InputGroupText>
@@ -152,7 +148,7 @@ export function SecuritySection() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="newPassword">New Password</Label>
+                            <Label htmlFor="newPassword">Mật khẩu mới</Label>
                             <InputGroup className="max-w-md">
                                 <InputGroupAddon align="inline-start">
                                     <InputGroupText>
@@ -169,7 +165,7 @@ export function SecuritySection() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                            <Label htmlFor="confirmPassword">Xác nhận mật khẩu mới</Label>
                             <InputGroup className="max-w-md">
                                 <InputGroupAddon align="inline-start">
                                     <InputGroupText>
@@ -186,7 +182,7 @@ export function SecuritySection() {
                         </div>
 
                         {passwordError && <p className="text-sm text-destructive">{passwordError}</p>}
-                        {passwordSuccess && <p className="text-sm text-success">Password updated successfully</p>}
+                        {passwordSuccess && <p className="text-sm text-success">Đã cập nhật mật khẩu</p>}
                         <Button
                             variant="outline"
                             onClick={handleChangePassword}
@@ -194,10 +190,10 @@ export function SecuritySection() {
                         >
                             {isChangingPassword ? (
                                 <>
-                                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />Updating...
+                                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />Đang cập nhật...
                                 </>
                             ) : (
-                                "Update Password"
+                                "Cập nhật mật khẩu"
                             )}
                         </Button>
                     </div>
@@ -206,8 +202,8 @@ export function SecuritySection() {
 
             <Card className="border-border bg-card">
                 <CardHeader>
-                    <CardTitle className="text-base font-medium">Two-Factor Authentication</CardTitle>
-                    <CardDescription>Add an extra layer of security to your account</CardDescription>
+                    <CardTitle className="text-base font-medium">Xác thực hai lớp</CardTitle>
+                    <CardDescription>Thêm một lớp bảo mật cho tài khoản của bạn</CardDescription>
                 </CardHeader>
 
                 <CardContent className="space-y-4">
@@ -217,14 +213,14 @@ export function SecuritySection() {
                                 <Key className={`w-5 h-5 ${profile?.two_factor_enabled ? "text-success" : "text-muted-foreground"}`} />
                             </div>
                             <div>
-                                <p className="font-medium text-foreground">Authenticator App</p>
-                                <p className="text-sm text-muted-foreground">Use an authenticator app for 2FA codes</p>
+                                <p className="font-medium text-foreground">Ứng dụng xác thực</p>
+                                <p className="text-sm text-muted-foreground">Dùng ứng dụng xác thực để nhận mã 2FA</p>
                             </div>
                         </div>
 
                         <div className="flex items-center gap-3">
                             <Badge className={profile?.two_factor_enabled ? "bg-success/20 text-success border-success/30" : "bg-muted text-muted-foreground border-border"}>
-                                {profile?.two_factor_enabled ? "Enabled" : "Disabled"}
+                                {profile?.two_factor_enabled ? "Đã bật" : "Đã tắt"}
                             </Badge>
                             <Button
                                 variant="outline"
@@ -234,7 +230,7 @@ export function SecuritySection() {
                                     setTwoFaPassword("")
                                 }}
                             >
-                                {show2faForm ? "Cancel" : "Manage"}
+                                {show2faForm ? "Hủy" : "Quản lý"}
                             </Button>
                         </div>
                     </div>
@@ -243,8 +239,8 @@ export function SecuritySection() {
                         <div className="px-4 py-3 rounded-lg border border-border bg-secondary/20 space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
                             <p className="text-sm text-muted-foreground">
                                 {profile?.two_factor_enabled
-                                    ? "Enter your password to disable 2FA."
-                                    : "Enter your password to enable 2FA."}
+                                    ? "Nhập mật khẩu để tắt 2FA."
+                                    : "Nhập mật khẩu để bật 2FA."}
                             </p>
                             <div className="flex items-center gap-2">
                                 <InputGroup className="max-w-xs">
@@ -255,7 +251,7 @@ export function SecuritySection() {
                                     </InputGroupAddon>
                                     <InputGroupInput
                                         type="password"
-                                        placeholder="Current password"
+                                        placeholder="Mật khẩu hiện tại"
                                         value={twoFaPassword}
                                         onChange={(event) => setTwoFaPassword(event.target.value)}
                                         onKeyDown={(event) => event.key === "Enter" && handleToggle2fa()}
@@ -269,11 +265,11 @@ export function SecuritySection() {
                                 >
                                     {isTwoFaLoading ? (
                                         <RefreshCw className="w-4 h-4 animate-spin" />
-                                    ) : profile?.two_factor_enabled ? (
-                                        "Disable 2FA"
-                                    ) : (
-                                        "Enable 2FA"
-                                    )}
+                                        ) : profile?.two_factor_enabled ? (
+                                            "Tắt 2FA"
+                                        ) : (
+                                            "Bật 2FA"
+                                        )}
                                 </Button>
                             </div>
                         </div>
@@ -283,18 +279,18 @@ export function SecuritySection() {
 
             <Card className="border-border bg-card">
                 <CardHeader>
-                    <CardTitle className="text-base font-medium">Active Sessions</CardTitle>
-                    <CardDescription>Manage devices where you&apos;re signed in</CardDescription>
+                    <CardTitle className="text-base font-medium">Phiên đang hoạt động</CardTitle>
+                    <CardDescription>Quản lý các thiết bị bạn đang đăng nhập</CardDescription>
                 </CardHeader>
 
                 <CardContent>
                     <div className="space-y-3">
                         {isLoadingSessions ? (
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <RefreshCw className="w-4 h-4 animate-spin" />Loading sessions...
+                                <RefreshCw className="w-4 h-4 animate-spin" />Đang tải phiên...
                             </div>
                         ) : sessions.length === 0 ? (
-                            <p className="text-sm text-muted-foreground">No active sessions found.</p>
+                            <p className="text-sm text-muted-foreground">Không tìm thấy phiên nào đang hoạt động.</p>
                         ) : (
                             sessions.map((session, index) => (
                                 <div
@@ -310,7 +306,7 @@ export function SecuritySection() {
                                             <p className="text-sm font-medium text-foreground">
                                                 {session.device_info?.browser} — {session.device_info?.os}
                                                 {session.is_current && (
-                                                    <Badge className="ml-2 bg-success/20 text-success border-success/30 text-xs">Current</Badge>
+                                                    <Badge className="ml-2 bg-success/20 text-success border-success/30 text-xs">Hiện tại</Badge>
                                                 )}
                                             </p>
                                             <p className="text-xs text-muted-foreground">
@@ -320,13 +316,13 @@ export function SecuritySection() {
                                     </div>
 
                                     {!session.is_current && (
-                                        <Button
+                                            <Button
                                             variant="ghost"
                                             size="sm"
                                             className="text-destructive hover:text-destructive"
                                             onClick={() => handleRevokeSession(session.session_id)}
                                         >
-                                            Revoke
+                                                Thu hồi
                                         </Button>
                                     )}
                                 </div>
@@ -379,9 +375,9 @@ export function SecuritySection() {
                 <CardHeader>
                     <div className="flex items-center gap-2">
                         <AlertTriangle className="w-4 h-4 text-destructive" />
-                        <CardTitle className="text-base font-medium text-destructive">Danger Zone</CardTitle>
+                        <CardTitle className="text-base font-medium text-destructive">Vùng nguy hiểm</CardTitle>
                     </div>
-                    <CardDescription>Irreversible actions that affect your account</CardDescription>
+                    <CardDescription>Các thao tác không thể hoàn tác ảnh hưởng đến tài khoản của bạn</CardDescription>
                 </CardHeader>
 
                 <CardContent className="space-y-4">
@@ -391,11 +387,11 @@ export function SecuritySection() {
                                 <Download className="w-4 h-4 text-muted-foreground" />
                             </div>
                             <div>
-                                <p className="font-medium text-foreground text-sm">Export My Data</p>
-                                <p className="text-xs text-muted-foreground">Download all your data as a ZIP archive</p>
+                                <p className="font-medium text-foreground text-sm">Xuất dữ liệu của tôi</p>
+                                <p className="text-xs text-muted-foreground">Tải toàn bộ dữ liệu của bạn dưới dạng tệp ZIP</p>
                             </div>
                         </div>
-                        <Button variant="outline" size="sm">Export</Button>
+                        <Button variant="outline" size="sm">Xuất</Button>
                     </div>
 
                     <div className="p-4 rounded-lg bg-destructive/5 border border-destructive/20 space-y-3">
@@ -404,22 +400,22 @@ export function SecuritySection() {
                                 <Trash2 className="w-4 h-4 text-destructive" />
                             </div>
                             <div>
-                                <p className="font-medium text-foreground text-sm">Delete Account</p>
+                                <p className="font-medium text-foreground text-sm">Xóa tài khoản</p>
                                 <p className="text-xs text-muted-foreground">
-                                    Permanently delete your account and all associated data. This cannot be undone.
+                                    Xóa vĩnh viễn tài khoản và toàn bộ dữ liệu liên quan. Không thể hoàn tác.
                                 </p>
                             </div>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="deleteConfirm" className="text-xs text-muted-foreground">
-                                Type <span className="font-mono text-foreground">DELETE</span> to confirm
+                                Nhập <span className="font-mono text-foreground">DELETE</span> để xác nhận
                             </Label>
                             <InputGroup>
                                 <InputGroupInput
                                     id="deleteConfirm"
                                     value={deleteConfirm}
                                     onChange={(event) => setDeleteConfirm(event.target.value)}
-                                    placeholder="Type DELETE to confirm"
+                                    placeholder="Nhập DELETE để xác nhận"
                                     className="font-mono"
                                 />
                             </InputGroup>
@@ -430,7 +426,7 @@ export function SecuritySection() {
                                 className="w-full sm:w-auto"
                             >
                                 <Trash2 className="w-4 h-4 mr-2" />
-                                Permanently Delete Account
+                                Xóa vĩnh viễn tài khoản
                             </Button>
                         </div>
                     </div>

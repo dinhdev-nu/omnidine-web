@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { setClientToken } from "@/services/client"
 
-const ACCESS_TOKEN_KEY = "gigi_access_token"
+const ACCESS_TOKEN_KEY = "omnidine_access_token"
 
 interface AuthState {
   accessToken: string | null

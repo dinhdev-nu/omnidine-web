@@ -121,7 +121,7 @@
     --radius-4xl: calc(var(--radius) * 2.6);
     --color-success: var(--success);
     --color-warning: var(--warning);
-    /* GiGi brand colors (values set per-page; transparent fallback elsewhere) */
+    /* OmniDine brand colors (values set per-page; transparent fallback elsewhere) */
     --color-lime: var(--lime, transparent);
     --color-charcoal: var(--charcoal, transparent);
     --color-pineapple: var(--pineapple, transparent);
@@ -151,7 +151,7 @@
   }
 }
 
-/* Custom animations for GiGi - keyframes are used by Tailwind config */
+/* Custom animations for OmniDine - keyframes are used by Tailwind config */
 @keyframes float {
   0%,
   100% {

@@ -117,7 +117,7 @@ function PreviewPanel({ formData, logoPreview }: PreviewPanelProps) {
                                 {formData.price_range && <Badge variant="outline" className="border-border/80 text-foreground">{formatPriceRange(formData.price_range)}</Badge>}
                             </div>
                             <p className="text-xs text-muted-foreground break-words">
-                                {formData.slug ? `gigi.vn/r/${formData.slug}` : 'Slug chưa thiết lập'}
+                                {formData.slug ? `omnidine.vn/r/${formData.slug}` : 'Slug chưa thiết lập'}
                             </p>
                         </div>
                     </div>
@@ -148,7 +148,7 @@ function PreviewPanel({ formData, logoPreview }: PreviewPanelProps) {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4">
                                 <PreviewField
                                     label="Slug"
-                                    value={formData.slug ? `gigi.vn/r/${formData.slug}` : '—'}
+                                    value={formData.slug ? `omnidine.vn/r/${formData.slug}` : '—'}
                                     mono
                                 />
                                 <PreviewField label="Website" value={toText(formData.website)} />

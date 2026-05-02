@@ -11,16 +11,16 @@ type SocialLink = {
 }
 
 const FOOTER_LINKS: FooterNavLink[] = [
-    { label: "Docs", href: "/#docs", target: "_self" },
-    { label: "Help", href: "/#help", target: "_self" },
+    { label: "Tài liệu", href: "#", target: "_self" },
+    { label: "Hỗ trợ", href: "#", target: "_self" },
     {
-        label: "Privacy Policy",
-        href: "/#privacy-policy",
+        label: "Chính sách bảo mật",
+        href: "#",
         target: "_self",
     },
     {
-        label: "Terms",
-        href: "/#terms",
+        label: "Điều Khoản",
+        href: "#",
         target: "_self",
     },
 ]
@@ -216,7 +216,7 @@ export default function LandingFooter() {
                     </nav>
                     <div className="col-start-2 row-start-1 flex items-center gap-3 self-center justify-self-end sm:col-span-1 sm:col-start-3 sm:row-start-1">
                         <p className="hidden text-[--text-tertiary] sm:block dark:text-[--dark-text-tertiary]">
-                            Appearance
+                            Giao Diện
                         </p>
                         <div className="flex gap-0.5 rounded-full border border-[--border] bg-[--surface-primary] p-1 text-center dark:border-[--dark-border] dark:bg-[--dark-surface-primary]">
                             <ThemeLightButton />
@@ -226,7 +226,7 @@ export default function LandingFooter() {
                         <p />
                     </div>
                     <p className="col-span-2 text-sm text-pretty text-[--text-tertiary] sm:col-span-1 dark:text-[--dark-text-tertiary]">
-                        @ 2025 Acme Corp. All rights reserved.
+                        @ 2025 OmniDine Corp. All rights reserved.
                     </p>
                     <ul className="col-span-2 col-start-1 row-start-3 flex w-full items-center gap-x-3.5 gap-y-4 sm:col-span-1 sm:col-start-3 sm:row-start-2 sm:w-auto sm:flex-wrap sm:justify-self-end">
                         {SOCIAL_LINKS.map((link) => (

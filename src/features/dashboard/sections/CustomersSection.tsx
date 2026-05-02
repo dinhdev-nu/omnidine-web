@@ -38,12 +38,12 @@ interface Customer {
 const customers: Customer[] = [
     {
         id: 1,
-        name: "Acme Corporation",
+        name: "OmniDine Corporation",
         industry: "Công nghệ",
         tier: "Doanh nghiệp",
         location: "TP. Hồ Chí Minh",
         contact: "Nguyễn Văn A",
-        email: "nva@acme.vn",
+        email: "nva@omnidine.vn",
         phone: "0901 234 567",
         totalRevenue: 485000000,
         activeDeals: 3,

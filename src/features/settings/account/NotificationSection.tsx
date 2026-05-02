@@ -23,8 +23,8 @@ const FreqSelect = ({ value, onChange }: { value: NotifFreq; onChange: (value: N
         </SelectTrigger>
         <SelectContent>
             <SelectItem value="instant">Ngay lập tức</SelectItem>
-            <SelectItem value="daily">Tổng hợp ngày</SelectItem>
-            <SelectItem value="weekly">Tổng hợp tuần</SelectItem>
+            <SelectItem value="daily">Tổng hợp theo ngày</SelectItem>
+            <SelectItem value="weekly">Tổng hợp theo tuần</SelectItem>
         </SelectContent>
     </Select>
 )
@@ -57,7 +57,7 @@ export function NotificationSection() {
             })
             toast.success("Đã lưu cài đặt thông báo")
         } catch (error) {
-            toast.error(toAppError(error, "Unable to save notifications").message)
+            toast.error(toAppError(error, "Không thể lưu cài đặt thông báo").message)
         }
     }
 
@@ -65,8 +65,8 @@ export function NotificationSection() {
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <Card className="border-border bg-card">
                 <CardHeader>
-                    <CardTitle className="text-base font-medium">Notification Channels</CardTitle>
-                    <CardDescription>Choose channels and frequency for each notification type</CardDescription>
+                    <CardTitle className="text-base font-medium">Kênh thông báo</CardTitle>
+                    <CardDescription>Chọn kênh và tần suất cho từng loại thông báo</CardDescription>
                 </CardHeader>
 
                 <CardContent className="space-y-1">
@@ -74,9 +74,9 @@ export function NotificationSection() {
                         <div className="flex items-center gap-3">
                             <Mail className="w-5 h-5 text-muted-foreground" />
                             <div>
-                                <p className="font-medium text-foreground">Email Notifications</p>
+                                <p className="font-medium text-foreground">Thông báo email</p>
                                 <p className="text-sm text-muted-foreground">
-                                    Receive updates at <span className="text-foreground">{profile?.email ?? "your email"}</span>
+                                    Nhận cập nhật tại <span className="text-foreground">{profile?.email ?? "email của bạn"}</span>
                                 </p>
                             </div>
                         </div>
@@ -91,9 +91,9 @@ export function NotificationSection() {
                         <div className="flex items-center gap-3">
                             <Smartphone className="w-5 h-5 text-muted-foreground" />
                             <div>
-                                <p className="font-medium text-foreground">SMS Notifications</p>
+                                <p className="font-medium text-foreground">Thông báo SMS</p>
                                 <p className="text-sm text-muted-foreground">
-                                    Receive texts at <span className="text-foreground">{profile?.phone ?? "your phone number"}</span>
+                                    Nhận tin nhắn tại <span className="text-foreground">{profile?.phone ?? "số điện thoại của bạn"}</span>
                                 </p>
                             </div>
                         </div>
@@ -108,8 +108,8 @@ export function NotificationSection() {
                         <div className="flex items-center gap-3">
                             <Bell className="w-5 h-5 text-muted-foreground" />
                             <div>
-                                <p className="font-medium text-foreground">Push Notifications</p>
-                                <p className="text-sm text-muted-foreground">In-app and browser push alerts</p>
+                                <p className="font-medium text-foreground">Thông báo đẩy</p>
+                                <p className="text-sm text-muted-foreground">Cảnh báo trong ứng dụng và trên trình duyệt</p>
                             </div>
                         </div>
 
@@ -128,8 +128,8 @@ export function NotificationSection() {
                             <RefreshCw className="w-4 h-4 mr-2 animate-spin" />Saving...
                         </>
                     ) : (
-                        <>
-                            <Check className="w-4 h-4 mr-2" />Save Notifications
+                            <>
+                            <Check className="w-4 h-4 mr-2" />Lưu thông báo
                         </>
                     )}
                 </Button>

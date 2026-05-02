@@ -103,7 +103,7 @@ export function ProfileSection() {
 
             toast.success("Đã lưu thay đổi")
         } catch (error) {
-            toast.error(toAppError(error, "Unable to save settings").message)
+            toast.error(toAppError(error, "Không thể lưu cài đặt").message)
         }
     }
 
@@ -115,8 +115,8 @@ export function ProfileSection() {
                 <CardHeader>
                     <div className="flex items-start justify-between gap-3">
                         <div>
-                            <CardTitle className="text-base font-medium">Personal Information</CardTitle>
-                            <CardDescription>Update your personal details and preferences</CardDescription>
+                            <CardTitle className="text-base font-medium">Thông tin cá nhân</CardTitle>
+                            <CardDescription>Cập nhật thông tin cá nhân và tùy chọn của bạn</CardDescription>
                         </div>
                         <Button
                             type="button"
@@ -130,7 +130,7 @@ export function ProfileSection() {
                             }}
                         >
                             <Copy className="w-3.5 h-3.5 mr-1.5" />
-                            Copy mã của bạn
+                            Sao chép mã của bạn
                         </Button>
                     </div>
                 </CardHeader>
@@ -152,15 +152,15 @@ export function ProfileSection() {
                                     </Badge>
                                 )}
                             </div>
-                            <Button variant="outline" size="sm">Change Avatar</Button>
-                            <p className="text-xs text-muted-foreground">JPG, PNG or GIF. Max 2MB.</p>
+                            <Button variant="outline" size="sm">Đổi ảnh đại diện</Button>
+                            <p className="text-xs text-muted-foreground">JPG, PNG hoặc GIF. Tối đa 2MB.</p>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                         <div className="space-y-2">
-                            <Label htmlFor="firstName">First Name</Label>
+                            <Label htmlFor="firstName">Tên</Label>
                             <InputGroup>
                                 <InputGroupAddon align="inline-start">
                                     <InputGroupText>
@@ -176,7 +176,7 @@ export function ProfileSection() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="lastName">Last Name</Label>
+                            <Label htmlFor="lastName">Họ</Label>
                             <InputGroup>
                                 <InputGroupAddon align="inline-start">
                                     <InputGroupText>
@@ -192,7 +192,7 @@ export function ProfileSection() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="email" className="flex items-center gap-1.5">
+                                <Label htmlFor="email" className="flex items-center gap-1.5">
                                 Email {profile?.email_verified_at && <CheckCircle2 className="w-3.5 h-3.5 text-success" />}
                             </Label>
                             <InputGroup>
@@ -213,7 +213,7 @@ export function ProfileSection() {
                                         variant="ghost"
                                         onClick={() => {
                                             void navigator.clipboard.writeText(profile?.email ?? "")
-                                            toast.success("Copied!")
+                                            toast.success("Đã sao chép")
                                         }}
                                     >
                                         <Copy className="w-3.5 h-3.5" />
@@ -223,7 +223,7 @@ export function ProfileSection() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="phone" className="flex items-center gap-1.5">
+                                <Label htmlFor="phone" className="flex items-center gap-1.5">
                                 <Phone className="w-3.5 h-3.5" />
                                 Phone {profile?.phone_verified_at && <CheckCircle2 className="w-3.5 h-3.5 text-success" />}
                             </Label>
@@ -237,14 +237,14 @@ export function ProfileSection() {
                                 <InputGroupInput
                                     id="phone"
                                     value={profile?.phone ?? ""}
-                                    placeholder="Not set"
+                                    placeholder="Chưa thiết lập"
                                     className="cursor-default"
                                 />
                             </InputGroup>
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                            <Label htmlFor="dateOfBirth">Ngày sinh</Label>
                             <Popover>
                                 <PopoverTrigger asChild>
                                     <Button
@@ -256,7 +256,7 @@ export function ProfileSection() {
                                         )}
                                     >
                                         <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {resolvedDateOfBirth ? format(new Date(resolvedDateOfBirth), "PPP") : <span>Pick a date</span>}
+                                            {resolvedDateOfBirth ? format(new Date(resolvedDateOfBirth), "PPP") : <span>Chọn ngày</span>}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0" align="start">
@@ -278,13 +278,13 @@ export function ProfileSection() {
                                 }
                             >
                                 <SelectTrigger id="gender" className="w-full">
-                                    <SelectValue placeholder="Prefer not to say" />
+                                    <SelectValue placeholder="Không muốn tiết lộ" />
                                 </SelectTrigger>
                                 <SelectContent position="popper" sideOffset={0} className="w-[var(--radix-select-trigger-width)]">
-                                    <SelectItem value="_none">Prefer not to say</SelectItem>
-                                    <SelectItem value="male">Male</SelectItem>
-                                    <SelectItem value="female">Female</SelectItem>
-                                    <SelectItem value="other">Other</SelectItem>
+                                    <SelectItem value="_none">Không muốn tiết lộ</SelectItem>
+                                    <SelectItem value="male">Nam</SelectItem>
+                                    <SelectItem value="female">Nữ</SelectItem>
+                                    <SelectItem value="other">Khác</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -296,7 +296,7 @@ export function ProfileSection() {
                             id="bio"
                             value={bio}
                             onChange={(event) => setBio(event.target.value)}
-                            placeholder="Tell people a little about yourself — your role, interests, or a fun fact..."
+                            placeholder="Kể đôi điều về bạn — vai trò, sở thích hoặc một điều thú vị..."
                             className="min-h-[80px]"
                         />
                         <p className="text-xs text-muted-foreground text-right">{bio.length}/200 characters</p>
@@ -306,8 +306,8 @@ export function ProfileSection() {
 
             <Card className="border-border bg-card">
                 <CardHeader>
-                    <CardTitle className="text-base font-medium">Social Links</CardTitle>
-                    <CardDescription>Connect your social media profiles</CardDescription>
+                        <CardTitle className="text-base font-medium">Liên kết mạng xã hội</CardTitle>
+                        <CardDescription>Kết nối các hồ sơ mạng xã hội của bạn</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                     {[
@@ -346,7 +346,7 @@ export function ProfileSection() {
                     ].map(({ id, Icon, prefix, value, set: setter, placeholder }) => (
                         <div key={id} className="space-y-1.5">
                             <Label htmlFor={id} className="capitalize">
-                                {id === "website" ? "Website" : id.charAt(0).toUpperCase() + id.slice(1)}
+                                {id === "website" ? "Trang web" : id.charAt(0).toUpperCase() + id.slice(1)}
                             </Label>
                             <InputGroup>
                                 <InputGroupAddon align="inline-start">
@@ -369,16 +369,16 @@ export function ProfileSection() {
 
             <Card className="border-border bg-card">
                 <CardHeader>
-                    <CardTitle className="text-base font-medium">Display Preferences</CardTitle>
-                    <CardDescription>Customize how data is displayed</CardDescription>
+                    <CardTitle className="text-base font-medium">Tùy chọn hiển thị</CardTitle>
+                    <CardDescription>Tùy chỉnh cách dữ liệu được hiển thị</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <Palette className="w-5 h-5 text-muted-foreground" />
                             <div>
-                                <p className="font-medium text-foreground">Dark Mode</p>
-                                <p className="text-sm text-muted-foreground">Use dark theme for the interface</p>
+                                <p className="font-medium text-foreground">Chế độ tối</p>
+                                <p className="text-sm text-muted-foreground">Sử dụng giao diện tối</p>
                             </div>
                         </div>
                         <Switch
@@ -391,8 +391,8 @@ export function ProfileSection() {
                         <div className="flex items-center gap-3">
                             <Globe className="w-5 h-5 text-muted-foreground" />
                             <div>
-                                <p className="font-medium text-foreground">Language</p>
-                                <p className="text-sm text-muted-foreground">Interface display language</p>
+                                <p className="font-medium text-foreground">Ngôn ngữ</p>
+                                <p className="text-sm text-muted-foreground">Ngôn ngữ hiển thị giao diện</p>
                             </div>
                         </div>
                         <Select value={resolvedLanguage} onValueChange={(value) => setLanguage(value as "en" | "vi")}>
@@ -400,7 +400,7 @@ export function ProfileSection() {
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent position="popper" className="w-[--radix-select-trigger-width]">
-                                <SelectItem value="en">English</SelectItem>
+                                <SelectItem value="en">Tiếng Anh</SelectItem>
                                 <SelectItem value="vi">Tiếng Việt</SelectItem>
                             </SelectContent>
                         </Select>
@@ -410,8 +410,8 @@ export function ProfileSection() {
                         <div className="flex items-center gap-3">
                             <Database className="w-5 h-5 text-muted-foreground" />
                             <div>
-                                <p className="font-medium text-foreground">Compact View</p>
-                                <p className="text-sm text-muted-foreground">Show more data in less space</p>
+                                <p className="font-medium text-foreground">Chế độ gọn</p>
+                                <p className="text-sm text-muted-foreground">Hiển thị nhiều dữ liệu hơn trong ít không gian hơn</p>
                             </div>
                         </div>
                         <Switch />
@@ -426,8 +426,8 @@ export function ProfileSection() {
                             <RefreshCw className="w-4 h-4 mr-2 animate-spin" />Saving...
                         </>
                     ) : (
-                        <>
-                            <Check className="w-4 h-4 mr-2" />Save Changes
+                            <>
+                            <Check className="w-4 h-4 mr-2" />Lưu thay đổi
                         </>
                     )}
                 </Button>

@@ -34,44 +34,44 @@ type FaqEntry = {
 const PRICING_PLANS: PricingPlan[] = [
     {
         variant: "standard",
-        price: "$10/mo",
-        name: "Basic plan",
-        billing: "Billed annually",
+        price: "Miễn phí",
+        name: "Gói Trải nghiệm",
+        billing: "Dùng thử 14 ngày",
         features: [
-            "Basic AI model access.",
-            "Limited usage quota per month.",
-            "Standard email support included.",
-            "Basic analytics dashboard access.",
-            "Entry-level integration options available.",
+            "Quản lý 1 điểm bán hàng.",
+            "Tối đa 5 tài khoản nhân viên.",
+            "Thiết lập Menu điện tử (QR).",
+            "Báo cáo thống kê cơ bản.",
+            "Hỗ trợ kỹ thuật giờ hành chính.",
         ],
         ctaHref: "/auth/register",
     },
     {
         variant: "popular",
-        badge: "Most popular",
-        price: "$20/mo",
-        name: "Pro plan",
-        billing: "Billed annually",
+        badge: "Phổ biến",
+        price: "499.000đ/tháng",
+        name: "Gói Tiêu chuẩn",
+        billing: "Thanh toán hàng năm",
         features: [
-            "Advanced AI model access.",
-            "Generous usage quota per month.",
-            "Priority email and chat support.",
-            "Enhanced analytics dashboard with insights.",
-            "Expanded range of integration options.",
+            "Quản lý tối đa 3 chi nhánh.",
+            "Không giới hạn tài khoản nhân viên.",
+            "Tích hợp màn hình bếp (KDS).",
+            "Báo cáo phân tích chuyên sâu.",
+            "Hỗ trợ kỹ thuật ưu tiên 24/7.",
         ],
         ctaHref: "/auth/register",
     },
     {
         variant: "standard",
-        price: "$30/mo",
-        name: "Premium plan",
-        billing: "Billed annually",
+        price: "Liên hệ",
+        name: "Gói Chuỗi (Enterprise)",
+        billing: "Thanh toán theo hợp đồng",
         features: [
-            "Premium AI models with customization.",
-            "Unlimited usage quota per month.",
-            "Dedicated account manager support.",
-            "Comprehensive analytics with predictive features.",
-            "Advanced integration with APIs and platforms.",
+            "Quản lý không giới hạn chi nhánh.",
+            "Tùy chỉnh luồng nghiệp vụ riêng biệt.",
+            "Tích hợp ERP & phần mềm bên thứ 3.",
+            "Phân tích dữ liệu bằng AI.",
+            "Cam kết hỗ trợ giải quyết sự cố 24/7.",
         ],
         ctaHref: "/auth/register",
     },
@@ -79,31 +79,31 @@ const PRICING_PLANS: PricingPlan[] = [
 
 const FAQS: FaqEntry[] = [
     {
-        question: "What industries can benefit from your AI solutions?",
+        question: "Hệ thống OmniDine phù hợp với mô hình nhà hàng nào?",
         answer:
-            "Our AI solutions are applicable across various industries, including healthcare, finance, retail, and manufacturing.",
+            "OmniDine được thiết kế linh hoạt để đáp ứng từ nhà hàng, quán ăn gia đình đơn lẻ đến hệ thống chuỗi nhà hàng lớn nhiều chi nhánh, cũng như quán cafe - trà sữa.",
     },
     {
-        question: "How do you ensure data privacy and security?",
+        question: "Dữ liệu kinh doanh có được bảo mật không?",
         answer:
-            "We adhere to strict data privacy regulations and implement robust security measures to protect sensitive information.",
-    },
-    {
-        question:
-            "Can your AI solutions be customized to fit specific business needs?",
-        answer:
-            "Automate repetitive tasks and free up valuable time for strategic initiatives.",
+            "Hoàn toàn bảo mật. Chúng tôi sử dụng tiêu chuẩn bảo mật điện toán đám mây cao nhất, mã hoá dữ liệu đầu cuối. Dữ liệu của bạn được sao lưu định kỳ và an toàn tuyệt đối.",
     },
     {
         question:
-            "Do you provide ongoing support and maintenance for your AI solutions?",
+            "Hệ thống có hỗ trợ tuỳ chỉnh thêm tính năng riêng không?",
         answer:
-            "Absolutely, we offer comprehensive support and maintenance services to ensure the smooth operation of our AI solutions.",
+            "Có. Đối với Gói Chuỗi (Enterprise), chúng tôi cung cấp giải pháp tuỳ biến nghiệp vụ sâu sát theo quy trình kiểm soát và quản lý riêng của doanh nghiệp.",
     },
     {
-        question: "How can I get started with your AI solutions?",
+        question:
+            "Quy trình hỗ trợ xử lý kỹ thuật diễn ra như thế nào?",
         answer:
-            "Simply reach out to our team to schedule a consultation and explore how our AI solutions can benefit your business.",
+            "Chúng tôi hỗ trợ liên tục qua nhiều kênh (Zalo, Hotline, Email). Đội ngũ kỹ thuật 24/7 (với các gói từ Tiêu chuẩn) sẽ tiếp nhận và xử lý sự cố trong vòng tối đa 30 phút.",
+    },
+    {
+        question: "Tôi cần làm gì để bắt đầu dùng thử?",
+        answer:
+            "Rất đơn giản! Chỉ cần nhấn vào nút Đăng ký, làm theo hướng dẫn trong 3 bước để khởi tạo nhà hàng đầu tiên và hệ thống sẽ mở ra giao diện để bạn thiết lập Menu.",
     },
 ]
 
@@ -223,7 +223,7 @@ function DefaultPlanCta({ href }: { href: string }) {
             className="z-10 inline-flex h-9 w-full shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-5 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:h-10 md:text-base dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
             href={href}
         >
-            Get started
+            Bắt đầu ngay
         </a>
     )
 }
@@ -234,7 +234,7 @@ function AccentPlanCta({ href }: { href: string }) {
             className="z-10 inline-flex h-9 w-full shrink-0 items-center justify-center gap-1 rounded-full border-[--accent-600] bg-[--accent-500] px-5 text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:h-10 md:text-base"
             href={href}
         >
-            Get started
+            Đăng ký dùng thử
         </a>
     )
 }
@@ -342,10 +342,10 @@ export default function LandingSection() {
                 id="pricing"
             >
                 <SectionHeading
-                    badge="Pricing"
-                    title="Simple pricing for your team"
-                    titleHint="Simple pricing for your team"
-                    description="Check out our different pricing plans."
+                    badge="Vượt Trội"
+                    title="Bảng giá đơn giản. Công cụ mạnh mẽ."
+                    titleHint="Bảng giá đơn giản. Công cụ mạnh mẽ."
+                    description="Cơ hội để đẩy nhanh tiến độ làm việc nhóm với các gói cước có sẵn."
                 />
                 <div className="flex flex-col gap-5 self-stretch lg:flex-row">
                     {PRICING_PLANS.map((plan) => {
@@ -360,10 +360,10 @@ export default function LandingSection() {
 
             <section className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]">
                 <SectionHeading
-                    badge="FAQs"
-                    title="Frequently asked questions"
-                    titleHint="Frequently asked questions"
-                    description="Advice and answers from the our team."
+                    badge="Câu hỏi thường gặp"
+                    title="Giải đáp các thắc mắc chung"
+                    titleHint="Giải đáp các thắc mắc chung"
+                    description="Lắng nghe tư vấn và hỗ trợ từ đội ngũ OmniDine."
                 />
                 <ul className="mx-auto flex w-full grid-cols-3 flex-col place-content-start items-start gap-8 self-stretch lg:grid lg:gap-14 lg:px-24">
                     {FAQS.map((faq) => (

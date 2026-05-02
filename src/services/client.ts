@@ -3,7 +3,7 @@ import type { AxiosResponse } from "axios"
 import type { ApiSuccessResponse } from "./types"
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || ""
-const ACCESS_TOKEN_KEY = "gigi_access_token"
+const ACCESS_TOKEN_KEY = "omnidine_access_token"
 
 // Sync in-memory token từ localStorage để tránh đọc localStorage mỗi request
 let _accessToken: string | null = localStorage.getItem(ACCESS_TOKEN_KEY)
