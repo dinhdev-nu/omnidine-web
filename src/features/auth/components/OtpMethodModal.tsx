@@ -22,8 +22,8 @@ export function OtpMethodModal({ methods, isSendingOtp, onSelect, onClose }: Otp
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 px-4 backdrop-blur-sm">
       <Card className="w-full max-w-sm border-border bg-card shadow-xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-lg">Send verification code</CardTitle>
-          <CardDescription>Choose how you'd like to receive your code</CardDescription>
+          <CardTitle className="text-lg">Gửi mã xác minh</CardTitle>
+          <CardDescription>Chọn cách bạn muốn nhận mã của bạn</CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-3">
@@ -61,7 +61,7 @@ export function OtpMethodModal({ methods, isSendingOtp, onSelect, onClose }: Otp
             disabled={isSendingOtp}
             className="mt-1 w-full text-muted-foreground hover:text-foreground"
           >
-            Cancel
+            Hủy
           </Button>
         </CardContent>
       </Card>

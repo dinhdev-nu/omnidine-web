@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { Mail, Eye, EyeOff, ArrowLeft, ChevronRight } from "lucide-react"
+import { toast } from "sonner"
 import { OtpMethodModal } from "./OtpMethodModal"
 import type { UseSignUpReturn } from "../hooks/use-sign-up"
 import { Input } from "@/components/ui/input"
@@ -33,39 +34,39 @@ function StepInfo({ form, isLoading, handleChange, handleIdentifierChange, onCon
   return (
     <div className="space-y-4 p-1">
       <div>
-        <h2 className="text-xl font-semibold text-foreground">Create your account</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Enter your details to get started</p>
+        <h2 className="text-xl font-semibold text-foreground">Tạo tài khoản mới</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Nhập thông tin của bạn để bắt đầu</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
-          <Label htmlFor="firstName">First name</Label>
+          <Label htmlFor="firstName">Tên</Label>
           <Input
             id="firstName"
             name="firstName"
             type="text"
             value={form.firstName}
             onChange={(e) => handleChange("firstName", e.target.value)}
-            placeholder="First name"
+            placeholder="Tên"
             autoComplete="given-name"
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="lastName">Last name</Label>
+          <Label htmlFor="lastName">Họ</Label>
           <Input
             id="lastName"
             name="lastName"
             type="text"
             value={form.lastName}
             onChange={(e) => handleChange("lastName", e.target.value)}
-            placeholder="Last name"
+            placeholder="Họ"
             autoComplete="family-name"
           />
         </div>
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="signup-identifier">Email or phone</Label>
+        <Label htmlFor="signup-identifier">Email hoặc số điện thoại</Label>
         <div className="relative">
           <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -75,7 +76,7 @@ function StepInfo({ form, isLoading, handleChange, handleIdentifierChange, onCon
             value={form.email || form.phoneNumber}
             onChange={(e) => handleIdentifierChange(e.target.value)}
             className="pl-10 pr-16"
-            placeholder="Email or phone number"
+            placeholder="Email hoặc số điện thoại"
             autoComplete="username"
             spellCheck={false}
           />
@@ -88,9 +89,9 @@ function StepInfo({ form, isLoading, handleChange, handleIdentifierChange, onCon
       </div>
 
       <Button type="button" onClick={onContinue} disabled={isLoading} className="w-full mt-2 gap-1.5">
-        {isLoading ? "Checking…" : (
+        {isLoading ? "Đang xử lý…" : (
           <>
-            <span>Continue</span>
+            <span>Tiếp tục</span>
             <ChevronRight className="w-4 h-4" />
           </>
         )}
@@ -119,14 +120,14 @@ function StepOtp({ form, isLoading, isSendingOtp, otpCountdown, handleChange, on
     <div className="space-y-5 p-1">
       <Button type="button" variant="ghost" size="sm" onClick={onBack} className="-ml-2 w-fit text-muted-foreground hover:text-foreground">
         <ArrowLeft />
-        Back
+        Quay lại
       </Button>
       <div>
         <h2 className="text-xl font-semibold text-foreground">
-          Check your {form.email ? "inbox" : "phone"}
+          Kiểm tra {form.email ? "hòm thư" : "tin nhắn"}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          We sent a 6-digit code to{" "}
+          Chúng tôi đã gửi mã 6 số tới{" "}
           <span className="font-medium text-foreground">{identifier}</span>
         </p>
       </div>
@@ -149,7 +150,13 @@ function StepOtp({ form, isLoading, isSendingOtp, otpCountdown, handleChange, on
       </div>
 
       <div className="flex items-center justify-between text-sm">
-        <span className="text-muted-foreground">Didn&apos;t receive the code?</span>
+        <button
+          type="button"
+          onClick={() => toast.info("Kiểm tra thư rác!")}
+          className="text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Không nhận được mã?
+        </button>
         <Button
           type="button"
           variant="ghost"
@@ -161,7 +168,7 @@ function StepOtp({ form, isLoading, isSendingOtp, otpCountdown, handleChange, on
             resendDisabled ? "text-muted-foreground" : "text-foreground hover:text-foreground/80"
           )}
         >
-          {isSendingOtp ? "Sending…" : otpCountdown > 0 ? `Resend in ${otpCountdown}s` : "Resend"}
+          {isSendingOtp ? "Đang gửi…" : otpCountdown > 0 ? `Gửi lại sau ${otpCountdown}s` : "Gửi lại"}
         </Button>
       </div>
 
@@ -171,7 +178,7 @@ function StepOtp({ form, isLoading, isSendingOtp, otpCountdown, handleChange, on
         disabled={isLoading || (form.otp || "").trim().length < 6}
         className="w-full"
       >
-        {isLoading ? "Verifying…" : "Verify code"}
+        {isLoading ? "Đang xác minh…" : "Xác minh mã"}
       </Button>
     </div>
   )
@@ -195,15 +202,15 @@ function StepPassword({ form, isLoading, handleChange, onSubmit, onBack }: StepP
     <div className="space-y-4 p-1">
       <Button type="button" variant="ghost" size="sm" onClick={onBack} className="-ml-2 w-fit text-muted-foreground hover:text-foreground">
         <ArrowLeft />
-        Back
+        Quay lại
       </Button>
       <div>
-        <h2 className="text-xl font-semibold text-foreground">Create a password</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Choose a strong password for your account</p>
+        <h2 className="text-xl font-semibold text-foreground">Tạo mật khẩu</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Chọn mật khẩu mạnh cho tài khoản của bạn</p>
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="new-password">Password</Label>
+        <Label htmlFor="new-password">Mật khẩu</Label>
         <div className="relative">
           <Input
             id="new-password"
@@ -211,7 +218,7 @@ function StepPassword({ form, isLoading, handleChange, onSubmit, onBack }: StepP
             type={showPassword ? "text" : "password"}
             value={form.password}
             onChange={(e) => handleChange("password", e.target.value)}
-            placeholder="Password"
+            placeholder="Mật khẩu"
             className="pr-10"
             autoComplete="new-password"
           />
@@ -221,7 +228,7 @@ function StepPassword({ form, isLoading, handleChange, onSubmit, onBack }: StepP
             size="icon-sm"
             onClick={() => setShowPassword((v) => !v)}
             className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            aria-label={showPassword ? "Hide password" : "Show password"}
+            aria-label={showPassword ? "Ẩn mật khẩu" : "Hiển thị mật khẩu"}
           >
             {showPassword ? <EyeOff /> : <Eye />}
           </Button>
@@ -229,7 +236,7 @@ function StepPassword({ form, isLoading, handleChange, onSubmit, onBack }: StepP
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="confirm-password">Confirm password</Label>
+        <Label htmlFor="confirm-password">Xác nhận mật khẩu</Label>
         <div className="relative">
           <Input
             id="confirm-password"
@@ -237,7 +244,7 @@ function StepPassword({ form, isLoading, handleChange, onSubmit, onBack }: StepP
             type={showConfirm ? "text" : "password"}
             value={form.confirmPassword}
             onChange={(e) => handleChange("confirmPassword", e.target.value)}
-            placeholder="Confirm password"
+            placeholder="Xác nhận mật khẩu"
             className="pr-10"
             aria-invalid={Boolean(mismatch)}
             autoComplete="new-password"
@@ -248,12 +255,12 @@ function StepPassword({ form, isLoading, handleChange, onSubmit, onBack }: StepP
             size="icon-sm"
             onClick={() => setShowConfirm((v) => !v)}
             className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            aria-label={showConfirm ? "Hide confirm password" : "Show confirm password"}
+            aria-label={showConfirm ? "Ẩn mật khẩu xác nhận" : "Hiển thị mật khẩu xác nhận"}
           >
             {showConfirm ? <EyeOff /> : <Eye />}
           </Button>
         </div>
-        {mismatch && <p className="text-xs text-destructive">Passwords do not match</p>}
+        {mismatch && <p className="text-xs text-destructive">Mật khẩu không khớp</p>}
       </div>
 
       <Button
@@ -262,7 +269,7 @@ function StepPassword({ form, isLoading, handleChange, onSubmit, onBack }: StepP
         disabled={isLoading || !form.password || !!mismatch}
         className="w-full mt-2"
       >
-        {isLoading ? "Creating account…" : "Create account"}
+        {isLoading ? "Đang tạo tài khoản…" : "Tạo tài khoản"}
       </Button>
     </div>
   )
@@ -329,7 +336,7 @@ export function SignUpSteps({ hook }: SignUpStepsProps) {
               handleChange={handleChange}
               onVerify={handleVerifyOtp}
               onResend={handleResendOtp}
-              onBack={() => navigate("password")}
+              onBack={() => navigate(form.password ? "password" : "info")}
             />
           )}
 

@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Mail, Eye, EyeOff, ArrowLeft, CheckCircle2 } from "lucide-react"
+import { toast } from "sonner"
 import type { UseSignInReturn } from "../hooks/use-sign-in"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -43,6 +44,7 @@ export function SignInForm({ hook }: SignInFormProps) {
     forgotCountdown,
     isResendingForgotOtp,
     handleForgotSubmitEmail,
+    handleBackToForgotEmail,
     handleForgotResendOtp,
     handleForgotVerifyOtp,
     handleForgotResetPassword,
@@ -68,12 +70,12 @@ export function SignInForm({ hook }: SignInFormProps) {
           className="-ml-2 w-fit text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft />
-          Back
+          Quay lại
         </Button>
 
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Two-factor authentication</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Enter the 6-digit code we sent to your device</p>
+          <h2 className="text-xl font-semibold text-foreground">Xác thực hai yếu tố</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Nhập mã gồm 6 số chúng tôi đã gửi tới thiết bị của bạn</p>
         </div>
 
         <div className="flex justify-center">
@@ -90,7 +92,13 @@ export function SignInForm({ hook }: SignInFormProps) {
         </div>
 
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Didn&apos;t receive the code?</span>
+          <button
+            type="button"
+            onClick={() => toast.info("Kiểm tra thư rác!")}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Không nhận được mã?
+          </button>
           <Button
             type="button"
             variant="ghost"
@@ -102,7 +110,7 @@ export function SignInForm({ hook }: SignInFormProps) {
               resendDisabled ? "text-muted-foreground" : "text-foreground hover:text-foreground/80"
             )}
           >
-            {isSendingTwoFaOtp ? "Sending…" : twoFaCountdown > 0 ? `Resend in ${twoFaCountdown}s` : "Resend"}
+            {isSendingTwoFaOtp ? "Đang gửi…" : twoFaCountdown > 0 ? `Chờ ${twoFaCountdown}s` : "Gửi lại"}
           </Button>
         </div>
 
@@ -112,7 +120,7 @@ export function SignInForm({ hook }: SignInFormProps) {
           disabled={isLoading || twoFaCode.trim().length < 6}
           className="w-full"
         >
-          {isLoading ? "Verifying…" : "Verify and sign in"}
+          {isLoading ? "Đang xác thực…" : "Xác thực và Đăng nhập"}
         </Button>
 
         {errorMessage && (
@@ -137,12 +145,12 @@ export function SignInForm({ hook }: SignInFormProps) {
           className="-ml-2 w-fit text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft />
-          Back to sign in
+          Quay lại Đăng nhập
         </Button>
 
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Reset password</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Enter your email to receive a reset OTP</p>
+          <h2 className="text-xl font-semibold text-foreground">Khôi phục mật khẩu</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Nhập Email của bạn để nhận mã OTP</p>
         </div>
 
         <div className="space-y-1.5">
@@ -157,7 +165,7 @@ export function SignInForm({ hook }: SignInFormProps) {
               onChange={(e) => setForgotEmail(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleForgotSubmitEmail()}
               className="pl-10"
-              placeholder="you@example.com"
+              placeholder="email@example.com"
               autoComplete="email"
               spellCheck={false}
             />
@@ -176,7 +184,7 @@ export function SignInForm({ hook }: SignInFormProps) {
           disabled={isLoading || !forgotEmail.trim()}
           className="w-full"
         >
-          {isLoading ? "Sending…" : "Send reset code"}
+          {isLoading ? "Đang gửi…" : "Gửi mã"}
         </Button>
       </div>
     )
@@ -193,17 +201,17 @@ export function SignInForm({ hook }: SignInFormProps) {
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => handleBackToSignIn()}
+          onClick={handleBackToForgotEmail}
           className="-ml-2 w-fit text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft />
-          Back
+          Quay lại
         </Button>
 
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Enter OTP</h2>
+          <h2 className="text-xl font-semibold text-foreground">Nhập mã OTP</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            We sent a 6-digit code to <span className="font-medium text-foreground">{forgotEmail}</span>
+            Chúng tôi vừa gửi mã gồm 6 số tới <span className="font-medium text-foreground">{forgotEmail}</span>
           </p>
         </div>
 
@@ -221,7 +229,13 @@ export function SignInForm({ hook }: SignInFormProps) {
         </div>
 
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Didn&apos;t receive it?</span>
+          <button
+            type="button"
+            onClick={() => toast.info("Kiểm tra thư rác!")}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Không nhận được mã?
+          </button>
           <Button
             type="button"
             variant="ghost"
@@ -233,7 +247,7 @@ export function SignInForm({ hook }: SignInFormProps) {
               resendDisabled ? "text-muted-foreground" : "text-foreground hover:text-foreground/80"
             )}
           >
-            {isResendingForgotOtp ? "Sending…" : forgotCountdown > 0 ? `Resend in ${forgotCountdown}s` : "Resend"}
+            {isResendingForgotOtp ? "Đang gửi…" : forgotCountdown > 0 ? `Chờ ${forgotCountdown}s` : "Gửi lại"}
           </Button>
         </div>
 
@@ -243,7 +257,7 @@ export function SignInForm({ hook }: SignInFormProps) {
           disabled={isLoading || forgotOtp.trim().length < 6}
           className="w-full"
         >
-          {isLoading ? "Verifying…" : "Verify code"}
+          {isLoading ? "Đang xác thực…" : "Xác thực mã"}
         </Button>
       </div>
     )
@@ -255,12 +269,12 @@ export function SignInForm({ hook }: SignInFormProps) {
     return (
       <div className="space-y-5 p-1">
         <div>
-          <h2 className="text-xl font-semibold text-foreground">New password</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Your identity is verified. Set a new password.</p>
+          <h2 className="text-xl font-semibold text-foreground">Bạn muốn đặt lại mật khẩu?</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Đã xác minh thành công. Hãy thiết lập mật khẩu mới.</p>
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="new-password">New Password</Label>
+          <Label htmlFor="new-password">Mật khẩu mới</Label>
           <div className="relative">
             <Input
               id="new-password"
@@ -269,7 +283,7 @@ export function SignInForm({ hook }: SignInFormProps) {
               value={forgotNewPassword}
               onChange={(e) => setForgotNewPassword(e.target.value)}
               className="pr-10"
-              placeholder="At least 8 characters"
+              placeholder="Tối thiểu 8 ký tự"
               autoComplete="new-password"
             />
             <Button
@@ -278,7 +292,7 @@ export function SignInForm({ hook }: SignInFormProps) {
               size="icon-sm"
               onClick={() => setShowNewPassword((v) => !v)}
               className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              aria-label={showNewPassword ? "Hide new password" : "Show new password"}
+              aria-label={showNewPassword ? "Ẩn mật khẩu mới" : "Hiển thị mật khẩu mới"}
             >
               {showNewPassword ? <EyeOff /> : <Eye />}
             </Button>
@@ -286,7 +300,7 @@ export function SignInForm({ hook }: SignInFormProps) {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="confirm-password">Confirm Password</Label>
+          <Label htmlFor="confirm-password">Xác nhận mật khẩu</Label>
           <div className="relative">
             <Input
               id="confirm-password"
@@ -295,7 +309,7 @@ export function SignInForm({ hook }: SignInFormProps) {
               value={forgotConfirmPassword}
               onChange={(e) => setForgotConfirmPassword(e.target.value)}
               className="pr-10"
-              placeholder="Re-enter password"
+              placeholder="Nhập lại mật khẩu"
               autoComplete="new-password"
             />
             <Button
@@ -304,7 +318,7 @@ export function SignInForm({ hook }: SignInFormProps) {
               size="icon-sm"
               onClick={() => setShowConfirmPassword((v) => !v)}
               className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+              aria-label={showConfirmPassword ? "Ẩn mật khẩu xác nhận" : "Hiển thị mật khẩu xác nhận"}
             >
               {showConfirmPassword ? <EyeOff /> : <Eye />}
             </Button>
@@ -323,7 +337,7 @@ export function SignInForm({ hook }: SignInFormProps) {
           disabled={isLoading || !forgotNewPassword || !forgotConfirmPassword}
           className="w-full"
         >
-          {isLoading ? "Resetting…" : "Reset password"}
+          {isLoading ? "Đang tiến hành…" : "Lưu Thay Đổi"}
         </Button>
       </div>
     )
@@ -338,13 +352,13 @@ export function SignInForm({ hook }: SignInFormProps) {
           <CheckCircle2 className="h-14 w-14 text-success" />
         </div>
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Password reset!</h2>
+          <h2 className="text-xl font-semibold text-foreground">Bạn đã đổi mật khẩu thành công!</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Your password has been reset successfully. Sign in with your new password.
+            Mật khẩu mới của bạn đã được thiết lập. Hãy đăng nhập để tiếp tục.
           </p>
         </div>
         <Button type="button" onClick={handleBackToSignIn} className="w-full">
-          Back to sign in
+          Quay lại Đăng nhập
         </Button>
       </div>
     )
@@ -355,13 +369,13 @@ export function SignInForm({ hook }: SignInFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-1">
       <div>
-        <h2 className="text-xl font-semibold text-foreground">Welcome back</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Sign in to your account</p>
+        <h2 className="text-xl font-semibold text-foreground">Đăng nhập tài khoản</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Nhập thông tin bên dưới để tiếp tục</p>
       </div>
 
       {/* Identifier */}
       <div className="space-y-1.5">
-        <Label htmlFor="signin-identifier">Email or phone</Label>
+        <Label htmlFor="signin-identifier">Email hoặc số điện thoại</Label>
         <div className="relative">
           <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -371,13 +385,13 @@ export function SignInForm({ hook }: SignInFormProps) {
             value={form.email || form.phoneNumber}
             onChange={(e) => handleIdentifierChange(e.target.value)}
             className="pl-10 pr-16"
-            placeholder="Email or phone number"
+            placeholder="Email hoặc số điện thoại"
             autoComplete="username"
             spellCheck={false}
           />
           {(form.email || form.phoneNumber) && (
             <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded border border-border bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
-              {form.email ? "Email" : "Phone"}
+              {form.email ? "Email" : "Điện thoại"}
             </span>
           )}
         </div>
@@ -385,7 +399,7 @@ export function SignInForm({ hook }: SignInFormProps) {
 
       {/* Password */}
       <div className="space-y-1.5">
-        <Label htmlFor="signin-password">Password</Label>
+        <Label htmlFor="signin-password">Mật khẩu</Label>
         <div className="relative">
           <Input
             id="signin-password"
@@ -394,7 +408,7 @@ export function SignInForm({ hook }: SignInFormProps) {
             value={form.password}
             onChange={(e) => handlePasswordChange(e.target.value)}
             className="pr-10"
-            placeholder="Password"
+            placeholder="Mật khẩu"
             autoComplete="current-password"
           />
           <Button
@@ -403,7 +417,7 @@ export function SignInForm({ hook }: SignInFormProps) {
             size="icon-sm"
             onClick={() => setShowPassword((v) => !v)}
             className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            aria-label={showPassword ? "Hide password" : "Show password"}
+            aria-label={showPassword ? "Ẩn mật khẩu" : "Hiển thị mật khẩu"}
           >
             {showPassword ? <EyeOff /> : <Eye />}
           </Button>
@@ -419,7 +433,7 @@ export function SignInForm({ hook }: SignInFormProps) {
             onCheckedChange={(checked) => setRememberMe(checked === true)}
           />
           <Label htmlFor="remember-me" className="cursor-pointer font-normal text-muted-foreground">
-            Remember me
+            Lưu mật khẩu
           </Label>
         </div>
         <Button
@@ -429,12 +443,12 @@ export function SignInForm({ hook }: SignInFormProps) {
           onClick={handleForgotPassword}
           className="h-auto px-2 text-muted-foreground hover:text-foreground"
         >
-          Forgot password?
+          Quên mật khẩu?
         </Button>
       </div>
 
       <Button type="submit" disabled={isLoading} className="w-full">
-        {isLoading ? "Signing in…" : "Sign in"}
+        {isLoading ? "Đang đăng nhập…" : "Đăng nhập"}
       </Button>
 
       {errorMessage && (

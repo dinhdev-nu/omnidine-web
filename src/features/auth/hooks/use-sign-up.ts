@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import { toast } from "sonner"
 import { checkEmail, register, resendEmailOtp, verifyEmailOtp } from "@/services/auths"
 import { toAppError } from "@/services/error"
 
@@ -54,6 +56,7 @@ const INITIAL_FORM: SignUpForm = {
 }
 
 export function useSignUp(): UseSignUpReturn {
+  const navigate = useNavigate()
   const [step, setStep] = useState<Step>("info")
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -105,7 +108,7 @@ export function useSignUp(): UseSignUpReturn {
     const run = async () => {
       const identifier = (form.email || form.phoneNumber).trim()
       if (!identifier) {
-        setErrorMessage("Please enter email or phone number")
+        setErrorMessage("Vui lòng nhập email hoặc số điện thoại")
         return
       }
 
@@ -122,7 +125,7 @@ export function useSignUp(): UseSignUpReturn {
           }
 
           if (!result.available) {
-            setErrorMessage("Email is already in use")
+            setErrorMessage("Email đã được sử dụng")
             return
           }
 
@@ -132,7 +135,7 @@ export function useSignUp(): UseSignUpReturn {
 
         setShowMethodModal(true)
       } catch (error) {
-        const appError = toAppError(error, "Unable to continue sign-up")
+        const appError = toAppError(error, "Không thể tiếp tục đăng ký")
         setErrorMessage(appError.message)
       } finally {
         setIsLoading(false)
@@ -144,8 +147,8 @@ export function useSignUp(): UseSignUpReturn {
 
   const getAvailableMethods = (): OtpMethod[] => {
     if (form.phoneNumber) return [
-      { id: "sms", label: "SMS", icon: "💬", description: "Receive code via SMS" },
-      { id: "telegram", label: "Telegram", icon: "✈️", description: "Receive code via Telegram" },
+      { id: "sms", label: "SMS", icon: "💬", description: "Nhận mã qua SMS" },
+      { id: "telegram", label: "Telegram", icon: "✈️", description: "Nhận mã qua Telegram" },
     ]
     return []
   }
@@ -153,8 +156,8 @@ export function useSignUp(): UseSignUpReturn {
   const handleMethodSelect = (methodId: string) => {
     void methodId
     setShowMethodModal(false)
-    // API đăng ký yêu cầu email — phone-only không được hỗ trợ
-    setErrorMessage("Đăng ký yêu cầu địa chỉ email. Vui lòng nhập email của bạn.")
+    // Registration API requires email
+    setErrorMessage("Cần địa chỉ email cho đăng ký. Vui lòng nhập email của bạn.")
   }
 
   const handleResendOtp = () => {
@@ -166,7 +169,7 @@ export function useSignUp(): UseSignUpReturn {
         await resendEmailOtp(form.email)
         setOtpCountdown(60)
       } catch (error) {
-        const appError = toAppError(error, "Unable to resend OTP")
+        const appError = toAppError(error, "Không thể gửi lại OTP")
         setErrorMessage(appError.message)
       } finally {
         setIsSendingOtp(false)
@@ -183,9 +186,11 @@ export function useSignUp(): UseSignUpReturn {
       setIsLoading(true)
       try {
         await verifyEmailOtp(form.email, form.otp)
+        toast.success("Tài khoản được xác minh thành công. Vui lòng đăng nhập.")
         reset()
+        navigate("/auth/login")
       } catch (error) {
-        const appError = toAppError(error, "OTP verification failed")
+        const appError = toAppError(error, "Xác minh OTP thất bại")
         setErrorMessage(appError.message)
       } finally {
         setIsLoading(false)
@@ -199,11 +204,10 @@ export function useSignUp(): UseSignUpReturn {
     const run = async () => {
       const { password, confirmPassword, email, phoneNumber, firstName, lastName } = form
       if (!email) {
-        setErrorMessage("Email is required for registration")
+        setErrorMessage("Email là bắt buộc cho đăng ký")
         return
       }
-      if (!password || password !== confirmPassword) return
-
+      // Client-side password validation removed; server will validate presence/strength/match
       setErrorMessage(null)
       setIsLoading(true)
       try {
@@ -217,7 +221,7 @@ export function useSignUp(): UseSignUpReturn {
         setOtpCountdown(60)
         setStep("otp")
       } catch (error) {
-        const appError = toAppError(error, "Unable to create account")
+        const appError = toAppError(error, "Không thể tạo tài khoản")
         setErrorMessage(appError.message)
       } finally {
         setIsLoading(false)

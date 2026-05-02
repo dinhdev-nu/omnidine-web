@@ -6,6 +6,7 @@ import {
   send2faOtp, verify2faOtp,
   forgotPassword, verifyResetPasswordOtp, resetPassword,
 } from "@/services/auths"
+import { AUTH_ROUTE_PATHS } from "@/features/auth/constants"
 import { SETTINGS_DEFAULT_PATH } from "@/routes/setting-route-config"
 import { toAppError } from "@/services/error"
 import { useAuthStore } from "@/stores/auth-store"
@@ -57,6 +58,7 @@ export interface UseSignInReturn {
   forgotCountdown: number
   isResendingForgotOtp: boolean
   handleForgotSubmitEmail: () => Promise<void>
+  handleBackToForgotEmail: () => void
   handleForgotResendOtp: () => Promise<void>
   handleForgotVerifyOtp: () => Promise<void>
   handleForgotResetPassword: () => Promise<void>
@@ -116,6 +118,7 @@ export function useSignIn(): UseSignInReturn {
     setForgotEmail(form.email || "")
     setSignInStep("forgot-email")
     setErrorMessage(null)
+    navigate(AUTH_ROUTE_PATHS["forgot-password"])
   }
 
   const handleBackFromTwoFa = () => {
@@ -124,6 +127,12 @@ export function useSignIn(): UseSignInReturn {
     setTwoFaCountdown(0)
     setTempToken(null)
     setErrorMessage(null)
+    // fallback to hard navigation if router navigate does not update URL
+    // attempt router navigation first, fallback to full navigation if it didn't take
+    navigate(AUTH_ROUTE_PATHS.login, { replace: true })
+    setTimeout(() => {
+      if (location.pathname !== AUTH_ROUTE_PATHS.login) window.location.href = AUTH_ROUTE_PATHS.login
+    }, 50)
   }
 
   const handleBackToSignIn = () => {
@@ -136,6 +145,20 @@ export function useSignIn(): UseSignInReturn {
     setForgotResetGrantToken("")
     setForgotCountdown(0)
     setErrorMessage(null)
+    navigate(AUTH_ROUTE_PATHS.login, { replace: true })
+    setTimeout(() => {
+      if (location.pathname !== AUTH_ROUTE_PATHS.login) window.location.href = AUTH_ROUTE_PATHS.login
+    }, 50)
+  }
+
+  const handleBackToForgotEmail = () => {
+    setSignInStep("forgot-email")
+    setForgotOtp("")
+    setErrorMessage(null)
+    navigate(AUTH_ROUTE_PATHS["forgot-password"], { replace: true })
+    setTimeout(() => {
+      if (location.pathname !== AUTH_ROUTE_PATHS["forgot-password"]) window.location.href = AUTH_ROUTE_PATHS["forgot-password"]
+    }, 50)
   }
 
   const handleResendTwoFaOtp = async () => {
@@ -145,7 +168,7 @@ export function useSignIn(): UseSignInReturn {
       const { expires_in } = await send2faOtp(tempToken)
       setTwoFaCountdown(expires_in)
     } catch (error) {
-      toast.error(toAppError(error, "Unable to resend 2FA OTP").message)
+      toast.error(toAppError(error, "Không thể gửi lại OTP 2FA").message)
     } finally {
       setIsSendingTwoFaOtp(false)
     }
@@ -160,7 +183,7 @@ export function useSignIn(): UseSignInReturn {
       setTempToken(null)
       navigate(SETTINGS_DEFAULT_PATH)
     } catch (error) {
-      toast.error(toAppError(error, "2FA verification failed").message)
+      toast.error(toAppError(error, "Xác minh 2FA không thành công").message)
     } finally {
       setIsLoading(false)
     }
@@ -170,7 +193,7 @@ export function useSignIn(): UseSignInReturn {
     e.preventDefault()
     const identifier = (form.email || form.phoneNumber).trim()
     if (!identifier || !form.password) {
-      setErrorMessage("Please enter email/phone and password")
+      setErrorMessage("Vui lòng nhập email/điện thoại và mật khẩu")
       return
     }
 
@@ -192,7 +215,7 @@ export function useSignIn(): UseSignInReturn {
       }
 
       if (!("access_token" in result)) {
-        toast.error("Login response is invalid")
+        toast.error("Phản hồi đăng nhập không hợp lệ")
         return
       }
 
@@ -200,7 +223,7 @@ export function useSignIn(): UseSignInReturn {
       setAccessToken(result.access_token)
       navigate(SETTINGS_DEFAULT_PATH)
     } catch (error) {
-      toast.error(toAppError(error, "Sign-in failed").message)
+      toast.error(toAppError(error, "Đăng nhập không thành công").message)
     } finally {
       setIsLoading(false)
     }
@@ -211,7 +234,7 @@ export function useSignIn(): UseSignInReturn {
   const handleForgotSubmitEmail = async () => {
     const email = forgotEmail.trim()
     if (!email) {
-      setErrorMessage("Please enter your email address")
+      setErrorMessage("Vui lòng nhập địa chỉ email của bạn")
       return
     }
     setErrorMessage(null)
@@ -222,7 +245,7 @@ export function useSignIn(): UseSignInReturn {
       setSignInStep("forgot-otp")
       setForgotCountdown(60)
     } catch (error) {
-      toast.error(toAppError(error, "Unable to send reset OTP").message)
+      toast.error(toAppError(error, "Không thể gửi OTP đặt lại").message)
     } finally {
       setIsLoading(false)
     }
@@ -236,7 +259,7 @@ export function useSignIn(): UseSignInReturn {
       setForgotSessionToken(session_token)
       setForgotCountdown(60)
     } catch (error) {
-      toast.error(toAppError(error, "Unable to resend OTP").message)
+      toast.error(toAppError(error, "Không thể gửi lại OTP").message)
     } finally {
       setIsResendingForgotOtp(false)
     }
@@ -258,21 +281,14 @@ export function useSignIn(): UseSignInReturn {
   }
 
   const handleForgotResetPassword = async () => {
-    if (forgotNewPassword !== forgotConfirmPassword) {
-      setErrorMessage("Passwords do not match")
-      return
-    }
-    if (forgotNewPassword.length < 8) {
-      setErrorMessage("Password must be at least 8 characters")
-      return
-    }
+    // Client-side validation removed; server will validate password rules
     setErrorMessage(null)
     setIsLoading(true)
     try {
       await resetPassword(forgotResetGrantToken, forgotNewPassword)
       setSignInStep("forgot-done")
     } catch (error) {
-      toast.error(toAppError(error, "Unable to reset password").message)
+      toast.error(toAppError(error, "Không thể đặt lại mật khẩu").message)
     } finally {
       setIsLoading(false)
     }
@@ -319,6 +335,7 @@ export function useSignIn(): UseSignInReturn {
     forgotCountdown,
     isResendingForgotOtp,
     handleForgotSubmitEmail,
+    handleBackToForgotEmail,
     handleForgotResendOtp,
     handleForgotVerifyOtp,
     handleForgotResetPassword,
