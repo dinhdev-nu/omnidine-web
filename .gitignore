@@ -28,3 +28,5 @@ skills-lock.json
 *.njsproj
 *.sln
 *.sw?
+
+/docs/*
