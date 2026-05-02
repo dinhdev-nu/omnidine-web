@@ -225,8 +225,8 @@ export function ListRestaurantsSection() {
                                             </div>
                                         </div>
                                         <Badge className={`${tierColors[tier]} shrink-0 border`}>
-                                                        {tier === "Công khai" ? "Công khai" : "Chưa công khai"}
-                                                    </Badge>
+                                            {tier === "Công khai" ? "Công khai" : "Chưa công khai"}
+                                        </Badge>
                                     </div>
 
                                     <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -192,7 +192,7 @@ export function ProfileSection() {
                         </div>
 
                         <div className="space-y-2">
-                                <Label htmlFor="email" className="flex items-center gap-1.5">
+                            <Label htmlFor="email" className="flex items-center gap-1.5">
                                 Email {profile?.email_verified_at && <CheckCircle2 className="w-3.5 h-3.5 text-success" />}
                             </Label>
                             <InputGroup>
@@ -223,7 +223,7 @@ export function ProfileSection() {
                         </div>
 
                         <div className="space-y-2">
-                                <Label htmlFor="phone" className="flex items-center gap-1.5">
+                            <Label htmlFor="phone" className="flex items-center gap-1.5">
                                 <Phone className="w-3.5 h-3.5" />
                                 Phone {profile?.phone_verified_at && <CheckCircle2 className="w-3.5 h-3.5 text-success" />}
                             </Label>
@@ -256,7 +256,7 @@ export function ProfileSection() {
                                         )}
                                     >
                                         <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {resolvedDateOfBirth ? format(new Date(resolvedDateOfBirth), "PPP") : <span>Chọn ngày</span>}
+                                        {resolvedDateOfBirth ? format(new Date(resolvedDateOfBirth), "PPP") : <span>Chọn ngày</span>}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0" align="start">
@@ -306,8 +306,8 @@ export function ProfileSection() {
 
             <Card className="border-border bg-card">
                 <CardHeader>
-                        <CardTitle className="text-base font-medium">Liên kết mạng xã hội</CardTitle>
-                        <CardDescription>Kết nối các hồ sơ mạng xã hội của bạn</CardDescription>
+                    <CardTitle className="text-base font-medium">Liên kết mạng xã hội</CardTitle>
+                    <CardDescription>Kết nối các hồ sơ mạng xã hội của bạn</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                     {[
@@ -426,7 +426,7 @@ export function ProfileSection() {
                             <RefreshCw className="w-4 h-4 mr-2 animate-spin" />Saving...
                         </>
                     ) : (
-                            <>
+                        <>
                             <Check className="w-4 h-4 mr-2" />Lưu thay đổi
                         </>
                     )}

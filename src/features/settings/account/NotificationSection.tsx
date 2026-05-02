@@ -128,7 +128,7 @@ export function NotificationSection() {
                             <RefreshCw className="w-4 h-4 mr-2 animate-spin" />Saving...
                         </>
                     ) : (
-                            <>
+                        <>
                             <Check className="w-4 h-4 mr-2" />Lưu thông báo
                         </>
                     )}

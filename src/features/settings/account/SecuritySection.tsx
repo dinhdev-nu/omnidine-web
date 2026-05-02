@@ -265,11 +265,11 @@ export function SecuritySection() {
                                 >
                                     {isTwoFaLoading ? (
                                         <RefreshCw className="w-4 h-4 animate-spin" />
-                                        ) : profile?.two_factor_enabled ? (
-                                            "Tắt 2FA"
-                                        ) : (
-                                            "Bật 2FA"
-                                        )}
+                                    ) : profile?.two_factor_enabled ? (
+                                        "Tắt 2FA"
+                                    ) : (
+                                        "Bật 2FA"
+                                    )}
                                 </Button>
                             </div>
                         </div>
@@ -316,13 +316,13 @@ export function SecuritySection() {
                                     </div>
 
                                     {!session.is_current && (
-                                            <Button
+                                        <Button
                                             variant="ghost"
                                             size="sm"
                                             className="text-destructive hover:text-destructive"
                                             onClick={() => handleRevokeSession(session.session_id)}
                                         >
-                                                Thu hồi
+                                            Thu hồi
                                         </Button>
                                     )}
                                 </div>
