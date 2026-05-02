@@ -137,7 +137,9 @@ Truy cập `http://localhost:5173` (hoặc port hiển thị trên terminal) đ�
 
 Cấu trúc dự án tuân theo mô hình Feature-based kết hợp với phân chia kĩ thuật để dễ dàng quản lý (Scale-friendly):
 
-[Project Structure Diagram](/public/project-structure.png)
+<p align="center">
+    <img src="./public/project-structure.png" alt="OmniDine Banner" />
+  </p>
 ---
 
 ## Scripts
