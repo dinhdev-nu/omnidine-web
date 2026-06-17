@@ -38,6 +38,7 @@ import {
     CalendarIcon,
 } from "lucide-react"
 import { format } from "date-fns"
+import { vi } from "date-fns/locale"
 import { cn } from "@/lib/utils"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -225,7 +226,7 @@ export function ProfileSection() {
                         <div className="space-y-2">
                             <Label htmlFor="phone" className="flex items-center gap-1.5">
                                 <Phone className="w-3.5 h-3.5" />
-                                Phone {profile?.phone_verified_at && <CheckCircle2 className="w-3.5 h-3.5 text-success" />}
+                                Số điện thoại {profile?.phone_verified_at && <CheckCircle2 className="w-3.5 h-3.5 text-success" />}
                             </Label>
                             <InputGroup>
                                 <InputGroupAddon align="inline-start">
@@ -256,7 +257,7 @@ export function ProfileSection() {
                                         )}
                                     >
                                         <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {resolvedDateOfBirth ? format(new Date(resolvedDateOfBirth), "PPP") : <span>Chọn ngày</span>}
+                                        {resolvedDateOfBirth ? format(new Date(resolvedDateOfBirth), "PPP", { locale: vi }) : <span>Chọn ngày</span>}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0" align="start">
@@ -270,7 +271,7 @@ export function ProfileSection() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="gender">Gender</Label>
+                            <Label htmlFor="gender">Giới tính</Label>
                             <Select
                                 value={resolvedGender || "_none"}
                                 onValueChange={(value) =>
@@ -291,7 +292,7 @@ export function ProfileSection() {
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="bio">Bio</Label>
+                        <Label htmlFor="bio">Giới thiệu</Label>
                         <Textarea
                             id="bio"
                             value={bio}
@@ -299,7 +300,7 @@ export function ProfileSection() {
                             placeholder="Kể đôi điều về bạn — vai trò, sở thích hoặc một điều thú vị..."
                             className="min-h-[80px]"
                         />
-                        <p className="text-xs text-muted-foreground text-right">{bio.length}/200 characters</p>
+                        <p className="text-xs text-muted-foreground text-right">{bio.length}/200 ký tự</p>
                     </div>
                 </CardContent>
             </Card>
@@ -317,7 +318,7 @@ export function ProfileSection() {
                             prefix: "https://",
                             value: website,
                             set: setWebsite,
-                            placeholder: "yourwebsite.com",
+                            placeholder: "tenmiencuaban.com",
                         },
                         {
                             id: "twitter",
@@ -325,7 +326,7 @@ export function ProfileSection() {
                             prefix: "x.com/",
                             value: twitter,
                             set: setTwitter,
-                            placeholder: "username",
+                            placeholder: "ten-tai-khoan",
                         },
                         {
                             id: "instagram",
@@ -333,7 +334,7 @@ export function ProfileSection() {
                             prefix: "instagram.com/",
                             value: instagram,
                             set: setInstagram,
-                            placeholder: "username",
+                            placeholder: "ten-tai-khoan",
                         },
                         {
                             id: "linkedin",
@@ -341,7 +342,7 @@ export function ProfileSection() {
                             prefix: "linkedin.com/in/",
                             value: linkedin,
                             set: setLinkedin,
-                            placeholder: "your-profile",
+                            placeholder: "ho-so-cua-ban",
                         },
                     ].map(({ id, Icon, prefix, value, set: setter, placeholder }) => (
                         <div key={id} className="space-y-1.5">
@@ -423,7 +424,7 @@ export function ProfileSection() {
                 <Button onClick={handleSave} disabled={isSavingProfile || isLoadingProfile}>
                     {isSavingProfile ? (
                         <>
-                            <RefreshCw className="w-4 h-4 mr-2 animate-spin" />Saving...
+                            <RefreshCw className="w-4 h-4 mr-2 animate-spin" />Đang lưu...
                         </>
                     ) : (
                         <>

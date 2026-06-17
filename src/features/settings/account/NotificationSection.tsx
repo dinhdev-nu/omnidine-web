@@ -125,7 +125,7 @@ export function NotificationSection() {
                 <Button onClick={handleSaveNotifications} disabled={isSavingProfile}>
                     {isSavingProfile ? (
                         <>
-                            <RefreshCw className="w-4 h-4 mr-2 animate-spin" />Saving...
+                            <RefreshCw className="w-4 h-4 mr-2 animate-spin" />Đang lưu...
                         </>
                     ) : (
                         <>

@@ -16,11 +16,11 @@ export function SettingsLayout() {
 
     const activeItem = useMemo(() => findActiveAccountNavItem(pathname), [pathname])
     const isRestaurantsSection = pathname.startsWith("/settings/manage/restaurants")
-    const sectionGroup = isRestaurantsSection ? "Manage" : "Account"
-    const sectionTitle = isRestaurantsSection ? "Restaurants" : activeItem?.label ?? "Settings"
+    const sectionGroup = isRestaurantsSection ? "Quản lý" : "Tài khoản"
+    const sectionTitle = isRestaurantsSection ? "Nhà hàng" : activeItem?.label ?? "Cài đặt"
     const sectionDescription = isRestaurantsSection
-        ? "Manage restaurant portfolios and relationship health."
-        : "Manage account profile, notifications, and security settings."
+        ? "Quản lý danh sách nhà hàng và trạng thái vận hành."
+        : "Quản lý hồ sơ tài khoản, thông báo và thiết lập bảo mật."
 
     useEffect(() => {
         const html = document.documentElement
@@ -51,7 +51,7 @@ export function SettingsLayout() {
                         <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-border bg-card px-4 py-4 sm:px-6">
                             <div className="flex flex-col gap-1">
                                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                                    {`Settings / ${sectionGroup}`}
+                                    {`Cài đặt / ${sectionGroup}`}
                                 </p>
                                 <h1 className="text-xl font-semibold text-foreground">
                                     {sectionTitle}

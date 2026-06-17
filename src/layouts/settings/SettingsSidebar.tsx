@@ -11,8 +11,8 @@ interface SidebarNavItem {
 }
 
 const MANAGEMENT_NAV_ITEMS: SidebarNavItem[] = [
-    { id: "restaurants", label: "Restaurants", icon: Store, href: "/settings/manage/restaurants" },
-    { id: "add-restaurant", label: "Add Restaurant", icon: CirclePlus, href: "/restaurants/new" },
+    { id: "restaurants", label: "Nhà hàng", icon: Store, href: "/settings/manage/restaurants" },
+    { id: "add-restaurant", label: "Thêm nhà hàng", icon: CirclePlus, href: "/restaurants/new" },
 ]
 
 interface SettingsSidebarProps {
@@ -61,10 +61,10 @@ function SettingsSidebarItem({ item }: { item: SidebarNavItem }) {
 export function SettingsSidebar({ items }: SettingsSidebarProps) {
     return (
         <div className="flex flex-col gap-4 lg:sticky lg:top-24">
-            <nav aria-label="Settings navigation" className="rounded-2xl bg-card p-3 ring-1 ring-foreground/10">
+            <nav aria-label="Điều hướng cài đặt" className="rounded-2xl bg-card p-3 ring-1 ring-foreground/10">
                 <div className="flex flex-col gap-4">
                     <p className="border-b border-border/80 px-3 pb-2 text-xs font-bold uppercase tracking-[0.22em] text-muted-foreground">
-                        Account
+                        Tài khoản
                     </p>
 
                     <div className="flex flex-col gap-1">
@@ -75,7 +75,7 @@ export function SettingsSidebar({ items }: SettingsSidebarProps) {
 
                     <div className="flex flex-col gap-2">
                         <p className="border-b border-border/80 px-3 pb-2 text-xs font-bold uppercase tracking-[0.22em] text-muted-foreground">
-                            Management
+                            Quản lý
                         </p>
 
                         <div className="flex flex-col gap-1">

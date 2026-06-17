@@ -101,9 +101,9 @@ export function ListRestaurantsSection() {
 
         try {
             await navigator.clipboard.writeText(url);
-            toast.success(`Đã sao chép link ${label}`);
+            toast.success(`Đã sao chép liên kết ${label}`);
         } catch {
-            toast.error("Không thể sao chép link. Vui lòng thử lại.");
+            toast.error("Không thể sao chép liên kết. Vui lòng thử lại.");
         }
     };
 
@@ -324,7 +324,7 @@ export function ListRestaurantsSection() {
                                             }
                                             title={
                                                 needsVerification
-                                                    ? "Xác nhận nhà hàng: bật đặt hàng và publish cho khách"
+                                                    ? "Xác nhận nhà hàng: bật đặt hàng và công khai cho khách"
                                                     : "Mở trang quản lý"
                                             }
                                         >

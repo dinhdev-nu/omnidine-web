@@ -86,7 +86,7 @@ export function IntegrationsSection() {
                             <div className="flex items-start justify-between mb-2">
                                 <div>
                                     <p className="text-sm font-medium text-foreground">{token.name}</p>
-                                    <p className="text-xs text-muted-foreground">Created {token.createdAt} · Last used {token.lastUsed}</p>
+                                    <p className="text-xs text-muted-foreground">Tạo ngày {token.createdAt} · Lần dùng cuối {token.lastUsed}</p>
                                 </div>
                                 <Button variant="ghost" size="sm" className="h-8 text-destructive hover:text-destructive">
                                     <Trash2 className="w-3.5 h-3.5" />

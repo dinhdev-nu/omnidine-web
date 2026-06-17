@@ -334,8 +334,8 @@ export function SecuritySection() {
 
             <Card className="border-border bg-card">
                 <CardHeader>
-                    <CardTitle className="text-base font-medium">Security Audit Log</CardTitle>
-                    <CardDescription>Recent security events on your account</CardDescription>
+                    <CardTitle className="text-base font-medium">Nhật ký kiểm tra bảo mật</CardTitle>
+                    <CardDescription>Các sự kiện bảo mật gần đây trên tài khoản của bạn</CardDescription>
                 </CardHeader>
 
                 <CardContent>

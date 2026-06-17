@@ -77,7 +77,7 @@ export function SettingsHeader({ isDark, onToggle }: SettingsHeaderProps) {
                     <input
                         name="search"
                         type="text"
-                        placeholder="Search…"
+                        placeholder="Tìm kiếm…"
                         onFocus={() => setSearchFocused(true)}
                         onBlur={() => setSearchFocused(false)}
                         className="w-full h-9 pl-9 pr-4 rounded-lg bg-secondary ring-1 ring-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition-all duration-200"
@@ -88,7 +88,7 @@ export function SettingsHeader({ isDark, onToggle }: SettingsHeaderProps) {
                     type="button"
                     onClick={onToggle}
                     className="w-9 h-9 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200"
-                    aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+                    aria-label={isDark ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}
                 >
                     {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 </button>
@@ -96,7 +96,7 @@ export function SettingsHeader({ isDark, onToggle }: SettingsHeaderProps) {
                 <button
                     type="button"
                     className="relative w-9 h-9 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200"
-                    aria-label="Open notifications"
+                    aria-label="Mở thông báo"
                 >
                     <Bell className="w-5 h-5" />
                     <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-accent rounded-full animate-pulse" />
@@ -107,10 +107,10 @@ export function SettingsHeader({ isDark, onToggle }: SettingsHeaderProps) {
                         <button
                             type="button"
                             className="size-9 rounded-full overflow-hidden bg-secondary ring-2 ring-transparent hover:ring-border transition-all duration-200"
-                            aria-label="Open account menu"
+                            aria-label="Mở menu tài khoản"
                         >
                             <Avatar className="size-full">
-                                <AvatarImage src={profile?.avatar_url ?? undefined} alt={profile?.full_name ?? "User"} />
+                                <AvatarImage src={profile?.avatar_url ?? undefined} alt={profile?.full_name ?? "Người dùng"} />
                                 <AvatarFallback className="bg-secondary text-xs font-semibold text-foreground">
                                     {initials}
                                 </AvatarFallback>
