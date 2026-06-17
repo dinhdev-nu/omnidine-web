@@ -1,72 +1,90 @@
-import { Bell, Search, Calendar, Moon, Sun } from "lucide-react";
+import { useState } from "react"
+import { Bell, Calendar, Moon, Search, Sun } from "lucide-react"
+
+import { AccountMenu } from "@/components/navigation/AccountMenu"
+import { cn } from "@/lib/utils"
 
 const sectionTitles: Record<string, string> = {
-    overview: "Tổng quan",
-    pipeline: "Quy trình bán hàng",
-    deals: "Giao dịch",
-    customers: "Khách hàng",
-    team: "Hiệu suất đội ngũ",
-    forecasting: "Dự báo",
-    reports: "Báo cáo",
-    settings: "Cài đặt",
-};
-
-interface HeaderProps {
-    activeSection: string;
-    theme?: "light" | "dark";
-    onThemeToggle?: () => void;
+  overview: "Tổng quan",
+  pipeline: "Quy trình bán hàng",
+  deals: "Giao dịch",
+  customers: "Khách hàng",
+  team: "Hiệu suất đội ngũ",
+  forecasting: "Dự báo",
+  reports: "Báo cáo",
+  settings: "Cài đặt",
 }
 
-export function Header({ activeSection, theme = "dark", onThemeToggle }: HeaderProps) {
-    return (
-        <header className="h-16 border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-30 flex items-center justify-between px-6">
-            <div className="flex items-center gap-6">
-                <h1 className="text-xl font-semibold text-foreground">
-                    {sectionTitles[activeSection]}
-                </h1>
-                <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground">
-                    <Calendar className="w-4 h-4" />
-                    <span>30 ngày qua</span>
-                </div>
-            </div>
+interface HeaderProps {
+  activeSection: string
+  theme?: "light" | "dark"
+  onThemeToggle?: () => void
+}
 
-            <div className="flex items-center gap-4">
-                {/* Search */}
-                <div className="relative flex items-center w-48">
-                    <Search className="absolute left-3 w-4 h-4 text-muted-foreground pointer-events-none" />
-                    <input
-                        type="text"
-                        placeholder="Tìm kiếm..."
-                        className="w-full h-9 pl-9 pr-4 rounded-lg bg-secondary border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-accent transition-all duration-200"
-                    />
-                </div>
+export function Header({
+  activeSection,
+  theme = "light",
+  onThemeToggle,
+}: HeaderProps) {
+  const [searchFocused, setSearchFocused] = useState(false)
 
-                {/* Theme Toggle */}
-                <button
-                    onClick={onThemeToggle}
-                    className="w-9 h-9 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200"
-                    title={theme === "dark" ? "Chế độ sáng" : "Chế độ tối"}
-                >
-                    {theme === "dark" ? (
-                        <Sun className="w-5 h-5" />
-                    ) : (
-                        <Moon className="w-5 h-5" />
-                    )}
-                </button>
+  return (
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-sm">
+      <div className="flex items-center gap-6">
+        <h1 className="text-xl font-semibold text-foreground">
+          {sectionTitles[activeSection]}
+        </h1>
+        <div className="hidden items-center gap-2 text-sm text-muted-foreground md:flex">
+          <Calendar className="h-4 w-4" />
+          <span>30 ngày qua</span>
+        </div>
+      </div>
 
-                {/* Notifications */}
-                <button className="relative w-9 h-9 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
-                    <Bell className="w-5 h-5" />
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-accent rounded-full animate-pulse" />
-                </button>
+      <div className="flex items-center gap-2 sm:gap-4">
+        <div
+          className={cn(
+            "relative hidden items-center transition-all duration-300 sm:flex",
+            searchFocused ? "w-64" : "w-48"
+          )}
+        >
+          <Search className="pointer-events-none absolute left-3 h-4 w-4 text-muted-foreground" />
+          <input
+            name="search"
+            type="text"
+            placeholder="Tìm kiếm…"
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setSearchFocused(false)}
+            className="h-9 w-full rounded-lg bg-secondary pr-4 pl-9 text-sm text-foreground ring-1 ring-border transition-all duration-200 placeholder:text-muted-foreground focus:ring-2 focus:ring-ring/40 focus:outline-none"
+          />
+        </div>
 
-                {/* User avatar */}
-                <button className="w-9 h-9 rounded-lg overflow-hidden bg-secondary ring-2 ring-transparent hover:ring-accent/50 transition-all duration-200">
-                    <div className="w-full h-full bg-gradient-to-br from-accent/80 to-chart-1 flex items-center justify-center text-xs font-semibold text-white">
-                        JD
-                    </div>
-                </button>
-            </div>
-        </header>
-    );
+        <button
+          type="button"
+          onClick={onThemeToggle}
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-all duration-200 hover:bg-secondary hover:text-foreground"
+          aria-label={
+            theme === "dark"
+              ? "Chuyển sang chế độ sáng"
+              : "Chuyển sang chế độ tối"
+          }
+        >
+          {theme === "dark" ? (
+            <Sun className="h-5 w-5" />
+          ) : (
+            <Moon className="h-5 w-5" />
+          )}
+        </button>
+
+        <button
+          type="button"
+          className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-all duration-200 hover:bg-secondary hover:text-foreground"
+          aria-label="Mở thông báo"
+        >
+          <Bell className="h-5 w-5" />
+        </button>
+
+        <AccountMenu />
+      </div>
+    </header>
+  )
 }
