@@ -1,4 +1,6 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
+import { useEffect } from "react"
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom"
+import { AUTH_ROUTE_PATHS } from "@/features/auth/constants"
 import NotFoundPage from "@/pages/not-found/NotFoundPage"
 import OAuthCallbackPage from "@/pages/oauth-callback/OauthCallback"
 import { NewRestaurantRoute } from "@/routes/new-restaurant-route"
@@ -12,11 +14,38 @@ import { HomeRoutes } from "@/routes/home-routes"
 import { SETTINGS_DEFAULT_PATH } from "@/routes/setting-route-config"
 import { SettingRoutes } from "@/routes/setting-routes"
 import { AuthRoutes } from "@/routes/auth-routes"
+import { AUTH_SESSION_EXPIRED_EVENT } from "@/services/client"
+import { useAuthStore } from "@/stores/auth-store"
+import { useUserStore } from "@/stores/user-store"
 import PublicRestaurantDetailsPage from "./pages/public/restaurants/PublicRestaurantDetailsPage"
+
+function AuthSessionExpiredHandler() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const clearAuth = useAuthStore((state) => state.clearAuth)
+  const clearUser = useUserStore((state) => state.clear)
+
+  useEffect(() => {
+    const handleSessionExpired = () => {
+      clearAuth()
+      clearUser()
+
+      if (!location.pathname.startsWith("/auth")) {
+        navigate(AUTH_ROUTE_PATHS.login, { replace: true })
+      }
+    }
+
+    window.addEventListener(AUTH_SESSION_EXPIRED_EVENT, handleSessionExpired)
+    return () => window.removeEventListener(AUTH_SESSION_EXPIRED_EVENT, handleSessionExpired)
+  }, [clearAuth, clearUser, location.pathname, navigate])
+
+  return null
+}
 
 export function App() {
   return (
     <BrowserRouter>
+      <AuthSessionExpiredHandler />
       <Routes>
         {HomeRoutes()}
         {AuthRoutes()}

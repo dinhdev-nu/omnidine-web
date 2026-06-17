@@ -450,7 +450,7 @@ export default function LandingMain() {
               </a>
               <a
                 className="flex inline-flex !h-14 h-8 w-full shrink-0 flex-col items-center justify-center gap-1 rounded-full rounded-none border-[--accent-600] bg-[--accent-500] px-3.5 !text-base text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:px-5"
-                href="/auth/login"
+                href="/public/restaurants"
               >
                 Trải Nghiệm Hệ Thống
               </a>
@@ -487,7 +487,7 @@ export default function LandingMain() {
           </div>
         </div>
       </section>
-      <section className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]">
+      <section id="features" className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]">
         <div className="flex flex-col items-center gap-3 self-center">
           <h3 className="flex min-h-7 items-center justify-center gap-2 rounded-full bg-[--surface-secondary] px-3.5 pb-px text-sm font-medium text-[--text-tertiary] md:text-base dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-tertiary]">
             Hệ sinh thái
@@ -557,7 +557,7 @@ export default function LandingMain() {
             </a>
             <a
               className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-3.5 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:px-5 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
-              href="#"
+              href="#support"
             >
               Hỗ trợ
             </a>
@@ -626,13 +626,13 @@ export default function LandingMain() {
             <div className="flex items-center gap-3 md:order-3">
               <a
                 className="inline-flex h-9 shrink-0 items-center justify-center gap-1 rounded-full border-[--accent-600] bg-[--accent-500] px-5 text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:h-10 md:text-base"
-                href="/auth/register"
+                href="/public/restaurants"
               >
                 Trải nghiệm
               </a>
               <a
                 className="inline-flex h-9 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-5 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:h-10 md:text-base dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
-                href="#"
+                href="#features"
               >
                 Chi tiết
               </a>
@@ -670,7 +670,7 @@ export default function LandingMain() {
             </a>
             <a
               className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-3.5 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:px-5 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
-              href="#"
+              href="#features"
             >
               Tìm hiểu thêm
             </a>

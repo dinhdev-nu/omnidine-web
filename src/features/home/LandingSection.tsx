@@ -358,7 +358,7 @@ export default function LandingSection() {
                 </div>
             </section>
 
-            <section className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]">
+            <section id="support" className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]">
                 <SectionHeading
                     badge="Câu hỏi thường gặp"
                     title="Giải đáp các thắc mắc chung"

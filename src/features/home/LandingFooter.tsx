@@ -11,16 +11,16 @@ type SocialLink = {
 }
 
 const FOOTER_LINKS: FooterNavLink[] = [
-    { label: "Tài liệu", href: "#", target: "_self" },
-    { label: "Hỗ trợ", href: "#", target: "_self" },
+    { label: "Tài liệu", href: "/#features", target: "_self" },
+    { label: "Hỗ trợ", href: "/#support", target: "_self" },
     {
         label: "Chính sách bảo mật",
-        href: "#",
+        href: "/#support",
         target: "_self",
     },
     {
         label: "Điều Khoản",
-        href: "#",
+        href: "/#support",
         target: "_self",
     },
 ]

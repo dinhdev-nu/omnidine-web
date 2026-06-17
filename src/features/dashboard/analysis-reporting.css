@@ -1,7 +1,7 @@
 /* 
  * Scoped CSS Variables for Analysis & Reporting Dashboard
  * Uses .analysis-reporting wrapper class to avoid conflicts with global styles
- * Premium dark theme with glassmorphism and modern effects
+ * Dashboard theme tokens with dark/light support
  * 
  * OPTIMIZED: Reduced from 649 lines to ~260 lines
  * - Removed redundant Tailwind utility overrides (Tailwind v4 uses CSS variables automatically)
@@ -9,8 +9,8 @@
  * - Consolidated similar styles
  * 
  * THEME SUPPORT:
- * - Dark theme (default): class="analysis-reporting"
- * - Light theme: class="analysis-reporting light"
+ * - Light theme (page default): class="analysis-reporting light"
+ * - Dark theme: class="analysis-reporting dark" or base class fallback
  */
 
 /* ================================

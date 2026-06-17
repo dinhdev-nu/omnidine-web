@@ -1,4 +1,11 @@
+import { AUTH_ROUTE_PATHS } from "@/features/auth/constants"
+import { SETTINGS_DEFAULT_PATH } from "@/routes/setting-route-config"
+import { useAuthStore } from "@/stores/auth-store"
+
 export default function LandingHeader() {
+  const accessToken = useAuthStore((state) => state.accessToken)
+  const trialHref = accessToken ? SETTINGS_DEFAULT_PATH : AUTH_ROUTE_PATHS.register
+
   return (
     <>
       <header className="sticky left-0 top-0 z-[110] flex w-full flex-col border-b border-[--border] bg-[--surface-primary] dark:border-[--dark-border] dark:bg-[--dark-surface-primary]">
@@ -83,13 +90,13 @@ export default function LandingHeader() {
             <div className="hidden items-center gap-2 !justify-self-end lg:flex">
               <a
                 className="gap-1 font-normal shrink-0 rounded-full ring-[--control] focus-visible:ring-2 outline-hidden outline-0 bg-[--surface-secondary] text-[--text-primary] border-[--border] border dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:border-[--dark-border] hover:bg-[--surface-tertiary] dark:hover:bg-[--dark-surface-tertiary] inline-flex items-center justify-center px-3.5 text-sm h-8 md:px-5 !px-3.5"
-                href="/auth/login"
+                href={AUTH_ROUTE_PATHS.login}
               >
                 Đăng Nhập
               </a>
               <a
                 className="gap-1 font-normal shrink-0 rounded-full ring-[--control] focus-visible:ring-2 outline-hidden outline-0 bg-[--accent-500] hover:bg-[--accent-600] text-[--text-on-accent-primary] border-[--accent-600] inline-flex items-center justify-center px-3.5 text-sm h-8 md:px-5 !px-3.5"
-                href="/auth/register"
+                href={trialHref}
               >
                 Dùng Thử Miễn Phí
               </a>

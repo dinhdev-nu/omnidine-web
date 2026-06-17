@@ -4,17 +4,27 @@ import type { ApiSuccessResponse } from "./types"
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || ""
 const ACCESS_TOKEN_KEY = "omnidine_access_token"
+export const AUTH_SESSION_EXPIRED_EVENT = "omnidine:auth-session-expired"
 
 // Sync in-memory token từ localStorage để tránh đọc localStorage mỗi request
 let _accessToken: string | null = localStorage.getItem(ACCESS_TOKEN_KEY)
+let hasNotifiedSessionExpired = false
 
 export function setClientToken(token: string | null): void {
   _accessToken = token
   if (token) {
+    hasNotifiedSessionExpired = false
     localStorage.setItem(ACCESS_TOKEN_KEY, token)
   } else {
     localStorage.removeItem(ACCESS_TOKEN_KEY)
   }
+}
+
+function notifySessionExpired(): void {
+  if (hasNotifiedSessionExpired || typeof window === "undefined") return
+
+  hasNotifiedSessionExpired = true
+  window.dispatchEvent(new Event(AUTH_SESSION_EXPIRED_EVENT))
 }
 
 export const apiClient = axios.create({
@@ -50,11 +60,12 @@ export function unwrapResponseData<T>(response: AxiosResponse<ApiSuccessResponse
  */
 export async function refreshAccessToken(): Promise<string | null> {
   try {
-  const res = await refreshClient.post<ApiSuccessResponse<{ access_token: string }>>("/auths/refresh-token")
+    const res = await refreshClient.post<ApiSuccessResponse<{ access_token: string }>>("/auths/refresh-token")
     const token = res.data.data.access_token
     setClientToken(token)
     return token
   } catch {
+    setClientToken(null)
     return null
   }
 }
@@ -101,6 +112,7 @@ apiClient.interceptors.response.use(
         return apiClient(originalConfig)
       } catch (refreshError) {
         setClientToken(null)
+        notifySessionExpired()
         return Promise.reject(refreshError)
       }
     }

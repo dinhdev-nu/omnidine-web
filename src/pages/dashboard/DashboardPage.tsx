@@ -57,9 +57,8 @@ export default function Dashboard() {
     const [activeSection, setActiveSection] = useState<SectionId>("overview");
     const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
     const [theme, setTheme] = useState<ThemeMode>(() => {
-        // Get theme from localStorage or default to dark
-        const stored = localStorage.getItem("dashboard-theme") as ThemeMode | null;
-        return stored || "dark";
+        const stored = localStorage.getItem("dashboard-theme");
+        return stored === "dark" || stored === "light" ? stored : "light";
     });
 
     useEffect(() => {

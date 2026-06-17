@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCreateRestaurant } from '@/features/new/FormProvider';
@@ -7,7 +8,13 @@ import { PrivacyDialog } from '@/features/new/PrivacyDialog';
 import { REQUIRED_FIELDS, isFieldFilled } from '@/features/new/constants';
 import { SettingsHeader } from '@/layouts/settings/SettingsHeader';
 
-function LayoutFooter({ onOpenPreview }: { onOpenPreview: () => void }) {
+const CANCEL_FALLBACK_PATH = '/settings/manage/restaurants';
+
+type NewRestaurantLocationState = {
+    from?: string;
+};
+
+function LayoutFooter({ onOpenPreview, onCancel }: { onOpenPreview: () => void; onCancel: () => void }) {
     const { formData } = useCreateRestaurant();
 
     const filledCount = REQUIRED_FIELDS.filter((field) => isFieldFilled(formData, field)).length;
@@ -19,8 +26,13 @@ function LayoutFooter({ onOpenPreview }: { onOpenPreview: () => void }) {
         <div className="shrink-0 border-t border-border bg-background/80 px-4 py-3 sm:px-8">
             <div className="mx-auto flex w-full items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <Button variant="ghost" type="button" className="gap-2 text-muted-foreground hover:text-foreground">
-                        <ChevronLeft className="size-4" />
+                    <Button
+                        variant="ghost"
+                        type="button"
+                        onClick={onCancel}
+                        className="text-muted-foreground hover:text-foreground"
+                    >
+                        <ChevronLeft data-icon="inline-start" />
                         <span>Hủy bỏ</span>
                     </Button>
                     <span className="text-xs text-muted-foreground hidden sm:block">
@@ -33,7 +45,7 @@ function LayoutFooter({ onOpenPreview }: { onOpenPreview: () => void }) {
                     disabled={!isComplete}
                     className="bg-foreground text-background hover:bg-foreground/90 font-bold px-8"
                 >
-                    <Eye className="size-4 mr-2" />
+                    <Eye data-icon="inline-start" />
                     Xem thông tin
                 </Button>
             </div>
@@ -43,6 +55,8 @@ function LayoutFooter({ onOpenPreview }: { onOpenPreview: () => void }) {
 
 export function NewRestaurantLayout() {
     const { handleSubmit } = useCreateRestaurant();
+    const navigate = useNavigate();
+    const location = useLocation();
     const [isDark, setIsDark] = useState(false);
     const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
 
@@ -54,6 +68,23 @@ export function NewRestaurantLayout() {
 
         return () => html.classList.remove('dark');
     }, [isDark]);
+
+    const handleCancel = () => {
+        const from = (location.state as NewRestaurantLocationState | null)?.from;
+
+        if (from?.startsWith('/') && from !== location.pathname) {
+            navigate(from, { replace: true });
+            return;
+        }
+
+        const historyIndex = window.history.state?.idx;
+        if (typeof historyIndex === 'number' && historyIndex > 0) {
+            navigate(-1);
+            return;
+        }
+
+        navigate(CANCEL_FALLBACK_PATH, { replace: true });
+    };
 
     return (
         <div className="flex min-h-dvh w-full flex-col bg-background font-sans">
@@ -71,7 +102,7 @@ export function NewRestaurantLayout() {
                 </div>
             </main>
 
-            <LayoutFooter onOpenPreview={() => setIsPrivacyOpen(true)} />
+            <LayoutFooter onOpenPreview={() => setIsPrivacyOpen(true)} onCancel={handleCancel} />
 
             <PrivacyDialog open={isPrivacyOpen} onOpenChange={setIsPrivacyOpen} />
         </div>
