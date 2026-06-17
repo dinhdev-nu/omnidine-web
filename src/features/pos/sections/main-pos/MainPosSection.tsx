@@ -1,152 +1,183 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import MenuCategory from './components/MenuCategory';
-import MenuGrid from './components/MenuGrid';
-import OrderCart from './components/OrderCart';
-import Button from '../../components/Button';
-import Input from '../../components/Input';
-import Icon from '@/components/AppIcon';
-import ConfirmationDialog from '@/components/ui/ConfirmationDialog';
-import { usePosContext } from '@/features/pos/contexts/usePosContext';
-import { useMainPosMenuData } from './hooks/useMainPosMenuData';
-import { useOrderCreation } from './hooks/useOrderCreation';
-import { useFetch } from '@/hooks/useFetch';
-import { listTables } from '@/services/tables';
-import type { TableListResponse } from '@/types/table-type';
+import React, { useCallback, useEffect, useMemo, useState } from "react"
+import MenuCategory from "./components/MenuCategory"
+import MenuGrid from "./components/MenuGrid"
+import OrderCart from "./components/OrderCart"
+import Button from "../../components/Button"
+import Input from "../../components/Input"
+import Icon from "@/components/AppIcon"
+import ConfirmationDialog from "../../components/ConfirmationDialog"
+import { usePosContext } from "@/features/pos/contexts/usePosContext"
+import { useMainPosMenuData } from "./hooks/useMainPosMenuData"
+import { useOrderCreation } from "./hooks/useOrderCreation"
+import { useFetch } from "@/hooks/useFetch"
+import { listTables } from "@/services/tables"
+import type { TableListResponse } from "@/types/table-type"
 
-type PosOrderType = '' | 'dine_in' | 'takeaway' | 'delivery';
-type PosOrderSource = 'pos' | 'phone';
+type PosOrderType = "" | "dine_in" | "takeaway" | "delivery"
+type PosOrderSource = "pos" | "phone"
 
-const fetchAvailableActiveTables = async (restaurantId: string): Promise<TableListResponse> => {
+const fetchAvailableActiveTables = async (
+  restaurantId: string
+): Promise<TableListResponse> => {
   return listTables(restaurantId, {
-    status: 'available',
+    status: "available",
     is_active: true,
-  });
-};
+  })
+}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const MainPosSection: React.FC = () => {
-  const { data: posData } = usePosContext();
-  const restaurantId = posData?.restaurant._id;
-  const staff = posData?.current_staff ?? null;
-  const normalizedRestaurantId = restaurantId ?? '';
+  const { data: posData } = usePosContext()
+  const restaurantId = posData?.restaurant._id
+  const staff = posData?.current_staff ?? null
+  const normalizedRestaurantId = restaurantId ?? ""
 
-  const [cartItems, setCartItems] = useState<Array<{
-    _id: string;
-    name: string;
-    price: number;
-    quantity: number;
-    note?: string;
-  }>>([]);
-  const [selectedTable, setSelectedTable] = useState<string | null>(null);
-  const [selectedStaff, setSelectedStaff] = useState<string | null>(staff?._id ?? null);
-  const [selectedOrderType, setSelectedOrderType] = useState<PosOrderType>('');
-  const [selectedOrderSource, setSelectedOrderSource] = useState<PosOrderSource>('pos');
-  const [customerName, setCustomerName] = useState('');
-  const [customerPhone, setCustomerPhone] = useState('');
-  const [orderNotes, setOrderNotes] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState('all');
+  const [cartItems, setCartItems] = useState<
+    Array<{
+      _id: string
+      name: string
+      price: number
+      quantity: number
+      note?: string
+    }>
+  >([])
+  const [selectedTable, setSelectedTable] = useState<string | null>(null)
+  const [selectedStaff, setSelectedStaff] = useState<string | null>(
+    staff?._id ?? null
+  )
+  const [selectedOrderType, setSelectedOrderType] = useState<PosOrderType>("")
+  const [selectedOrderSource, setSelectedOrderSource] =
+    useState<PosOrderSource>("pos")
+  const [customerName, setCustomerName] = useState("")
+  const [customerPhone, setCustomerPhone] = useState("")
+  const [orderNotes, setOrderNotes] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [activeCategory, setActiveCategory] = useState("all")
 
-  const { data: availableTablesData } = useFetch(fetchAvailableActiveTables, [normalizedRestaurantId], {
-    enabled: Boolean(restaurantId),
-  });
+  const { data: availableTablesData } = useFetch(
+    fetchAvailableActiveTables,
+    [normalizedRestaurantId],
+    {
+      enabled: Boolean(restaurantId),
+    }
+  )
 
   const { uiCategories, uiMenuItems } = useMainPosMenuData({
     restaurantId,
     activeCategory,
     searchQuery,
-  });
+  })
 
-  const handleAddToCart = useCallback((item: { _id: string; name: string; price: number }) => {
-    setCartItems(prev => {
-      const existing = prev.find(i => i._id === item._id);
-      if (existing) {
-        return prev.map(i => (i._id === item._id ? { ...i, quantity: i.quantity + 1 } : i));
-      }
-      return [...prev, { _id: item._id, name: item.name, price: item.price, quantity: 1, note: '' }];
-    });
-  }, []);
+  const handleAddToCart = useCallback(
+    (item: { _id: string; name: string; price: number }) => {
+      setCartItems((prev) => {
+        const existing = prev.find((i) => i._id === item._id)
+        if (existing) {
+          return prev.map((i) =>
+            i._id === item._id ? { ...i, quantity: i.quantity + 1 } : i
+          )
+        }
+        return [
+          ...prev,
+          {
+            _id: item._id,
+            name: item.name,
+            price: item.price,
+            quantity: 1,
+            note: "",
+          },
+        ]
+      })
+    },
+    []
+  )
 
   const handleUpdateQuantity = useCallback((id: string, qty: number) => {
-    setCartItems(prev => prev.map(i => (i._id === id ? { ...i, quantity: Math.max(1, qty) } : i)));
-  }, []);
+    setCartItems((prev) =>
+      prev.map((i) => (i._id === id ? { ...i, quantity: Math.max(1, qty) } : i))
+    )
+  }, [])
 
   const handleRemoveItem = useCallback((id: string) => {
-    setCartItems(prev => prev.filter(i => i._id !== id));
-  }, []);
+    setCartItems((prev) => prev.filter((i) => i._id !== id))
+  }, [])
 
   const handleUpdateNote = useCallback((id: string, note: string) => {
-    setCartItems(prev => prev.map(i => (i._id === id ? { ...i, note } : i)));
-  }, []);
+    setCartItems((prev) => prev.map((i) => (i._id === id ? { ...i, note } : i)))
+  }, [])
 
   const onClearCart = useCallback(() => {
-    setCartItems([]);
-  }, []);
+    setCartItems([])
+  }, [])
 
   const onTableChange = useCallback((value: string) => {
-    setSelectedTable(value || null);
-  }, []);
+    setSelectedTable(value || null)
+  }, [])
 
   const onStaffChange = useCallback((value: string) => {
-    setSelectedStaff(value || null);
-  }, []);
+    setSelectedStaff(value || null)
+  }, [])
 
   const onOrderTypeChange = useCallback((value: string) => {
-    const nextType = (value || 'dine_in') as PosOrderType;
-    setSelectedOrderType(nextType);
-  }, []);
+    const nextType = (value || "dine_in") as PosOrderType
+    setSelectedOrderType(nextType)
+  }, [])
 
   const onOrderSourceChange = useCallback((value: string) => {
-    const nextSource = (value || 'pos') as PosOrderSource;
-    setSelectedOrderSource(nextSource);
-  }, []);
+    const nextSource = (value || "pos") as PosOrderSource
+    setSelectedOrderSource(nextSource)
+  }, [])
 
   useEffect(() => {
-    if (selectedOrderType !== 'dine_in') {
-      setSelectedTable(null);
+    if (selectedOrderType !== "dine_in") {
+      setSelectedTable(null)
     }
-  }, [selectedOrderType]);
+  }, [selectedOrderType])
 
   const tableOptions = useMemo(() => {
-    const tables = availableTablesData?.data ?? [];
+    const tables = availableTablesData?.data ?? []
     return tables.map((table) => {
       // Ensure we have a valid ID
-      const tableId = table._id || table.id;
+      const tableId = table._id || table.id
       if (!tableId) {
-        console.warn('Table missing ID:', table);
+        console.warn("Table missing ID:", table)
         return {
-          value: '',
+          value: "",
           label: `${table.table_number} (NO ID)`,
-        };
+        }
       }
       return {
         value: tableId,
-        label: `${table.table_number}${table.name?.trim() ? ` - ${table.name.trim()}` : ''} (${table.capacity})`,
-      };
-    });
-  }, [availableTablesData]);
+        label: `${table.table_number}${table.name?.trim() ? ` - ${table.name.trim()}` : ""} (${table.capacity})`,
+      }
+    })
+  }, [availableTablesData])
 
   const staffOptions = useMemo(() => {
-    if (!staff) return [];
-    return [{ value: staff._id, label: staff.full_name }];
-  }, [staff]);
+    if (!staff) return []
+    return [{ value: staff._id, label: staff.full_name }]
+  }, [staff])
 
   // Stubs for functionality not fully implemented
-  const onSummaryChange = () => { };
+  const onSummaryChange = () => {}
 
-  const { isCreatingOrder, orderNumber: hookOrderNumber, createOrder } = useOrderCreation({
+  const {
+    isCreatingOrder,
+    orderNumber: hookOrderNumber,
+    createOrder,
+  } = useOrderCreation({
     restaurantId,
     onOrderCreated: () => {
-      setCartItems([]);
-      setCustomerName('');
-      setCustomerPhone('');
-      setOrderNotes('');
-      if (selectedOrderType === 'dine_in') {
-        setSelectedTable(null);
+      setCartItems([])
+      setCustomerName("")
+      setCustomerPhone("")
+      setOrderNotes("")
+      if (selectedOrderType === "dine_in") {
+        setSelectedTable(null)
       }
     },
-  });
+  })
 
   const onCreateOrder = () => {
     createOrder({
@@ -157,52 +188,35 @@ const MainPosSection: React.FC = () => {
       customerPhone,
       orderNotes,
       cartItems,
-    });
-  };
+    })
+  }
 
   // Get order number from hook
-  const orderNumber = hookOrderNumber;
+  const orderNumber = hookOrderNumber
 
-  const [showMobileCart, setShowMobileCart] = useState(false);
-  const [showClearCartDialog, setShowClearCartDialog] = useState(false);
+  const [showMobileCart, setShowMobileCart] = useState(false)
+  const [showClearCartDialog, setShowClearCartDialog] = useState(false)
 
-  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-
-  // Calculate final total with tax and service charge rates from context (already in decimal form)
-  const orderSummary = useMemo(() => {
-    const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const taxRate = posData?.restaurant?.tax_rate ?? 0.10;
-    const serviceRate = posData?.restaurant?.service_charge_rate ?? 0;
-    const tax = subtotal * taxRate;
-    const serviceCharge = subtotal * serviceRate;
-    return {
-      subtotal,
-      tax,
-      serviceCharge,
-      total: subtotal + tax + serviceCharge,
-    };
-  }, [cartItems, posData?.restaurant?.tax_rate, posData?.restaurant?.service_charge_rate]);
-
-  const formattedTotal = new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
-  }).format(orderSummary.total);
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0)
 
   return (
     <>
       {/* ── Two-panel split ───────────────────────────────────────────────── */}
-      <div className="h-full min-h-0 flex flex-col lg:flex-row relative">
-
+      <div className="relative flex h-full min-h-0 flex-col lg:flex-row">
         {/* ── Left Panel: Menu ─────────────────────────────────────────────── */}
-        <div className={[
-          'flex-1 bg-surface border-r border-border overflow-hidden flex-col',
-          showMobileCart ? 'hidden lg:flex' : 'flex',
-        ].join(' ')}>
+        <div
+          className={[
+            "bg-surface flex-1 flex-col overflow-hidden border-r border-border",
+            showMobileCart ? "hidden lg:flex" : "flex",
+          ].join(" ")}
+        >
           <>
-            <div className="p-4 border-b border-border">
-              <h1 className="text-xl font-semibold text-foreground mb-4">Thực đơn</h1>
+            <div className="border-b border-border p-4">
+              <h1 className="mb-4 text-xl font-semibold text-foreground">
+                Thực đơn
+              </h1>
 
-              <div className="mb-4 relative">
+              <div className="relative mb-4">
                 <Input
                   type="text"
                   placeholder="Tìm món theo tên..."
@@ -213,11 +227,13 @@ const MainPosSection: React.FC = () => {
                 <Icon
                   name="Search"
                   size={18}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+                  className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground"
                 />
               </div>
 
-              <p className="text-sm font-medium text-foreground mb-2">Danh mục</p>
+              <p className="mb-2 text-sm font-medium text-foreground">
+                Danh mục
+              </p>
               <MenuCategory
                 categories={uiCategories}
                 activeCategory={activeCategory}
@@ -232,12 +248,13 @@ const MainPosSection: React.FC = () => {
         </div>
 
         {/* ── Right Panel: Cart ────────────────────────────────────────────── */}
-        <div className={[
-          'w-full lg:w-96 bg-surface border-l border-border flex-col overflow-hidden',
-          showMobileCart ? 'flex' : 'hidden lg:flex',
-        ].join(' ')}>
-
-          <div className="p-4 border-b border-border flex items-center justify-between flex-shrink-0">
+        <div
+          className={[
+            "bg-surface w-full flex-col overflow-hidden border-l border-border lg:w-96",
+            showMobileCart ? "flex" : "hidden lg:flex",
+          ].join(" ")}
+        >
+          <div className="flex flex-shrink-0 items-center justify-between border-b border-border p-4">
             <h2 className="text-lg font-semibold text-foreground">Đơn hàng</h2>
             <Button
               variant="ghost"
@@ -279,18 +296,18 @@ const MainPosSection: React.FC = () => {
           </div>
 
           {cartItems.length > 0 && (
-            <div className="border-t border-border p-4 flex-shrink-0 bg-surface space-y-2">
+            <div className="bg-surface flex-shrink-0 space-y-2 border-t border-border p-4">
               <Button
                 variant="default"
                 size="default"
                 fullWidth
-                iconName={isCreatingOrder ? 'Loader2' : 'FileText'}
+                iconName={isCreatingOrder ? "Loader2" : "FileText"}
                 iconPosition="left"
                 onClick={onCreateOrder}
                 disabled={isCreatingOrder}
-                className={`hover-scale touch-target ${isCreatingOrder ? 'animate-pulse' : ''}`}
+                className={`hover-scale touch-target ${isCreatingOrder ? "animate-pulse" : ""}`}
               >
-                {isCreatingOrder ? 'Đang tạo đơn...' : 'Tạo đơn hàng'}
+                {isCreatingOrder ? "Đang tạo đơn..." : "Tạo đơn hàng"}
               </Button>
             </div>
           )}
@@ -298,17 +315,17 @@ const MainPosSection: React.FC = () => {
       </div>
 
       {/* ── Mobile Cart FAB ───────────────────────────────────────────────────── */}
-      <div className="lg:hidden absolute bottom-4 right-4 z-20">
+      <div className="absolute right-4 bottom-4 z-20 lg:hidden">
         <Button
           variant="default"
           size="lg"
           onClick={() => setShowMobileCart(true)}
-          className="rounded-full shadow-modal hover-scale relative"
+          className="shadow-modal hover-scale relative rounded-full"
         >
           <Icon name="ShoppingCart" size={24} className="mr-2" />
           <span>Giỏ hàng ({totalItems})</span>
           {cartItems.length > 0 && (
-            <span className="absolute -top-2 -right-2 w-6 h-6 bg-error text-error-foreground text-xs rounded-full flex items-center justify-center">
+            <span className="bg-error text-error-foreground absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full text-xs">
               {totalItems}
             </span>
           )}
@@ -319,7 +336,10 @@ const MainPosSection: React.FC = () => {
       <ConfirmationDialog
         isOpen={showClearCartDialog}
         onClose={() => setShowClearCartDialog(false)}
-        onConfirm={() => { onClearCart?.(); setShowClearCartDialog(false); }}
+        onConfirm={() => {
+          onClearCart?.()
+          setShowClearCartDialog(false)
+        }}
         title="Xóa giỏ hàng"
         message="Bạn có chắc chắn muốn xóa tất cả món trong giỏ hàng?"
         confirmText="Xóa tất cả"
@@ -328,7 +348,7 @@ const MainPosSection: React.FC = () => {
         icon="Trash2"
       />
     </>
-  );
-};
+  )
+}
 
-export default MainPosSection;
+export default MainPosSection

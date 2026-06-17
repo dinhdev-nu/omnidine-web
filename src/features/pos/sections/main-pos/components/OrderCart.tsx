@@ -1,61 +1,68 @@
-import { type ChangeEvent, useMemo } from 'react';
-import Button from '../../../components/Button.tsx';
-import Icon from '@/components/AppIcon';
-import Input from '../../../components/Input.tsx';
-import Select from '../../../components/Select.tsx';
-import { Switch } from '@/components/ui/switch';
-import { usePosContext } from '@/features/pos/contexts/usePosContext';
+import { type ChangeEvent, useMemo } from "react"
+import Button from "../../../components/Button.tsx"
+import Icon from "@/components/AppIcon"
+import Input from "../../../components/Input.tsx"
+import Select from "../../../components/Select.tsx"
+import { Switch } from "../../../components/Switch"
+import { usePosContext } from "@/features/pos/contexts/usePosContext"
 
 interface CartItem {
-  _id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  note?: string;
+  _id: string
+  name: string
+  price: number
+  quantity: number
+  note?: string
 }
 
 interface TableOption {
-  value: string;
-  label: string;
+  value: string
+  label: string
 }
 
 interface StaffOption {
-  value: string;
-  label: string;
+  value: string
+  label: string
 }
 
 interface OrderCartProps {
-  cartItems: CartItem[];
-  onUpdateQuantity: (id: string, quantity: number) => void;
-  onRemoveItem: (id: string) => void;
-  onUpdateNote: (id: string, note: string) => void;
-  onClearCart: () => void;
-  orderNumber?: string | null;
-  selectedOrderType?: '' | 'dine_in' | 'takeaway' | 'delivery';
-  onOrderTypeChange?: (value: string) => void;
-  selectedOrderSource?: 'pos' | 'phone';
-  onOrderSourceChange?: (value: string) => void;
-  customerName?: string;
-  onCustomerNameChange?: (value: string) => void;
-  customerPhone?: string;
-  onCustomerPhoneChange?: (value: string) => void;
-  orderNotes?: string;
-  onOrderNotesChange?: (value: string) => void;
-  selectedTable?: string | null;
-  onTableChange?: (value: string) => void;
-  onSummaryChange?: (summary: { subtotal: number; discount: number; tax: number; total: number }) => void;
-  selectedStaff?: string | null;
-  onStaffChange?: (value: string) => void;
-  tableOptions?: TableOption[];
-  staffOptions?: StaffOption[];
+  cartItems: CartItem[]
+  onUpdateQuantity: (id: string, quantity: number) => void
+  onRemoveItem: (id: string) => void
+  onUpdateNote: (id: string, note: string) => void
+  onClearCart: () => void
+  orderNumber?: string | null
+  selectedOrderType?: "" | "dine_in" | "takeaway" | "delivery"
+  onOrderTypeChange?: (value: string) => void
+  selectedOrderSource?: "pos" | "phone"
+  onOrderSourceChange?: (value: string) => void
+  customerName?: string
+  onCustomerNameChange?: (value: string) => void
+  customerPhone?: string
+  onCustomerPhoneChange?: (value: string) => void
+  orderNotes?: string
+  onOrderNotesChange?: (value: string) => void
+  selectedTable?: string | null
+  onTableChange?: (value: string) => void
+  onSummaryChange?: (summary: {
+    subtotal: number
+    discount: number
+    tax: number
+    total: number
+  }) => void
+  selectedStaff?: string | null
+  onStaffChange?: (value: string) => void
+  tableOptions?: TableOption[]
+  staffOptions?: StaffOption[]
   /** When true, hide discount UI (used by MainPos new-order flow) */
-  hideDiscount?: boolean;
-  discountType?: 'percent' | 'amount';
-  discountValue?: number;
+  hideDiscount?: boolean
+  discountType?: "percent" | "amount"
+  discountValue?: number
 }
 
 const formatPrice = (price: number): string =>
-  new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
+    price
+  )
 
 const OrderCart = ({
   cartItems,
@@ -64,51 +71,70 @@ const OrderCart = ({
   onUpdateNote,
   onClearCart,
   orderNumber = null,
-  selectedOrderType = '',
+  selectedOrderType = "",
   onOrderTypeChange,
-  selectedOrderSource = 'pos',
+  selectedOrderSource = "pos",
   onOrderSourceChange,
-  customerName = '',
+  customerName = "",
   onCustomerNameChange,
-  customerPhone = '',
+  customerPhone = "",
   onCustomerPhoneChange,
-  orderNotes = '',
+  orderNotes = "",
   onOrderNotesChange,
   selectedTable = null,
   onTableChange,
   tableOptions = [],
-  discountType = 'percent',
+  discountType = "percent",
   discountValue = 0,
   hideDiscount = false,
 }: OrderCartProps) => {
-  const { data: posData } = usePosContext();
+  const { data: posData } = usePosContext()
 
   const { subtotal, discount, tax, serviceCharge, finalTotal } = useMemo(() => {
-    const st = cartItems?.reduce((total, item) => total + item.price * item.quantity, 0) ?? 0;
-    const disc = discountType === 'percent'
-      ? st * (discountValue / 100)
-      : Math.min(discountValue, st);
-    const taxRate = posData?.restaurant?.tax_rate ?? 0.10;
-    const serviceRate = posData?.restaurant?.service_charge_rate ?? 0;
-    const tx = (st - disc) * taxRate;
-    const sc = (st - disc) * serviceRate;
+    const st =
+      cartItems?.reduce(
+        (total, item) => total + item.price * item.quantity,
+        0
+      ) ?? 0
+    const disc =
+      discountType === "percent"
+        ? st * (discountValue / 100)
+        : Math.min(discountValue, st)
+    const taxRate = posData?.restaurant?.tax_rate ?? 0.1
+    const serviceRate = posData?.restaurant?.service_charge_rate ?? 0
+    const tx = (st - disc) * taxRate
+    const sc = (st - disc) * serviceRate
     return {
       subtotal: st,
       discount: disc,
       tax: tx,
       serviceCharge: sc,
       finalTotal: st - disc + tx + sc,
-    };
-  }, [cartItems, discountType, discountValue, posData?.restaurant?.tax_rate, posData?.restaurant?.service_charge_rate]);
+    }
+  }, [
+    cartItems,
+    discountType,
+    discountValue,
+    posData?.restaurant?.tax_rate,
+    posData?.restaurant?.service_charge_rate,
+  ])
 
   if (cartItems?.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-center">
-        <Icon name="ShoppingCart" size={48} className="text-muted-foreground mb-4" />
-        <h3 className="text-lg font-medium text-muted-foreground mb-2">Giỏ hàng trống</h3>
-        <p className="text-sm text-muted-foreground">Thêm món ăn từ thực đơn để bắt đầu đơn hàng</p>
+      <div className="flex h-64 flex-col items-center justify-center text-center">
+        <Icon
+          name="ShoppingCart"
+          size={48}
+          className="mb-4 text-muted-foreground"
+        />
+        <h3 className="mb-2 text-lg font-medium text-muted-foreground">
+          Giỏ hàng trống
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          Thêm món ăn từ thực đơn để bắt đầu đơn hàng
+        </p>
       </div>
-    );
+    )
   }
 
   return (
@@ -122,7 +148,10 @@ const OrderCart = ({
             </h2>
             {orderNumber ? (
               <p className="text-xs text-muted-foreground">
-                Mã: <span className="font-mono font-medium text-foreground">{orderNumber}</span>
+                Mã:{" "}
+                <span className="font-mono font-medium text-foreground">
+                  {orderNumber}
+                </span>
               </p>
             ) : null}
           </div>
@@ -145,23 +174,29 @@ const OrderCart = ({
               <p className="text-sm font-medium text-foreground">Loại đơn</p>
               <Select
                 value={selectedOrderType}
-                onChange={(e: ChangeEvent<HTMLSelectElement>) => onOrderTypeChange?.(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                  onOrderTypeChange?.(e.target.value)
+                }
                 options={[
-                  { value: '', label: 'Chọn loại đơn' },
-                  { value: 'dine_in', label: 'Tại chỗ' },
-                  { value: 'takeaway', label: 'Mang về' },
-                  { value: 'delivery', label: 'Giao hàng' },
+                  { value: "", label: "Chọn loại đơn" },
+                  { value: "dine_in", label: "Tại chỗ" },
+                  { value: "takeaway", label: "Mang về" },
+                  { value: "delivery", label: "Giao hàng" },
                 ]}
               />
             </div>
 
             <div className="w-36 flex-shrink-0">
               <p className="text-sm font-medium text-foreground">Nguồn đơn</p>
-              <div className="flex items-center justify-between mt-1">
-                <p className="text-xs text-muted-foreground mr-2">Khách gọi điện</p>
+              <div className="mt-1 flex items-center justify-between">
+                <p className="mr-2 text-xs text-muted-foreground">
+                  Khách gọi điện
+                </p>
                 <Switch
-                  checked={selectedOrderSource === 'phone'}
-                  onCheckedChange={(checked: boolean) => onOrderSourceChange?.(checked ? 'phone' : 'pos')}
+                  checked={selectedOrderSource === "phone"}
+                  onCheckedChange={(checked: boolean) =>
+                    onOrderSourceChange?.(checked ? "phone" : "pos")
+                  }
                   size="default"
                 />
               </div>
@@ -169,12 +204,14 @@ const OrderCart = ({
           </div>
         )}
 
-        {selectedOrderType === 'dine_in' && onTableChange && (
+        {selectedOrderType === "dine_in" && onTableChange && (
           <div className="space-y-1">
             <p className="text-sm font-medium text-foreground">Chọn bàn</p>
             <Select
-              value={selectedTable ?? ''}
-              onChange={(e: ChangeEvent<HTMLSelectElement>) => onTableChange(e.target.value)}
+              value={selectedTable ?? ""}
+              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                onTableChange(e.target.value)
+              }
               placeholder="-- Chọn bàn --"
               options={tableOptions}
             />
@@ -187,10 +224,15 @@ const OrderCart = ({
       {/* Cart Items */}
       <div className="space-y-3">
         {cartItems?.map((item) => (
-          <div key={item?._id} className="bg-muted/30 rounded-lg p-3 border border-border">
-            <div className="flex items-start justify-between mb-2">
+          <div
+            key={item?._id}
+            className="rounded-lg border border-border bg-muted/30 p-3"
+          >
+            <div className="mb-2 flex items-start justify-between">
               <div className="flex-1">
-                <h4 className="font-medium text-foreground text-sm">{item?.name}</h4>
+                <h4 className="text-sm font-medium text-foreground">
+                  {item?.name}
+                </h4>
                 <p className="text-xs text-muted-foreground">
                   {formatPrice(item?.price)} x {item?.quantity}
                 </p>
@@ -199,28 +241,34 @@ const OrderCart = ({
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => onUpdateQuantity(item?._id, item?.quantity - 1)}
+                  onClick={() =>
+                    onUpdateQuantity(item?._id, item?.quantity - 1)
+                  }
                   disabled={item?.quantity <= 1}
-                  className="w-9 h-9 sm:w-8 sm:h-8 touch-target"
+                  className="touch-target h-9 w-9 sm:h-8 sm:w-8"
                 >
-                  <Icon name="Minus" size={16} className="sm:w-3.5 sm:h-3.5" />
+                  <Icon name="Minus" size={16} className="sm:h-3.5 sm:w-3.5" />
                 </Button>
-                <span className="w-10 sm:w-8 text-center text-sm font-medium">{item?.quantity}</span>
+                <span className="w-10 text-center text-sm font-medium sm:w-8">
+                  {item?.quantity}
+                </span>
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => onUpdateQuantity(item?._id, item?.quantity + 1)}
-                  className="w-9 h-9 sm:w-8 sm:h-8 touch-target"
+                  onClick={() =>
+                    onUpdateQuantity(item?._id, item?.quantity + 1)
+                  }
+                  className="touch-target h-9 w-9 sm:h-8 sm:w-8"
                 >
-                  <Icon name="Plus" size={16} className="sm:w-3.5 sm:h-3.5" />
+                  <Icon name="Plus" size={16} className="sm:h-3.5 sm:w-3.5" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => onRemoveItem(item?._id)}
-                  className="w-9 h-9 sm:w-8 sm:h-8 text-error hover:text-error ml-1 touch-target"
+                  className="text-error hover:text-error touch-target ml-1 h-9 w-9 sm:h-8 sm:w-8"
                 >
-                  <Icon name="X" size={16} className="sm:w-3.5 sm:h-3.5" />
+                  <Icon name="X" size={16} className="sm:h-3.5 sm:w-3.5" />
                 </Button>
               </div>
             </div>
@@ -229,11 +277,13 @@ const OrderCart = ({
               <Input
                 type="text"
                 placeholder="Ghi chú cho món này..."
-                value={item?.note ?? ''}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => onUpdateNote(item?._id, e.target.value)}
+                value={item?.note ?? ""}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  onUpdateNote(item?._id, e.target.value)
+                }
                 className="text-xs"
               />
-              <span className="font-semibold text-primary ml-2">
+              <span className="ml-2 font-semibold text-primary">
                 {formatPrice(item?.price * item?.quantity)}
               </span>
             </div>
@@ -249,7 +299,9 @@ const OrderCart = ({
             type="text"
             placeholder="Nhập tên khách"
             value={customerName}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => onCustomerNameChange(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              onCustomerNameChange(e.target.value)
+            }
           />
         )}
 
@@ -259,7 +311,9 @@ const OrderCart = ({
             type="tel"
             placeholder="Nhập số điện thoại"
             value={customerPhone}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => onCustomerPhoneChange(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              onCustomerPhoneChange(e.target.value)
+            }
           />
         )}
 
@@ -269,40 +323,44 @@ const OrderCart = ({
             type="text"
             placeholder="Nhập ghi chú đơn hàng"
             value={orderNotes}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => onOrderNotesChange(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              onOrderNotesChange(e.target.value)
+            }
           />
         )}
       </div>
 
       {/* Order Summary */}
-      <div className="border-t border-border pt-4 space-y-3">
+      <div className="space-y-3 border-t border-border pt-4">
         {/* Discount Section (hidden for MainPos create flow) */}
         {!hideDiscount && (
-          <div className="bg-muted/20 rounded-lg p-3 space-y-2">
-            <label className="text-sm font-medium text-foreground">Giảm giá</label>
+          <div className="space-y-2 rounded-lg bg-muted/20 p-3">
+            <label className="text-sm font-medium text-foreground">
+              Giảm giá
+            </label>
             <div className="flex space-x-2">
               <div className="flex-1">
                 <Input
                   type="number"
                   placeholder="Nhập giảm giá"
-                  value={discountValue || ''}
+                  value={discountValue || ""}
                   min="0"
-                  max={discountType === 'percent' ? 100 : subtotal}
+                  max={discountType === "percent" ? 100 : subtotal}
                   readOnly
                 />
               </div>
               <Select
                 value={discountType}
-                onChange={() => { }}
+                onChange={() => {}}
                 options={[
-                  { value: 'percent', label: '%' },
-                  { value: 'amount', label: 'VNĐ' },
+                  { value: "percent", label: "%" },
+                  { value: "amount", label: "VNĐ" },
                 ]}
                 className="w-24"
               />
             </div>
             {discountValue > 0 && (
-              <p className="text-xs text-success flex items-center">
+              <p className="flex items-center text-xs text-success">
                 <Icon name="Tag" size={12} className="mr-1" />
                 Tiết kiệm: {formatPrice(discount)}
               </p>
@@ -323,21 +381,32 @@ const OrderCart = ({
             </div>
           )}
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">VAT ({((posData?.restaurant?.tax_rate ?? 0.10) * 100).toFixed(0)}%):</span>
+            <span className="text-muted-foreground">
+              VAT ({((posData?.restaurant?.tax_rate ?? 0.1) * 100).toFixed(0)}
+              %):
+            </span>
             <span className="text-foreground">{formatPrice(tax)}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Phí phục vụ ({((posData?.restaurant?.service_charge_rate ?? 0) * 100).toFixed(0)}%):</span>
-            <span className="text-foreground">{formatPrice(serviceCharge)}</span>
+            <span className="text-muted-foreground">
+              Phí phục vụ (
+              {((posData?.restaurant?.service_charge_rate ?? 0) * 100).toFixed(
+                0
+              )}
+              %):
+            </span>
+            <span className="text-foreground">
+              {formatPrice(serviceCharge)}
+            </span>
           </div>
-          <div className="flex justify-between text-lg font-semibold border-t border-border pt-2">
+          <div className="flex justify-between border-t border-border pt-2 text-lg font-semibold">
             <span className="text-foreground">Tổng cộng:</span>
             <span className="text-primary">{formatPrice(finalTotal)}</span>
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default OrderCart;
+export default OrderCart

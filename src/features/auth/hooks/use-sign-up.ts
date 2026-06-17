@@ -202,7 +202,7 @@ export function useSignUp(): UseSignUpReturn {
 
   const handleCreateAccount = () => {
     const run = async () => {
-      const { password, confirmPassword, email, phoneNumber, firstName, lastName } = form
+      const { password, email, phoneNumber, firstName, lastName } = form
       if (!email) {
         setErrorMessage("Email là bắt buộc cho đăng ký")
         return
