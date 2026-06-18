@@ -10,7 +10,7 @@ export interface AppImageProps extends React.ImgHTMLAttributes<HTMLImageElement>
 const AppImage: React.FC<AppImageProps> = ({
   src,
   alt,
-  fallback = '/assets/images/placeholder.png',
+  fallback = '/assets/images/restaurant_logo.png',
   className = '',
   onError,
   ...props

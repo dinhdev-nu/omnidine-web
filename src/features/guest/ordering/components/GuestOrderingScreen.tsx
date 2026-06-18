@@ -64,15 +64,15 @@ const isRestaurantCurrentlyOpen = (
   return currentMinutes >= openMinutes && currentMinutes < closeMinutes
 }
 
-export interface PublicOrderingProps {
+export interface GuestOrderingProps {
   tableQrCode?: string
   restaurantSlug?: string
 }
 
-const PublicOrderingScreen = ({
+const GuestOrderingScreen = ({
   tableQrCode,
   restaurantSlug: propRestaurantSlug,
-}: PublicOrderingProps) => {
+}: GuestOrderingProps) => {
   const profile = useUserStore((state) => state.profile)
   const user = profile as OrderingUser | null
   const tableFetchArgs = useMemo<[string]>(() => [tableQrCode ?? ""], [tableQrCode])
@@ -569,4 +569,4 @@ const PublicOrderingScreen = ({
   )
 }
 
-export default PublicOrderingScreen
+export default GuestOrderingScreen

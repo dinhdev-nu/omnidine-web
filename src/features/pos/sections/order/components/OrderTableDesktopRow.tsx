@@ -19,7 +19,7 @@ import {
   getCustomerDisplayName,
   getOrderSourceLabel,
   getOrderTypeLabel,
-} from "./order-table-utils"
+} from "../order-table-utils"
 import type { AllowedOrderItemStatusUpdate, Order } from "@/types/domain/order"
 
 interface OrderTableDesktopRowProps {

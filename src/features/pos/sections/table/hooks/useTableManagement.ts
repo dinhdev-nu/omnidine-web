@@ -23,7 +23,7 @@ import {
     INITIAL_TABLES,
     INITIAL_TABLE_POSITIONS,
 } from '../constants';
-import { clamp, getDefaultPosition, toTableFromListItem, toTableFromRecord } from '../utils';
+import { clamp, getDefaultPosition, toTableFromListItem, toTableFromRecord } from './utils';
 
 type TableStatusFilter = TableStatus | 'all';
 type TableActiveFilter = 'all' | 'active' | 'inactive';
