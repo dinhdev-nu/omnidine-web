@@ -53,7 +53,7 @@ export function useFetch<TArgs extends unknown[], TData>(
     return () => {
       isActive = false
     }
-  }, [enabled, fetcher, ...args])
+  }, [enabled, fetcher, args])
 
   return { data, isLoading, error }
 }

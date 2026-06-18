@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import Icon from '@/components/AppIcon';
-import type { CreateTablePayload } from '@/types/table-type';
-import Button from '../../../components/Button';
-import Input from '../../../components/Input';
+import type { CreateTablePayload } from '@/types/domain/table';
+import Button from '../../../ui/Button';
+import Input from '../../../ui/Input';
 
 interface TableAddModalProps {
   isOpen: boolean;
@@ -37,7 +37,12 @@ const TableAddModal: React.FC<TableAddModalProps> = ({
   return (
     <div className="fixed inset-0 z-[1200] flex items-center justify-center overflow-hidden">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <button
+        type="button"
+        aria-label="ÄÃ³ng modal thÃªm bÃ n"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
 
       {/* Modal */}
       <div className="relative bg-card border border-border rounded-lg shadow-modal w-full max-w-md max-h-[90vh] overflow-hidden mx-4 animate-in fade-in zoom-in-95 duration-200">
@@ -57,8 +62,9 @@ const TableAddModal: React.FC<TableAddModalProps> = ({
         {/* Content */}
         <div className="p-6 space-y-4 max-h-[calc(90vh-140px)] overflow-y-auto">
           <div>
-            <label className="text-sm font-medium text-foreground mb-1 block">Số bàn <span className="text-error">*</span></label>
+            <label htmlFor="table-number-input" className="text-sm font-medium text-foreground mb-1 block">Số bàn <span className="text-error">*</span></label>
             <Input
+              id="table-number-input"
               type="text"
               placeholder="VD: 10"
               value={form.table_number}
@@ -67,8 +73,9 @@ const TableAddModal: React.FC<TableAddModalProps> = ({
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-foreground mb-1 block">Tên bàn (tuỳ chọn)</label>
+            <label htmlFor="table-name-input" className="text-sm font-medium text-foreground mb-1 block">Tên bàn (tuỳ chọn)</label>
             <Input
+              id="table-name-input"
               type="text"
               placeholder="VD: Bàn ban công"
               value={form.name ?? ''}
@@ -76,8 +83,9 @@ const TableAddModal: React.FC<TableAddModalProps> = ({
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-foreground mb-1 block">Sức chứa</label>
+            <label htmlFor="table-capacity-input" className="text-sm font-medium text-foreground mb-1 block">Sức chứa</label>
             <Input
+              id="table-capacity-input"
               type="number"
               min="1"
               max="99"
@@ -86,8 +94,9 @@ const TableAddModal: React.FC<TableAddModalProps> = ({
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-foreground mb-1 block">Ghi chú (tuỳ chọn)</label>
+            <label htmlFor="table-notes-input" className="text-sm font-medium text-foreground mb-1 block">Ghi chú (tuỳ chọn)</label>
             <Input
+              id="table-notes-input"
               type="text"
               placeholder=""
               value={form.notes ?? ''}

@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { getOwnerRestaurants } from "@/services/restaurants";
-import type { OwnerRestaurantListItem } from "@/types/restaurant-type";
+import type { OwnerRestaurantListItem } from "@/types/domain/restaurant";
 import { useNavigate } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
@@ -37,6 +37,12 @@ const tierColors: Record<RestaurantTier, string> = {
     "Bản nháp": "bg-muted text-muted-foreground border-border",
 };
 
+const createdDateFormatter = new Intl.DateTimeFormat("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+});
+
 function getRestaurantReadinessScore(restaurant: OwnerRestaurantListItem) {
     let score = 45;
 
@@ -55,11 +61,7 @@ function getRestaurantTrend(restaurant: OwnerRestaurantListItem): "up" | "down" 
 }
 
 function formatCreatedDate(value: string) {
-    return new Intl.DateTimeFormat("vi-VN", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-    }).format(new Date(value));
+    return createdDateFormatter.format(new Date(value));
 }
 
 function getHealthBarClass(score: number) {

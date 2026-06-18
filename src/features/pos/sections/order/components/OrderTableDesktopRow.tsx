@@ -1,13 +1,13 @@
 import React from "react"
-import Button from "../../../components/Button"
-import Icon from "../../../components/AppIcon"
+import Button from "../../../ui/Button"
+import Icon from "../../../ui/AppIcon"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-} from "../../../components/DropdownMenu"
+} from "../../../ui/DropdownMenu"
 import {
   formatCurrency,
   formatDateTime,
@@ -20,7 +20,7 @@ import {
   getOrderSourceLabel,
   getOrderTypeLabel,
 } from "./order-table-utils"
-import type { AllowedOrderItemStatusUpdate, Order } from "@/types/order-type"
+import type { AllowedOrderItemStatusUpdate, Order } from "@/types/domain/order"
 
 interface OrderTableDesktopRowProps {
   order: Order
@@ -315,11 +315,11 @@ const OrderTableDesktopRow: React.FC<OrderTableDesktopRowProps> = ({
                           </h5>
                         </div>
                         <div className="max-h-[200px] divide-y divide-border overflow-y-auto">
-                          {detailOrder.items?.map((item, index) => {
+                          {detailOrder.items?.map((item) => {
                             const isCancelled = item.status === "cancelled"
                             return (
                               <div
-                                key={index}
+                                key={item._id ?? `${item.menu_item_id}-${item.created_at}`}
                                 className={`px-3 py-2 transition-colors hover:bg-muted/30 ${isCancelled ? "bg-muted/20 opacity-60" : ""}`}
                               >
                                 <div className="flex items-start justify-between gap-2">

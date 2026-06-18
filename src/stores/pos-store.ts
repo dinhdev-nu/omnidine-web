@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { StaffSummary } from '@/types/staff-type';
-import type { MenuCategoryWithCount, MenuItem } from '@/types/menu-type';
+import type { StaffSummary } from '@/types/domain/staff';
+import type { MenuCategoryWithCount, MenuItem } from '@/types/domain/menu';
 
 export interface POSState {
   menuCategories: MenuCategoryWithCount[];

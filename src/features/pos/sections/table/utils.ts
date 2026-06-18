@@ -1,4 +1,4 @@
-import type { TableListItem, TableRecord } from '@/types/table-type';
+import type { TableListItem, TableRecord } from '@/types/domain/table';
 
 export const clamp = (value: number, min: number, max: number) => {
     if (value < min) return min;

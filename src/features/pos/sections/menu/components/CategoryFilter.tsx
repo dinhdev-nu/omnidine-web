@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from '../../../components/Button';
+import Button from '../../../ui/Button';
 import { cn } from '@/lib/utils';
 import Image from '@/components/AppImage';
 
@@ -18,22 +18,25 @@ interface CategoryFilterProps {
   onManageCategories: () => void;
 }
 
+const EMPTY_ITEM_COUNTS: Record<string, number> = {};
+
+const getBadgeClass = (isSelected: boolean) =>
+  cn(
+    'ml-2 rounded-full px-2 py-0.5 text-xs',
+    isSelected
+      ? 'bg-primary-foreground/20 text-primary-foreground'
+      : 'bg-muted text-muted-foreground'
+  );
+
 const CategoryFilter: React.FC<CategoryFilterProps> = ({
   categories,
   selectedCategory,
   onCategoryChange,
-  itemCounts = {},
+  itemCounts = EMPTY_ITEM_COUNTS,
   onAddCategory,
   onManageCategories,
 }) => {
   const allCount = Object.values(itemCounts).reduce((sum, count) => sum + count, 0);
-  const getBadgeClass = (isSelected: boolean) =>
-    cn(
-      'ml-2 rounded-full px-2 py-0.5 text-xs',
-      isSelected
-        ? 'bg-primary-foreground/20 text-primary-foreground'
-        : 'bg-muted text-muted-foreground'
-    );
 
   return (
     <div className="flex items-center gap-2 overflow-x-auto pb-2">

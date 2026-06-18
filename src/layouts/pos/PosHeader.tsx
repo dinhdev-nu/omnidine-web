@@ -1,8 +1,8 @@
 import { memo, useState, useEffect } from 'react';
 import Icon from '@/components/AppIcon';
-import Button from '@/features/pos/components/Button';
-import QrDialog from '@/features/pos/components/QrDialog';
-import type { PosRestaurant } from '@/types/pos-init-type';
+import Button from '@/features/pos/ui/Button';
+import QrDialog from '@/features/pos/ui/QrDialog';
+import type { PosRestaurant } from '@/types/domain/pos-init';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -273,7 +273,12 @@ const Header = memo<HeaderProps>(({
 
       {/* Click-outside overlay */}
       {showNotifications && (
-        <div className="fixed inset-0 z-1000" onClick={closeNotifications} />
+        <button
+          type="button"
+          aria-label="ÄÃ³ng thÃ´ng bÃ¡o"
+          className="fixed inset-0 z-1000 cursor-default"
+          onClick={closeNotifications}
+        />
       )}
     </header>
   );

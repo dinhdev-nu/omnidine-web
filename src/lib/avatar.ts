@@ -10,6 +10,12 @@ export function getRandomAvatarPlaceholder(): string {
   return `/assets/home/${variants[idx]}`
 }
 
-export function resolveUserAvatar(user: any | null): string {
+type AvatarUser = {
+  avatar_url?: string | null
+  avatar?: string | null
+  profileImage?: string | null
+}
+
+export function resolveUserAvatar(user: AvatarUser | null): string {
   return (user?.avatar_url || user?.avatar || user?.profileImage) ?? getRandomAvatarPlaceholder()
 }

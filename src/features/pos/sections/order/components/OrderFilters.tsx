@@ -1,8 +1,8 @@
 import React from 'react';
-import Button from '../../../components/Button';
-import Input from '../../../components/Input';
-import Select from '../../../components/Select';
-import type { OrderStatus, OrderPaymentStatus, OrderSource } from '@/types/order-type';
+import Button from '../../../ui/Button';
+import Input from '../../../ui/Input';
+import Select from '../../../ui/Select';
+import type { OrderStatus, OrderPaymentStatus, OrderSource } from '@/types/domain/order';
 
 /**
  * UI-specific filter values

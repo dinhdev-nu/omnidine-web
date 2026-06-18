@@ -1,7 +1,7 @@
 import { create } from "zustand"
-import type { UpdatePreferencesPayload, UpdateProfilePayload, UserProfile } from "@/types/user-type"
-import type { AppError } from "@/services/types"
-import { toAppError } from "@/services/error"
+import type { UpdatePreferencesPayload, UpdateProfilePayload, UserProfile } from "@/types/domain/user"
+import type { AppError } from "@/services/core/types"
+import { toAppError } from "@/services/core/error"
 import { getMe, mapPreferencesToUi, updateMe, updateMyPreferences, type UiPreferences } from "@/services/users"
 
 const PROFILE_STORAGE_KEY = "omnidine_profile"

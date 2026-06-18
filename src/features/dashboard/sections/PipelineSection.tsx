@@ -77,7 +77,7 @@ const DealCard = memo(function DealCard({ deal, index }: DealCardProps) {
                     </div>
                     <span className="text-sm font-medium text-foreground truncate max-w-[120px]">{deal.company}</span>
                 </div>
-                <button className={cn(
+                <button type="button" className={cn(
                     "w-6 h-6 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200",
                     "opacity-0 group-hover:opacity-100"
                 )}>
@@ -126,7 +126,7 @@ export function PipelineSection() {
                 <div>
                     <p className="text-sm text-muted-foreground">Quản lý và theo dõi quy trình bán hàng của bạn</p>
                 </div>
-                <button className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent/90 transition-colors duration-200">
+                <button type="button" className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent/90 transition-colors duration-200">
                     <Plus className="w-4 h-4" />
                     Thêm giao dịch
                 </button>
@@ -161,7 +161,7 @@ export function PipelineSection() {
                         </div>
 
                         {/* Add deal to stage */}
-                        <button className="w-full mt-3 flex items-center justify-center gap-2 py-2 rounded-lg border border-dashed border-border text-sm text-muted-foreground hover:text-foreground hover:border-accent/50 hover:bg-secondary/50 transition-all duration-200">
+                        <button type="button" className="w-full mt-3 flex items-center justify-center gap-2 py-2 rounded-lg border border-dashed border-border text-sm text-muted-foreground hover:text-foreground hover:border-accent/50 hover:bg-secondary/50 transition-all duration-200">
                             <Plus className="w-4 h-4" />
                             Thêm giao dịch
                         </button>

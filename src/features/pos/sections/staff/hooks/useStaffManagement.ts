@@ -7,7 +7,7 @@ import {
     updateRestaurantStaffStatus,
 } from '@/services/staff';
 import { usePOSStore } from '@/stores/pos-store';
-import type { StaffPosition, StaffStatus, StaffDetail, StaffSummary } from '@/types/staff-type';
+import type { StaffPosition, StaffStatus, StaffDetail, StaffSummary } from '@/types/domain/staff';
 
 function mapDetailToSummary(detail: StaffDetail): StaffSummary {
     return {

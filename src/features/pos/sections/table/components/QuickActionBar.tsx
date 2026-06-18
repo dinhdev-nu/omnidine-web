@@ -1,7 +1,7 @@
 import React from 'react';
 import Icon from '@/components/AppIcon';
-import Button, { type ButtonProps } from '../../../components/Button';
-import type { TableListItem, TableStatus } from '@/types/table-type';
+import Button, { type ButtonProps } from '../../../ui/Button';
+import type { TableListItem, TableStatus } from '@/types/domain/table';
 
 interface QuickAction {
   label: string;
@@ -109,9 +109,9 @@ const QuickActionBar: React.FC<QuickActionBarProps> = ({
 
       {/* Quick Actions */}
       <div className="ml-auto min-w-0 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
-        {actions.map((action, index) => (
+        {actions.map((action) => (
           <Button
-            key={index}
+            key={`${action.label}-${action.icon}`}
             variant={action.variant}
             size="sm"
             iconName={action.icon}

@@ -59,13 +59,17 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   const styles = variantStyles[variant];
 
   return (
-    <div
-      className="fixed inset-0 z-[1300] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-[1300] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <button
+        type="button"
+        aria-label="ÄÃ³ng há»™p thoáº¡i"
+        className="absolute inset-0 cursor-default"
+        onClick={onClose}
+      />
       <div
         className={cn(
           'w-full max-w-md',
+          'relative',
           'bg-card border border-border rounded-xl shadow-xl',
           'animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-2 duration-300'
         )}

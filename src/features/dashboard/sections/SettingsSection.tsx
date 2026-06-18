@@ -6,13 +6,13 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { RestaurantProfileRegistrationForm } from "@/features/dashboard/components/RestaurantProfileRegistrationForm";
 import { updateRestaurantOnlineOrders, updateRestaurantPublishStatus } from "@/services/restaurants";
-import { toAppError } from "@/services/error";
+import { toAppError } from "@/services/core/error";
 import {
     CreateRestaurantProvider,
     useCreateRestaurantActions,
     useCreateRestaurantMeta,
-} from "@/features/new/FormProvider";
-import type { Restaurant, RestaurantStaffDetail } from "@/types/restaurant-type";
+} from "@/features/restaurant-onboarding/FormProvider";
+import type { Restaurant, RestaurantStaffDetail } from "@/types/domain/restaurant";
 import { toast } from "sonner";
 import {
     User,
@@ -206,7 +206,7 @@ export function SettingsSection({ restaurantDetail }: SettingsSectionProps) {
                 {tabs.map((tab) => {
                     const Icon = tab.icon;
                     return (
-                        <button
+                        <button type="button"
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${tab.id === activeTab

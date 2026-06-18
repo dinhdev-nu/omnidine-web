@@ -11,7 +11,7 @@ import {
     toMenuEndpointError,
 } from '@/services/menu';
 import { uploadSingleFile } from '@/services/uploads';
-import type { MenuItem } from '@/types/menu-type';
+import type { MenuItem } from '@/types/domain/menu';
 import type { MenuItemFormData } from '../components/MenuItemModal';
 
 const DEFAULT_MENU_ITEM: MenuItemFormData = {
@@ -35,8 +35,7 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
     const uploadRequestIdRef = React.useRef(0);
 
     const areImageListsEqual = React.useCallback((a: string[], b: string[]) => {
-        if (a.length !== b.length) return false;
-        return a.every((value, index) => value === b[index]);
+        return a.length === b.length && a.every((value, index) => value === b[index]);
     }, []);
 
     const resetForm = React.useCallback(() => {
@@ -101,7 +100,7 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
                     imageUrls: [...prev.imageUrls, ...uploadedUrls],
                 }));
                 toast.success('Tải ảnh món ăn thành công');
-            } catch (error) {
+            } catch {
                 if (uploadRequestIdRef.current === requestId) {
                     toast.error('Không thể tải ảnh món ăn');
                 }
@@ -149,9 +148,10 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
             const price = parseFloat(formData.price) || 0;
             const is_available = formData.status === 'available';
             const is_featured = formData.featured === 'featured';
-            const normalizedImageUrls = formData.imageUrls
-                .map((url) => url.trim())
-                .filter(Boolean);
+            const normalizedImageUrls = formData.imageUrls.flatMap((url) => {
+                const trimmedUrl = url.trim();
+                return trimmedUrl ? [trimmedUrl] : [];
+            });
 
             if (isUploadingImage) {
                 toast.error('Đang tải ảnh, vui lòng chờ trong giây lát');

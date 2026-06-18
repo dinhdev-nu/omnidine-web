@@ -1,9 +1,9 @@
 import React from "react"
 import Icon from "@/components/AppIcon"
-import Button from "../../components/Button"
-import ConfirmationDialog from "../../components/ConfirmationDialog"
-import Select from "../../components/Select"
-import { Spinner } from "../../components/Spinner"
+import Button from "../../ui/Button"
+import ConfirmationDialog from "../../ui/ConfirmationDialog"
+import Select from "../../ui/Select"
+import { Spinner } from "../../ui/Spinner"
 
 // Import components
 import MenuItemCard from "./components/MenuItemCard"

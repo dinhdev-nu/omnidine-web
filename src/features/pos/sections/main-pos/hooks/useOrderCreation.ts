@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { createPosOrder, toOrderEndpointError } from '@/services/orders';
-import type { CreatePosOrderPayload } from '@/types/order-type';
+import type { CreatePosOrderPayload } from '@/types/domain/order';
 
 interface UseOrderCreationParams {
   restaurantId?: string;
@@ -28,7 +28,7 @@ export const useOrderCreation = ({ restaurantId, onOrderCreated }: UseOrderCreat
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
 
-  const validateOrderInput = (input: OrderCreationInput): string | null => {
+  const validateOrderInput = useCallback((input: OrderCreationInput): string | null => {
     if (!restaurantId) return 'Không tìm thấy thông tin nhà hàng';
     if (input.cartItems.length === 0) return 'Giỏ hàng đang trống';
     if (!input.selectedOrderType) return 'Vui lòng chọn loại đơn';
@@ -36,7 +36,7 @@ export const useOrderCreation = ({ restaurantId, onOrderCreated }: UseOrderCreat
       return 'Vui lòng chọn bàn cho đơn tại quán';
     }
     return null;
-  };
+  }, [restaurantId]);
 
   const createOrder = useCallback(
     async (input: OrderCreationInput) => {
@@ -74,7 +74,7 @@ export const useOrderCreation = ({ restaurantId, onOrderCreated }: UseOrderCreat
         setIsCreatingOrder(false);
       }
     },
-    [restaurantId, onOrderCreated]
+    [restaurantId, onOrderCreated, validateOrderInput]
   );
 
   return {

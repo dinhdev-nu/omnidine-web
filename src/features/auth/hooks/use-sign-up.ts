@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
-import { checkEmail, register, resendEmailOtp, verifyEmailOtp } from "@/services/auths"
-import { toAppError } from "@/services/error"
+import { checkEmail, register, resendEmailOtp, verifyEmailOtp } from "@/services/auth"
+import { toAppError } from "@/services/core/error"
 
 type Step = "info" | "password" | "otp"
 

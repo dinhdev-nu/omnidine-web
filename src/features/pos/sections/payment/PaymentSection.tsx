@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import Icon from '../../components/AppIcon';
-import Button from '../../components/Button';
-import { POS_BASE_PATH } from '@/routes/pos-route';
+import Icon from '../../ui/AppIcon';
+import Button from '../../ui/Button';
+import { POS_BASE_PATH } from '@/routes/pos-route-config';
 import { useRequiredPosData } from '@/features/pos/contexts/usePosContext';
 import { createCashPayment, toPaymentEndpointError } from '@/services/payments';
 import type { PaymentMethodId } from './components/PaymentMethodSelector';
@@ -15,7 +15,8 @@ import CardPaymentForm from './components/CardPaymentForm';
 import DigitalWalletForm from './components/DigitalWalletForm';
 import PaymentSuccess from './components/PaymentSuccess';
 
-import { useOrderData, useIdempotencyKey } from './hooks';
+import { useIdempotencyKey } from './hooks/useIdempotencyKey';
+import { useOrderData } from './hooks/useOrderData';
 import { toast } from 'sonner';
 import { mapOrderItemsToSummaryItems, generateQRCodeUrl } from './utils/payment';
 
@@ -31,19 +32,49 @@ const WALLET_METHODS: WalletMethod[] = ['momo', 'zalopay', 'banking', 'qr'];
 const isWalletMethod = (method: PaymentMethodId | ''): method is WalletMethod =>
     WALLET_METHODS.includes(method as WalletMethod);
 
+interface PaymentFlowState {
+    orderId: string;
+    currentStep: Step;
+    selectedMethod: PaymentMethodId | '';
+    amountDigits: string;
+    paymentResult: PaymentData;
+}
+
+const createPaymentFlowState = (orderId: string): PaymentFlowState => ({
+    orderId,
+    currentStep: 'method',
+    selectedMethod: '',
+    amountDigits: '',
+    paymentResult: {},
+});
+
 const PaymentSection: React.FC<PaymentSectionProps> = ({ orderId }) => {
     const navigate = useNavigate();
     const { slug } = useParams<{ slug: string }>();
     const { restaurant } = useRequiredPosData();
 
-    // State management
-    const [currentStep, setCurrentStep] = useState<Step>('method');
-    const [selectedMethod, setSelectedMethod] = useState<PaymentMethodId | ''>('');
-    const [amountDigits, setAmountDigits] = useState('');
-    const [paymentResult, setPaymentResult] = useState<PaymentData>({});
+    const [renderedAt] = useState(() => new Date().toLocaleString('vi-VN'));
 
     const resolvedOrderId = orderId?.trim() ?? '';
     const restaurantId = restaurant._id;
+    const [storedFlow, setStoredFlow] = useState<PaymentFlowState>(() =>
+        createPaymentFlowState(resolvedOrderId)
+    );
+    let flow = storedFlow;
+
+    if (storedFlow.orderId !== resolvedOrderId) {
+        flow = createPaymentFlowState(resolvedOrderId);
+        setStoredFlow(flow);
+    }
+
+    const { currentStep, selectedMethod, amountDigits, paymentResult } = flow;
+
+    const updateFlow = (nextFlow: Partial<Omit<PaymentFlowState, 'orderId'>>) => {
+        setStoredFlow((current) => ({
+            ...(current.orderId === resolvedOrderId ? current : createPaymentFlowState(resolvedOrderId)),
+            ...nextFlow,
+        }));
+    };
 
     // Fetch order data
     const { orderData, isLoading: isLoadingOrderDetails, error: orderDetailError } = useOrderData(
@@ -72,39 +103,35 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ orderId }) => {
         return generateQRCodeUrl(orderData.order_number, selectedMethod, totalAmount, idempotencyKey);
     }, [idempotencyKey, orderData, selectedMethod, totalAmount]);
 
-    // Reset when order changes
-    React.useEffect(() => {
-        if (!resolvedOrderId) {
-            setCurrentStep('method');
-            setSelectedMethod('');
-            setAmountDigits('');
-            setPaymentResult({});
-        }
-    }, [resolvedOrderId]);
-
     // Handlers
     const handleBackToMethod = () => {
-        setCurrentStep('method');
-        setSelectedMethod('');
-        setAmountDigits('');
+        updateFlow({
+            currentStep: 'method',
+            selectedMethod: '',
+            amountDigits: '',
+        });
     };
 
     const handleMethodSelect = (method: PaymentMethodId) => {
-        setSelectedMethod(method);
-        setCurrentStep('payment');
+        updateFlow({
+            selectedMethod: method,
+            currentStep: 'payment',
+        });
     };
 
     const completePayment = (method: PaymentMethodId, paidAmount: number, changeAmount: number) => {
         if (!orderData) return;
-        setPaymentResult({
-            _id: idempotencyKey,
-            createdAt: new Date().toISOString(),
-            method,
-            paidAmount,
-            orderAmount: totalAmount,
-            changeAmount,
+        updateFlow({
+            paymentResult: {
+                _id: idempotencyKey,
+                createdAt: new Date().toISOString(),
+                method,
+                paidAmount,
+                orderAmount: totalAmount,
+                changeAmount,
+            },
+            currentStep: 'success',
         });
-        setCurrentStep('success');
     };
 
     const handleCashComplete = async () => {
@@ -135,15 +162,17 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ orderId }) => {
         if (slug) {
             navigate(`${POS_BASE_PATH}/${slug}/orders`);
         } else {
-            setCurrentStep('method');
+            updateFlow({ currentStep: 'method' });
         }
     };
 
     const handleResetFlow = () => {
-        setCurrentStep('method');
-        setSelectedMethod('');
-        setAmountDigits('');
-        setPaymentResult({});
+        updateFlow({
+            currentStep: 'method',
+            selectedMethod: '',
+            amountDigits: '',
+            paymentResult: {},
+        });
         if (slug) navigate(`${POS_BASE_PATH}/${slug}/orders`);
     };
 
@@ -257,7 +286,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ orderId }) => {
                                 change={cashChange}
                                 amountError={cashAmountError}
                                 quickAmounts={quickAmounts}
-                                onAmountChange={setAmountDigits}
+                                onAmountChange={(value) => updateFlow({ amountDigits: value })}
                                 onPaymentComplete={handleCashComplete}
                                 onCancel={handleBackToMethod}
                             />
@@ -348,7 +377,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ orderId }) => {
                         <span>•</span>
                         <span>Bàn: {tableNumber ?? 'N/A'}</span>
                         <span>•</span>
-                        <span>{new Date().toLocaleString('vi-VN')}</span>
+                        <span>{renderedAt}</span>
                     </div>
                 </div>
 

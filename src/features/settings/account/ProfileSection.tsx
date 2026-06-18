@@ -43,7 +43,7 @@ import { cn } from "@/lib/utils"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useUserStore } from "@/stores/user-store"
-import { toAppError } from "@/services/error"
+import { toAppError } from "@/services/core/error"
 
 import { getInitials, STATUS_BADGE, ROLE_LABEL } from "./constants"
 

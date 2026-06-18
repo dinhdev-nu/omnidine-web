@@ -1,9 +1,9 @@
 import React from "react"
 import Icon from "@/components/AppIcon"
 import Image from "@/components/AppImage"
-import Button from "../../../components/Button"
-import Input from "../../../components/Input"
-import { Spinner } from "../../../components/Spinner"
+import Button from "../../../ui/Button"
+import Input from "../../../ui/Input"
+import { Spinner } from "../../../ui/Spinner"
 import { uploadSingleFile } from "@/services/uploads"
 import { toast } from "sonner"
 
@@ -65,7 +65,12 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[1300] flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <button
+        type="button"
+        aria-label="ÄÃ³ng modal danh má»¥c"
+        className="absolute inset-0 bg-black/50"
+        onClick={onClose}
+      />
       <div className="shadow-modal relative mx-4 w-full max-w-md animate-in rounded-lg border border-border bg-card duration-200 zoom-in-95 fade-in">
         <div className="flex items-center justify-between border-b border-border p-6">
           <div className="flex items-center gap-3">
@@ -153,6 +158,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
                   <input
                     ref={fileInputRef}
                     type="file"
+                    aria-label="Chon anh danh muc"
                     accept="image/jpeg,image/png,image/webp"
                     className="hidden"
                     onChange={handleUploadImage}

@@ -15,18 +15,12 @@ const AppImage: React.FC<AppImageProps> = ({
   onError,
   ...props
 }) => {
-  const [imgSrc, setImgSrc] = React.useState(src);
-  const [hasError, setHasError] = React.useState(false);
-
-  React.useEffect(() => {
-    setImgSrc(src);
-    setHasError(false);
-  }, [src]);
+  const [failedSrc, setFailedSrc] = React.useState<string | null>(null);
+  const imgSrc = failedSrc === src ? fallback : src;
 
   const handleError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    if (!hasError) {
-      setHasError(true);
-      setImgSrc(fallback);
+    if (failedSrc !== src) {
+      setFailedSrc(src);
     }
     onError?.(e);
   };

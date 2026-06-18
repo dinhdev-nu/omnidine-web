@@ -3,14 +3,14 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import PosLayout from '@/layouts/pos/PosLayout';
 import MainPosSection from '@/features/pos/sections/main-pos/MainPosSection';
 import TableSection from '@/features/pos/sections/table/TableSection';
-import { POS_BASE_PATH } from '@/routes/pos-route';
+import { POS_BASE_PATH } from '@/routes/pos-route-config';
 import { PosProvider } from '@/features/pos/contexts/PosContext';
 import { usePosContext } from '@/features/pos/contexts/usePosContext';
 import RejectToPreviousPage from '@/components/navigation/RejectToPreviousPage';
 import {
   demoNotifications,
   getRelativeTime,
-} from '@/features/pos/pos-mock';
+} from '@/features/pos/mocks/pos-mock';
 import PaymentSection from '@/features/pos/sections/payment/PaymentSection';
 import OrderSection from '@/features/pos/sections/order/OrderSection';
 import MenuSection from '@/features/pos/sections/menu/MenuSection';
@@ -67,12 +67,12 @@ const getPaymentOrderIdFromSubPath = (subPath: string) => {
 };
 
 const PosPageContent: React.FC<{ slug: string }> = ({ slug }) => {
-  const location = useLocation();
+  const { pathname } = useLocation();
   const navigate = useNavigate();
   const { loading, error } = usePosContext();
 
   const [isOperational, setIsOperational] = useState(true);
-  const subPath = getPosSubPath(location.pathname, slug);
+  const subPath = getPosSubPath(pathname, slug);
   const normalizedSubPath = normalizePosSubPath(subPath);
   const paymentOrderId = getPaymentOrderIdFromSubPath(subPath);
   const activeSection = ROUTE_TO_SECTION[normalizedSubPath] ?? 'main-pos';
@@ -92,29 +92,10 @@ const PosPageContent: React.FC<{ slug: string }> = ({ slug }) => {
 
     const targetSuffix = SECTION_TO_ROUTE_SUFFIX[normalizedSection] ?? '';
     const targetPath = `${POS_BASE_PATH}/${slug}${targetSuffix}`;
-    if (location.pathname !== targetPath) {
+    if (pathname !== targetPath) {
       navigate(targetPath);
     }
-  }, [navigate, slug, location.pathname]);
-
-  const renderSectionContent = () => {
-    switch (activeSection) {
-      case 'main-pos':
-        return <MainPosSection />;
-      case 'table':
-        return <TableSection />;
-      case 'payment':
-        return <PaymentSection orderId={paymentOrderId} />;
-      case 'order':
-        return <OrderSection />;
-      case 'menu':
-        return <MenuSection />;
-      case 'staff':
-        return <StaffSection />;
-      default:
-        return <MainPosSection />;
-    }
-  };
+  }, [navigate, pathname, slug]);
 
   // Loading state
   if (loading) {
@@ -132,6 +113,31 @@ const PosPageContent: React.FC<{ slug: string }> = ({ slug }) => {
     return <RejectToPreviousPage />;
   }
 
+  let sectionContent: React.ReactNode;
+  switch (activeSection) {
+    case 'main-pos':
+      sectionContent = <MainPosSection />;
+      break;
+    case 'table':
+      sectionContent = <TableSection />;
+      break;
+    case 'payment':
+      sectionContent = <PaymentSection orderId={paymentOrderId} />;
+      break;
+    case 'order':
+      sectionContent = <OrderSection />;
+      break;
+    case 'menu':
+      sectionContent = <MenuSection />;
+      break;
+    case 'staff':
+      sectionContent = <StaffSection />;
+      break;
+    default:
+      sectionContent = <MainPosSection />;
+      break;
+  }
+
   return (
     <PosLayout
       notifications={demoNotifications}
@@ -141,7 +147,7 @@ const PosPageContent: React.FC<{ slug: string }> = ({ slug }) => {
       activeSection={activeSection}
       onSectionChange={handleSectionChange}
     >
-      {renderSectionContent()}
+      {sectionContent}
     </PosLayout>
   );
 };

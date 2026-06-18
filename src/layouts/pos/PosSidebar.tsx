@@ -1,6 +1,6 @@
 import { memo, useCallback } from 'react';
 import Icon from '@/components/AppIcon';
-import Button from '@/features/pos/components/Button';
+import Button from '@/features/pos/ui/Button';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -237,7 +237,9 @@ const Sidebar = memo<SidebarProps>(({
         ].join(' ')}
       >
         {/* Backdrop */}
-        <div
+        <button
+          type="button"
+          aria-label="ÄÃ³ng menu Ä‘iá»u hÆ°á»›ng"
           className="absolute inset-0 bg-black/50 backdrop-blur-sm"
           onClick={onToggleCollapse}
         />

@@ -20,7 +20,7 @@ import {
     Trash2,
 } from "lucide-react"
 import { useUserStore } from "@/stores/user-store"
-import { toAppError } from "@/services/error"
+import { toAppError } from "@/services/core/error"
 import {
     changePassword,
     enable2fa,
@@ -28,7 +28,7 @@ import {
     getSessions,
     revokeSession,
     type SessionInfo,
-} from "@/services/auths"
+} from "@/services/auth"
 
 import { AUDIT_LOG } from "./constants"
 
@@ -43,7 +43,7 @@ export function SecuritySection() {
     const [isChangingPassword, setIsChangingPassword] = useState(false)
     const [passwordSuccess, setPasswordSuccess] = useState(false)
     const [sessions, setSessions] = useState<SessionInfo[]>([])
-    const [isLoadingSessions, setIsLoadingSessions] = useState(false)
+    const [isLoadingSessions, setIsLoadingSessions] = useState(true)
 
     const [show2faForm, setShow2faForm] = useState(false)
     const [twoFaPassword, setTwoFaPassword] = useState("")
@@ -54,7 +54,6 @@ export function SecuritySection() {
     useEffect(() => {
         let cancelled = false
 
-        setIsLoadingSessions(true)
         getSessions()
             .then((data) => {
                 if (!cancelled) setSessions(data)

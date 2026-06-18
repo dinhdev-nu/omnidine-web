@@ -81,7 +81,7 @@ const TeamMemberCard = memo(function TeamMemberCard({ member, index }: TeamMembe
                         <p className="text-xs text-muted-foreground">{member.role}</p>
                     </div>
                 </div>
-                <button className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary opacity-0 group-hover:opacity-100 transition-all duration-200">
+                <button type="button" className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary opacity-0 group-hover:opacity-100 transition-all duration-200">
                     <MoreHorizontal className="w-4 h-4" />
                 </button>
             </div>
@@ -117,10 +117,10 @@ const TeamMemberCard = memo(function TeamMemberCard({ member, index }: TeamMembe
             {/* Change indicator */}
             <div className="flex items-center justify-between pt-4 border-t border-border">
                 <div className="flex items-center gap-2">
-                    <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors">
+                    <button type="button" className="w-8 h-8 flex items-center justify-center rounded-lg bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors">
                         <Mail className="w-4 h-4" />
                     </button>
-                    <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors">
+                    <button type="button" className="w-8 h-8 flex items-center justify-center rounded-lg bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors">
                         <Phone className="w-4 h-4" />
                     </button>
                 </div>

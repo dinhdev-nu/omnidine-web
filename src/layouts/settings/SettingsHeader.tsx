@@ -33,6 +33,7 @@ export function SettingsHeader({ isDark, onToggle }: SettingsHeaderProps) {
         >
           <Search className="pointer-events-none absolute left-3 h-4 w-4 text-muted-foreground" />
           <input
+            aria-label="TÃ¬m kiáº¿m"
             name="search"
             type="text"
             placeholder="Tìm kiếm…"

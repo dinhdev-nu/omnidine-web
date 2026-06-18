@@ -1,17 +1,17 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useCallback, useMemo, useState } from "react"
 import MenuCategory from "./components/MenuCategory"
 import MenuGrid from "./components/MenuGrid"
 import OrderCart from "./components/OrderCart"
-import Button from "../../components/Button"
-import Input from "../../components/Input"
+import Button from "../../ui/Button"
+import Input from "../../ui/Input"
 import Icon from "@/components/AppIcon"
-import ConfirmationDialog from "../../components/ConfirmationDialog"
+import ConfirmationDialog from "../../ui/ConfirmationDialog"
 import { usePosContext } from "@/features/pos/contexts/usePosContext"
 import { useMainPosMenuData } from "./hooks/useMainPosMenuData"
 import { useOrderCreation } from "./hooks/useOrderCreation"
 import { useFetch } from "@/hooks/useFetch"
 import { listTables } from "@/services/tables"
-import type { TableListResponse } from "@/types/table-type"
+import type { TableListResponse } from "@/types/domain/table"
 
 type PosOrderType = "" | "dine_in" | "takeaway" | "delivery"
 type PosOrderSource = "pos" | "phone"
@@ -26,6 +26,8 @@ const fetchAvailableActiveTables = async (
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
+
+const noopSummaryChange = () => {}
 
 const MainPosSection: React.FC = () => {
   const { data: posData } = usePosContext()
@@ -54,10 +56,14 @@ const MainPosSection: React.FC = () => {
   const [orderNotes, setOrderNotes] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const [activeCategory, setActiveCategory] = useState("all")
+  const availableTablesFetchArgs = useMemo<[string]>(
+    () => [normalizedRestaurantId],
+    [normalizedRestaurantId]
+  )
 
   const { data: availableTablesData } = useFetch(
     fetchAvailableActiveTables,
-    [normalizedRestaurantId],
+    availableTablesFetchArgs,
     {
       enabled: Boolean(restaurantId),
     }
@@ -122,18 +128,15 @@ const MainPosSection: React.FC = () => {
   const onOrderTypeChange = useCallback((value: string) => {
     const nextType = (value || "dine_in") as PosOrderType
     setSelectedOrderType(nextType)
+    if (nextType !== "dine_in") {
+      setSelectedTable(null)
+    }
   }, [])
 
   const onOrderSourceChange = useCallback((value: string) => {
     const nextSource = (value || "pos") as PosOrderSource
     setSelectedOrderSource(nextSource)
   }, [])
-
-  useEffect(() => {
-    if (selectedOrderType !== "dine_in") {
-      setSelectedTable(null)
-    }
-  }, [selectedOrderType])
 
   const tableOptions = useMemo(() => {
     const tables = availableTablesData?.data ?? []
@@ -158,9 +161,6 @@ const MainPosSection: React.FC = () => {
     if (!staff) return []
     return [{ value: staff._id, label: staff.full_name }]
   }, [staff])
-
-  // Stubs for functionality not fully implemented
-  const onSummaryChange = () => {}
 
   const {
     isCreatingOrder,
@@ -290,7 +290,7 @@ const MainPosSection: React.FC = () => {
               onOrderNotesChange={setOrderNotes}
               tableOptions={tableOptions}
               staffOptions={staffOptions}
-              onSummaryChange={onSummaryChange}
+            onSummaryChange={noopSummaryChange}
               hideDiscount={true}
             />
           </div>

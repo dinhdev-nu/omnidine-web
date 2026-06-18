@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { setClientToken } from "@/services/client"
+import { setClientToken } from "@/services/core/client"
 
 const ACCESS_TOKEN_KEY = "omnidine_access_token"
 

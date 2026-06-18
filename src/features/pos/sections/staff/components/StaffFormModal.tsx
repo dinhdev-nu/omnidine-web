@@ -3,10 +3,10 @@ import Icon from '@/components/AppIcon';
 import Image from '@/components/AppImage';
 import { toast } from 'sonner';
 import { uploadSingleFile } from '@/services/uploads';
-import type { StaffPermissions, StaffPosition, StaffStatus } from '@/types/staff-type';
-import Button from '../../../components/Button';
-import Input from '../../../components/Input';
-import Select from '../../../components/Select';
+import type { StaffPermissions, StaffPosition, StaffStatus } from '@/types/domain/staff';
+import Button from '../../../ui/Button';
+import Input from '../../../ui/Input';
+import Select from '../../../ui/Select';
 
 export type StaffFormMode = 'add' | 'edit';
 export type StaffSubmitSection = 'all' | 'info' | 'account' | 'status' | 'avatar' | 'permissions';
@@ -23,6 +23,8 @@ export interface StaffFormData {
   avatar_url: string;
   permissions: StaffPermissions;
 }
+
+const EMPTY_STAFF_ERRORS: Partial<Record<keyof StaffFormData, string>> = {};
 
 const PERMISSIONS_CONFIG = [
   { key: 'can_discount', label: 'Giảm giá' },
@@ -68,7 +70,7 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
   isOpen,
   mode = 'add',
   formData,
-  errors = {},
+  errors = EMPTY_STAFF_ERRORS,
   isLoading = false,
   onClose,
   onFieldChange,
@@ -142,7 +144,12 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
   return (
     <div className="fixed inset-0 z-[1200] flex items-center justify-center overflow-hidden">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <button
+        type="button"
+        aria-label="ÄÃ³ng modal nhÃ¢n viÃªn"
+        className="absolute inset-0 bg-black/50"
+        onClick={onClose}
+      />
 
       {/* Modal */}
       <div className="relative bg-card border border-border rounded-lg shadow-modal w-full max-w-2xl max-h-[90vh] overflow-hidden mx-4">
@@ -313,6 +320,7 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
 
               <div className="flex-1 space-y-2">
                 <input
+                  aria-label="Táº£i áº£nh nhÃ¢n viÃªn"
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
                   className="hidden"

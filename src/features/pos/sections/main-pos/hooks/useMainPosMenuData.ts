@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { listMenuCategories, listMenuItems } from '@/services/menu';
 import { useFetch } from '@/hooks/useFetch';
 import { buildSearchTarget, matchesLooseSearch } from '@/lib/search-utils';
-import type { MenuCategoryWithCount, MenuItemListResponse } from '@/types/menu-type';
+import type { MenuCategoryWithCount, MenuItemListResponse } from '@/types/domain/menu';
 
 interface UseMainPosMenuDataParams {
   restaurantId?: string;
@@ -22,15 +22,26 @@ const fetchMenuItemsByCategory = async (restaurantId: string, activeCategory: st
   });
 };
 
+const EMPTY_CATEGORIES: MenuCategoryWithCount[] = [];
+const EMPTY_MENU_ITEMS: MenuItemListResponse['data'] = [];
+
 export function useMainPosMenuData({ restaurantId, activeCategory, searchQuery }: UseMainPosMenuDataParams) {
   const normalizedRestaurantId = restaurantId ?? '';
   const enabled = Boolean(restaurantId);
+  const categoriesFetchArgs = useMemo<[string]>(
+    () => [normalizedRestaurantId],
+    [normalizedRestaurantId]
+  );
+  const itemsFetchArgs = useMemo<[string, string]>(
+    () => [normalizedRestaurantId, activeCategory],
+    [activeCategory, normalizedRestaurantId]
+  );
 
-  const categoriesFetch = useFetch(fetchActiveCategories, [normalizedRestaurantId], { enabled });
-  const itemsFetch = useFetch(fetchMenuItemsByCategory, [normalizedRestaurantId, activeCategory], { enabled });
+  const categoriesFetch = useFetch(fetchActiveCategories, categoriesFetchArgs, { enabled });
+  const itemsFetch = useFetch(fetchMenuItemsByCategory, itemsFetchArgs, { enabled });
 
-  const activeCategories: MenuCategoryWithCount[] = categoriesFetch.data?.data ?? [];
-  const categoryMenuItems = itemsFetch.data?.data ?? [];
+  const activeCategories = categoriesFetch.data?.data ?? EMPTY_CATEGORIES;
+  const categoryMenuItems = itemsFetch.data?.data ?? EMPTY_MENU_ITEMS;
 
   const uiCategories = useMemo(() => {
     const mapped = activeCategories.map((category) => ({

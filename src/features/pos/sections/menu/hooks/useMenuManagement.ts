@@ -13,7 +13,7 @@ import {
     toMenuEndpointError,
 } from '@/services/menu';
 import { usePOSStore } from '@/stores/pos-store';
-import type { MenuItem, MenuCategoryWithCount, ListMenuItemsQuery } from '@/types/menu-type';
+import type { MenuItem, MenuCategoryWithCount, ListMenuItemsQuery } from '@/types/domain/menu';
 
 interface PaginationState {
     page: number;

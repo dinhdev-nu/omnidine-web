@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { fetchPosInit } from '@/services/pos';
-import { toAppError } from '@/services/error';
+import { toAppError } from '@/services/core/error';
 import { PosContext, type PosContextType } from './pos-context';
-import type { PosInitData } from '@/types/pos-init-type';
-import type { AppError } from '@/services/types';
+import type { PosInitData } from '@/types/domain/pos-init';
+import type { AppError } from '@/services/core/types';
 
 interface PosProviderProps {
     slug: string;

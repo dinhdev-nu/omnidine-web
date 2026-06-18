@@ -21,7 +21,7 @@ import type {
   Order,
   AllowedOrderItemStatusUpdate,
   OrderDiscountType,
-} from '@/types/order-type';
+} from '@/types/domain/order';
 
 /**
  * UI-specific filters (camelCase for consistency, maps to API via converter)
@@ -234,7 +234,7 @@ export function useOrderManagement(): UseOrderManagementReturn {
    */
   React.useEffect(() => {
     void fetchOrders(1, false, DEFAULT_FILTERS);
-  }, []);
+  }, [fetchOrders]);
 
   // Handlers
   const handleFilterChange = useCallback(

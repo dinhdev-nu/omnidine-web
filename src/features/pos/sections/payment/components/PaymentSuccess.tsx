@@ -1,6 +1,8 @@
 import React from 'react';
 import Icon from '@/components/AppIcon';
-import Button from '../../../components/Button';
+import Button from '../../../ui/Button';
+
+const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
 
 interface ReceiptItem {
   itemId?: string;
@@ -31,6 +33,9 @@ export interface OrderData {
   total?: number;
 }
 
+const EMPTY_PAYMENT_DATA: PaymentData = {};
+const EMPTY_ORDER_DATA: OrderData = {};
+
 interface PaymentSuccessProps {
   paymentData?: PaymentData;
   orderData?: OrderData;
@@ -52,7 +57,7 @@ const PAYMENT_METHOD_LABELS: Record<string, string> = {
 };
 
 const formatCurrency = (amount: number): string =>
-  new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount ?? 0);
+  currencyFormatter.format(amount ?? 0);
 
 const formatDate = (dateString?: string | Date): string => {
   if (!dateString) return '';
@@ -63,8 +68,8 @@ const formatDate = (dateString?: string | Date): string => {
 };
 
 const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
-  paymentData = {},
-  orderData = {},
+  paymentData = EMPTY_PAYMENT_DATA,
+  orderData = EMPTY_ORDER_DATA,
   isPrinting = false,
   isSending = false,
   onPrintReceipt,
@@ -72,6 +77,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
   onNewOrder,
   onBackToDashboard,
 }) => {
+  const [fallbackCreatedAt] = React.useState(() => new Date().toISOString());
   const items = orderData.items ?? [];
   const hasChange = (paymentData.changeAmount ?? 0) > 0;
   const tableDisplay = orderData.tableNumber ?? orderData.table;
@@ -96,7 +102,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
             <span className="font-bold text-base">THANH TOÁN THÀNH CÔNG</span>
           </div>
           <p className="text-muted-foreground text-xs">
-            {formatDate(paymentData.createdAt ?? new Date().toISOString())}
+            {formatDate(paymentData.createdAt ?? fallbackCreatedAt)}
           </p>
         </div>
 

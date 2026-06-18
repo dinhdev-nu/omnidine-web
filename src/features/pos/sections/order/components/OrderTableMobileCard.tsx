@@ -1,5 +1,5 @@
 import React from "react"
-import Button from "../../../components/Button"
+import Button from "../../../ui/Button"
 import Icon from "@/components/AppIcon"
 import {
   DropdownMenu,
@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-} from "../../../components/DropdownMenu"
+} from "../../../ui/DropdownMenu"
 import {
   formatCurrency,
   formatDateTime,
@@ -20,7 +20,7 @@ import {
   getOrderSourceLabel,
   getOrderTypeLabel,
 } from "./order-table-utils"
-import type { AllowedOrderItemStatusUpdate, Order } from "@/types/order-type"
+import type { AllowedOrderItemStatusUpdate, Order } from "@/types/domain/order"
 
 interface OrderTableMobileCardProps {
   order: Order

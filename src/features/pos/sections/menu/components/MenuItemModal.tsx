@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import Icon from '@/components/AppIcon';
-import Button from '../../../components/Button';
-import Input from '../../../components/Input';
-import Select from '../../../components/Select';
+import Button from '../../../ui/Button';
+import Input from '../../../ui/Input';
+import Select from '../../../ui/Select';
 import Image from '@/components/AppImage';
 
 type ItemStatus = 'available' | 'unavailable';
@@ -23,6 +23,10 @@ interface Category {
   id: string;
   name: string;
 }
+
+const EMPTY_IMAGE_PREVIEW_URLS: string[] = [];
+const EMPTY_CATEGORIES: Category[] = [];
+const EMPTY_MENU_ITEM_ERRORS: Partial<Record<keyof MenuItemFormData, string>> = {};
 
 interface MenuItemModalProps {
   isOpen: boolean;
@@ -74,9 +78,9 @@ const MenuItemModal: React.FC<MenuItemModalProps> = ({
   isLoading = false,
   isEditing = false,
   item = null,
-  imagePreviewUrls = [],
-  categories = [],
-  errors = {},
+  imagePreviewUrls = EMPTY_IMAGE_PREVIEW_URLS,
+  categories = EMPTY_CATEGORIES,
+  errors = EMPTY_MENU_ITEM_ERRORS,
   onClose,
   onSave,
   onFieldChange,
@@ -104,7 +108,12 @@ const MenuItemModal: React.FC<MenuItemModalProps> = ({
   return (
     <div className="fixed inset-0 z-[1200] flex items-center justify-center overflow-hidden">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <button
+        type="button"
+        aria-label="ÄÃ³ng modal mÃ³n Äƒn"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
 
       {/* Modal */}
       <div className="relative bg-card border border-border rounded-lg shadow-modal w-full max-w-2xl max-h-[90vh] overflow-hidden mx-4 animate-in fade-in zoom-in-95 duration-200">
@@ -202,9 +211,7 @@ const MenuItemModal: React.FC<MenuItemModalProps> = ({
             {/* Right Column - Image */}
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Hình ảnh món ăn
-                </label>
+                <p className="block text-sm font-medium text-foreground mb-2">Hình ảnh món ăn</p>
                 <div className="flex items-center gap-2 mb-3">
                   <button
                     type="button"
@@ -340,13 +347,11 @@ const MenuItemModal: React.FC<MenuItemModalProps> = ({
                   )}
 
                   <div className="flex-shrink-0">
-                    <label className="block text-xs font-medium text-muted-foreground mb-2">
-                      Hoặc chọn ảnh mẫu
-                    </label>
+                    <p className="block text-xs font-medium text-muted-foreground mb-2">Hoặc chọn ảnh mẫu</p>
                     <div className="grid grid-cols-3 gap-2">
                       {SAMPLE_IMAGES.map((url, index) => (
                         <button
-                          key={index}
+                          key={url}
                           type="button"
                           onClick={() => onAddImageUrl(url)}
                           className="w-full h-16 rounded border border-border overflow-hidden hover:ring-2 hover:ring-primary transition-smooth"

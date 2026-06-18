@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { DndContext, useSensor, useSensors, PointerSensor, DragOverlay, type DragEndEvent } from '@dnd-kit/core';
-import type { PosTablePosition, TableListItem } from '@/types/table-type';
+import type { PosTablePosition, TableListItem } from '@/types/domain/table';
 import TableCard from './TableCard';
 import DraggableTable from './DraggableTable';
 import Icon from '@/components/AppIcon';
-import Button from '../../../components/Button';
+import Button from '../../../ui/Button';
 
 interface TableLayoutProps {
   tables: TableListItem[];

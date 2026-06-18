@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence, LazyMotion, domAnimation, m } from "framer-motion"
 import { Mail, Eye, EyeOff, ArrowLeft, ChevronRight } from "lucide-react"
 import { toast } from "sonner"
 import { OtpMethodModal } from "./OtpMethodModal"
@@ -299,54 +299,56 @@ export function SignUpSteps({ hook }: SignUpStepsProps) {
 
   return (
     <div className="relative overflow-hidden">
-      <AnimatePresence initial={false} custom={direction} mode="wait">
-        <motion.div
-          key={step}
-          custom={direction}
-          variants={slideVariants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
-        >
-          {step === "info" && (
-            <StepInfo
-              form={form}
-              isLoading={isLoading}
-              handleChange={handleChange}
-              handleIdentifierChange={handleIdentifierChange}
-              onContinue={handleContinue}
-            />
-          )}
-          {step === "password" && (
-            <StepPassword
-              form={form}
-              isLoading={isLoading}
-              handleChange={handleChange}
-              onSubmit={handleCreateAccount}
-              onBack={() => navigate("info")}
-            />
-          )}
-          {step === "otp" && (
-            <StepOtp
-              form={form}
-              isLoading={isLoading}
-              isSendingOtp={isSendingOtp}
-              otpCountdown={otpCountdown}
-              handleChange={handleChange}
-              onVerify={handleVerifyOtp}
-              onResend={handleResendOtp}
-              onBack={() => navigate(form.password ? "password" : "info")}
-            />
-          )}
+      <LazyMotion features={domAnimation}>
+        <AnimatePresence initial={false} custom={direction} mode="wait">
+          <m.div
+            key={step}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
+          >
+            {step === "info" && (
+              <StepInfo
+                form={form}
+                isLoading={isLoading}
+                handleChange={handleChange}
+                handleIdentifierChange={handleIdentifierChange}
+                onContinue={handleContinue}
+              />
+            )}
+            {step === "password" && (
+              <StepPassword
+                form={form}
+                isLoading={isLoading}
+                handleChange={handleChange}
+                onSubmit={handleCreateAccount}
+                onBack={() => navigate("info")}
+              />
+            )}
+            {step === "otp" && (
+              <StepOtp
+                form={form}
+                isLoading={isLoading}
+                isSendingOtp={isSendingOtp}
+                otpCountdown={otpCountdown}
+                handleChange={handleChange}
+                onVerify={handleVerifyOtp}
+                onResend={handleResendOtp}
+                onBack={() => navigate(form.password ? "password" : "info")}
+              />
+            )}
 
-          {errorMessage && (
-            <p className="mt-3 text-sm text-destructive" role="status" aria-live="polite">
-              {errorMessage}
-            </p>
-          )}
-        </motion.div>
-      </AnimatePresence>
+            {errorMessage && (
+              <p className="mt-3 text-sm text-destructive" role="status" aria-live="polite">
+                {errorMessage}
+              </p>
+            )}
+          </m.div>
+        </AnimatePresence>
+      </LazyMotion>
 
       {showMethodModal && (
         <OtpMethodModal

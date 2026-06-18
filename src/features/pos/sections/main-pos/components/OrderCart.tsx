@@ -1,10 +1,12 @@
 import { type ChangeEvent, useMemo } from "react"
-import Button from "../../../components/Button.tsx"
+import Button from "../../../ui/Button.tsx"
 import Icon from "@/components/AppIcon"
-import Input from "../../../components/Input.tsx"
-import Select from "../../../components/Select.tsx"
-import { Switch } from "../../../components/Switch"
+import Input from "../../../ui/Input.tsx"
+import Select from "../../../ui/Select.tsx"
+import { Switch } from "../../../ui/Switch"
 import { usePosContext } from "@/features/pos/contexts/usePosContext"
+
+const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
 
 interface CartItem {
   _id: string
@@ -59,8 +61,10 @@ interface OrderCartProps {
   discountValue?: number
 }
 
+const EMPTY_TABLE_OPTIONS: TableOption[] = []
+
 const formatPrice = (price: number): string =>
-  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
+  currencyFormatter.format(
     price
   )
 
@@ -83,7 +87,7 @@ const OrderCart = ({
   onOrderNotesChange,
   selectedTable = null,
   onTableChange,
-  tableOptions = [],
+  tableOptions = EMPTY_TABLE_OPTIONS,
   discountType = "percent",
   discountValue = 0,
   hideDiscount = false,
@@ -335,9 +339,7 @@ const OrderCart = ({
         {/* Discount Section (hidden for MainPos create flow) */}
         {!hideDiscount && (
           <div className="space-y-2 rounded-lg bg-muted/20 p-3">
-            <label className="text-sm font-medium text-foreground">
-              Giảm giá
-            </label>
+            <p className="text-sm font-medium text-foreground">Giảm giá</p>
             <div className="flex space-x-2">
               <div className="flex-1">
                 <Input

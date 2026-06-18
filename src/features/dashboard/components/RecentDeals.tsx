@@ -85,7 +85,7 @@ export function RecentDeals() {
                     <h3 className="text-base font-semibold text-foreground">Giao dịch gần đây</h3>
                     <p className="text-sm text-muted-foreground mt-0.5">Hoạt động mới nhất</p>
                 </div>
-                <button className="flex items-center gap-1 text-sm text-accent hover:text-accent/80 font-medium transition-colors group">
+                <button type="button" className="flex items-center gap-1 text-sm text-accent hover:text-accent/80 font-medium transition-colors group">
                     Xem tất cả
                     <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </button>

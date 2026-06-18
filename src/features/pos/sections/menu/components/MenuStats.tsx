@@ -11,8 +11,10 @@ interface MenuStatsProps {
   stats: MenuStatsData;
 }
 
+const numberFormatter = new Intl.NumberFormat('vi-VN');
+
 const formatNumber = (num: number): string =>
-  new Intl.NumberFormat('vi-VN').format(num);
+  numberFormatter.format(num);
 
 const MenuStats: React.FC<MenuStatsProps> = ({ stats }) => {
   const statusItems = [

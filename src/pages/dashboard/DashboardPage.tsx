@@ -1,22 +1,20 @@
-import { useEffect, useState, type ReactNode } from "react"
+import { useEffect, useMemo, useState, type ReactNode } from "react"
 import { useLocation, useNavigate, useParams } from "react-router-dom"
-import "@/features/dashboard/analysis-reporting.css"
-import {
-  CustomersSection,
-  DealsSection,
-  ForecastingSection,
-  Header,
-  OverviewSection,
-  PipelineSection,
-  ReportsSection,
-  SettingsSection,
-  Sidebar,
-  TeamSection,
-} from "../../features/dashboard"
+import "@/layouts/dashboard/analysis-reporting.css"
+import { Header } from "@/features/dashboard/components/Header"
+import { Sidebar } from "@/features/dashboard/components/Sidebar"
+import { CustomersSection } from "@/features/dashboard/sections/CustomersSection"
+import { DealsSection } from "@/features/dashboard/sections/DealsSection"
+import { ForecastingSection } from "@/features/dashboard/sections/ForecastingSection"
+import { OverviewSection } from "@/features/dashboard/sections/OverviewSection"
+import { PipelineSection } from "@/features/dashboard/sections/PipelineSection"
+import { ReportsSection } from "@/features/dashboard/sections/ReportsSection"
+import { SettingsSection } from "@/features/dashboard/sections/SettingsSection"
+import { TeamSection } from "@/features/dashboard/sections/TeamSection"
 import { DashboardLayout } from "../../layouts/dashboard/DashboardLayout"
 import { useFetch } from "@/hooks/useFetch"
 import { getRestaurantDetail } from "@/services/restaurants"
-import { toAppError } from "@/services/error"
+import { toAppError } from "@/services/core/error"
 import { useAuthStore } from "@/stores/auth-store"
 import { useUserStore } from "@/stores/user-store"
 
@@ -55,6 +53,10 @@ export default function Dashboard() {
   const location = useLocation()
   const navigate = useNavigate()
   const { id: restaurantId } = useParams<{ id: string }>()
+  const restaurantFetchArgs = useMemo<[string]>(
+    () => [restaurantId ?? ""],
+    [restaurantId]
+  )
   const stateRestaurant =
     (location.state as DashboardRestaurantState | undefined)?.restaurant ?? null
   const accessToken = useAuthStore((state) => state.accessToken)
@@ -80,7 +82,7 @@ export default function Dashboard() {
     data: restaurantDetail,
     error: restaurantError,
     isLoading: isRestaurantLoading,
-  } = useFetch(getRestaurantDetail, [restaurantId ?? ""], {
+  } = useFetch(getRestaurantDetail, restaurantFetchArgs, {
     enabled: Boolean(restaurantId),
   })
 

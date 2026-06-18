@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import Icon from '@/components/AppIcon';
-import type { TableListItem, TableStatus, UpdateTablePayload } from '@/types/table-type';
-import Button from '../../../components/Button';
-import Input from '../../../components/Input';
-import QrDialog from '../../../components/QrDialog';
+import type { TableListItem, TableStatus, UpdateTablePayload } from '@/types/domain/table';
+import Button from '../../../ui/Button';
+import Input from '../../../ui/Input';
+import QrDialog from '../../../ui/QrDialog';
 
 interface TableControlPanelProps {
   selectedTable?: TableListItem | null;
@@ -60,7 +60,7 @@ const TableControlPanel: React.FC<TableControlPanelProps> = ({
 
             {/* Status Control */}
             <div>
-              <label className="text-xs text-muted-foreground mb-2 block">Trạng thái hiện tại</label>
+              <p className="text-xs text-muted-foreground mb-2">Trạng thái hiện tại</p>
               <div className="grid grid-cols-2 gap-2">
                 {(
                   [
@@ -84,7 +84,7 @@ const TableControlPanel: React.FC<TableControlPanelProps> = ({
             </div>
 
             <div className="space-y-2 mt-4 pt-4 border-t border-border">
-              <label className="text-xs text-muted-foreground block">Thông số chi tiết</label>
+              <p className="text-xs text-muted-foreground">Thông số chi tiết</p>
               <div className="grid grid-cols-2 gap-2">
                 <Input
                   type="text"
@@ -158,7 +158,7 @@ const TableControlPanel: React.FC<TableControlPanelProps> = ({
             </div>
 
             <div className="space-y-2 mt-4 pt-4 border-t border-border">
-              <label className="text-xs text-muted-foreground block">QR bàn hiện tại</label>
+              <p className="text-xs text-muted-foreground">QR bàn hiện tại</p>
               <Button
                 variant="outline"
                 size="sm"

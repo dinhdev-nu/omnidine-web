@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { useAuthStore } from "@/stores/auth-store"
-import { SETTINGS_DEFAULT_PATH } from "@/routes/setting-route-config"
+import { SETTINGS_DEFAULT_PATH } from "@/routes/settings-route-config"
 
 /**
  * Trang callback sau khi Google OAuth hoàn tất.

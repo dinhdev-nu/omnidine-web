@@ -1,5 +1,5 @@
 import { AUTH_ROUTE_PATHS } from "@/features/auth/constants"
-import { SETTINGS_DEFAULT_PATH } from "@/routes/setting-route-config"
+import { SETTINGS_DEFAULT_PATH } from "@/routes/settings-route-config"
 import { useAuthStore } from "@/stores/auth-store"
 
 export default function LandingHeader() {
@@ -49,7 +49,7 @@ export default function LandingHeader() {
                   dir="ltr"
                 >
                   <li className="relative items-center gap-0.5">
-                    <button
+                    <button type="button"
                       aria-controls="radix-_r_0_-content-radix-_r_1_"
                       aria-expanded="false"
                       className="gap-1 font-normal shrink-0 rounded-full ring-[--control] focus-visible:ring-2 outline-hidden outline-0 inline-flex items-center pb-px pl-3 pr-2 tracking-tight hover:bg-[--surface-tertiary] dark:hover:bg-[--dark-surface-tertiary] lg:h-7"

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import Icon from '@/components/AppIcon';
-import Input from '../../../components/Input';
-import Button from '../../../components/Button';
+import Input from '../../../ui/Input';
+import Button from '../../../ui/Button';
+
+const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
 
 interface CashPaymentFormProps {
   totalAmount?: number;
@@ -16,14 +18,16 @@ interface CashPaymentFormProps {
   onCancel: () => void;
 }
 
+const EMPTY_QUICK_AMOUNTS: number[] = [];
+
 const formatCurrency = (amount: number): string =>
-  new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+  currencyFormatter.format(amount);
 
 const CashPaymentForm: React.FC<CashPaymentFormProps> = ({
   totalAmount = 0,
   change = 0,
   amountError = '',
-  quickAmounts = [],
+  quickAmounts = EMPTY_QUICK_AMOUNTS,
   onAmountChange,
   onPaymentComplete,
   onCancel,
@@ -64,9 +68,9 @@ const CashPaymentForm: React.FC<CashPaymentFormProps> = ({
 
         {/* Quick Amount Buttons */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-          {quickAmounts.slice(0, 6).map((amount, index) => (
+          {quickAmounts.slice(0, 6).map((amount) => (
             <Button
-              key={index}
+              key={amount}
               variant="outline"
               size="sm"
               onClick={() => handleQuickAmount(amount)}

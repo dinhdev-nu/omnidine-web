@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react"
 import Icon from "@/components/AppIcon"
-import Button from "../../../components/Button"
+import Button from "../../../ui/Button"
 import Image from "@/components/AppImage"
-import { Spinner } from "../../../components/Spinner"
+import { Spinner } from "../../../ui/Spinner"
 import { getMenuItemDetail, toMenuEndpointError } from "@/services/menu"
-import type { MenuItem } from "@/types/menu-type"
+import type { MenuItem } from "@/types/domain/menu"
+
+const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
 
 interface MenuItemDetailsModalProps {
   isOpen: boolean
@@ -15,7 +17,7 @@ interface MenuItemDetailsModalProps {
 }
 
 const formatPrice = (price: number): string =>
-  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
+  currencyFormatter.format(
     price
   )
 
@@ -28,12 +30,12 @@ const MenuItemDetailsModal: React.FC<MenuItemDetailsModalProps> = ({
 }) => {
   const [item, setItem] = useState<MenuItem | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<{ itemId: string; message: string } | null>(null)
+  const visibleItem = item?._id === itemId ? item : null
+  const visibleError = error?.itemId === itemId ? error.message : null
 
   useEffect(() => {
     if (!isOpen || !itemId || !restaurantId) {
-      setItem(null)
-      setError(null)
       return
     }
 
@@ -44,7 +46,7 @@ const MenuItemDetailsModal: React.FC<MenuItemDetailsModalProps> = ({
         const data = await getMenuItemDetail(restaurantId, itemId)
         setItem(data)
       } catch (err) {
-        setError(toMenuEndpointError("fetch details", err).message)
+        setError({ itemId, message: toMenuEndpointError("fetch details", err).message })
       } finally {
         setIsLoading(false)
       }
@@ -58,7 +60,9 @@ const MenuItemDetailsModal: React.FC<MenuItemDetailsModalProps> = ({
   return (
     <div className="fixed inset-0 z-[1200] flex items-center justify-center overflow-hidden">
       {/* Backdrop */}
-      <div
+      <button
+        type="button"
+        aria-label="ÄÃ³ng chi tiáº¿t mÃ³n"
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
@@ -94,7 +98,7 @@ const MenuItemDetailsModal: React.FC<MenuItemDetailsModalProps> = ({
                 Đang tải chi tiết món ăn...
               </p>
             </div>
-          ) : error ? (
+          ) : visibleError ? (
             <div className="flex flex-col items-center justify-center space-y-4 py-12 text-center">
               <div className="bg-error/10 text-error flex size-12 items-center justify-center rounded-full">
                 <Icon name="AlertCircle" size={24} />
@@ -103,21 +107,21 @@ const MenuItemDetailsModal: React.FC<MenuItemDetailsModalProps> = ({
                 <p className="font-medium text-foreground">
                   Không thể tải thông tin món ăn
                 </p>
-                <p className="mt-1 text-sm text-muted-foreground">{error}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{visibleError}</p>
               </div>
               <Button variant="outline" onClick={onClose}>
                 Đóng
               </Button>
             </div>
-          ) : item ? (
+          ) : visibleItem ? (
             <div className="space-y-6">
               {/* Header Info with Image */}
               <div className="flex flex-col gap-6 md:flex-row">
                 <div className="aspect-square w-full flex-shrink-0 overflow-hidden rounded-lg border border-border bg-muted md:w-1/3">
-                  {item.images && item.images.length > 0 ? (
+                  {visibleItem.images && visibleItem.images.length > 0 ? (
                     <Image
-                      src={item.images[0].url}
-                      alt={item.name}
+                      src={visibleItem.images[0].url}
+                      alt={visibleItem.name}
                       className="h-full w-full object-cover"
                     />
                   ) : (
@@ -135,7 +139,7 @@ const MenuItemDetailsModal: React.FC<MenuItemDetailsModalProps> = ({
                 <div className="flex-1 space-y-4">
                   <div>
                     <h3 className="text-2xl font-bold text-foreground">
-                      {item.name}
+                      {visibleItem.name}
                     </h3>
                     {categoryName && (
                       <p className="mt-1 text-sm text-muted-foreground">
@@ -146,10 +150,10 @@ const MenuItemDetailsModal: React.FC<MenuItemDetailsModalProps> = ({
 
                   <div className="flex items-center gap-4">
                     <span className="text-xl font-semibold text-primary">
-                      {formatPrice(item.base_price)}
+                      {formatPrice(visibleItem.base_price)}
                     </span>
                     <div className="flex gap-2">
-                      {item.is_featured && (
+                      {visibleItem.is_featured && (
                         <span className="inline-flex items-center gap-1 rounded-full border border-warning/20 bg-warning/10 px-2 py-1 text-xs font-medium text-warning">
                           <Icon name="Star" size={12} />
                           Nổi bật
@@ -157,27 +161,27 @@ const MenuItemDetailsModal: React.FC<MenuItemDetailsModalProps> = ({
                       )}
                       <span
                         className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-medium ${
-                          item.is_available
+                          visibleItem.is_available
                             ? "border-success/20 bg-success/10 text-success"
                             : "border-border bg-muted text-muted-foreground"
                         }`}
                       >
                         <Icon
-                          name={item.is_available ? "CheckCircle" : "XCircle"}
+                          name={visibleItem.is_available ? "CheckCircle" : "XCircle"}
                           size={12}
                         />
-                        {item.is_available ? "Đang bán" : "Tạm ngưng"}
+                        {visibleItem.is_available ? "Đang bán" : "Tạm ngưng"}
                       </span>
                     </div>
                   </div>
 
-                  {item.description && (
+                  {visibleItem.description && (
                     <div className="border-t border-border pt-4">
                       <h4 className="mb-2 text-sm font-medium text-foreground">
                         Mô tả:
                       </h4>
                       <p className="text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">
-                        {item.description}
+                        {visibleItem.description}
                       </p>
                     </div>
                   )}
@@ -185,20 +189,20 @@ const MenuItemDetailsModal: React.FC<MenuItemDetailsModalProps> = ({
               </div>
 
               {/* Gallery */}
-              {item.images && item.images.length > 1 && (
+              {visibleItem.images && visibleItem.images.length > 1 && (
                 <div className="border-t border-border pt-4">
                   <h4 className="mb-3 text-sm font-medium text-foreground">
                     Hình ảnh khác:
                   </h4>
                   <div className="grid grid-cols-4 gap-3 sm:grid-cols-5 md:grid-cols-6">
-                    {item.images.slice(1).map((img, index) => (
+                    {visibleItem.images.slice(1).map((img, index) => (
                       <div
-                        key={index}
+                        key={img.url}
                         className="aspect-square overflow-hidden rounded-md border border-border bg-muted"
                       >
                         <Image
                           src={img.url}
-                          alt={`${item.name} - ${index + 2}`}
+                          alt={`${visibleItem.name} - ${index + 2}`}
                           className="h-full w-full object-cover"
                         />
                       </div>
@@ -215,7 +219,7 @@ const MenuItemDetailsModal: React.FC<MenuItemDetailsModalProps> = ({
                       Ngày tạo:
                     </span>
                     <span className="font-medium text-foreground">
-                      {new Date(item.created_at).toLocaleString("vi-VN")}
+                      {new Date(visibleItem.created_at).toLocaleString("vi-VN")}
                     </span>
                   </div>
                   <div>
@@ -223,7 +227,7 @@ const MenuItemDetailsModal: React.FC<MenuItemDetailsModalProps> = ({
                       Cập nhật lần cuối:
                     </span>
                     <span className="font-medium text-foreground">
-                      {new Date(item.updated_at).toLocaleString("vi-VN")}
+                      {new Date(visibleItem.updated_at).toLocaleString("vi-VN")}
                     </span>
                   </div>
                 </div>

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select"
 import { Bell, Mail, Smartphone, Check, RefreshCw } from "lucide-react"
 import { useUserStore } from "@/stores/user-store"
-import { toAppError } from "@/services/error"
+import { toAppError } from "@/services/core/error"
 
 type NotifFreq = "instant" | "daily" | "weekly"
 

@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from "react"
-import ConfirmationDialog from "../../../components/ConfirmationDialog"
+import React, { useState, useCallback, useRef } from "react"
+import ConfirmationDialog from "../../../ui/ConfirmationDialog"
 import OrderTableDesktopRow from "./OrderTableDesktopRow"
 import OrderTableMobileCard from "./OrderTableMobileCard"
 import type {
@@ -7,7 +7,7 @@ import type {
   AllowedOrderStatusUpdate,
   Order,
   OrderDiscountType,
-} from "@/types/order-type"
+} from "@/types/domain/order"
 
 interface OrderTableProps {
   orders: Order[]
@@ -103,7 +103,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
   const [discountRef, setDiscountRef] = useState("")
   const [isUpdatingDiscount, setIsUpdatingDiscount] = useState(false)
 
-  const [selectedItemToCancel, setSelectedItemToCancel] = useState<{
+  const selectedItemToCancelRef = useRef<{
     order: Order
     itemId: string
   } | null>(null)
@@ -217,7 +217,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
       setSelectedOrderToDiscount(order)
       const detail = detailOrders[order._id] || order
       setDiscountType(
-        (detail.discount_type as any) === "percent" ? "percent" : "fixed"
+        detail.discount_type === "percent" ? "percent" : "fixed"
       )
       setDiscountValue(detail.discount_value || 0)
       setDiscountRef(detail.discount_ref ?? "")
@@ -227,7 +227,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
   )
 
   const handleCancelItemClick = useCallback((order: Order, itemId: string) => {
-    setSelectedItemToCancel({ order, itemId })
+    selectedItemToCancelRef.current = { order, itemId }
     setCancelItemReason("")
     setShowCancelItemDialog(true)
   }, [])
@@ -262,6 +262,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
   ])
 
   const handleConfirmCancelItem = useCallback(async () => {
+    const selectedItemToCancel = selectedItemToCancelRef.current
     if (!selectedItemToCancel || !onCancelOrderItem) return
     try {
       setIsCancellingItem(true)
@@ -280,10 +281,9 @@ const OrderTable: React.FC<OrderTableProps> = ({
     } finally {
       setIsCancellingItem(false)
       setShowCancelItemDialog(false)
-      setSelectedItemToCancel(null)
+      selectedItemToCancelRef.current = null
     }
   }, [
-    selectedItemToCancel,
     cancelItemReason,
     onCancelOrderItem,
     onLoadOrderDetail,
@@ -388,10 +388,11 @@ const OrderTable: React.FC<OrderTableProps> = ({
         isLoading={isUpdatingStatus}
       >
         <div className="mt-3">
-          <label className="mb-1 block text-xs text-muted-foreground">
+          <label htmlFor="order-next-status" className="mb-1 block text-xs text-muted-foreground">
             Trạng thái mới
           </label>
           <select
+            id="order-next-status"
             className="h-9 w-full rounded border border-border bg-background px-2 text-sm"
             value={nextStatus}
             onChange={(e) =>
@@ -426,10 +427,11 @@ const OrderTable: React.FC<OrderTableProps> = ({
         isLoading={isCancelling}
       >
         <div className="mt-3">
-          <label className="mb-1 block text-xs text-muted-foreground">
+          <label htmlFor="order-cancel-reason" className="mb-1 block text-xs text-muted-foreground">
             Lý do hủy (tuỳ chọn)
           </label>
           <textarea
+            id="order-cancel-reason"
             className="min-h-[80px] w-full rounded border border-border p-2 text-sm"
             placeholder="Nhập lý do hủy để lưu lại (ví dụ: Khách đổi ý)"
             value={cancelReason}
@@ -456,10 +458,11 @@ const OrderTable: React.FC<OrderTableProps> = ({
       >
         <div className="mt-3 space-y-3">
           <div>
-            <label className="mb-1 block text-xs text-muted-foreground">
+            <label htmlFor="order-discount-type" className="mb-1 block text-xs text-muted-foreground">
               Loại giảm giá
             </label>
             <select
+              id="order-discount-type"
               className="h-9 w-full rounded border border-border bg-background px-2 text-sm"
               value={discountType}
               onChange={(e) =>
@@ -471,10 +474,11 @@ const OrderTable: React.FC<OrderTableProps> = ({
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-xs text-muted-foreground">
+            <label htmlFor="order-discount-value" className="mb-1 block text-xs text-muted-foreground">
               Giá trị
             </label>
             <input
+              id="order-discount-value"
               type="number"
               className="h-9 w-full rounded border border-border bg-background px-2 text-sm"
               value={discountValue}
@@ -482,10 +486,11 @@ const OrderTable: React.FC<OrderTableProps> = ({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs text-muted-foreground">
+            <label htmlFor="order-discount-reference" className="mb-1 block text-xs text-muted-foreground">
               Mã giảm giá / chương trình
             </label>
             <input
+              id="order-discount-reference"
               type="text"
               className="h-9 w-full rounded border border-border bg-background px-2 text-sm"
               placeholder="Nhập mã voucher hoặc tên chương trình"
@@ -500,7 +505,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
         isOpen={showCancelItemDialog}
         onClose={() => {
           setShowCancelItemDialog(false)
-          setSelectedItemToCancel(null)
+          selectedItemToCancelRef.current = null
           setCancelItemReason("")
         }}
         onConfirm={handleConfirmCancelItem}
@@ -513,10 +518,11 @@ const OrderTable: React.FC<OrderTableProps> = ({
         isLoading={isCancellingItem}
       >
         <div className="mt-3">
-          <label className="mb-1 block text-xs text-muted-foreground">
+          <label htmlFor="order-item-cancel-reason" className="mb-1 block text-xs text-muted-foreground">
             Lý do hủy (tuỳ chọn)
           </label>
           <textarea
+            id="order-item-cancel-reason"
             className="min-h-[80px] w-full rounded border border-border p-2 text-sm"
             placeholder="Nhập lý do hủy món..."
             value={cancelItemReason}

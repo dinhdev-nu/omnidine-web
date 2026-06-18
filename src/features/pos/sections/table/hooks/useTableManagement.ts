@@ -18,7 +18,7 @@ import type {
     TableListItem,
     TableStatus,
     UpdateTablePayload,
-} from '@/types/table-type';
+} from '@/types/domain/table';
 import {
     INITIAL_TABLES,
     INITIAL_TABLE_POSITIONS,

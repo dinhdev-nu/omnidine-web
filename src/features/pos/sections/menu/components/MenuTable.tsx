@@ -1,9 +1,11 @@
 import React from "react"
 import Image from "@/components/AppImage"
 import Icon from "@/components/AppIcon"
-import Button from "../../../components/Button"
-import type { MenuItem } from "@/types/menu-type"
-import { Spinner } from "../../../components/Spinner"
+import Button from "../../../ui/Button"
+import type { MenuItem } from "@/types/domain/menu"
+import { Spinner } from "../../../ui/Spinner"
+
+const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
 
 type ItemAction =
   | "toggle-availability"
@@ -24,7 +26,7 @@ interface MenuTableProps {
 }
 
 const formatPrice = (price: number): string =>
-  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
+  currencyFormatter.format(
     price
   )
 

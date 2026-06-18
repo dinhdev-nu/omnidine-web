@@ -1,6 +1,7 @@
+/* eslint-disable react-refresh/only-export-components */
 import React from 'react';
 import Icon from '@/components/AppIcon';
-import type { OrderStatus, OrderPaymentStatus, OrderItemStatus } from '@/types/order-type';
+import type { OrderStatus, OrderPaymentStatus, OrderItemStatus } from '@/types/domain/order';
 
 /**
  * Re-export API types for use in components
@@ -8,15 +9,22 @@ import type { OrderStatus, OrderPaymentStatus, OrderItemStatus } from '@/types/o
  */
 export type { OrderStatus, OrderPaymentStatus, OrderItemStatus };
 
+const numberFormatter = new Intl.NumberFormat('vi-VN');
+
+const dateTimeFormatter = new Intl.DateTimeFormat('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+});
+
 export const formatCurrency = (amount: number): string =>
-    new Intl.NumberFormat('vi-VN').format(amount ?? 0);
+    numberFormatter.format(amount ?? 0);
 
 export const formatDateTime = (timestamp?: string): string => {
     if (!timestamp) return 'N/A';
-    return new Intl.DateTimeFormat('vi-VN', {
-        day: '2-digit', month: '2-digit', year: 'numeric',
-        hour: '2-digit', minute: '2-digit',
-    }).format(new Date(timestamp));
+    return dateTimeFormatter.format(new Date(timestamp));
 };
 
 export const getTableDisplay = (table?: string): string => {

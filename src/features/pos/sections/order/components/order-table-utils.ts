@@ -1,4 +1,4 @@
-import type { Order } from '@/types/order-type';
+import type { Order } from '@/types/domain/order';
 
 export const DEFAULT_CUSTOMER_NAME = 'Khách Vãng Lai';
 

@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { PosContext, type PosContextType } from './pos-context';
-import type { PosInitData } from '@/types/pos-init-type';
+import type { PosInitData } from '@/types/domain/pos-init';
 
 /**
  * Hook to use POS context

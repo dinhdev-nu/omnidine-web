@@ -1,6 +1,6 @@
 import React from 'react';
 import Icon from '@/components/AppIcon';
-import type { TableListItem, TableStatus } from '@/types/table-type';
+import type { TableListItem, TableStatus } from '@/types/domain/table';
 
 interface TableCardProps {
   table: TableListItem;
@@ -38,7 +38,9 @@ const TableCard: React.FC<TableCardProps> = ({
   const visualStatus: TableStatus = table.is_active === false ? 'inactive' : table.status;
 
   return (
-    <div
+    <button
+      type="button"
+      aria-label={`Chon ban ${table.table_number}`}
       className={`
         relative bg-surface border-2 p-2 pt-3
         transition-all duration-200 hover:shadow-interactive
@@ -68,7 +70,7 @@ const TableCard: React.FC<TableCardProps> = ({
         {currentOccupancy}/{table.capacity}
       </div>
 
-    </div>
+    </button>
   );
 };
 

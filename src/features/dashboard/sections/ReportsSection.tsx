@@ -119,7 +119,7 @@ const ReportCard = memo(function ReportCard({ title, description, icon: Icon, co
             </div>
             <h3 className="text-sm font-semibold text-foreground mb-1">{title}</h3>
             <p className="text-xs text-muted-foreground mb-4">{description}</p>
-            <button className="flex items-center gap-1 text-xs text-accent font-medium group-hover:gap-2 transition-all duration-200">
+            <button type="button" className="flex items-center gap-1 text-xs text-accent font-medium group-hover:gap-2 transition-all duration-200">
                 Xem báo cáo
                 <ChevronRight className="w-3 h-3" />
             </button>
@@ -211,8 +211,8 @@ export function ReportsSection() {
                                         paddingAngle={2}
                                         dataKey="value"
                                     >
-                                        {sourceData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        {sourceData.map((entry) => (
+                                            <Cell key={entry.name} fill={entry.color} />
                                         ))}
                                     </Pie>
                                 </PieChart>
@@ -244,7 +244,7 @@ export function ReportsSection() {
                         <h3 className="text-base font-semibold text-foreground">Báo cáo gần đây</h3>
                         <p className="text-sm text-muted-foreground mt-0.5">Báo cáo đã tạo của bạn</p>
                     </div>
-                    <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
+                    <button type="button" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
                         <FileText className="w-4 h-4" />
                         Tạo mới
                     </button>
@@ -276,7 +276,7 @@ export function ReportsSection() {
                                         Đang tạo...
                                     </div>
                                 ) : (
-                                    <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
+                                    <button type="button" className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
                                         <Download className="w-4 h-4" />
                                         Tải xuống
                                     </button>

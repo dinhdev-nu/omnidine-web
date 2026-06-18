@@ -2,11 +2,11 @@ import React, { useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import OrderFilters from './components/OrderFilters';
 import OrderTable from './components/OrderTable';
-import Button from '../../components/Button';
-import Icon from '../../components/AppIcon';
+import Button from '../../ui/Button';
+import Icon from '../../ui/AppIcon';
 import { useOrderManagement } from './hooks/useOrderManagement';
-import { POS_BASE_PATH } from '@/routes/pos-route';
-import type { Order } from '@/types/order-type';
+import { POS_BASE_PATH } from '@/routes/pos-route-config';
+import type { Order } from '@/types/domain/order';
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -38,10 +38,9 @@ const OrderSection: React.FC = () => {
 
     const handleFilterChange = useCallback(
         (key: string, value: string) => {
-            const filterKey = key as keyof typeof filters;
-            onFilterChange({ [filterKey]: value } as Partial<typeof filters>);
+            onFilterChange({ [key]: value } as Parameters<typeof onFilterChange>[0]);
         },
-        [filters, onFilterChange]
+        [onFilterChange]
     );
 
     const handleCreateOrder = useCallback(() => {

@@ -5,10 +5,10 @@ import {
   login,
   send2faOtp, verify2faOtp,
   forgotPassword, verifyResetPasswordOtp, resetPassword,
-} from "@/services/auths"
+} from "@/services/auth"
 import { AUTH_ROUTE_PATHS } from "@/features/auth/constants"
-import { SETTINGS_DEFAULT_PATH } from "@/routes/setting-route-config"
-import { toAppError } from "@/services/error"
+import { SETTINGS_DEFAULT_PATH } from "@/routes/settings-route-config"
+import { toAppError } from "@/services/core/error"
 import { useAuthStore } from "@/stores/auth-store"
 
 interface SignInForm {

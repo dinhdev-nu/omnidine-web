@@ -29,22 +29,22 @@ const SOCIAL_LINKS: SocialLink[] = [
     {
         alt: "GitHub",
         href: "/#github",
-        src: "/assets/home/PHN2ZyB3aW.svg",
+        src: "/assets/home/landing-icon-01.svg",
     },
     {
         alt: "X",
         href: "/#x",
-        src: "/assets/home/PHN2ZyB3aW_2.svg",
+        src: "/assets/home/landing-icon-02.svg",
     },
     {
         alt: "Discord",
         href: "/#discord",
-        src: "/assets/home/PHN2ZyB3aW_3.svg",
+        src: "/assets/home/landing-icon-03.svg",
     },
     {
         alt: "Linkedin",
         href: "/#linkedin",
-        src: "/assets/home/PHN2ZyB3aW_4.svg",
+        src: "/assets/home/landing-icon-04.svg",
     },
 ]
 
@@ -85,7 +85,7 @@ function SocialIconLink({ link }: { link: SocialLink }) {
 
 function ThemeLightButton() {
     return (
-        <button
+        <button type="button"
             aria-label="light theme"
             className="!flex !size-6 shrink-0 items-center justify-center gap-1 rounded-full !p-[3px] font-normal text-[--text-secondary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-secondary] hover:text-[--text-primary] focus-visible:ring-2 data-[selected='true']:bg-[--surface-tertiary] data-[selected='true']:text-[--text-primary] dark:text-[--dark-text-secondary] dark:hover:bg-[--dark-surface-secondary] dark:hover:text-[--dark-text-primary] dark:data-[selected='true']:bg-[--dark-surface-tertiary] dark:data-[selected='true']:text-[--dark-text-primary]"
             data-selected="false"
@@ -110,7 +110,7 @@ function ThemeLightButton() {
 
 function ThemeSystemButton() {
     return (
-        <button
+        <button type="button"
             aria-label="system theme"
             className="!flex !size-6 shrink-0 items-center justify-center gap-1 rounded-full !p-[3px] font-normal text-[--text-secondary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-secondary] hover:text-[--text-primary] focus-visible:ring-2 data-[selected='true']:bg-[--surface-tertiary] data-[selected='true']:text-[--text-primary] dark:text-[--dark-text-secondary] dark:hover:bg-[--dark-surface-secondary] dark:hover:text-[--dark-text-primary] dark:data-[selected='true']:bg-[--dark-surface-tertiary] dark:data-[selected='true']:text-[--dark-text-primary]"
             data-selected="true"
@@ -135,7 +135,7 @@ function ThemeSystemButton() {
 
 function ThemeDarkButton() {
     return (
-        <button
+        <button type="button"
             aria-label="dark theme"
             className="!flex !size-6 shrink-0 items-center justify-center gap-1 rounded-full !p-[3px] font-normal text-[--text-secondary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-secondary] hover:text-[--text-primary] focus-visible:ring-2 data-[selected='true']:bg-[--surface-tertiary] data-[selected='true']:text-[--text-primary] dark:text-[--dark-text-secondary] dark:hover:bg-[--dark-surface-secondary] dark:hover:text-[--dark-text-primary] dark:data-[selected='true']:bg-[--dark-surface-tertiary] dark:data-[selected='true']:text-[--dark-text-primary]"
             data-selected="false"

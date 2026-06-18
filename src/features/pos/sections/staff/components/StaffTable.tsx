@@ -2,8 +2,8 @@ import { memo } from 'react';
 import Icon from '@/components/AppIcon';
 import Image from '@/components/AppImage';
 import { cn } from '@/lib/utils';
-import Button from '../../../components/Button';
-import type { StaffStatus } from '@/types/staff-type';
+import Button from '../../../ui/Button';
+import type { StaffStatus } from '@/types/domain/staff';
 import type { StaffListItem } from './StaffCard';
 
 interface StaffTableProps {

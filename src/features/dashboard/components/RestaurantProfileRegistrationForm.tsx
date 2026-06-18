@@ -3,7 +3,7 @@ import {
     useCreateRestaurantActions,
     useCreateRestaurantMeta,
     useCreateRestaurantState,
-} from '@/features/new/FormProvider';
+} from '@/features/restaurant-onboarding/FormProvider';
 import {
     MOCK_PROVINCES,
     MOCK_DISTRICTS,
@@ -11,8 +11,8 @@ import {
     PRICE_RANGES,
     weekDays,
     DEFAULT_DAILY_OPERATING_HOUR,
-} from '@/features/new/constants';
-import type { DayKey, RestaurantDTO } from '@/features/new/constants';
+} from '@/features/restaurant-onboarding/constants';
+import type { DayKey, RestaurantDTO } from '@/features/restaurant-onboarding/constants';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -39,7 +39,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
-import type { SlugCheckStatus } from '@/features/new/FormProvider';
+import type { SlugCheckStatus } from '@/features/restaurant-onboarding/FormProvider';
 import { Button } from '@/components/ui/button';
 
 const TIMEZONE_OPTIONS = [

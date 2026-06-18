@@ -1,21 +1,16 @@
-import { useEffect, useState } from "react"
-import type { Order } from "@/types/order-type"
+import { useMemo } from "react"
+import type { Order } from "@/types/domain/order"
 import { generateIdempotencyKey } from "../utils/payment"
 
 export function useIdempotencyKey(
   restaurantId: string,
   orderData: Order | null
 ): string {
-  const [key, setKey] = useState("")
-
-  useEffect(() => {
+  return useMemo(() => {
     if (!restaurantId || !orderData?._id) {
-      setKey("")
-      return
+      return ""
     }
 
-    setKey(generateIdempotencyKey())
+    return generateIdempotencyKey()
   }, [restaurantId, orderData?._id])
-
-  return key
 }

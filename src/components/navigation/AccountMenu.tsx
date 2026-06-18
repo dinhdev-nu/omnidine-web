@@ -23,9 +23,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { AUTH_ROUTE_PATHS } from "@/features/auth/constants"
 import { ACCOUNT_SECTION_PATHS } from "@/features/settings/account"
-import { NEW_RESTAURANT_ROUTE_PATH } from "@/routes/new-restaurant-route"
-import { PUBLIC_RESTAURANTS_ROUTE_PATH } from "@/routes/public-restaurants-route"
-import { logout } from "@/services/auths"
+import { RESTAURANT_ONBOARDING_ROUTE_PATH } from "@/routes/restaurant-onboarding-route-config"
+import { GUEST_RESTAURANTS_ROUTE_PATH } from "@/routes/guest-restaurants-routes"
+import { logout } from "@/services/auth"
 import { useAuthStore } from "@/stores/auth-store"
 import { useUserStore } from "@/stores/user-store"
 
@@ -130,13 +130,13 @@ export function AccountMenu() {
           <DropdownMenuLabel className={MENU_LABEL_CLASS}>
             Nhà hàng
           </DropdownMenuLabel>
-          <AccountMenuLink icon={Compass} to={PUBLIC_RESTAURANTS_ROUTE_PATH}>
+          <AccountMenuLink icon={Compass} to={GUEST_RESTAURANTS_ROUTE_PATH}>
             Khám phá nhà hàng
           </AccountMenuLink>
           <AccountMenuLink icon={Store} to={OWNER_RESTAURANTS_PATH}>
             Nhà hàng của bạn
           </AccountMenuLink>
-          <AccountMenuLink icon={CirclePlus} to={NEW_RESTAURANT_ROUTE_PATH}>
+          <AccountMenuLink icon={CirclePlus} to={RESTAURANT_ONBOARDING_ROUTE_PATH}>
             Đăng ký đối tác
           </AccountMenuLink>
         </DropdownMenuGroup>
