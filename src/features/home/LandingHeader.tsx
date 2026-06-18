@@ -4,20 +4,22 @@ import { useAuthStore } from "@/stores/auth-store"
 
 export default function LandingHeader() {
   const accessToken = useAuthStore((state) => state.accessToken)
-  const trialHref = accessToken ? SETTINGS_DEFAULT_PATH : AUTH_ROUTE_PATHS.register
+  const trialHref = accessToken
+    ? SETTINGS_DEFAULT_PATH
+    : AUTH_ROUTE_PATHS.register
 
   return (
     <>
-      <header className="sticky left-0 top-0 z-[110] flex w-full flex-col border-b border-[--border] bg-[--surface-primary] dark:border-[--dark-border] dark:bg-[--dark-surface-primary]">
+      <header className="sticky top-0 left-0 z-[110] flex w-full flex-col border-b border-[--border] bg-[--surface-primary] dark:border-[--dark-border] dark:bg-[--dark-surface-primary]">
         <div className="flex h-[--header-height] bg-[--surface-primary] dark:bg-[--dark-surface-primary]">
           <div className="container mx-auto grid w-full grid-cols-[1fr_max-content_1fr] place-items-center content-center items-center px-6 *:first:justify-self-start">
             <a
-              className="gap-1 font-normal shrink-0 rounded-full ring-[--control] focus-visible:ring-2 outline-hidden outline-0 flex items-center ring-offset-2"
+              className="flex shrink-0 items-center gap-1 rounded-full font-normal ring-[--control] ring-offset-2 outline-hidden outline-0 focus-visible:ring-2"
               href="/"
             >
               <img
                 alt="Logo"
-                className="hidden dark:block w-auto max-w-[200px] object-contain h-6 sf-hidden"
+                className="sf-hidden hidden h-6 w-auto max-w-[200px] object-contain dark:block"
                 data-nimg={1}
                 decoding="async"
                 height={20}
@@ -27,7 +29,7 @@ export default function LandingHeader() {
               />
               <img
                 alt="logo"
-                className="dark:hidden w-auto max-w-[200px] object-contain h-6"
+                className="h-6 w-auto max-w-[200px] object-contain dark:hidden"
                 data-nimg={1}
                 decoding="async"
                 height={20}
@@ -38,7 +40,7 @@ export default function LandingHeader() {
             </a>
             <nav
               aria-label="Main"
-              className="z-1 relative flex-col justify-center lg:flex hidden"
+              className="relative z-1 hidden flex-col justify-center lg:flex"
               data-orientation="horizontal"
               dir="ltr"
             >
@@ -49,10 +51,11 @@ export default function LandingHeader() {
                   dir="ltr"
                 >
                   <li className="relative items-center gap-0.5">
-                    <button type="button"
+                    <button
+                      type="button"
                       aria-controls="radix-_r_0_-content-radix-_r_1_"
                       aria-expanded="false"
-                      className="gap-1 font-normal shrink-0 rounded-full ring-[--control] focus-visible:ring-2 outline-hidden outline-0 inline-flex items-center pb-px pl-3 pr-2 tracking-tight hover:bg-[--surface-tertiary] dark:hover:bg-[--dark-surface-tertiary] lg:h-7"
+                      className="inline-flex shrink-0 items-center gap-1 rounded-full pr-2 pb-px pl-3 font-normal tracking-tight ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 lg:h-7 dark:hover:bg-[--dark-surface-tertiary]"
                       data-radix-collection-item=""
                       data-state="closed"
                       id="radix-_r_0_-trigger-radix-_r_1_"
@@ -68,7 +71,7 @@ export default function LandingHeader() {
                       >
                         <path
                           clipRule="evenodd"
-                          d="M3.13523 6.15803C3.3241 5.95657 3.64052 5.94637 3.84197 6.13523L7.5 9.56464L11.158 6.13523C11.3595 5.94637 11.6759 5.95657 11.8648 6.15803C12.0536 6.35949 12.0434 6.67591 11.842 6.86477L7.84197 10.6148C7.64964 10.7951 7.35036 10.7951 7.15803 10.6148L3.15803 6.86477C2.95657 6.67591 2.94637 6.35949 3.13523 6.15803Z"
+                          d="M3.14 6.16C3.32 5.96 3.64 5.95 3.84 6.14L7.5 9.56L11.16 6.14C11.36 5.95 11.68 5.96 11.86 6.16C12.05 6.36 12.04 6.68 11.84 6.86L7.84 10.61C7.65 10.8 7.35 10.8 7.16 10.61L3.16 6.86C2.96 6.68 2.95 6.36 3.14 6.16Z"
                           fill="currentColor"
                           fillRule="evenodd"
                         ></path>
@@ -77,7 +80,7 @@ export default function LandingHeader() {
                   </li>
                   <li>
                     <a
-                      className="gap-1 font-normal shrink-0 rounded-full ring-[--control] focus-visible:ring-2 outline-hidden outline-0 inline-flex h-6 items-center justify-center px-3 pb-px tracking-tight hover:bg-[--surface-tertiary] dark:hover:bg-[--dark-surface-tertiary] lg:h-7"
+                      className="inline-flex h-6 shrink-0 items-center justify-center gap-1 rounded-full px-3 pb-px font-normal tracking-tight ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 lg:h-7 dark:hover:bg-[--dark-surface-tertiary]"
                       data-radix-collection-item=""
                       href="/#pricing"
                     >
@@ -89,13 +92,13 @@ export default function LandingHeader() {
             </nav>
             <div className="hidden items-center gap-2 !justify-self-end lg:flex">
               <a
-                className="gap-1 font-normal shrink-0 rounded-full ring-[--control] focus-visible:ring-2 outline-hidden outline-0 bg-[--surface-secondary] text-[--text-primary] border-[--border] border dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:border-[--dark-border] hover:bg-[--surface-tertiary] dark:hover:bg-[--dark-surface-tertiary] inline-flex items-center justify-center px-3.5 text-sm h-8 md:px-5 !px-3.5"
+                className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] !px-3.5 px-3.5 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:px-5 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
                 href={AUTH_ROUTE_PATHS.login}
               >
                 Đăng Nhập
               </a>
               <a
-                className="gap-1 font-normal shrink-0 rounded-full ring-[--control] focus-visible:ring-2 outline-hidden outline-0 bg-[--accent-500] hover:bg-[--accent-600] text-[--text-on-accent-primary] border-[--accent-600] inline-flex items-center justify-center px-3.5 text-sm h-8 md:px-5 !px-3.5"
+                className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-full border-[--accent-600] bg-[--accent-500] !px-3.5 px-3.5 text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:px-5"
                 href={trialHref}
               >
                 Dùng Thử Miễn Phí
@@ -105,5 +108,5 @@ export default function LandingHeader() {
         </div>
       </header>
     </>
-  );
+  )
 }

@@ -50,7 +50,9 @@ interface RequestWithRetryFlag {
 
 let refreshPromise: Promise<string> | null = null
 
-export function unwrapResponseData<T>(response: AxiosResponse<ApiSuccessResponse<T>>): T {
+export function unwrapResponseData<T>(
+  response: AxiosResponse<ApiSuccessResponse<T>>
+): T {
   return response.data.data
 }
 
@@ -58,18 +60,6 @@ export function unwrapResponseData<T>(response: AxiosResponse<ApiSuccessResponse
  * Gọi khi app khởi động để lấy lại access token từ HttpOnly refresh cookie.
  * Trả về token mới hoặc null nếu cookie hết hạn / không tồn tại.
  */
-export async function refreshAccessToken(): Promise<string | null> {
-  try {
-    const res = await refreshClient.post<ApiSuccessResponse<{ access_token: string }>>("/auths/refresh-token")
-    const token = res.data.data.access_token
-    setClientToken(token)
-    return token
-  } catch {
-    setClientToken(null)
-    return null
-  }
-}
-
 apiClient.interceptors.request.use((config) => {
   if (_accessToken) {
     config.headers.Authorization = `Bearer ${_accessToken}`
@@ -82,7 +72,9 @@ apiClient.interceptors.response.use(
   async (error) => {
     const status = error?.response?.status
     const errorCode = error?.response?.data?.errorCode
-    const originalConfig = error?.config as (typeof error.config & RequestWithRetryFlag) | undefined
+    const originalConfig = error?.config as
+      | (typeof error.config & RequestWithRetryFlag)
+      | undefined
 
     if (
       status === 401 &&
@@ -94,8 +86,10 @@ apiClient.interceptors.response.use(
 
       try {
         if (!refreshPromise) {
-            refreshPromise = refreshClient
-              .post<ApiSuccessResponse<{ access_token: string }>>("/auths/refresh-token")
+          refreshPromise = refreshClient
+            .post<ApiSuccessResponse<{ access_token: string }>>(
+              "/auths/refresh-token"
+            )
             .then((res) => {
               const newToken = res.data.data.access_token
               setClientToken(newToken)

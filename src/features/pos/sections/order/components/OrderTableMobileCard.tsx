@@ -9,12 +9,11 @@ import {
   DropdownMenuSeparator,
 } from "../../../ui/DropdownMenu"
 import {
-  formatCurrency,
-  formatDateTime,
   TableOrderStatusBadge,
   TablePaymentStatusBadge,
   TableOrderItemStatusBadge,
 } from "./order-display"
+import { formatCurrency, formatDateTime } from "./order-format"
 import {
   getCustomerDisplayName,
   getOrderSourceLabel,

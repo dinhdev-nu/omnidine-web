@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 
 import { useFetch } from "@/hooks/useFetch"
@@ -75,7 +75,10 @@ const GuestOrderingScreen = ({
 }: GuestOrderingProps) => {
   const profile = useUserStore((state) => state.profile)
   const user = profile as OrderingUser | null
-  const tableFetchArgs = useMemo<[string]>(() => [tableQrCode ?? ""], [tableQrCode])
+  const tableFetchArgs = useMemo<[string]>(
+    () => [tableQrCode ?? ""],
+    [tableQrCode]
+  )
 
   // --- API Data Fetching ---
   const { data: tableData, error: tableError } = useFetch(
@@ -87,7 +90,10 @@ const GuestOrderingScreen = ({
   const isTableFixed = !!tableQrCode
   const resolvedSlug = tableData?.restaurant?.slug || propRestaurantSlug
   const initialTable = tableData?.table_id || null
-  const menuFetchArgs = useMemo<[string]>(() => [resolvedSlug ?? ""], [resolvedSlug])
+  const menuFetchArgs = useMemo<[string]>(
+    () => [resolvedSlug ?? ""],
+    [resolvedSlug]
+  )
 
   const { data: menuData, error: menuError } = useFetch(
     getPublicMenu,
@@ -120,20 +126,45 @@ const GuestOrderingScreen = ({
     [debouncedQuery, resolvedSlug]
   )
 
-  const { data: searchData } = useFetch(
-    searchPublicMenu,
-    searchFetchArgs,
-    { enabled: !!resolvedSlug && !!debouncedQuery }
-  )
-  const [selectedOrderType, setSelectedOrderType] = useState<PublicOrderType>(
-    isTableFixed ? "dine_in" : ""
-  )
-  const [selectedTableId, setSelectedTableId] = useState<string | null>(
-    initialTable
-  )
-  const [customerName, setCustomerName] = useState<string>("")
-  const [customerContact, setCustomerContact] = useState<string>("")
+  const { data: searchData } = useFetch(searchPublicMenu, searchFetchArgs, {
+    enabled: !!resolvedSlug && !!debouncedQuery,
+  })
+  const [flexibleOrderType, setFlexibleOrderType] =
+    useState<PublicOrderType>("")
+  const [manualSelectedTableId, setManualSelectedTableId] = useState<
+    string | null
+  >(null)
+  const [customerNameOverride, setCustomerNameOverride] = useState<
+    string | null
+  >(null)
+  const [customerContactOverride, setCustomerContactOverride] = useState<
+    string | null
+  >(null)
   const [orderNotes, setOrderNotes] = useState<string>("")
+  const defaultCustomerName = user?.full_name || user?.user_name || ""
+  const defaultCustomerContact = user?.phone || ""
+  const selectedOrderType = isTableFixed ? "dine_in" : flexibleOrderType
+  const selectedTableId = isTableFixed ? initialTable : manualSelectedTableId
+  const customerName = customerNameOverride ?? defaultCustomerName
+  const customerContact = customerContactOverride ?? defaultCustomerContact
+
+  const handleOrderTypeChange = useCallback(
+    (value: PublicOrderType) => {
+      if (!isTableFixed) {
+        setFlexibleOrderType(value)
+      }
+    },
+    [isTableFixed]
+  )
+
+  const handleTableChange = useCallback(
+    (value: string) => {
+      if (!isTableFixed) {
+        setManualSelectedTableId(value || null)
+      }
+    },
+    [isTableFixed]
+  )
 
   const availableTablesFetchArgs = useMemo<[string]>(
     () => [restaurantId ?? ""],
@@ -145,30 +176,6 @@ const GuestOrderingScreen = ({
     availableTablesFetchArgs,
     { enabled: !!restaurantId && !isTableFixed }
   )
-
-  useEffect(() => {
-    if (isTableFixed) {
-      setSelectedOrderType("dine_in")
-    }
-  }, [isTableFixed])
-
-  useEffect(() => {
-    if (initialTable && !selectedTableId) {
-      setSelectedTableId(initialTable)
-    }
-  }, [initialTable, selectedTableId])
-
-  useEffect(() => {
-    if (!customerName && user?.full_name) {
-      setCustomerName(user.full_name)
-    } else if (!customerName && user?.user_name) {
-      setCustomerName(user.user_name)
-    }
-
-    if (!customerContact && user?.phone) {
-      setCustomerContact(user.phone)
-    }
-  }, [customerContact, customerName, user])
 
   const categories = useMemo(() => {
     if (!menuData?.categories) return []
@@ -210,27 +217,49 @@ const GuestOrderingScreen = ({
         },
       ]
     }
-    return (availableTablesData?.data ?? [])
-      .map((table) => ({
-        value: table._id || table.id || "",
+    return (availableTablesData?.data ?? []).reduce<
+      Array<{ value: string; label: string }>
+    >((options, table) => {
+      const value = table._id || table.id || ""
+      if (!value) {
+        return options
+      }
+
+      options.push({
+        value,
         label: `${table.table_number}${table.name ? ` - ${table.name}` : ""} (${table.capacity})`,
-      }))
-      .filter((option) => option.value)
+      })
+      return options
+    }, [])
   }, [availableTablesData?.data, isTableFixed, tableData])
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const handleClearCartShortcut = (event: KeyboardEvent) => {
       if (event.key === "F4") {
         event.preventDefault()
         if (cartItems.length > 0) {
           setShowClearCartDialog(true)
         }
       }
+    }
 
+    window.addEventListener("keydown", handleClearCartShortcut)
+    return () => window.removeEventListener("keydown", handleClearCartShortcut)
+  }, [cartItems.length])
+
+  useEffect(() => {
+    const handleMobileCartShortcut = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setShowMobileCart(false)
       }
+    }
 
+    window.addEventListener("keydown", handleMobileCartShortcut)
+    return () => window.removeEventListener("keydown", handleMobileCartShortcut)
+  }, [])
+
+  useEffect(() => {
+    const handleCategoryShortcut = (event: KeyboardEvent) => {
       if (
         event.key >= "1" &&
         event.key <= "5" &&
@@ -244,9 +273,9 @@ const GuestOrderingScreen = ({
       }
     }
 
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [cartItems.length, categories])
+    window.addEventListener("keydown", handleCategoryShortcut)
+    return () => window.removeEventListener("keydown", handleCategoryShortcut)
+  }, [categories])
 
   const displayedItems = useMemo(() => {
     if (debouncedQuery && searchData?.data) {
@@ -332,10 +361,23 @@ const GuestOrderingScreen = ({
     )
   }
 
-  const handleClearCart = () => {
+  const handleClearCart = useCallback(() => {
     setCartItems([])
     toast.success("Đã xóa toàn bộ món trong giỏ hàng")
-  }
+  }, [])
+
+  const handleOpenClearCartDialog = useCallback(() => {
+    setShowClearCartDialog(true)
+  }, [])
+
+  const handleCloseClearCartDialog = useCallback(() => {
+    setShowClearCartDialog(false)
+  }, [])
+
+  const handleConfirmClearCart = useCallback(() => {
+    handleClearCart()
+    setShowClearCartDialog(false)
+  }, [handleClearCart])
 
   const handleCreateOrder = async () => {
     if (!isOperational) {
@@ -413,159 +455,159 @@ const GuestOrderingScreen = ({
   }
 
   return (
-    <GuestOrderingLayout
-      header={
-        <Header
-          isOperational={isOperational}
-          notifications={[]}
-          user={user}
-          restaurantName={menuData?.restaurant?.name || "Nhà hàng"}
-          restaurantLogo={menuData?.restaurant?.logo_url || null}
-          restaurantSlug={resolvedSlug}
-        />
-      }
-      menuPanel={
-        <div
-          className={[
-            "bg-surface flex-1 flex-col overflow-hidden border-r border-border",
-            "pl-4 sm:pl-6 lg:pl-8 xl:pl-12", // Added left padding
-            showMobileCart ? "hidden lg:flex" : "flex",
-          ].join(" ")}
-        >
-          <div className="border-b border-border p-4">
-            <h1 className="mb-4 text-xl font-semibold text-foreground">
-              Thực đơn
-            </h1>
+    <>
+      <GuestOrderingLayout
+        header={
+          <Header
+            isOperational={isOperational}
+            notifications={[]}
+            user={user}
+            restaurantName={menuData?.restaurant?.name || "Nhà hàng"}
+            restaurantLogo={menuData?.restaurant?.logo_url || null}
+            restaurantSlug={resolvedSlug}
+          />
+        }
+        menuPanel={
+          <div
+            className={[
+              "bg-surface flex-1 flex-col overflow-hidden border-r border-border",
+              "pl-4 sm:pl-6 lg:pl-8 xl:pl-12", // Added left padding
+              showMobileCart ? "hidden lg:flex" : "flex",
+            ].join(" ")}
+          >
+            <div className="border-b border-border p-4">
+              <h1 className="mb-4 text-xl font-semibold text-foreground">
+                Thực đơn
+              </h1>
 
-            <div className="relative mb-4">
-              <Input
-                type="text"
-                placeholder="Tìm món theo tên..."
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                className="w-full pr-10"
-              />
-              <Icon
-                name="Search"
-                size={18}
-                className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground"
+              <div className="relative mb-4">
+                <Input
+                  type="text"
+                  placeholder="Tìm món theo tên..."
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  className="w-full pr-10"
+                />
+                <Icon
+                  name="Search"
+                  size={18}
+                  className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground"
+                />
+              </div>
+
+              <h2 className="mb-3 text-lg font-semibold text-foreground">
+                Danh mục
+              </h2>
+              <MenuCategory
+                categories={[
+                  { id: "all", name: "Tất cả", itemCount: menuItems.length },
+                  ...categories,
+                ]}
+                activeCategory={activeCategory}
+                onCategoryChange={setActiveCategory}
               />
             </div>
 
-            <h2 className="mb-3 text-lg font-semibold text-foreground">
-              Danh mục
-            </h2>
-            <MenuCategory
-              categories={[
-                { id: "all", name: "Tất cả", itemCount: menuItems.length },
-                ...categories,
-              ]}
-              activeCategory={activeCategory}
-              onCategoryChange={setActiveCategory}
-            />
+            <div className="flex-1 overflow-y-auto p-4">
+              <MenuGrid
+                menuItems={displayedItems}
+                onAddToCart={handleAddToCart}
+              />
+            </div>
           </div>
-
-          <div className="flex-1 overflow-y-auto p-4">
-            <MenuGrid
-              menuItems={displayedItems}
-              onAddToCart={handleAddToCart}
-            />
-          </div>
-        </div>
-      }
-      cartPanel={
-        <div
-          className={`bg-surface w-full border-l border-border lg:w-96 ${showMobileCart ? "flex" : "hidden lg:flex"} flex-col overflow-hidden`}
-        >
-          <div className="flex flex-shrink-0 items-center justify-between border-b border-border p-4">
-            <h2 className="text-lg font-semibold text-foreground">Đơn hàng</h2>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowMobileCart(false)}
-              className="lg:hidden"
-            >
-              <Icon name="X" size={20} />
-            </Button>
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-4">
-            <OrderCart
-              cartItems={cartItems}
-              onUpdateQuantity={handleUpdateQuantity}
-              onRemoveItem={handleRemoveItem}
-              onUpdateNote={handleUpdateNote}
-              onClearCart={() => setShowClearCartDialog(true)}
-              orderType={selectedOrderType}
-              onOrderTypeChange={setSelectedOrderType}
-              selectedTableId={selectedTableId}
-              onTableChange={setSelectedTableId}
-              tableOptions={tableOptions}
-              user={user}
-              customerName={customerName}
-              onCustomerNameChange={setCustomerName}
-              customerContact={customerContact}
-              onCustomerContactChange={setCustomerContact}
-              orderNotes={orderNotes}
-              onOrderNotesChange={setOrderNotes}
-              sourceLabel={isTableFixed ? "qr" : "app"}
-              isTableFixed={isTableFixed}
-            />
-          </div>
-
-          {cartItems.length > 0 && (
-            <div className="bg-surface flex-shrink-0 space-y-2 border-t border-border p-4">
+        }
+        cartPanel={
+          <div
+            className={`bg-surface w-full border-l border-border lg:w-96 ${showMobileCart ? "flex" : "hidden lg:flex"} flex-col overflow-hidden`}
+          >
+            <div className="flex flex-shrink-0 items-center justify-between border-b border-border p-4">
+              <h2 className="text-lg font-semibold text-foreground">
+                Đơn hàng
+              </h2>
               <Button
-                variant="default"
-                size="default"
-                fullWidth
-                iconName={isCreatingOrder ? "Loader2" : "FileText"}
-                iconPosition="left"
-                onClick={handleCreateOrder}
-                disabled={isCreatingOrder || !isOperational}
-                className={`hover-scale touch-target ${isCreatingOrder ? "animate-pulse" : ""}`}
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowMobileCart(false)}
+                className="lg:hidden"
               >
-                {isCreatingOrder ? "Đang tạo đơn..." : "Tạo đơn hàng"}
+                <Icon name="X" size={20} />
               </Button>
             </div>
-          )}
-        </div>
-      }
-      mobileCartButton={
-        <div className="fixed right-4 bottom-4 z-1000 lg:hidden">
-          <Button
-            variant="default"
-            size="lg"
-            onClick={() => setShowMobileCart(true)}
-            className="shadow-modal hover-scale relative rounded-full"
-          >
-            <Icon name="ShoppingCart" size={24} className="mr-2" />
-            <span>Giỏ hàng ({totalItems})</span>
+
+            <div className="flex-1 overflow-y-auto p-4">
+              <OrderCart
+                cartItems={cartItems}
+                onUpdateQuantity={handleUpdateQuantity}
+                onRemoveItem={handleRemoveItem}
+                onUpdateNote={handleUpdateNote}
+                onClearCart={handleOpenClearCartDialog}
+                orderType={selectedOrderType}
+                onOrderTypeChange={handleOrderTypeChange}
+                selectedTableId={selectedTableId}
+                onTableChange={handleTableChange}
+                tableOptions={tableOptions}
+                user={user}
+                customerName={customerName}
+                onCustomerNameChange={setCustomerNameOverride}
+                customerContact={customerContact}
+                onCustomerContactChange={setCustomerContactOverride}
+                orderNotes={orderNotes}
+                onOrderNotesChange={setOrderNotes}
+                sourceLabel={isTableFixed ? "qr" : "app"}
+                isTableFixed={isTableFixed}
+              />
+            </div>
+
             {cartItems.length > 0 && (
-              <span className="bg-error text-error-foreground absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full text-xs">
-                {totalItems}
-              </span>
+              <div className="bg-surface flex-shrink-0 space-y-2 border-t border-border p-4">
+                <Button
+                  variant="default"
+                  size="default"
+                  fullWidth
+                  iconName={isCreatingOrder ? "Loader2" : "FileText"}
+                  iconPosition="left"
+                  onClick={handleCreateOrder}
+                  disabled={isCreatingOrder || !isOperational}
+                  className={`hover-scale touch-target ${isCreatingOrder ? "animate-pulse" : ""}`}
+                >
+                  {isCreatingOrder ? "Đang tạo đơn..." : "Tạo đơn hàng"}
+                </Button>
+              </div>
             )}
-          </Button>
-        </div>
-      }
-      clearDialog={
-        <ConfirmationDialog
-          isOpen={showClearCartDialog}
-          onClose={() => setShowClearCartDialog(false)}
-          onConfirm={() => {
-            handleClearCart()
-            setShowClearCartDialog(false)
-          }}
-          title="Xóa giỏ hàng"
-          message="Bạn có chắc chắn muốn xóa tất cả món trong giỏ hàng?"
-          confirmText="Xóa tất cả"
-          cancelText="Hủy"
-          variant="danger"
-          icon="Trash2"
-        />
-      }
-    />
+          </div>
+        }
+        mobileCartButton={
+          <div className="fixed right-4 bottom-4 z-1000 lg:hidden">
+            <Button
+              variant="default"
+              size="lg"
+              onClick={() => setShowMobileCart(true)}
+              className="shadow-modal hover-scale relative rounded-full"
+            >
+              <Icon name="ShoppingCart" size={24} className="mr-2" />
+              <span>Giỏ hàng ({totalItems})</span>
+              {cartItems.length > 0 && (
+                <span className="bg-error text-error-foreground absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full text-xs">
+                  {totalItems}
+                </span>
+              )}
+            </Button>
+          </div>
+        }
+      />
+
+      <ConfirmationDialog
+        isOpen={showClearCartDialog}
+        onClose={handleCloseClearCartDialog}
+        onConfirm={handleConfirmClearCart}
+        title="Xóa giỏ hàng"
+        message="Bạn có chắc chắn muốn xóa tất cả món trong giỏ hàng?"
+        confirmText="Xóa tất cả"
+        cancelText="Hủy"
+        variant="danger"
+        icon="Trash2"
+      />
+    </>
   )
 }
 

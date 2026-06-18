@@ -3,8 +3,11 @@ import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import {
   login,
-  send2faOtp, verify2faOtp,
-  forgotPassword, verifyResetPasswordOtp, resetPassword,
+  send2faOtp,
+  verify2faOtp,
+  forgotPassword,
+  verifyResetPasswordOtp,
+  resetPassword,
 } from "@/services/auth"
 import { AUTH_ROUTE_PATHS } from "@/features/auth/constants"
 import { SETTINGS_DEFAULT_PATH } from "@/routes/settings-route-config"
@@ -65,6 +68,14 @@ export interface UseSignInReturn {
   handleBackToSignIn: () => void
 }
 
+const handleGoogleLogin = () => {
+  window.location.href = `${import.meta.env.VITE_API_URL}/auths/oauth/google`
+}
+
+const handleAppleLogin = () => {
+  // TODO: implement Apple OAuth
+}
+
 export function useSignIn(): UseSignInReturn {
   const setAccessToken = useAuthStore((state) => state.setAccessToken)
   const tempToken = useAuthStore((state) => state.tempToken)
@@ -78,7 +89,11 @@ export function useSignIn(): UseSignInReturn {
   const [twoFaCountdown, setTwoFaCountdown] = useState(0)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [rememberMe, setRememberMe] = useState(false)
-  const [form, setForm] = useState<SignInForm>({ email: "", phoneNumber: "", password: "" })
+  const [form, setForm] = useState<SignInForm>({
+    email: "",
+    phoneNumber: "",
+    password: "",
+  })
 
   // Forgot password state
   const [forgotEmail, setForgotEmail] = useState("")
@@ -131,7 +146,8 @@ export function useSignIn(): UseSignInReturn {
     // attempt router navigation first, fallback to full navigation if it didn't take
     navigate(AUTH_ROUTE_PATHS.login, { replace: true })
     setTimeout(() => {
-      if (location.pathname !== AUTH_ROUTE_PATHS.login) window.location.href = AUTH_ROUTE_PATHS.login
+      if (location.pathname !== AUTH_ROUTE_PATHS.login)
+        window.location.href = AUTH_ROUTE_PATHS.login
     }, 50)
   }
 
@@ -147,7 +163,8 @@ export function useSignIn(): UseSignInReturn {
     setErrorMessage(null)
     navigate(AUTH_ROUTE_PATHS.login, { replace: true })
     setTimeout(() => {
-      if (location.pathname !== AUTH_ROUTE_PATHS.login) window.location.href = AUTH_ROUTE_PATHS.login
+      if (location.pathname !== AUTH_ROUTE_PATHS.login)
+        window.location.href = AUTH_ROUTE_PATHS.login
     }, 50)
   }
 
@@ -157,7 +174,8 @@ export function useSignIn(): UseSignInReturn {
     setErrorMessage(null)
     navigate(AUTH_ROUTE_PATHS["forgot-password"], { replace: true })
     setTimeout(() => {
-      if (location.pathname !== AUTH_ROUTE_PATHS["forgot-password"]) window.location.href = AUTH_ROUTE_PATHS["forgot-password"]
+      if (location.pathname !== AUTH_ROUTE_PATHS["forgot-password"])
+        window.location.href = AUTH_ROUTE_PATHS["forgot-password"]
     }, 50)
   }
 
@@ -252,7 +270,8 @@ export function useSignIn(): UseSignInReturn {
   }
 
   const handleForgotResendOtp = async () => {
-    if (!forgotEmail.trim() || forgotCountdown > 0 || isResendingForgotOtp) return
+    if (!forgotEmail.trim() || forgotCountdown > 0 || isResendingForgotOtp)
+      return
     setIsResendingForgotOtp(true)
     try {
       const { session_token } = await forgotPassword(forgotEmail.trim())
@@ -270,7 +289,10 @@ export function useSignIn(): UseSignInReturn {
     setIsLoading(true)
     setErrorMessage(null)
     try {
-      const { reset_grant_token } = await verifyResetPasswordOtp(forgotSessionToken, forgotOtp)
+      const { reset_grant_token } = await verifyResetPasswordOtp(
+        forgotSessionToken,
+        forgotOtp
+      )
       setForgotResetGrantToken(reset_grant_token)
       setSignInStep("forgot-reset")
     } catch (error) {
@@ -292,14 +314,6 @@ export function useSignIn(): UseSignInReturn {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handleGoogleLogin = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/auths/oauth/google`
-  }
-
-  const handleAppleLogin = () => {
-    // TODO: implement Apple OAuth
   }
 
   return {

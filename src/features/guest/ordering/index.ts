@@ -2,8 +2,6 @@ export { default as Header } from "./components/Header"
 export { default as MenuCategory } from "./components/MenuCategory"
 export { default as MenuGrid } from "./components/MenuGrid"
 export { default as OrderCart } from "./components/OrderCart"
-export { default as OrdersDropdown } from "./components/OrdersDropdown"
-
 
 export type {
   NotificationType,

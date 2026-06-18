@@ -59,6 +59,20 @@ const getNotificationColor = (type: OrderingNotification["type"]) => {
   }
 }
 
+const formatNotificationTime = (isoString: string) => {
+  const date = new Date(isoString)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+
+  if (diffMins < 1) return "Vừa xong"
+  if (diffMins < 60) return `${diffMins} phút trước`
+  const diffHours = Math.floor(diffMins / 60)
+  if (diffHours < 24) return `${diffHours} giờ trước`
+  const diffDays = Math.floor(diffHours / 24)
+  return `${diffDays} ngày trước`
+}
+
 const HeaderClock = () => {
   const [currentTime, setCurrentTime] = useState(new Date())
 
@@ -136,21 +150,9 @@ const Header = ({
       ? DEFAULT_RESTAURANT_LOGO
       : originalRestaurantLogo
   const userAvatarSrc =
-    brokenUserAvatar === userAvatar ? "/assets/home/avatar-placeholder-1.png" : userAvatar
-
-  const formatNotificationTime = (isoString: string) => {
-    const date = new Date(isoString)
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const diffMins = Math.floor(diffMs / 60000)
-
-    if (diffMins < 1) return "Vừa xong"
-    if (diffMins < 60) return `${diffMins} phút trước`
-    const diffHours = Math.floor(diffMins / 60)
-    if (diffHours < 24) return `${diffHours} giờ trước`
-    const diffDays = Math.floor(diffHours / 24)
-    return `${diffDays} ngày trước`
-  }
+    brokenUserAvatar === userAvatar
+      ? "/assets/home/avatar-placeholder-1.png"
+      : userAvatar
 
   const handleLogout = async () => {
     setShowUserMenu(false)
@@ -235,7 +237,8 @@ const Header = ({
 
           {/* Notifications */}
           <div className="relative">
-            <button type="button"
+            <button
+              type="button"
               onClick={() => setShowNotifications(!showNotifications)}
               className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-all duration-200 hover:bg-secondary hover:text-foreground"
             >

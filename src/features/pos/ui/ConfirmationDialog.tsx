@@ -54,18 +54,34 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
 }) => {
   const titleId = React.useId()
   const descriptionId = React.useId()
-
-  if (!isOpen) return null
-
   const styles = variantStyles[variant]
-  const handleClose = () => {
+  const handleClose = React.useCallback(() => {
     if (!isLoading) {
       onClose()
     }
-  }
+  }, [isLoading, onClose])
+  const handleDialogRef = React.useCallback(
+    (dialog: HTMLDialogElement | null) => {
+      if (dialog && !dialog.open) {
+        dialog.showModal()
+      }
+    },
+    []
+  )
+
+  if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-[1300] flex items-center justify-center overflow-hidden p-4">
+    <dialog
+      ref={handleDialogRef}
+      className="fixed inset-0 z-[1300] m-0 flex size-full max-h-none max-w-none items-center justify-center overflow-hidden border-0 bg-transparent p-4 text-inherit backdrop:bg-transparent"
+      aria-labelledby={titleId}
+      aria-describedby={descriptionId}
+      onCancel={(event) => {
+        event.preventDefault()
+        handleClose()
+      }}
+    >
       <button
         type="button"
         aria-label="ÄÃ³ng há»™p thoáº¡i"
@@ -78,8 +94,6 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           "shadow-modal relative mx-4 w-full max-w-md overflow-hidden rounded-lg border border-border bg-card",
           "animate-in duration-200 zoom-in-95 fade-in"
         )}
-        role="dialog"
-        aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
         onClick={(event) => event.stopPropagation()}
@@ -151,7 +165,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           </Button>
         </div>
       </div>
-    </div>
+    </dialog>
   )
 }
 

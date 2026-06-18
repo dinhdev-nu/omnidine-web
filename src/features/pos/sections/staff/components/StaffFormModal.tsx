@@ -1,74 +1,119 @@
-import React from 'react';
-import Icon from '@/components/AppIcon';
-import Image from '@/components/AppImage';
-import { toast } from 'sonner';
-import { uploadSingleFile } from '@/services/uploads';
-import type { StaffPermissions, StaffPosition, StaffStatus } from '@/types/domain/staff';
-import Button from '../../../ui/Button';
-import Input from '../../../ui/Input';
-import Select from '../../../ui/Select';
+import React from "react"
+import Icon from "@/components/AppIcon"
+import Image from "@/components/AppImage"
+import { toast } from "sonner"
+import { uploadSingleFile } from "@/services/uploads"
+import type {
+  StaffPermissions,
+  StaffPosition,
+  StaffStatus,
+} from "@/types/domain/staff"
+import Button from "../../../ui/Button"
+import Input from "../../../ui/Input"
+import Select from "../../../ui/Select"
 
-export type StaffFormMode = 'add' | 'edit';
-export type StaffSubmitSection = 'all' | 'info' | 'account' | 'status' | 'avatar' | 'permissions';
+export type StaffFormMode = "add" | "edit"
+export type StaffSubmitSection =
+  | "all"
+  | "info"
+  | "account"
+  | "status"
+  | "avatar"
+  | "permissions"
 
 export interface StaffFormData {
-  user_id: string;
-  employee_code: string;
-  full_name: string;
-  phone: string;
-  email: string;
-  position: StaffPosition | '';
-  status: StaffStatus;
-  hire_date: string;
-  avatar_url: string;
-  permissions: StaffPermissions;
+  user_id: string
+  employee_code: string
+  full_name: string
+  phone: string
+  email: string
+  position: StaffPosition | ""
+  status: StaffStatus
+  hire_date: string
+  avatar_url: string
+  permissions: StaffPermissions
 }
 
-const EMPTY_STAFF_ERRORS: Partial<Record<keyof StaffFormData, string>> = {};
+const EMPTY_STAFF_ERRORS: Partial<Record<keyof StaffFormData, string>> = {}
 
 const PERMISSIONS_CONFIG = [
-  { key: 'can_discount', label: 'Giảm giá' },
-  { key: 'can_cancel_order', label: 'Hủy đơn' },
-  { key: 'can_process_payment', label: 'Thanh toán' },
-  { key: 'can_refund', label: 'Hoàn tiền' },
-  { key: 'can_view_reports', label: 'Xem báo cáo' },
-  { key: 'can_manage_tables', label: 'Quản lý bàn' },
-  { key: 'can_manage_menu', label: 'Quản lý menu' },
-] as const;
+  { key: "can_discount", label: "Giảm giá" },
+  { key: "can_cancel_order", label: "Hủy đơn" },
+  { key: "can_process_payment", label: "Thanh toán" },
+  { key: "can_refund", label: "Hoàn tiền" },
+  { key: "can_view_reports", label: "Xem báo cáo" },
+  { key: "can_manage_tables", label: "Quản lý bàn" },
+  { key: "can_manage_menu", label: "Quản lý menu" },
+] as const
 
 interface StaffFormModalProps {
-  isOpen: boolean;
-  mode?: StaffFormMode;
-  formData: StaffFormData;
-  errors?: Partial<Record<keyof StaffFormData, string>>;
-  isLoading?: boolean;
-  onClose: () => void;
-  onFieldChange: (field: keyof StaffFormData, value: string | StaffPermissions) => void;
-  onSubmit: (section?: StaffSubmitSection, payload?: { avatarUrl?: string }) => void;
+  isOpen: boolean
+  mode?: StaffFormMode
+  formData: StaffFormData
+  errors?: Partial<Record<keyof StaffFormData, string>>
+  isLoading?: boolean
+  onClose: () => void
+  onFieldChange: (
+    field: keyof StaffFormData,
+    value: string | StaffPermissions
+  ) => void
+  onSubmit: (
+    section?: StaffSubmitSection,
+    payload?: { avatarUrl?: string }
+  ) => void
+}
+
+interface SectionSaveButtonProps {
+  section: Exclude<StaffSubmitSection, "all">
+  isEditMode: boolean
+  isDisabled: boolean
+  onSubmit: (section?: StaffSubmitSection) => void
+}
+
+function SectionSaveButton({
+  section,
+  isEditMode,
+  isDisabled,
+  onSubmit,
+}: SectionSaveButtonProps) {
+  if (!isEditMode) return null
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => onSubmit(section)}
+      disabled={isDisabled}
+      iconName="Save"
+      iconPosition="left"
+    >
+      Lưu phần này
+    </Button>
+  )
 }
 
 // ── Static options ────────────────────────────────────────────────────────────
 
 const ROLE_OPTIONS = [
-  { value: 'manager' as StaffPosition, label: 'Quản lý' },
-  { value: 'cashier' as StaffPosition, label: 'Thu ngân' },
-  { value: 'kitchen' as StaffPosition, label: 'Nhân viên bếp' },
-  { value: 'waiter' as StaffPosition, label: 'Phục vụ' },
-  { value: 'delivery' as StaffPosition, label: 'Giao hàng' },
-];
+  { value: "manager" as StaffPosition, label: "Quản lý" },
+  { value: "cashier" as StaffPosition, label: "Thu ngân" },
+  { value: "kitchen" as StaffPosition, label: "Nhân viên bếp" },
+  { value: "waiter" as StaffPosition, label: "Phục vụ" },
+  { value: "delivery" as StaffPosition, label: "Giao hàng" },
+]
 
 const STATUS_OPTIONS = [
-  { value: 'active' as StaffStatus, label: 'Đang làm việc' },
-  { value: 'inactive' as StaffStatus, label: 'Không hoạt động' },
-  { value: 'on_leave' as StaffStatus, label: 'Đang nghỉ' },
-  { value: 'terminated' as StaffStatus, label: 'Đã nghỉ việc' },
-];
+  { value: "active" as StaffStatus, label: "Đang làm việc" },
+  { value: "inactive" as StaffStatus, label: "Không hoạt động" },
+  { value: "on_leave" as StaffStatus, label: "Đang nghỉ" },
+  { value: "terminated" as StaffStatus, label: "Đã nghỉ việc" },
+]
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
 const StaffFormModal: React.FC<StaffFormModalProps> = ({
   isOpen,
-  mode = 'add',
+  mode = "add",
   formData,
   errors = EMPTY_STAFF_ERRORS,
   isLoading = false,
@@ -76,70 +121,53 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
   onFieldChange,
   onSubmit,
 }) => {
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = React.useState(false);
-  const imagePreview = formData.avatar_url ?? '';
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const [isUploading, setIsUploading] = React.useState(false)
+  const imagePreview = formData.avatar_url ?? ""
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
-  const isEditMode = mode === 'edit';
-  const title = isEditMode ? 'Chỉnh sửa nhân viên' : 'Thêm nhân viên mới';
-  const icon = isEditMode ? 'Edit' : 'UserPlus';
-  const submitText = isEditMode ? 'Lưu thay đổi' : 'Thêm nhân viên';
-  const submitIcon = isEditMode ? 'Save' : 'UserPlus';
-
-  const renderSectionSaveButton = (section: Exclude<StaffSubmitSection, 'all'>) => {
-    if (!isEditMode) return null;
-
-    return (
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => onSubmit(section)}
-        disabled={isLoading || isUploading}
-        iconName="Save"
-        iconPosition="left"
-      >
-        Lưu phần này
-      </Button>
-    );
-  };
+  const isEditMode = mode === "edit"
+  const title = isEditMode ? "Chỉnh sửa nhân viên" : "Thêm nhân viên mới"
+  const icon = isEditMode ? "Edit" : "UserPlus"
+  const submitText = isEditMode ? "Lưu thay đổi" : "Thêm nhân viên"
+  const submitIcon = isEditMode ? "Save" : "UserPlus"
 
   const handleRemoveImage = () => {
-    onFieldChange('avatar_url', '');
-  };
+    onFieldChange("avatar_url", "")
+  }
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const file = e.target.files?.[0]
+    if (!file) return
 
-    setIsUploading(true);
+    setIsUploading(true)
     try {
-      const uploadedInfo = await uploadSingleFile(file);
-      onFieldChange('avatar_url', uploadedInfo.url);
+      const uploadedInfo = await uploadSingleFile(file)
+      onFieldChange("avatar_url", uploadedInfo.url)
 
       if (isEditMode) {
-        onSubmit('avatar', { avatarUrl: uploadedInfo.url });
+        onSubmit("avatar", { avatarUrl: uploadedInfo.url })
       }
 
-      toast.success('Tải ảnh lên thành công');
+      toast.success("Tải ảnh lên thành công")
     } catch (error: Error | unknown) {
-      const err = error as Error;
-      toast.error(err.message || 'Lỗi khi tải ảnh lên');
+      const err = error as Error
+      toast.error(err.message || "Lỗi khi tải ảnh lên")
     } finally {
-      setIsUploading(false);
+      setIsUploading(false)
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = ""
       }
     }
-  };
+  }
 
   const togglePermission = (key: keyof StaffPermissions) => {
-    onFieldChange('permissions', {
+    onFieldChange("permissions", {
       ...formData.permissions,
       [key]: !formData.permissions[key],
-    });
-  };
+    })
+  }
 
   return (
     <div className="fixed inset-0 z-[1200] flex items-center justify-center overflow-hidden">
@@ -152,22 +180,27 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
       />
 
       {/* Modal */}
-      <div className="relative bg-card border border-border rounded-lg shadow-modal w-full max-w-2xl max-h-[90vh] overflow-hidden mx-4">
+      <div className="shadow-modal relative mx-4 max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-lg border border-border bg-card">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border">
+        <div className="flex items-center justify-between border-b border-border p-6">
           <div className="flex items-center gap-3">
             <div className="flex size-8 items-center justify-center rounded-lg bg-primary">
               <Icon name={icon} size={20} color="white" />
             </div>
             <h2 className="text-xl font-semibold text-foreground">{title}</h2>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose} className="hover-scale">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="hover-scale"
+          >
             <Icon name="X" size={20} />
           </Button>
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+        <div className="max-h-[calc(90vh-200px)] space-y-6 overflow-y-auto p-6">
           {/* Section: update-info */}
           <div className="space-y-4 rounded-lg border border-border p-4">
             <div className="flex items-start justify-between gap-3">
@@ -176,18 +209,25 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
                   <Icon name="User" size={18} />
                   <span>Thông tin hồ sơ</span>
                 </h3>
-                <p className="text-xs text-muted-foreground mt-1">Cập nhật qua API: update-info</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Cập nhật qua API: update-info
+                </p>
               </div>
-              {renderSectionSaveButton('info')}
+              <SectionSaveButton
+                section="info"
+                isEditMode={isEditMode}
+                isDisabled={isLoading || isUploading}
+                onSubmit={onSubmit}
+              />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
                 label="Mã nhân viên"
                 type="text"
                 placeholder="VD: NV001"
                 value={formData.employee_code}
-                onChange={(e) => onFieldChange('employee_code', e.target.value)}
+                onChange={(e) => onFieldChange("employee_code", e.target.value)}
                 error={errors.employee_code}
                 required
                 disabled={isEditMode}
@@ -197,7 +237,7 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
                 type="text"
                 placeholder="Nhập họ tên đầy đủ"
                 value={formData.full_name}
-                onChange={(e) => onFieldChange('full_name', e.target.value)}
+                onChange={(e) => onFieldChange("full_name", e.target.value)}
                 error={errors.full_name}
                 required
               />
@@ -206,7 +246,9 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
                 placeholder="Chọn vai trò"
                 options={ROLE_OPTIONS}
                 value={formData.position}
-                onChange={(event) => onFieldChange('position', event.target.value)}
+                onChange={(event) =>
+                  onFieldChange("position", event.target.value)
+                }
                 error={errors.position}
                 required
               />
@@ -214,7 +256,7 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
                 label="Ngày bắt đầu"
                 type="date"
                 value={formData.hire_date}
-                onChange={(e) => onFieldChange('hire_date', e.target.value)}
+                onChange={(e) => onFieldChange("hire_date", e.target.value)}
                 error={errors.hire_date}
                 required={!isEditMode}
               />
@@ -223,7 +265,7 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
                 type="tel"
                 placeholder="0123 456 789"
                 value={formData.phone}
-                onChange={(e) => onFieldChange('phone', e.target.value)}
+                onChange={(e) => onFieldChange("phone", e.target.value)}
                 error={errors.phone}
               />
               <Input
@@ -231,7 +273,7 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
                 type="email"
                 placeholder="example@email.com"
                 value={formData.email}
-                onChange={(e) => onFieldChange('email', e.target.value)}
+                onChange={(e) => onFieldChange("email", e.target.value)}
                 error={errors.email}
               />
             </div>
@@ -245,9 +287,16 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
                   <Icon name="Link" size={18} />
                   <span>Liên kết tài khoản</span>
                 </h3>
-                <p className="text-xs text-muted-foreground mt-1">Cập nhật qua API: link-account</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Cập nhật qua API: link-account
+                </p>
               </div>
-              {renderSectionSaveButton('account')}
+              <SectionSaveButton
+                section="account"
+                isEditMode={isEditMode}
+                isDisabled={isLoading || isUploading}
+                onSubmit={onSubmit}
+              />
             </div>
 
             <Input
@@ -255,7 +304,7 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
               type="text"
               placeholder="Nhập user_id"
               value={formData.user_id}
-              onChange={(e) => onFieldChange('user_id', e.target.value)}
+              onChange={(e) => onFieldChange("user_id", e.target.value)}
               error={errors.user_id}
               required
             />
@@ -269,9 +318,16 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
                   <Icon name="Activity" size={18} />
                   <span>Trạng thái làm việc</span>
                 </h3>
-                <p className="text-xs text-muted-foreground mt-1">Cập nhật qua API: update-status</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Cập nhật qua API: update-status
+                </p>
               </div>
-              {renderSectionSaveButton('status')}
+              <SectionSaveButton
+                section="status"
+                isEditMode={isEditMode}
+                isDisabled={isLoading || isUploading}
+                onSubmit={onSubmit}
+              />
             </div>
 
             <Select
@@ -279,7 +335,7 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
               placeholder="Chọn trạng thái"
               options={STATUS_OPTIONS}
               value={formData.status}
-              onChange={(event) => onFieldChange('status', event.target.value)}
+              onChange={(event) => onFieldChange("status", event.target.value)}
               error={errors.status}
             />
           </div>
@@ -292,7 +348,9 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
                   <Icon name="Image" size={18} />
                   <span>Ảnh đại diện</span>
                 </h3>
-                <p className="text-xs text-muted-foreground mt-1">Upload thành công sẽ tự cập nhật avatar</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Upload thành công sẽ tự cập nhật avatar
+                </p>
               </div>
             </div>
 
@@ -300,10 +358,18 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
               <div className="relative">
                 <div className="size-24 overflow-hidden rounded-full border-2 border-border bg-muted">
                   {imagePreview ? (
-                    <Image src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                    <Image
+                      src={imagePreview}
+                      alt="Preview"
+                      className="h-full w-full object-cover"
+                    />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Icon name="User" size={40} className="text-muted-foreground" />
+                    <div className="flex h-full w-full items-center justify-center">
+                      <Icon
+                        name="User"
+                        size={40}
+                        className="text-muted-foreground"
+                      />
                     </div>
                   )}
                 </div>
@@ -311,7 +377,7 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
                   <button
                     type="button"
                     onClick={handleRemoveImage}
-                    className="absolute -right-1 -top-1 flex size-6 items-center justify-center rounded-full bg-error transition-colors hover:bg-error/80"
+                    className="bg-error hover:bg-error/80 absolute -top-1 -right-1 flex size-6 items-center justify-center rounded-full transition-colors"
                   >
                     <Icon name="X" size={14} color="white" />
                   </button>
@@ -331,16 +397,18 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
                   variant="outline"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploading}
-                  iconName={isUploading ? 'Loader' : 'Upload'}
+                  iconName={isUploading ? "Loader" : "Upload"}
                   iconPosition="left"
                   className="w-full sm:w-auto"
                 >
-                  {isUploading ? 'Đang tải lên...' : 'Chọn ảnh từ máy...'}
+                  {isUploading ? "Đang tải lên..." : "Chọn ảnh từ máy..."}
                 </Button>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="mt-2 text-xs text-muted-foreground">
                   Hỗ trợ định dạng JPG, PNG, WEBP.
                 </p>
-                {errors.avatar_url && <p className="text-xs text-error mt-1">{errors.avatar_url}</p>}
+                {errors.avatar_url && (
+                  <p className="text-error mt-1 text-xs">{errors.avatar_url}</p>
+                )}
               </div>
             </div>
           </div>
@@ -353,18 +421,37 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
                   <Icon name="Shield" size={18} />
                   <span>Quyền truy cập</span>
                 </h3>
-                <p className="text-xs text-muted-foreground mt-1">Cập nhật qua API: update-permissions</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Cập nhật qua API: update-permissions
+                </p>
               </div>
-              {renderSectionSaveButton('permissions')}
+              <SectionSaveButton
+                section="permissions"
+                isEditMode={isEditMode}
+                isDisabled={isLoading || isUploading}
+                onSubmit={onSubmit}
+              />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 bg-muted/20 rounded-lg p-4">
+            <div className="grid grid-cols-1 gap-4 rounded-lg bg-muted/20 p-4 sm:grid-cols-2 md:grid-cols-3">
               {PERMISSIONS_CONFIG.map((perm) => {
-                const isChecked = !!formData.permissions?.[perm.key as keyof StaffPermissions];
+                const isChecked =
+                  !!formData.permissions?.[perm.key as keyof StaffPermissions]
                 return (
-                  <label key={perm.key} className="flex items-center gap-3 cursor-pointer group">
-                    <div className={`flex size-5 items-center justify-center rounded border transition-colors ${isChecked ? 'bg-primary border-primary' : 'border-input bg-background group-hover:border-primary/50'}`}>
-                      {isChecked && <Icon name="Check" size={14} className="text-primary-foreground" />}
+                  <label
+                    key={perm.key}
+                    className="group flex cursor-pointer items-center gap-3"
+                  >
+                    <div
+                      className={`flex size-5 items-center justify-center rounded border transition-colors ${isChecked ? "border-primary bg-primary" : "border-input bg-background group-hover:border-primary/50"}`}
+                    >
+                      {isChecked && (
+                        <Icon
+                          name="Check"
+                          size={14}
+                          className="text-primary-foreground"
+                        />
+                      )}
                     </div>
                     <span className="text-sm font-medium text-card-foreground select-none">
                       {perm.label}
@@ -373,25 +460,26 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
                       type="checkbox"
                       className="hidden"
                       checked={isChecked}
-                      onChange={() => togglePermission(perm.key as keyof StaffPermissions)}
+                      onChange={() =>
+                        togglePermission(perm.key as keyof StaffPermissions)
+                      }
                     />
                   </label>
-                );
+                )
               })}
             </div>
           </div>
-
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 p-6 border-t border-border">
+        <div className="flex items-center justify-end gap-3 border-t border-border p-6">
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
             Hủy
           </Button>
           {!isEditMode && (
             <Button
               variant="default"
-              onClick={() => onSubmit('all')}
+              onClick={() => onSubmit("all")}
               disabled={isLoading}
               iconName={submitIcon}
               iconPosition="left"
@@ -402,7 +490,7 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default StaffFormModal;
+export default StaffFormModal

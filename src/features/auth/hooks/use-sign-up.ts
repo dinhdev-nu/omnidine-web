@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
-import { checkEmail, register, resendEmailOtp, verifyEmailOtp } from "@/services/auth"
+import {
+  checkEmail,
+  register,
+  resendEmailOtp,
+  verifyEmailOtp,
+} from "@/services/auth"
 import { toAppError } from "@/services/core/error"
 
 type Step = "info" | "password" | "otp"
@@ -84,18 +89,13 @@ export function useSignUp(): UseSignUpReturn {
 
   const handleIdentifierChange = (value: string) => {
     const isPhone = /^[+\d]/.test(value) && /^\+?\d[\d\s\-()]*$/.test(value)
+    setOtpCountdown(0)
     if (isPhone) {
-      setForm((prev) => ({ ...prev, phoneNumber: value, email: "" }))
+      setForm((prev) => ({ ...prev, phoneNumber: value, email: "", otp: "" }))
     } else {
-      setForm((prev) => ({ ...prev, email: value, phoneNumber: "" }))
+      setForm((prev) => ({ ...prev, email: value, phoneNumber: "", otp: "" }))
     }
   }
-
-  // Reset OTP when identifier changes
-  useEffect(() => {
-    setForm((prev) => ({ ...prev, otp: "" }))
-    setOtpCountdown(0)
-  }, [form.email, form.phoneNumber])
 
   // Countdown timer
   useEffect(() => {
@@ -146,10 +146,16 @@ export function useSignUp(): UseSignUpReturn {
   }
 
   const getAvailableMethods = (): OtpMethod[] => {
-    if (form.phoneNumber) return [
-      { id: "sms", label: "SMS", icon: "💬", description: "Nhận mã qua SMS" },
-      { id: "telegram", label: "Telegram", icon: "✈️", description: "Nhận mã qua Telegram" },
-    ]
+    if (form.phoneNumber)
+      return [
+        { id: "sms", label: "SMS", icon: "💬", description: "Nhận mã qua SMS" },
+        {
+          id: "telegram",
+          label: "Telegram",
+          icon: "✈️",
+          description: "Nhận mã qua Telegram",
+        },
+      ]
     return []
   }
 
@@ -157,7 +163,9 @@ export function useSignUp(): UseSignUpReturn {
     void methodId
     setShowMethodModal(false)
     // Registration API requires email
-    setErrorMessage("Cần địa chỉ email cho đăng ký. Vui lòng nhập email của bạn.")
+    setErrorMessage(
+      "Cần địa chỉ email cho đăng ký. Vui lòng nhập email của bạn."
+    )
   }
 
   const handleResendOtp = () => {
@@ -232,12 +240,17 @@ export function useSignUp(): UseSignUpReturn {
   }
 
   return {
-    step, setStep,
-    form, handleChange, handleIdentifierChange,
+    step,
+    setStep,
+    form,
+    handleChange,
+    handleIdentifierChange,
     errorMessage,
-    isLoading, isSendingOtp,
+    isLoading,
+    isSendingOtp,
     otpCountdown,
-    showMethodModal, setShowMethodModal,
+    showMethodModal,
+    setShowMethodModal,
     getAvailableMethods,
     handleContinue,
     handleMethodSelect,

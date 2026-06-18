@@ -9,12 +9,11 @@ import {
   DropdownMenuSeparator,
 } from "../../../ui/DropdownMenu"
 import {
-  formatCurrency,
-  formatDateTime,
   TableOrderStatusBadge,
   TablePaymentStatusBadge,
   TableOrderItemStatusBadge,
 } from "./order-display"
+import { formatCurrency, formatDateTime } from "./order-format"
 import {
   getCustomerDisplayName,
   getOrderSourceLabel,
@@ -319,7 +318,10 @@ const OrderTableDesktopRow: React.FC<OrderTableDesktopRowProps> = ({
                             const isCancelled = item.status === "cancelled"
                             return (
                               <div
-                                key={item._id ?? `${item.menu_item_id}-${item.created_at}`}
+                                key={
+                                  item._id ??
+                                  `${item.menu_item_id}-${item.created_at}`
+                                }
                                 className={`px-3 py-2 transition-colors hover:bg-muted/30 ${isCancelled ? "bg-muted/20 opacity-60" : ""}`}
                               >
                                 <div className="flex items-start justify-between gap-2">

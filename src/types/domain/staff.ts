@@ -1,4 +1,9 @@
-export type StaffPosition = "manager" | "cashier" | "waiter" | "kitchen" | "delivery"
+export type StaffPosition =
+  | "manager"
+  | "cashier"
+  | "waiter"
+  | "kitchen"
+  | "delivery"
 
 export type StaffStatus = "active" | "inactive" | "on_leave" | "terminated"
 
@@ -175,97 +180,3 @@ export type StaffApiErrorCode =
   | "CONFLICT_ERROR"
   | "TOO_MANY_REQUESTS"
   | "INTERNAL_ERROR"
-
-export const STAFF_API_ERROR_CODES_BY_ENDPOINT: Record<StaffApiEndpoint, readonly StaffApiErrorCode[]> = {
-  create: [
-    "INVALID_ID_ERROR",
-    "VALIDATION_ERROR",
-    "UNAUTHORIZED",
-    "TOKEN_EXPIRED",
-    "FORBIDDEN",
-    "RESOURCE_NOT_FOUND",
-    "USER_NOT_FOUND",
-    "CONFLICT_ERROR",
-    "TOO_MANY_REQUESTS",
-    "INTERNAL_ERROR",
-  ],
-  list: [
-    "INVALID_ID_ERROR",
-    "VALIDATION_ERROR",
-    "UNAUTHORIZED",
-    "TOKEN_EXPIRED",
-    "FORBIDDEN",
-    "RESOURCE_NOT_FOUND",
-    "INTERNAL_ERROR",
-  ],
-  detail: [
-    "INVALID_ID_ERROR",
-    "UNAUTHORIZED",
-    "TOKEN_EXPIRED",
-    "FORBIDDEN",
-    "RESOURCE_NOT_FOUND",
-    "INTERNAL_ERROR",
-  ],
-  "update-info": [
-    "INVALID_ID_ERROR",
-    "VALIDATION_ERROR",
-    "UNAUTHORIZED",
-    "TOKEN_EXPIRED",
-    "FORBIDDEN",
-    "RESOURCE_NOT_FOUND",
-    "TOO_MANY_REQUESTS",
-    "INTERNAL_ERROR",
-  ],
-  "update-status": [
-    "INVALID_ID_ERROR",
-    "VALIDATION_ERROR",
-    "UNAUTHORIZED",
-    "TOKEN_EXPIRED",
-    "FORBIDDEN",
-    "RESOURCE_NOT_FOUND",
-    "TOO_MANY_REQUESTS",
-    "INTERNAL_ERROR",
-  ],
-  "link-account": [
-    "INVALID_ID_ERROR",
-    "VALIDATION_ERROR",
-    "UNAUTHORIZED",
-    "TOKEN_EXPIRED",
-    "FORBIDDEN",
-    "RESOURCE_NOT_FOUND",
-    "USER_NOT_FOUND",
-    "CONFLICT_ERROR",
-    "TOO_MANY_REQUESTS",
-    "INTERNAL_ERROR",
-  ],
-  "update-permissions": [
-    "INVALID_ID_ERROR",
-    "VALIDATION_ERROR",
-    "UNAUTHORIZED",
-    "TOKEN_EXPIRED",
-    "FORBIDDEN",
-    "RESOURCE_NOT_FOUND",
-    "TOO_MANY_REQUESTS",
-    "INTERNAL_ERROR",
-  ],
-  "update-avatar": [
-    "INVALID_ID_ERROR",
-    "VALIDATION_ERROR",
-    "UNAUTHORIZED",
-    "TOKEN_EXPIRED",
-    "FORBIDDEN",
-    "RESOURCE_NOT_FOUND",
-    "TOO_MANY_REQUESTS",
-    "INTERNAL_ERROR",
-  ],
-  delete: [
-    "INVALID_ID_ERROR",
-    "UNAUTHORIZED",
-    "TOKEN_EXPIRED",
-    "FORBIDDEN",
-    "RESOURCE_NOT_FOUND",
-    "CONFLICT_ERROR",
-    "TOO_MANY_REQUESTS",
-    "INTERNAL_ERROR",
-  ],
-}

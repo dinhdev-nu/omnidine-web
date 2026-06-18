@@ -233,7 +233,7 @@ function CheckIcon() {
     >
       <path
         clipRule="evenodd"
-        d="M11.4669 3.72684C11.7558 3.91574 11.8369 4.30308 11.648 4.59198L7.39799 11.092C7.29783 11.2452 7.13556 11.3467 6.95402 11.3699C6.77247 11.3931 6.58989 11.3355 6.45446 11.2124L3.70446 8.71241C3.44905 8.48022 3.43023 8.08494 3.66242 7.82953C3.89461 7.57412 4.28989 7.55529 4.5453 7.78749L6.75292 9.79441L10.6018 3.90792C10.7907 3.61902 11.178 3.53795 11.4669 3.72684Z"
+        d="M11.47 3.73C11.76 3.92 11.84 4.3 11.65 4.59L7.4 11.09C7.3 11.25 7.14 11.35 6.95 11.37C6.77 11.39 6.59 11.34 6.45 11.21L3.7 8.71C3.45 8.48 3.43 8.08 3.66 7.83C3.89 7.57 4.29 7.56 4.55 7.79L6.75 9.79L10.6 3.91C10.79 3.62 11.18 3.54 11.47 3.73Z"
         fill="currentColor"
         fillRule="evenodd"
       ></path>
@@ -435,8 +435,9 @@ export default function LandingMain() {
                 Quản Lý Chuỗi Nhà Hàng Đa Chi Nhánh
               </h1>
               <h2 className="text-md max-w-2xl text-center text-pretty text-[--text-tertiary] md:text-lg dark:text-[--dark-text-tertiary]">
-                OmniDine là hệ thống quản lý chuyên nghiệp giúp bạn tự động hoá việc đặt món của khách hàng,
-                chuẩn hoá quy trình phục vụ và nắm bắt báo cáo ngay tại thời gian thực.
+                OmniDine là hệ thống quản lý chuyên nghiệp giúp bạn tự động hoá
+                việc đặt món của khách hàng, chuẩn hoá quy trình phục vụ và nắm
+                bắt báo cáo ngay tại thời gian thực.
               </h2>
             </div>
           </div>
@@ -487,7 +488,10 @@ export default function LandingMain() {
           </div>
         </div>
       </section>
-      <section id="features" className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]">
+      <section
+        id="features"
+        className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]"
+      >
         <div className="flex flex-col items-center gap-3 self-center">
           <h3 className="flex min-h-7 items-center justify-center gap-2 rounded-full bg-[--surface-secondary] px-3.5 pb-px text-sm font-medium text-[--text-tertiary] md:text-base dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-tertiary]">
             Hệ sinh thái
@@ -496,8 +500,9 @@ export default function LandingMain() {
             <h4>Báo Cáo Phân Tích Thông Minh</h4>
           </div>
           <p className="max-w-screen-md text-center text-lg font-light text-pretty text-[--text-tertiary] md:text-xl dark:text-[--dark-text-tertiary]">
-            Kiểm soát hiệu suất chặt chẽ của từng nhân viên cũng như từng cửa hàng.
-            Giảm thiểu tỷ lệ sai sót đơn hàng và theo dõi lợi nhuận chính xác.
+            Kiểm soát hiệu suất chặt chẽ của từng nhân viên cũng như từng cửa
+            hàng. Giảm thiểu tỷ lệ sai sót đơn hàng và theo dõi lợi nhuận chính
+            xác.
           </p>
         </div>
         <div className="flex flex-col gap-6">
@@ -515,7 +520,8 @@ export default function LandingMain() {
             <h4 title="Quản Lý Chuyên Sâu">Giải Pháp Khép Kín</h4>
           </div>
           <p className="max-w-screen-md text-center text-lg font-light text-pretty text-[--text-tertiary] md:text-xl dark:text-[--dark-text-tertiary]">
-            Liên kết hoàn hảo giữa khu phục vụ (điểm bán hàng) và hệ thống điều hành (trung tâm) với khả năng truy cập thời gian thực.
+            Liên kết hoàn hảo giữa khu phục vụ (điểm bán hàng) và hệ thống điều
+            hành (trung tâm) với khả năng truy cập thời gian thực.
           </p>
         </div>
         <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-5">
@@ -597,8 +603,9 @@ export default function LandingMain() {
             </h4>
           </div>
           <p className="max-w-screen-md text-center text-lg font-light text-pretty text-[--text-tertiary] md:text-xl dark:text-[--dark-text-tertiary]">
-            Được trang bị hàng loạt các công cụ làm việc nhóm, chia sẻ dữ liệu và lưu trữ
-            các file giúp duy trì sự liên tục mượt mà từ lúc nhận cho đến khi phát hành sản phẩm.
+            Được trang bị hàng loạt các công cụ làm việc nhóm, chia sẻ dữ liệu
+            và lưu trữ các file giúp duy trì sự liên tục mượt mà từ lúc nhận cho
+            đến khi phát hành sản phẩm.
           </p>
         </div>
         <div className="flex w-full flex-col items-start gap-4 md:order-2 md:grid md:grid-cols-3 md:gap-16">
@@ -615,12 +622,11 @@ export default function LandingMain() {
                 Hiệu Suất
               </h3>
               <div className="flex max-w-[800px] flex-col items-start justify-center gap-1 self-start [&>*]:text-left [&>*]:text-3xl [&>*]:font-medium [&>*]:text-pretty md:[&>*]:text-4xl">
-                <h4 title="Tối ưu luồng công việc">
-                  Tối ưu luồng công việc
-                </h4>
+                <h4 title="Tối ưu luồng công việc">Tối ưu luồng công việc</h4>
               </div>
               <p className="max-w-screen-md text-left text-lg font-light text-pretty text-[--text-tertiary] md:text-xl dark:text-[--dark-text-tertiary]">
-                Hỗ trợ đội ngũ nhân viên duy trì tốc độ và làm việc liền mạch khi xử lý hàng trăm đơn hàng một cách nhanh chóng.
+                Hỗ trợ đội ngũ nhân viên duy trì tốc độ và làm việc liền mạch
+                khi xử lý hàng trăm đơn hàng một cách nhanh chóng.
               </p>
             </div>
             <div className="flex items-center gap-3 md:order-3">
@@ -687,7 +693,8 @@ export default function LandingMain() {
                 </div>
               </div>
               <div className="hidden gap-4 sm:flex">
-                <button type="button"
+                <button
+                  type="button"
                   aria-label="Previous testimonial"
                   onClick={scrollLeft}
                   className="inline-flex !h-auto h-8 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-3.5 px-4 py-2 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:px-5 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
@@ -702,13 +709,14 @@ export default function LandingMain() {
                   >
                     <path
                       clipRule="evenodd"
-                      d="M6.85355 3.14645C7.04882 3.34171 7.04882 3.65829 6.85355 3.85355L3.70711 7H12.5C12.7761 7 13 7.22386 13 7.5C13 7.77614 12.7761 8 12.5 8H3.70711L6.85355 11.1464C7.04882 11.3417 7.04882 11.6583 6.85355 11.8536C6.65829 12.0488 6.34171 12.0488 6.14645 11.8536L2.14645 7.85355C1.95118 7.65829 1.95118 7.34171 2.14645 7.14645L6.14645 3.14645C6.34171 2.95118 6.65829 2.95118 6.85355 3.14645Z"
+                      d="M6.85 3.15C7.05 3.34 7.05 3.66 6.85 3.85L3.71 7H12.5C12.78 7 13 7.22 13 7.5C13 7.78 12.78 8 12.5 8H3.71L6.85 11.15C7.05 11.34 7.05 11.66 6.85 11.85C6.66 12.05 6.34 12.05 6.15 11.85L2.15 7.85C1.95 7.66 1.95 7.34 2.15 7.15L6.15 3.15C6.34 2.95 6.66 2.95 6.85 3.15Z"
                       fill="currentColor"
                       fillRule="evenodd"
                     ></path>
                   </svg>
                 </button>
-                <button type="button"
+                <button
+                  type="button"
                   aria-label="Next testimonial"
                   onClick={scrollRight}
                   className="inline-flex !h-auto h-8 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] !px-4 px-3.5 !py-2 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:px-5 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
@@ -723,7 +731,7 @@ export default function LandingMain() {
                   >
                     <path
                       clipRule="evenodd"
-                      d="M8.14645 3.14645C8.34171 2.95118 8.65829 2.95118 8.85355 3.14645L12.8536 7.14645C13.0488 7.34171 13.0488 7.65829 12.8536 7.85355L8.85355 11.8536C8.65829 12.0488 8.34171 12.0488 8.14645 11.8536C7.95118 11.6583 7.95118 11.3417 8.14645 11.1464L11.2929 8H2.5C2.22386 8 2 7.77614 2 7.5C2 7.22386 2.22386 7 2.5 7H11.2929L8.14645 3.85355C7.95118 3.65829 7.95118 3.34171 8.14645 3.14645Z"
+                      d="M8.15 3.15C8.34 2.95 8.66 2.95 8.85 3.15L12.85 7.15C13.05 7.34 13.05 7.66 12.85 7.85L8.85 11.85C8.66 12.05 8.34 12.05 8.15 11.85C7.95 11.66 7.95 11.34 8.15 11.15L11.29 8H2.5C2.22 8 2 7.78 2 7.5C2 7.22 2.22 7 2.5 7H11.29L8.15 3.85C7.95 3.66 7.95 3.34 8.15 3.15Z"
                       fill="currentColor"
                       fillRule="evenodd"
                     ></path>
