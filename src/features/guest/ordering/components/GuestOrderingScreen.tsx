@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useReducer } from "react"
 import { toast } from "sonner"
 
 import { useFetch } from "@/hooks/useFetch"
@@ -28,6 +28,158 @@ import type { TableListResponse } from "@/types/domain/table"
 import type { OperatingHours } from "@/types/domain/restaurant"
 
 type PublicOrderType = CreatePublicOrderPayload["order_type"] | ""
+interface GuestOrderingState {
+  activeCategory: string
+  cartItems: CartItem[]
+  showMobileCart: boolean
+  showClearCartDialog: boolean
+  isCreatingOrder: boolean
+  searchQuery: string
+  debouncedQuery: string
+  flexibleOrderType: PublicOrderType
+  manualSelectedTableId: string | null
+  customerNameOverride: string | null
+  customerContactOverride: string | null
+  orderNotes: string
+}
+
+type GuestOrderingAction =
+  | { type: "setActiveCategory"; value: string }
+  | { type: "setSearchQuery"; value: string }
+  | { type: "setDebouncedQuery"; value: string }
+  | { type: "setFlexibleOrderType"; value: PublicOrderType }
+  | { type: "setManualSelectedTableId"; value: string | null }
+  | { type: "setCustomerNameOverride"; value: string | null }
+  | { type: "setCustomerContactOverride"; value: string | null }
+  | { type: "setOrderNotes"; value: string }
+  | { type: "openMobileCart" }
+  | { type: "closeMobileCart" }
+  | { type: "openClearCartDialog" }
+  | { type: "closeClearCartDialog" }
+  | { type: "addCartItem"; item: OrderingMenuItem }
+  | { type: "updateCartQuantity"; itemId: string; quantity: number }
+  | { type: "removeCartItem"; itemId: string }
+  | { type: "updateCartNote"; itemId: string; note: string }
+  | { type: "clearCart" }
+  | { type: "createOrderStarted" }
+  | { type: "createOrderSucceeded" }
+  | { type: "createOrderFinished" }
+
+const initialGuestOrderingState: GuestOrderingState = {
+  activeCategory: "all",
+  cartItems: [],
+  showMobileCart: false,
+  showClearCartDialog: false,
+  isCreatingOrder: false,
+  searchQuery: "",
+  debouncedQuery: "",
+  flexibleOrderType: "",
+  manualSelectedTableId: null,
+  customerNameOverride: null,
+  customerContactOverride: null,
+  orderNotes: "",
+}
+
+function guestOrderingReducer(
+  state: GuestOrderingState,
+  action: GuestOrderingAction
+): GuestOrderingState {
+  switch (action.type) {
+    case "setActiveCategory":
+      return { ...state, activeCategory: action.value }
+    case "setSearchQuery":
+      return { ...state, searchQuery: action.value }
+    case "setDebouncedQuery":
+      return { ...state, debouncedQuery: action.value }
+    case "setFlexibleOrderType":
+      return { ...state, flexibleOrderType: action.value }
+    case "setManualSelectedTableId":
+      return { ...state, manualSelectedTableId: action.value }
+    case "setCustomerNameOverride":
+      return { ...state, customerNameOverride: action.value }
+    case "setCustomerContactOverride":
+      return { ...state, customerContactOverride: action.value }
+    case "setOrderNotes":
+      return { ...state, orderNotes: action.value }
+    case "openMobileCart":
+      return { ...state, showMobileCart: true }
+    case "closeMobileCart":
+      return { ...state, showMobileCart: false }
+    case "openClearCartDialog":
+      return { ...state, showClearCartDialog: true }
+    case "closeClearCartDialog":
+      return { ...state, showClearCartDialog: false }
+    case "addCartItem": {
+      const existingItem = state.cartItems.find(
+        (cartItem) => cartItem._id === action.item._id
+      )
+
+      if (existingItem) {
+        return {
+          ...state,
+          cartItems: state.cartItems.map((cartItem) =>
+            cartItem._id === action.item._id
+              ? { ...cartItem, quantity: cartItem.quantity + 1 }
+              : cartItem
+          ),
+        }
+      }
+
+      return {
+        ...state,
+        cartItems: [
+          ...state.cartItems,
+          { ...action.item, quantity: 1, note: "" },
+        ],
+      }
+    }
+    case "updateCartQuantity":
+      if (action.quantity <= 0) {
+        return {
+          ...state,
+          cartItems: state.cartItems.filter(
+            (item) => item._id !== action.itemId
+          ),
+        }
+      }
+
+      return {
+        ...state,
+        cartItems: state.cartItems.map((item) =>
+          item._id === action.itemId
+            ? { ...item, quantity: action.quantity }
+            : item
+        ),
+      }
+    case "removeCartItem":
+      return {
+        ...state,
+        cartItems: state.cartItems.filter((item) => item._id !== action.itemId),
+      }
+    case "updateCartNote":
+      return {
+        ...state,
+        cartItems: state.cartItems.map((item) =>
+          item._id === action.itemId ? { ...item, note: action.note } : item
+        ),
+      }
+    case "clearCart":
+      return { ...state, cartItems: [] }
+    case "createOrderStarted":
+      return { ...state, isCreatingOrder: true }
+    case "createOrderSucceeded":
+      return {
+        ...state,
+        cartItems: [],
+        showMobileCart: false,
+        isCreatingOrder: false,
+      }
+    case "createOrderFinished":
+      return { ...state, isCreatingOrder: false }
+    default:
+      return state
+  }
+}
 
 const fetchAvailableActiveTables = async (
   restaurantId: string
@@ -106,17 +258,28 @@ const GuestOrderingScreen = ({
   const isOperational =
     (menuData?.restaurant?.is_published ?? false) &&
     isRestaurantCurrentlyOpen(menuData?.restaurant?.operating_hours ?? null)
-  const [activeCategory, setActiveCategory] = useState<string>("all")
-  const [cartItems, setCartItems] = useState<CartItem[]>([])
-  const [showMobileCart, setShowMobileCart] = useState<boolean>(false)
-  const [showClearCartDialog, setShowClearCartDialog] = useState<boolean>(false)
-  const [isCreatingOrder, setIsCreatingOrder] = useState<boolean>(false)
-  const [searchQuery, setSearchQuery] = useState<string>("")
-  const [debouncedQuery, setDebouncedQuery] = useState<string>("")
+  const [orderingState, dispatchOrdering] = useReducer(
+    guestOrderingReducer,
+    initialGuestOrderingState
+  )
+  const {
+    activeCategory,
+    cartItems,
+    showMobileCart,
+    showClearCartDialog,
+    isCreatingOrder,
+    searchQuery,
+    debouncedQuery,
+    flexibleOrderType,
+    manualSelectedTableId,
+    customerNameOverride,
+    customerContactOverride,
+    orderNotes,
+  } = orderingState
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      setDebouncedQuery(searchQuery)
+      dispatchOrdering({ type: "setDebouncedQuery", value: searchQuery })
     }, 500)
     return () => clearTimeout(handler)
   }, [searchQuery])
@@ -129,18 +292,6 @@ const GuestOrderingScreen = ({
   const { data: searchData } = useFetch(searchPublicMenu, searchFetchArgs, {
     enabled: !!resolvedSlug && !!debouncedQuery,
   })
-  const [flexibleOrderType, setFlexibleOrderType] =
-    useState<PublicOrderType>("")
-  const [manualSelectedTableId, setManualSelectedTableId] = useState<
-    string | null
-  >(null)
-  const [customerNameOverride, setCustomerNameOverride] = useState<
-    string | null
-  >(null)
-  const [customerContactOverride, setCustomerContactOverride] = useState<
-    string | null
-  >(null)
-  const [orderNotes, setOrderNotes] = useState<string>("")
   const defaultCustomerName = user?.full_name || user?.user_name || ""
   const defaultCustomerContact = user?.phone || ""
   const selectedOrderType = isTableFixed ? "dine_in" : flexibleOrderType
@@ -151,7 +302,7 @@ const GuestOrderingScreen = ({
   const handleOrderTypeChange = useCallback(
     (value: PublicOrderType) => {
       if (!isTableFixed) {
-        setFlexibleOrderType(value)
+        dispatchOrdering({ type: "setFlexibleOrderType", value })
       }
     },
     [isTableFixed]
@@ -160,7 +311,10 @@ const GuestOrderingScreen = ({
   const handleTableChange = useCallback(
     (value: string) => {
       if (!isTableFixed) {
-        setManualSelectedTableId(value || null)
+        dispatchOrdering({
+          type: "setManualSelectedTableId",
+          value: value || null,
+        })
       }
     },
     [isTableFixed]
@@ -238,7 +392,7 @@ const GuestOrderingScreen = ({
       if (event.key === "F4") {
         event.preventDefault()
         if (cartItems.length > 0) {
-          setShowClearCartDialog(true)
+          dispatchOrdering({ type: "openClearCartDialog" })
         }
       }
     }
@@ -250,7 +404,7 @@ const GuestOrderingScreen = ({
   useEffect(() => {
     const handleMobileCartShortcut = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setShowMobileCart(false)
+        dispatchOrdering({ type: "closeMobileCart" })
       }
     }
 
@@ -268,7 +422,10 @@ const GuestOrderingScreen = ({
       ) {
         const categoryIndex = Number(event.key) - 1
         if (categories[categoryIndex]) {
-          setActiveCategory(categories[categoryIndex].id)
+          dispatchOrdering({
+            type: "setActiveCategory",
+            value: categories[categoryIndex].id,
+          })
         }
       }
     }
@@ -323,60 +480,41 @@ const GuestOrderingScreen = ({
       toast.success(`Đã thêm ${item.name} vào giỏ`)
     }
 
-    setCartItems((prevItems) => {
-      if (existingItem) {
-        return prevItems.map((cartItem) =>
-          cartItem._id === item._id
-            ? { ...cartItem, quantity: cartItem.quantity + 1 }
-            : cartItem
-        )
-      }
-
-      return [...prevItems, { ...item, quantity: 1, note: "" }]
-    })
+    dispatchOrdering({ type: "addCartItem", item })
   }
 
   const handleUpdateQuantity = (itemId: string, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      setCartItems((prevItems) =>
-        prevItems.filter((item) => item._id !== itemId)
-      )
-      return
-    }
-
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item._id === itemId ? { ...item, quantity: newQuantity } : item
-      )
-    )
+    dispatchOrdering({
+      type: "updateCartQuantity",
+      itemId,
+      quantity: newQuantity,
+    })
   }
 
   const handleRemoveItem = (itemId: string) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item._id !== itemId))
+    dispatchOrdering({ type: "removeCartItem", itemId })
   }
 
   const handleUpdateNote = (itemId: string, note: string) => {
-    setCartItems((prevItems) =>
-      prevItems.map((item) => (item._id === itemId ? { ...item, note } : item))
-    )
+    dispatchOrdering({ type: "updateCartNote", itemId, note })
   }
 
   const handleClearCart = useCallback(() => {
-    setCartItems([])
+    dispatchOrdering({ type: "clearCart" })
     toast.success("Đã xóa toàn bộ món trong giỏ hàng")
   }, [])
 
   const handleOpenClearCartDialog = useCallback(() => {
-    setShowClearCartDialog(true)
+    dispatchOrdering({ type: "openClearCartDialog" })
   }, [])
 
   const handleCloseClearCartDialog = useCallback(() => {
-    setShowClearCartDialog(false)
+    dispatchOrdering({ type: "closeClearCartDialog" })
   }, [])
 
   const handleConfirmClearCart = useCallback(() => {
     handleClearCart()
-    setShowClearCartDialog(false)
+    dispatchOrdering({ type: "closeClearCartDialog" })
   }, [handleClearCart])
 
   const handleCreateOrder = async () => {
@@ -430,18 +568,16 @@ const GuestOrderingScreen = ({
     }
 
     try {
-      setIsCreatingOrder(true)
+      dispatchOrdering({ type: "createOrderStarted" })
       const response = await createPublicOrder(payload)
 
       toast.success(response.message || "Tạo đơn hàng thành công")
-      setCartItems([])
-      setShowMobileCart(false)
+      dispatchOrdering({ type: "createOrderSucceeded" })
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Không thể tạo đơn hàng."
       )
-    } finally {
-      setIsCreatingOrder(false)
+      dispatchOrdering({ type: "createOrderFinished" })
     }
   }
 
@@ -485,7 +621,12 @@ const GuestOrderingScreen = ({
                   type="text"
                   placeholder="Tìm món theo tên..."
                   value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
+                  onChange={(event) =>
+                    dispatchOrdering({
+                      type: "setSearchQuery",
+                      value: event.target.value,
+                    })
+                  }
                   className="w-full pr-10"
                 />
                 <Icon
@@ -504,7 +645,9 @@ const GuestOrderingScreen = ({
                   ...categories,
                 ]}
                 activeCategory={activeCategory}
-                onCategoryChange={setActiveCategory}
+                onCategoryChange={(value) =>
+                  dispatchOrdering({ type: "setActiveCategory", value })
+                }
               />
             </div>
 
@@ -527,7 +670,7 @@ const GuestOrderingScreen = ({
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setShowMobileCart(false)}
+                onClick={() => dispatchOrdering({ type: "closeMobileCart" })}
                 className="lg:hidden"
               >
                 <Icon name="X" size={20} />
@@ -548,11 +691,20 @@ const GuestOrderingScreen = ({
                 tableOptions={tableOptions}
                 user={user}
                 customerName={customerName}
-                onCustomerNameChange={setCustomerNameOverride}
+                onCustomerNameChange={(value) =>
+                  dispatchOrdering({ type: "setCustomerNameOverride", value })
+                }
                 customerContact={customerContact}
-                onCustomerContactChange={setCustomerContactOverride}
+                onCustomerContactChange={(value) =>
+                  dispatchOrdering({
+                    type: "setCustomerContactOverride",
+                    value,
+                  })
+                }
                 orderNotes={orderNotes}
-                onOrderNotesChange={setOrderNotes}
+                onOrderNotesChange={(value) =>
+                  dispatchOrdering({ type: "setOrderNotes", value })
+                }
                 sourceLabel={isTableFixed ? "qr" : "app"}
                 isTableFixed={isTableFixed}
               />
@@ -581,7 +733,7 @@ const GuestOrderingScreen = ({
             <Button
               variant="default"
               size="lg"
-              onClick={() => setShowMobileCart(true)}
+              onClick={() => dispatchOrdering({ type: "openMobileCart" })}
               className="shadow-modal hover-scale relative rounded-full"
             >
               <Icon name="ShoppingCart" size={24} className="mr-2" />
