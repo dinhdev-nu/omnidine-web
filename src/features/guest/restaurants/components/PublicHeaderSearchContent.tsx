@@ -11,19 +11,9 @@ import {
 } from "@/components/ui/select"
 import type { PublicRestaurantSearchItem } from "@/types/domain/restaurant"
 import { MOCK_PROVINCES, PRICE_RANGES, cuisineTypes, type SelectOption } from "@/features/restaurant-onboarding/constants"
+import type { SearchFilters } from "./public-header-search-types"
 
 const FALLBACK_RESTAURANT_IMAGE = "/assets/home/restaurant-placeholder.png"
-
-export type SearchFilters = {
-    city: string
-    cuisine_type: string
-    price_range: string[]
-    accepts_online: boolean | null
-    radius_km: string
-    sort: "name" | "distance"
-    lat: number | null
-    lng: number | null
-}
 
 type PublicHeaderSearchContentProps = {
     searchQuery: string

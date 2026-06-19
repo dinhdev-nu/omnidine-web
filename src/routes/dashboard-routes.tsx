@@ -1,6 +1,7 @@
+import { lazy } from "react"
 import { Route } from "react-router-dom"
 
-import DashboardPage from "@/pages/dashboard/DashboardPage"
+const DashboardPage = lazy(() => import("@/pages/dashboard/DashboardPage"))
 
 const DASHBOARD_BY_ID_ROUTE_PATH = "/dashboard/:id"
 

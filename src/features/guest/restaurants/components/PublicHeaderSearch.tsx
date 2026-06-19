@@ -15,8 +15,8 @@ import PublicHeaderSearchContent from "./PublicHeaderSearchContent.tsx"
 import {
   publicHeaderSearchInitialState,
   publicHeaderSearchReducer,
-  type SearchFilters,
 } from "./public-header-search-state"
+import type { SearchFilters } from "./public-header-search-types"
 
 const PUBLIC_RESTAURANT_PAGE = 1
 const PUBLIC_RESTAURANT_LIMIT = 5

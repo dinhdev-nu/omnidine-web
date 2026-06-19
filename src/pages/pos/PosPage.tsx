@@ -1,11 +1,10 @@
-import React, { useEffect, useReducer, useState } from "react"
+import React, { Suspense, lazy, useEffect, useReducer, useState } from "react"
 import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom"
 import PosLayout from "@/layouts/pos/PosLayout"
-import MainPosSection from "@/features/pos/sections/main-pos/MainPosSection"
-import TableSection from "@/features/pos/sections/table/TableSection"
 import { POS_BASE_PATH } from "@/routes/pos-route-config"
 import { PosProvider } from "@/features/pos/contexts/PosContext"
 import { usePosContext } from "@/features/pos/contexts/usePosContext"
+import { Spinner } from "@/features/pos/ui/Spinner"
 import RejectToPreviousPage from "@/components/navigation/RejectToPreviousPage"
 import {
   demoNotifications,
@@ -16,10 +15,36 @@ import { toAppError } from "@/services/core/error"
 import type { AppError } from "@/services/core/types"
 import type { PosInitData } from "@/types/domain/pos-init"
 import type { PosContextType } from "@/features/pos/contexts/pos-context"
-import PaymentSection from "@/features/pos/sections/payment/PaymentSection"
-import OrderSection from "@/features/pos/sections/order/OrderSection"
-import MenuSection from "@/features/pos/sections/menu/MenuSection"
-import StaffSection from "@/features/pos/sections/staff/StaffSection"
+
+const MainPosSection = lazy(
+  () => import("@/features/pos/sections/main-pos/MainPosSection")
+)
+const TableSection = lazy(
+  () => import("@/features/pos/sections/table/TableSection")
+)
+const PaymentSection = lazy(
+  () => import("@/features/pos/sections/payment/PaymentSection")
+)
+const OrderSection = lazy(
+  () => import("@/features/pos/sections/order/OrderSection")
+)
+const MenuSection = lazy(
+  () => import("@/features/pos/sections/menu/MenuSection")
+)
+const StaffSection = lazy(
+  () => import("@/features/pos/sections/staff/StaffSection")
+)
+
+function PosSectionLoadingFallback() {
+  return (
+    <output
+      aria-label="Đang tải khu vực POS"
+      className="flex min-h-[320px] items-center justify-center text-muted-foreground"
+    >
+      <Spinner className="size-5" />
+    </output>
+  )
+}
 
 type POSSection = "main-pos" | "table" | "payment" | "order" | "menu" | "staff"
 
@@ -180,7 +205,9 @@ const PosPageContent: React.FC<{ slug: string }> = ({ slug }) => {
       activeSection={activeSection}
       onSectionChange={handleSectionChange}
     >
-      {sectionContent}
+      <Suspense fallback={<PosSectionLoadingFallback />}>
+        {sectionContent}
+      </Suspense>
     </PosLayout>
   )
 }

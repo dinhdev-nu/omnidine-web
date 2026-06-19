@@ -1,6 +1,10 @@
+import { lazy } from "react"
 import { Route } from "react-router-dom"
-import RestaurantOnboardingPage from "@/pages/restaurant-onboarding/RestaurantOnboardingPage"
 import { RESTAURANT_ONBOARDING_ROUTE_PATH } from "@/routes/restaurant-onboarding-route-config"
+
+const RestaurantOnboardingPage = lazy(
+  () => import("@/pages/restaurant-onboarding/RestaurantOnboardingPage")
+)
 
 export function RestaurantOnboardingRoute() {
   return (

@@ -1,47 +1,44 @@
-import * as LucideIcons from "lucide-react";
-import { HelpCircle } from "lucide-react";
-import type { ComponentType } from "react";
-import type { LucideProps } from "lucide-react";
+import { createElement } from "react"
+import type { LucideProps } from "lucide-react"
+import { getAppIcon } from "@/components/app-icon-registry"
 
 interface IconProps extends Omit<LucideProps, "ref"> {
-    name: string;
-    size?: number;
-    color?: string;
-    className?: string;
+  name: string
+  size?: number
+  color?: string
+  className?: string
 }
 
 function Icon({
-    name,
-    size = 24,
-    color = "currentColor",
-    className = "",
-    strokeWidth = 2,
-    ...props
+  name,
+  size = 24,
+  color = "currentColor",
+  className = "",
+  strokeWidth = 2,
+  ...props
 }: IconProps) {
-    const iconName = name as keyof typeof LucideIcons;
-    const IconComponent = LucideIcons[iconName] as unknown as ComponentType<LucideProps> | undefined;
+  const IconComponent = getAppIcon(name)
+  const FallbackIcon = getAppIcon("HelpCircle")
 
-    if (!IconComponent) {
-        return (
-            <HelpCircle
-                size={size}
-                color="gray"
-                strokeWidth={strokeWidth}
-                className={className}
-                {...props}
-            />
-        );
-    }
+  if (!IconComponent) {
+    return FallbackIcon
+      ? createElement(FallbackIcon, {
+          size,
+          color: "gray",
+          strokeWidth,
+          className,
+          ...props,
+        })
+      : null
+  }
 
-    return (
-        <IconComponent
-            size={size}
-            color={color}
-            strokeWidth={strokeWidth}
-            className={className}
-            {...props}
-        />
-    );
+  return createElement(IconComponent, {
+    size,
+    color,
+    strokeWidth,
+    className,
+    ...props,
+  })
 }
 
-export default Icon;
+export default Icon
