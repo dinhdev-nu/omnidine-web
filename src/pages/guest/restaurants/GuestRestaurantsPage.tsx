@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useReducer, useRef } from "react"
 import { BadgeCheck, Flame, MapPin, Search, Star } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 
@@ -155,33 +155,168 @@ function mapRestaurantToNearby(
   }
 }
 
+type RestaurantsErrorMeta = {
+  code?: string
+  status?: number
+}
+
+type GuestRestaurantsState = {
+  activeFilter: FeedFilter
+  selectedLocation: FeedLocationSelection | null
+  restaurants: PublicRestaurantSearchItem[]
+  posts: FeedPost[]
+  displayCount: number
+  isLoadingMore: boolean
+  showFAB: boolean
+  isAttentionModalOpen: boolean
+  isRestaurantsLoading: boolean
+  restaurantsError: string | null
+  restaurantsErrorMeta: RestaurantsErrorMeta | null
+}
+
+type GuestRestaurantsAction =
+  | { type: "locationChanged"; location: FeedLocationSelection }
+  | { type: "filterChanged"; filter: FeedFilter }
+  | { type: "setAttentionModalOpen"; isOpen: boolean }
+  | { type: "restaurantsLoadStarted" }
+  | {
+      type: "restaurantsLoadSucceeded"
+      restaurants: PublicRestaurantSearchItem[]
+      posts: FeedPost[]
+    }
+  | {
+      type: "restaurantsLoadFailed"
+      message: string
+      meta: RestaurantsErrorMeta
+    }
+  | { type: "restaurantsLoadFinished" }
+  | { type: "setShowFAB"; show: boolean }
+  | { type: "toggleLike"; postId: string }
+  | { type: "toggleBookmark"; postId: string }
+  | { type: "loadMoreStarted" }
+  | { type: "loadMoreCompleted"; displayCount: number }
+
+function createInitialGuestRestaurantsState(): GuestRestaurantsState {
+  return {
+    activeFilter: "all",
+    selectedLocation: null,
+    restaurants: [],
+    posts: [],
+    displayCount: INITIAL_DISPLAY_COUNT,
+    isLoadingMore: false,
+    showFAB: window.scrollY > FAB_SCROLL_THRESHOLD,
+    isAttentionModalOpen: false,
+    isRestaurantsLoading: true,
+    restaurantsError: null,
+    restaurantsErrorMeta: null,
+  }
+}
+
+function guestRestaurantsReducer(
+  state: GuestRestaurantsState,
+  action: GuestRestaurantsAction
+): GuestRestaurantsState {
+  switch (action.type) {
+    case "locationChanged":
+      return {
+        ...state,
+        selectedLocation: action.location,
+        displayCount: INITIAL_DISPLAY_COUNT,
+      }
+    case "filterChanged":
+      return {
+        ...state,
+        activeFilter: action.filter,
+        displayCount: INITIAL_DISPLAY_COUNT,
+      }
+    case "setAttentionModalOpen":
+      return { ...state, isAttentionModalOpen: action.isOpen }
+    case "restaurantsLoadStarted":
+      return {
+        ...state,
+        isRestaurantsLoading: true,
+        restaurantsError: null,
+        restaurantsErrorMeta: null,
+      }
+    case "restaurantsLoadSucceeded":
+      return {
+        ...state,
+        restaurants: action.restaurants,
+        posts: action.posts,
+      }
+    case "restaurantsLoadFailed":
+      return {
+        ...state,
+        restaurants: [],
+        posts: [],
+        restaurantsError: action.message,
+        restaurantsErrorMeta: action.meta,
+      }
+    case "restaurantsLoadFinished":
+      return { ...state, isRestaurantsLoading: false }
+    case "setShowFAB":
+      return state.showFAB === action.show
+        ? state
+        : { ...state, showFAB: action.show }
+    case "toggleLike":
+      return {
+        ...state,
+        posts: state.posts.map((post) => {
+          if (post.id !== action.postId) return post
+
+          return {
+            ...post,
+            liked: !post.liked,
+            likes: post.liked ? post.likes - 1 : post.likes + 1,
+          }
+        }),
+      }
+    case "toggleBookmark":
+      return {
+        ...state,
+        posts: state.posts.map((post) =>
+          post.id === action.postId
+            ? { ...post, bookmarked: !post.bookmarked }
+            : post
+        ),
+      }
+    case "loadMoreStarted":
+      return { ...state, isLoadingMore: true }
+    case "loadMoreCompleted":
+      return {
+        ...state,
+        displayCount: action.displayCount,
+        isLoadingMore: false,
+      }
+    default:
+      return state
+  }
+}
+
 export default function GuestRestaurantsPage() {
   const navigate = useNavigate()
   const clearAuth = useAuthStore((state) => state.clearAuth)
   const clearUser = useUserStore((state) => state.clear)
   const profile = useUserStore((state) => state.profile)
 
-  const [activeFilter, setActiveFilter] = useState<FeedFilter>("all")
-  const [selectedLocation, setSelectedLocation] =
-    useState<FeedLocationSelection | null>(null)
-  const [restaurants, setRestaurants] = useState<PublicRestaurantSearchItem[]>(
-    []
+  const [feedState, dispatchFeed] = useReducer(
+    guestRestaurantsReducer,
+    undefined,
+    createInitialGuestRestaurantsState
   )
-  const [posts, setPosts] = useState<FeedPost[]>([])
-  const [displayCount, setDisplayCount] = useState<number>(
-    INITIAL_DISPLAY_COUNT
-  )
-  const [isLoadingMore, setIsLoadingMore] = useState(false)
-  const [showFAB, setShowFAB] = useState(
-    () => window.scrollY > FAB_SCROLL_THRESHOLD
-  )
-  const [isAttentionModalOpen, setIsAttentionModalOpen] = useState(false)
-  const [isRestaurantsLoading, setIsRestaurantsLoading] = useState(true)
-  const [restaurantsError, setRestaurantsError] = useState<string | null>(null)
-  const [restaurantsErrorMeta, setRestaurantsErrorMeta] = useState<{
-    code?: string
-    status?: number
-  } | null>(null)
+  const {
+    activeFilter,
+    selectedLocation,
+    restaurants,
+    posts,
+    displayCount,
+    isLoadingMore,
+    showFAB,
+    isAttentionModalOpen,
+    isRestaurantsLoading,
+    restaurantsError,
+    restaurantsErrorMeta,
+  } = feedState
 
   const loadMoreRef = useRef<HTMLDivElement | null>(null)
   const loadMoreTimeoutRef = useRef<number | null>(null)
@@ -196,22 +331,20 @@ export default function GuestRestaurantsPage() {
 
   const handleLocationChange = useCallback(
     (location: FeedLocationSelection) => {
-      setSelectedLocation(location)
-      setDisplayCount(INITIAL_DISPLAY_COUNT)
+      dispatchFeed({ type: "locationChanged", location })
     },
     []
   )
 
   const handleFilterChange = useCallback((filter: FeedFilter) => {
-    setActiveFilter(filter)
-    setDisplayCount(INITIAL_DISPLAY_COUNT)
+    dispatchFeed({ type: "filterChanged", filter })
   }, [])
 
   useEffect(() => {
     const attentionTimer = window.setTimeout(() => {
       const hasSeenAttention = localStorage.getItem(ATTENTION_MODAL_STORAGE_KEY)
       if (!hasSeenAttention) {
-        setIsAttentionModalOpen(true)
+        dispatchFeed({ type: "setAttentionModalOpen", isOpen: true })
         localStorage.setItem(ATTENTION_MODAL_STORAGE_KEY, "true")
       }
     }, ATTENTION_MODAL_DELAY_MS)
@@ -226,9 +359,7 @@ export default function GuestRestaurantsPage() {
 
     const loadRestaurants = async () => {
       try {
-        setIsRestaurantsLoading(true)
-        setRestaurantsError(null)
-        setRestaurantsErrorMeta(null)
+        dispatchFeed({ type: "restaurantsLoadStarted" })
 
         const response = await searchPublicRestaurants({
           page: PUBLIC_RESTAURANT_PAGE,
@@ -240,12 +371,13 @@ export default function GuestRestaurantsPage() {
         const provinceCode = DEFAULT_PROVINCE.code
         const districtCode = null
 
-        setRestaurants(response.data)
-        setPosts(
-          response.data.map((restaurant, index) =>
+        dispatchFeed({
+          type: "restaurantsLoadSucceeded",
+          restaurants: response.data,
+          posts: response.data.map((restaurant, index) =>
             mapRestaurantToPost(restaurant, index, provinceCode, districtCode)
-          )
-        )
+          ),
+        })
       } catch (caughtError) {
         if (!isActive) return
 
@@ -253,16 +385,17 @@ export default function GuestRestaurantsPage() {
           caughtError,
           "Không thể tải nhà hàng công khai."
         )
-        setRestaurants([])
-        setPosts([])
-        setRestaurantsError(appError.message)
-        setRestaurantsErrorMeta({
-          code: appError.errorCode,
-          status: appError.status,
+        dispatchFeed({
+          type: "restaurantsLoadFailed",
+          message: appError.message,
+          meta: {
+            code: appError.errorCode,
+            status: appError.status,
+          },
         })
       } finally {
         if (isActive) {
-          setIsRestaurantsLoading(false)
+          dispatchFeed({ type: "restaurantsLoadFinished" })
         }
       }
     }
@@ -277,7 +410,7 @@ export default function GuestRestaurantsPage() {
   useEffect(() => {
     const handleScroll = () => {
       const shouldShow = window.scrollY > FAB_SCROLL_THRESHOLD
-      setShowFAB((prev) => (prev === shouldShow ? prev : shouldShow))
+      dispatchFeed({ type: "setShowFAB", show: shouldShow })
     }
 
     window.addEventListener("scroll", handleScroll, { passive: true })
@@ -288,29 +421,11 @@ export default function GuestRestaurantsPage() {
   }, [])
 
   const handleLike = useCallback((postId: string) => {
-    setPosts((prevPosts) =>
-      prevPosts.map((post) => {
-        if (post.id !== postId) return post
-
-        return {
-          ...post,
-          liked: !post.liked,
-          likes: post.liked ? post.likes - 1 : post.likes + 1,
-        }
-      })
-    )
+    dispatchFeed({ type: "toggleLike", postId })
   }, [])
 
   const handleBookmark = useCallback((postId: string) => {
-    setPosts((prevPosts) =>
-      prevPosts.map((post) => {
-        if (post.id !== postId) return post
-        return {
-          ...post,
-          bookmarked: !post.bookmarked,
-        }
-      })
-    )
+    dispatchFeed({ type: "toggleBookmark", postId })
   }, [])
 
   const handleLogout = useCallback(async () => {
@@ -358,18 +473,27 @@ export default function GuestRestaurantsPage() {
   const handleLoadMore = useCallback(() => {
     if (isLoadingMore || !hasMorePosts) return
 
-    setIsLoadingMore(true)
+    dispatchFeed({ type: "loadMoreStarted" })
 
     clearLoadMoreTimeout()
 
     loadMoreTimeoutRef.current = window.setTimeout(() => {
-      setDisplayCount((prevCount) =>
-        Math.min(prevCount + LOAD_MORE_STEP, filteredPosts.length)
-      )
-      setIsLoadingMore(false)
+      dispatchFeed({
+        type: "loadMoreCompleted",
+        displayCount: Math.min(
+          displayCount + LOAD_MORE_STEP,
+          filteredPosts.length
+        ),
+      })
       loadMoreTimeoutRef.current = null
     }, LOAD_MORE_DELAY_MS)
-  }, [clearLoadMoreTimeout, filteredPosts.length, hasMorePosts, isLoadingMore])
+  }, [
+    clearLoadMoreTimeout,
+    displayCount,
+    filteredPosts.length,
+    hasMorePosts,
+    isLoadingMore,
+  ])
 
   useEffect(() => {
     return clearLoadMoreTimeout
@@ -402,7 +526,9 @@ export default function GuestRestaurantsPage() {
         onLocationChange={handleLocationChange}
         onLogout={handleLogout}
         showCreateFab={showFAB}
-        onOpenAttentionModal={() => setIsAttentionModalOpen(true)}
+        onOpenAttentionModal={() =>
+          dispatchFeed({ type: "setAttentionModalOpen", isOpen: true })
+        }
       >
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           <aside className="hidden lg:col-span-3 lg:block">
@@ -640,7 +766,9 @@ export default function GuestRestaurantsPage() {
 
       <AttentionModal
         isOpen={isAttentionModalOpen}
-        onClose={() => setIsAttentionModalOpen(false)}
+        onClose={() =>
+          dispatchFeed({ type: "setAttentionModalOpen", isOpen: false })
+        }
         onOpenCreatePage={() => navigate("/restaurants/new")}
       />
     </>

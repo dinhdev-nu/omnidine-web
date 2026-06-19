@@ -4,8 +4,8 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useReducer,
   useRef,
-  useState,
 } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
@@ -27,13 +27,14 @@ type NumberFieldName = "latitude" | "longitude"
 type OperatingTimeKey = "open" | "close"
 type ImageUploadType = "logo_url" | "cover_image_url" | "gallery_urls"
 export type SlugCheckStatus = "idle" | "checking" | "available" | "taken"
+type RestaurantFormErrors = Partial<Record<keyof RestaurantDTO, string>>
 
 const MAX_GALLERY_ITEMS = 8
 const SLUG_CHECK_DEBOUNCE_MS = 500
 
 export interface CreateRestaurantState {
   formData: RestaurantDTO
-  errors: Partial<Record<keyof RestaurantDTO, string>>
+  errors: RestaurantFormErrors
   progress: number
 }
 
@@ -278,6 +279,155 @@ export interface CreateRestaurantProviderProps {
   }
 }
 
+interface CreateRestaurantFormReducerState {
+  formData: RestaurantDTO
+  errors: RestaurantFormErrors
+  logoPreview: string | null
+  coverPreview: string | null
+  galleryPreviews: string[]
+  isSubmitting: boolean
+  activeUploadCount: number
+  slugCheckStatus: SlugCheckStatus
+  lastCheckedSlug: string | null
+  isLocating: boolean
+  locationError: string | null
+}
+
+type CreateRestaurantFormReducerAction =
+  | { type: "setFormData"; value: React.SetStateAction<RestaurantDTO> }
+  | { type: "setErrors"; value: React.SetStateAction<RestaurantFormErrors> }
+  | { type: "setLogoPreview"; value: React.SetStateAction<string | null> }
+  | { type: "setCoverPreview"; value: React.SetStateAction<string | null> }
+  | { type: "setGalleryPreviews"; value: React.SetStateAction<string[]> }
+  | { type: "setIsSubmitting"; value: React.SetStateAction<boolean> }
+  | { type: "setActiveUploadCount"; value: React.SetStateAction<number> }
+  | {
+      type: "setSlugCheckStatus"
+      value: React.SetStateAction<SlugCheckStatus>
+    }
+  | { type: "setLastCheckedSlug"; value: React.SetStateAction<string | null> }
+  | { type: "setIsLocating"; value: React.SetStateAction<boolean> }
+  | { type: "setLocationError"; value: React.SetStateAction<string | null> }
+
+function resolveReducerStateAction<T>(
+  current: T,
+  value: React.SetStateAction<T>
+): T {
+  if (typeof value === "function") {
+    return (value as (previous: T) => T)(current)
+  }
+
+  return value
+}
+
+function createInitialFormReducerState({
+  initialFormData,
+  initialImagePreviews,
+}: Pick<
+  CreateRestaurantProviderProps,
+  "initialFormData" | "initialImagePreviews"
+>): CreateRestaurantFormReducerState {
+  return {
+    formData: createInitialRestaurantFormData(initialFormData),
+    errors: {},
+    logoPreview: initialImagePreviews?.logoUrl ?? null,
+    coverPreview: initialImagePreviews?.coverUrl ?? null,
+    galleryPreviews: initialImagePreviews?.galleryUrls ?? [],
+    isSubmitting: false,
+    activeUploadCount: 0,
+    slugCheckStatus: "idle",
+    lastCheckedSlug: null,
+    isLocating: false,
+    locationError: null,
+  }
+}
+
+function createRestaurantFormReducer(
+  state: CreateRestaurantFormReducerState,
+  action: CreateRestaurantFormReducerAction
+): CreateRestaurantFormReducerState {
+  switch (action.type) {
+    case "setFormData":
+      return {
+        ...state,
+        formData: resolveReducerStateAction(state.formData, action.value),
+      }
+    case "setErrors":
+      return {
+        ...state,
+        errors: resolveReducerStateAction(state.errors, action.value),
+      }
+    case "setLogoPreview":
+      return {
+        ...state,
+        logoPreview: resolveReducerStateAction(state.logoPreview, action.value),
+      }
+    case "setCoverPreview":
+      return {
+        ...state,
+        coverPreview: resolveReducerStateAction(
+          state.coverPreview,
+          action.value
+        ),
+      }
+    case "setGalleryPreviews":
+      return {
+        ...state,
+        galleryPreviews: resolveReducerStateAction(
+          state.galleryPreviews,
+          action.value
+        ),
+      }
+    case "setIsSubmitting":
+      return {
+        ...state,
+        isSubmitting: resolveReducerStateAction(
+          state.isSubmitting,
+          action.value
+        ),
+      }
+    case "setActiveUploadCount":
+      return {
+        ...state,
+        activeUploadCount: resolveReducerStateAction(
+          state.activeUploadCount,
+          action.value
+        ),
+      }
+    case "setSlugCheckStatus":
+      return {
+        ...state,
+        slugCheckStatus: resolveReducerStateAction(
+          state.slugCheckStatus,
+          action.value
+        ),
+      }
+    case "setLastCheckedSlug":
+      return {
+        ...state,
+        lastCheckedSlug: resolveReducerStateAction(
+          state.lastCheckedSlug,
+          action.value
+        ),
+      }
+    case "setIsLocating":
+      return {
+        ...state,
+        isLocating: resolveReducerStateAction(state.isLocating, action.value),
+      }
+    case "setLocationError":
+      return {
+        ...state,
+        locationError: resolveReducerStateAction(
+          state.locationError,
+          action.value
+        ),
+      }
+    default:
+      return state
+  }
+}
+
 export function CreateRestaurantProvider({
   children,
   isEditing = false,
@@ -287,34 +437,94 @@ export function CreateRestaurantProvider({
   const navigate = useNavigate()
   const slugCheckRequestIdRef = useRef(0)
 
-  const [formData, setFormData] = useState<RestaurantDTO>(() =>
-    createInitialRestaurantFormData(initialFormData)
+  const [formReducerState, dispatchFormReducer] = useReducer(
+    createRestaurantFormReducer,
+    { initialFormData, initialImagePreviews },
+    createInitialFormReducerState
+  )
+  const {
+    formData,
+    errors,
+    logoPreview,
+    coverPreview,
+    galleryPreviews,
+    isSubmitting,
+    activeUploadCount,
+    slugCheckStatus,
+    lastCheckedSlug,
+    isLocating,
+    locationError,
+  } = formReducerState
+
+  const setFormData = useCallback(
+    (value: React.SetStateAction<RestaurantDTO>) => {
+      dispatchFormReducer({ type: "setFormData", value })
+    },
+    []
+  )
+  const setErrors = useCallback(
+    (value: React.SetStateAction<RestaurantFormErrors>) => {
+      dispatchFormReducer({ type: "setErrors", value })
+    },
+    []
+  )
+  const setLogoPreview = useCallback(
+    (value: React.SetStateAction<string | null>) => {
+      dispatchFormReducer({ type: "setLogoPreview", value })
+    },
+    []
+  )
+  const setCoverPreview = useCallback(
+    (value: React.SetStateAction<string | null>) => {
+      dispatchFormReducer({ type: "setCoverPreview", value })
+    },
+    []
+  )
+  const setGalleryPreviews = useCallback(
+    (value: React.SetStateAction<string[]>) => {
+      dispatchFormReducer({ type: "setGalleryPreviews", value })
+    },
+    []
+  )
+  const setIsSubmitting = useCallback(
+    (value: React.SetStateAction<boolean>) => {
+      dispatchFormReducer({ type: "setIsSubmitting", value })
+    },
+    []
+  )
+  const setActiveUploadCount = useCallback(
+    (value: React.SetStateAction<number>) => {
+      dispatchFormReducer({ type: "setActiveUploadCount", value })
+    },
+    []
+  )
+  const setSlugCheckStatus = useCallback(
+    (value: React.SetStateAction<SlugCheckStatus>) => {
+      dispatchFormReducer({ type: "setSlugCheckStatus", value })
+    },
+    []
+  )
+  const setLastCheckedSlug = useCallback(
+    (value: React.SetStateAction<string | null>) => {
+      dispatchFormReducer({ type: "setLastCheckedSlug", value })
+    },
+    []
+  )
+  const setIsLocating = useCallback((value: React.SetStateAction<boolean>) => {
+    dispatchFormReducer({ type: "setIsLocating", value })
+  }, [])
+  const setLocationError = useCallback(
+    (value: React.SetStateAction<string | null>) => {
+      dispatchFormReducer({ type: "setLocationError", value })
+    },
+    []
   )
 
-  const [errors, setErrors] = useState<
-    Partial<Record<keyof RestaurantDTO, string>>
-  >({})
-  const [logoPreview, setLogoPreview] = useState<string | null>(
-    () => initialImagePreviews?.logoUrl ?? null
-  )
-  const [coverPreview, setCoverPreview] = useState<string | null>(
-    () => initialImagePreviews?.coverUrl ?? null
-  )
-  const [galleryPreviews, setGalleryPreviews] = useState<string[]>(
-    () => initialImagePreviews?.galleryUrls ?? []
-  )
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [activeUploadCount, setActiveUploadCount] = useState(0)
-  const [slugCheckStatus, setSlugCheckStatus] =
-    useState<SlugCheckStatus>("idle")
-  const [lastCheckedSlug, setLastCheckedSlug] = useState<string | null>(null)
   const normalizedSlug = (formData.slug ?? "").trim()
   const slugCheckScopeRef = useRef({
     isEditing,
     slug: normalizedSlug,
   })
-  const [isLocating, setIsLocating] = useState(false)
-  const [locationError, setLocationError] = useState<string | null>(null)
 
   const isUploadingAssets = activeUploadCount > 0
 
@@ -347,57 +557,60 @@ export function CreateRestaurantProvider({
     }
   }
 
-  const requestCurrentLocation = useCallback((showErrorToast = true) => {
-    if (!navigator.geolocation) {
-      const message = "Thiết bị không hỗ trợ lấy vị trí tự động"
-      setLocationError(message)
-      if (showErrorToast) {
-        toast.error(message)
-      }
-      return
-    }
-
-    setIsLocating(true)
-    setLocationError(null)
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords
-
-        setFormData((prev) => ({
-          ...prev,
-          latitude: Number(latitude.toFixed(6)),
-          longitude: Number(longitude.toFixed(6)),
-        }))
-        setLocationError(null)
-        setIsLocating(false)
-      },
-      (error) => {
-        let message = "Không thể lấy vị trí hiện tại"
-        if (error.code === error.PERMISSION_DENIED) {
-          message =
-            'Bạn đã từ chối quyền vị trí. Hãy bấm "Lấy lại vị trí" để thử lại'
-        }
-        if (error.code === error.POSITION_UNAVAILABLE) {
-          message = "Không xác định được vị trí hiện tại"
-        }
-        if (error.code === error.TIMEOUT) {
-          message = "Yêu cầu lấy vị trí bị quá thời gian"
-        }
-
+  const requestCurrentLocation = useCallback(
+    (showErrorToast = true) => {
+      if (!navigator.geolocation) {
+        const message = "Thiết bị không hỗ trợ lấy vị trí tự động"
         setLocationError(message)
-        setIsLocating(false)
         if (showErrorToast) {
           toast.error(message)
         }
-      },
-      {
-        enableHighAccuracy: false,
-        timeout: 8000,
-        maximumAge: 1000 * 60 * 5,
+        return
       }
-    )
-  }, [])
+
+      setIsLocating(true)
+      setLocationError(null)
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords
+
+          setFormData((prev) => ({
+            ...prev,
+            latitude: Number(latitude.toFixed(6)),
+            longitude: Number(longitude.toFixed(6)),
+          }))
+          setLocationError(null)
+          setIsLocating(false)
+        },
+        (error) => {
+          let message = "Không thể lấy vị trí hiện tại"
+          if (error.code === error.PERMISSION_DENIED) {
+            message =
+              'Bạn đã từ chối quyền vị trí. Hãy bấm "Lấy lại vị trí" để thử lại'
+          }
+          if (error.code === error.POSITION_UNAVAILABLE) {
+            message = "Không xác định được vị trí hiện tại"
+          }
+          if (error.code === error.TIMEOUT) {
+            message = "Yêu cầu lấy vị trí bị quá thời gian"
+          }
+
+          setLocationError(message)
+          setIsLocating(false)
+          if (showErrorToast) {
+            toast.error(message)
+          }
+        },
+        {
+          enableHighAccuracy: false,
+          timeout: 8000,
+          maximumAge: 1000 * 60 * 5,
+        }
+      )
+    },
+    [setFormData, setIsLocating, setLocationError]
+  )
 
   useEffect(() => {
     if (isEditing || !normalizedSlug) {
@@ -453,7 +666,13 @@ export function CreateRestaurantProvider({
     return () => {
       window.clearTimeout(timeoutId)
     }
-  }, [isEditing, normalizedSlug])
+  }, [
+    isEditing,
+    normalizedSlug,
+    setErrors,
+    setLastCheckedSlug,
+    setSlugCheckStatus,
+  ])
 
   const progress = useMemo(() => {
     const filled = REQUIRED_FIELDS.filter((field) =>
@@ -465,11 +684,11 @@ export function CreateRestaurantProvider({
 
   const beginUpload = useCallback(() => {
     setActiveUploadCount((prev) => prev + 1)
-  }, [])
+  }, [setActiveUploadCount])
 
   const endUpload = useCallback(() => {
     setActiveUploadCount((prev) => Math.max(0, prev - 1))
-  }, [])
+  }, [setActiveUploadCount])
 
   const setField = useCallback(
     (name: keyof RestaurantDTO, value: RestaurantDTO[keyof RestaurantDTO]) => {
@@ -482,7 +701,7 @@ export function CreateRestaurantProvider({
         return next
       })
     },
-    []
+    [setErrors, setFormData]
   )
 
   const changeTextField = useCallback(
@@ -508,7 +727,7 @@ export function CreateRestaurantProvider({
         }
       })
     },
-    []
+    [setFormData]
   )
 
   const changeOperatingClosed = useCallback(
@@ -524,7 +743,7 @@ export function CreateRestaurantProvider({
         },
       }))
     },
-    []
+    [setFormData]
   )
 
   const changeOperatingTime = useCallback(
@@ -540,7 +759,7 @@ export function CreateRestaurantProvider({
         },
       }))
     },
-    []
+    [setFormData]
   )
 
   const setImagePreviews = useCallback(
@@ -553,7 +772,7 @@ export function CreateRestaurantProvider({
       if (coverUrl) setCoverPreview(coverUrl)
       if (galleryUrls && galleryUrls.length > 0) setGalleryPreviews(galleryUrls)
     },
-    []
+    [setCoverPreview, setGalleryPreviews, setLogoPreview]
   )
 
   const uploadImage = useCallback(
@@ -664,7 +883,15 @@ export function CreateRestaurantProvider({
         event.target.value = ""
       }
     },
-    [beginUpload, endUpload, formData.gallery_urls]
+    [
+      beginUpload,
+      endUpload,
+      formData.gallery_urls,
+      setCoverPreview,
+      setFormData,
+      setGalleryPreviews,
+      setLogoPreview,
+    ]
   )
 
   const validateBeforeSubmit = useCallback(
@@ -696,7 +923,7 @@ export function CreateRestaurantProvider({
 
       return true
     },
-    []
+    [setErrors]
   )
 
   const validateSlugAvailability = useCallback(
@@ -757,7 +984,7 @@ export function CreateRestaurantProvider({
         return false
       }
     },
-    [isEditing, lastCheckedSlug, slugCheckStatus]
+    [isEditing, lastCheckedSlug, setErrors, setSlugCheckStatus, slugCheckStatus]
   )
 
   const submit = useCallback(async () => {
@@ -807,6 +1034,9 @@ export function CreateRestaurantProvider({
     isSubmitting,
     isUploadingAssets,
     navigate,
+    setErrors,
+    setIsSubmitting,
+    setSlugCheckStatus,
     validateBeforeSubmit,
     validateSlugAvailability,
   ])

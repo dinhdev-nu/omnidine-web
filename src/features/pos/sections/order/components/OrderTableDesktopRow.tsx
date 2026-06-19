@@ -40,6 +40,113 @@ interface OrderTableDesktopRowProps {
   onEditDiscountClick?: (order: Order) => void
 }
 
+type OrderTableDetailItem = NonNullable<Order["items"]>[number]
+
+type OrderTableDetailItemRowProps = {
+  order: Order
+  item: OrderTableDetailItem
+  isActionable: boolean
+  onUpdateOrderItemStatus?: (
+    order: Order,
+    itemId: string,
+    status: AllowedOrderItemStatusUpdate
+  ) => void
+  onCancelOrderItemClick?: (order: Order, itemId: string) => void
+}
+
+function OrderTableDetailItemRow({
+  order,
+  item,
+  isActionable,
+  onUpdateOrderItemStatus,
+  onCancelOrderItemClick,
+}: OrderTableDetailItemRowProps) {
+  const isCancelled = item.status === "cancelled"
+  const itemId = item._id || ""
+
+  return (
+    <div
+      className={`px-3 py-2 transition-colors hover:bg-muted/30 ${isCancelled ? "bg-muted/20 opacity-60" : ""}`}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span
+              className={`inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold ${isCancelled ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"}`}
+            >
+              {item.quantity}
+            </span>
+            <span
+              className={`truncate text-sm font-medium ${isCancelled ? "text-muted-foreground line-through" : "text-foreground"}`}
+            >
+              {item.item_name}
+            </span>
+            <TableOrderItemStatusBadge status={item.status} />
+          </div>
+          <div className="mt-0.5 ml-7 text-xs text-muted-foreground">
+            {formatCurrency(item.unit_price)}
+          </div>
+          {item.notes && (
+            <p className="mt-0.5 ml-7 text-xs text-muted-foreground italic">
+              📝 {item.notes}
+            </p>
+          )}
+        </div>
+        <div className="flex items-center gap-1">
+          <span
+            className={`text-sm font-semibold whitespace-nowrap ${isCancelled ? "text-muted-foreground line-through" : "text-foreground"}`}
+          >
+            {formatCurrency(item.total_price)}
+          </span>
+          {isActionable && !isCancelled && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="ml-1 h-6 w-6 text-muted-foreground hover:text-foreground"
+                >
+                  <Icon name="MoreVertical" size={14} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-36">
+                <DropdownMenuItem
+                  onClick={() =>
+                    onUpdateOrderItemStatus?.(order, itemId, "preparing")
+                  }
+                >
+                  Báo đang làm
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    onUpdateOrderItemStatus?.(order, itemId, "ready")
+                  }
+                >
+                  Báo làm xong
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    onUpdateOrderItemStatus?.(order, itemId, "served")
+                  }
+                >
+                  Đã lên món
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onClick={() => onCancelOrderItemClick?.(order, itemId)}
+                >
+                  Hủy món
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const OrderTableDesktopRow: React.FC<OrderTableDesktopRowProps> = ({
   order,
   detailOrder,
@@ -314,119 +421,19 @@ const OrderTableDesktopRow: React.FC<OrderTableDesktopRowProps> = ({
                           </h5>
                         </div>
                         <div className="max-h-[200px] divide-y divide-border overflow-y-auto">
-                          {detailOrder.items?.map((item) => {
-                            const isCancelled = item.status === "cancelled"
-                            return (
-                              <div
-                                key={
-                                  item._id ??
-                                  `${item.menu_item_id}-${item.created_at}`
-                                }
-                                className={`px-3 py-2 transition-colors hover:bg-muted/30 ${isCancelled ? "bg-muted/20 opacity-60" : ""}`}
-                              >
-                                <div className="flex items-start justify-between gap-2">
-                                  <div className="min-w-0 flex-1">
-                                    <div className="flex items-center gap-2">
-                                      <span
-                                        className={`inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold ${isCancelled ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"}`}
-                                      >
-                                        {item.quantity}
-                                      </span>
-                                      <span
-                                        className={`truncate text-sm font-medium ${isCancelled ? "text-muted-foreground line-through" : "text-foreground"}`}
-                                      >
-                                        {item.item_name}
-                                      </span>
-                                      <TableOrderItemStatusBadge
-                                        status={item.status}
-                                      />
-                                    </div>
-                                    <div className="mt-0.5 ml-7 text-xs text-muted-foreground">
-                                      {formatCurrency(item.unit_price)}
-                                    </div>
-                                    {item.notes && (
-                                      <p className="mt-0.5 ml-7 text-xs text-muted-foreground italic">
-                                        📝 {item.notes}
-                                      </p>
-                                    )}
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <span
-                                      className={`text-sm font-semibold whitespace-nowrap ${isCancelled ? "text-muted-foreground line-through" : "text-foreground"}`}
-                                    >
-                                      {formatCurrency(item.total_price)}
-                                    </span>
-                                    {isActionable && !isCancelled && (
-                                      <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                          <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="ml-1 h-6 w-6 text-muted-foreground hover:text-foreground"
-                                          >
-                                            <Icon
-                                              name="MoreVertical"
-                                              size={14}
-                                            />
-                                          </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent
-                                          align="end"
-                                          className="w-36"
-                                        >
-                                          <DropdownMenuItem
-                                            onClick={() =>
-                                              onUpdateOrderItemStatus?.(
-                                                order,
-                                                item._id || "",
-                                                "preparing"
-                                              )
-                                            }
-                                          >
-                                            Báo đang làm
-                                          </DropdownMenuItem>
-                                          <DropdownMenuItem
-                                            onClick={() =>
-                                              onUpdateOrderItemStatus?.(
-                                                order,
-                                                item._id || "",
-                                                "ready"
-                                              )
-                                            }
-                                          >
-                                            Báo làm xong
-                                          </DropdownMenuItem>
-                                          <DropdownMenuItem
-                                            onClick={() =>
-                                              onUpdateOrderItemStatus?.(
-                                                order,
-                                                item._id || "",
-                                                "served"
-                                              )
-                                            }
-                                          >
-                                            Đã lên món
-                                          </DropdownMenuItem>
-                                          <DropdownMenuSeparator />
-                                          <DropdownMenuItem
-                                            className="text-destructive focus:text-destructive"
-                                            onClick={() =>
-                                              onCancelOrderItemClick?.(
-                                                order,
-                                                item._id || ""
-                                              )
-                                            }
-                                          >
-                                            Hủy món
-                                          </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                      </DropdownMenu>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            )
-                          })}
+                          {detailOrder.items?.map((item) => (
+                            <OrderTableDetailItemRow
+                              key={
+                                item._id ??
+                                `${item.menu_item_id}-${item.created_at}`
+                              }
+                              order={order}
+                              item={item}
+                              isActionable={isActionable}
+                              onUpdateOrderItemStatus={onUpdateOrderItemStatus}
+                              onCancelOrderItemClick={onCancelOrderItemClick}
+                            />
+                          ))}
                         </div>
                       </div>
                     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react"
+import React, { useCallback, useReducer, useRef } from "react"
 import ConfirmationDialog from "../../../ui/ConfirmationDialog"
 import OrderTableDesktopRow from "./OrderTableDesktopRow"
 import OrderTableMobileCard from "./OrderTableMobileCard"
@@ -66,6 +66,219 @@ function getAllowedNextStatuses(order: Order): AllowedOrderStatusUpdate[] {
 
 // ── Main component ─────────────────────────────────────────────────────────────
 
+type OrderDiscountEditType = "fixed" | "percent"
+
+type OrderTableState = {
+  expandedRows: Set<string>
+  selectedOrderToCancel: Order | null
+  showCancelDialog: boolean
+  cancelReason: string
+  isCancelling: boolean
+  selectedOrderToUpdateStatus: Order | null
+  showUpdateStatusDialog: boolean
+  nextStatus: AllowedOrderStatusUpdate | ""
+  isUpdatingStatus: boolean
+  detailOrders: Record<string, Order>
+  loadingDetailOrders: Record<string, boolean>
+  selectedOrderToDiscount: Order | null
+  showDiscountDialog: boolean
+  discountType: OrderDiscountEditType
+  discountValue: number
+  discountRef: string
+  isUpdatingDiscount: boolean
+  showCancelItemDialog: boolean
+  cancelItemReason: string
+  isCancellingItem: boolean
+}
+
+type OrderTableAction =
+  | { type: "toggleExpanded"; orderId: string }
+  | { type: "setLoadingDetail"; orderId: string; isLoading: boolean }
+  | { type: "setDetailOrder"; orderId: string; order: Order }
+  | { type: "requestCancelOrder"; order: Order }
+  | { type: "closeCancelOrder" }
+  | { type: "setCancelReason"; reason: string }
+  | { type: "startCancelOrder" }
+  | { type: "finishCancelOrder" }
+  | {
+      type: "requestUpdateStatus"
+      order: Order
+      nextStatus: AllowedOrderStatusUpdate
+    }
+  | { type: "closeUpdateStatus" }
+  | { type: "setNextStatus"; nextStatus: AllowedOrderStatusUpdate }
+  | { type: "startUpdateStatus" }
+  | { type: "finishUpdateStatus" }
+  | {
+      type: "requestDiscount"
+      order: Order
+      discountType: OrderDiscountEditType
+      discountValue: number
+      discountRef: string
+    }
+  | { type: "closeDiscount" }
+  | { type: "setDiscountType"; discountType: OrderDiscountEditType }
+  | { type: "setDiscountValue"; discountValue: number }
+  | { type: "setDiscountRef"; discountRef: string }
+  | { type: "startDiscount" }
+  | { type: "finishDiscount" }
+  | { type: "requestCancelItem" }
+  | { type: "closeCancelItem" }
+  | { type: "setCancelItemReason"; reason: string }
+  | { type: "startCancelItem" }
+  | { type: "finishCancelItem" }
+
+const orderTableInitialState: OrderTableState = {
+  expandedRows: new Set(),
+  selectedOrderToCancel: null,
+  showCancelDialog: false,
+  cancelReason: "",
+  isCancelling: false,
+  selectedOrderToUpdateStatus: null,
+  showUpdateStatusDialog: false,
+  nextStatus: "",
+  isUpdatingStatus: false,
+  detailOrders: {},
+  loadingDetailOrders: {},
+  selectedOrderToDiscount: null,
+  showDiscountDialog: false,
+  discountType: "fixed",
+  discountValue: 0,
+  discountRef: "",
+  isUpdatingDiscount: false,
+  showCancelItemDialog: false,
+  cancelItemReason: "",
+  isCancellingItem: false,
+}
+
+function orderTableReducer(
+  state: OrderTableState,
+  action: OrderTableAction
+): OrderTableState {
+  switch (action.type) {
+    case "toggleExpanded": {
+      const expandedRows = new Set(state.expandedRows)
+      if (expandedRows.has(action.orderId)) {
+        expandedRows.delete(action.orderId)
+      } else {
+        expandedRows.add(action.orderId)
+      }
+      return { ...state, expandedRows }
+    }
+    case "setLoadingDetail":
+      return {
+        ...state,
+        loadingDetailOrders: {
+          ...state.loadingDetailOrders,
+          [action.orderId]: action.isLoading,
+        },
+      }
+    case "setDetailOrder":
+      return {
+        ...state,
+        detailOrders: { ...state.detailOrders, [action.orderId]: action.order },
+      }
+    case "requestCancelOrder":
+      return {
+        ...state,
+        selectedOrderToCancel: action.order,
+        showCancelDialog: true,
+      }
+    case "closeCancelOrder":
+      return {
+        ...state,
+        showCancelDialog: false,
+        selectedOrderToCancel: null,
+        cancelReason: "",
+      }
+    case "setCancelReason":
+      return { ...state, cancelReason: action.reason }
+    case "startCancelOrder":
+      return { ...state, isCancelling: true }
+    case "finishCancelOrder":
+      return {
+        ...state,
+        isCancelling: false,
+        showCancelDialog: false,
+        selectedOrderToCancel: null,
+        cancelReason: "",
+      }
+    case "requestUpdateStatus":
+      return {
+        ...state,
+        selectedOrderToUpdateStatus: action.order,
+        nextStatus: action.nextStatus,
+        showUpdateStatusDialog: true,
+      }
+    case "closeUpdateStatus":
+      return {
+        ...state,
+        showUpdateStatusDialog: false,
+        selectedOrderToUpdateStatus: null,
+        nextStatus: "",
+      }
+    case "setNextStatus":
+      return { ...state, nextStatus: action.nextStatus }
+    case "startUpdateStatus":
+      return { ...state, isUpdatingStatus: true }
+    case "finishUpdateStatus":
+      return {
+        ...state,
+        isUpdatingStatus: false,
+        showUpdateStatusDialog: false,
+        selectedOrderToUpdateStatus: null,
+        nextStatus: "",
+      }
+    case "requestDiscount":
+      return {
+        ...state,
+        selectedOrderToDiscount: action.order,
+        discountType: action.discountType,
+        discountValue: action.discountValue,
+        discountRef: action.discountRef,
+        showDiscountDialog: true,
+      }
+    case "closeDiscount":
+      return {
+        ...state,
+        showDiscountDialog: false,
+        selectedOrderToDiscount: null,
+        discountRef: "",
+      }
+    case "setDiscountType":
+      return { ...state, discountType: action.discountType }
+    case "setDiscountValue":
+      return { ...state, discountValue: action.discountValue }
+    case "setDiscountRef":
+      return { ...state, discountRef: action.discountRef }
+    case "startDiscount":
+      return { ...state, isUpdatingDiscount: true }
+    case "finishDiscount":
+      return {
+        ...state,
+        isUpdatingDiscount: false,
+        showDiscountDialog: false,
+        selectedOrderToDiscount: null,
+      }
+    case "requestCancelItem":
+      return { ...state, cancelItemReason: "", showCancelItemDialog: true }
+    case "closeCancelItem":
+      return {
+        ...state,
+        showCancelItemDialog: false,
+        cancelItemReason: "",
+      }
+    case "setCancelItemReason":
+      return { ...state, cancelItemReason: action.reason }
+    case "startCancelItem":
+      return { ...state, isCancellingItem: true }
+    case "finishCancelItem":
+      return { ...state, isCancellingItem: false, showCancelItemDialog: false }
+    default:
+      return state
+  }
+}
+
 const OrderTable: React.FC<OrderTableProps> = ({
   orders,
   highlightedOrderId,
@@ -77,39 +290,37 @@ const OrderTable: React.FC<OrderTableProps> = ({
   onCancelOrderItem,
   onUpdateOrderDiscount,
 }) => {
-  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
-  const [selectedOrderToCancel, setSelectedOrderToCancel] =
-    useState<Order | null>(null)
-  const [showCancelDialog, setShowCancelDialog] = useState(false)
-  const [cancelReason, setCancelReason] = useState("")
-  const [isCancelling, setIsCancelling] = useState(false)
-  const [selectedOrderToUpdateStatus, setSelectedOrderToUpdateStatus] =
-    useState<Order | null>(null)
-  const [showUpdateStatusDialog, setShowUpdateStatusDialog] = useState(false)
-  const [nextStatus, setNextStatus] = useState<AllowedOrderStatusUpdate | "">(
-    ""
+  const [tableState, dispatchTable] = useReducer(
+    orderTableReducer,
+    orderTableInitialState
   )
-  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
-  const [detailOrders, setDetailOrders] = useState<Record<string, Order>>({})
-  const [loadingDetailOrders, setLoadingDetailOrders] = useState<
-    Record<string, boolean>
-  >({})
-
-  const [selectedOrderToDiscount, setSelectedOrderToDiscount] =
-    useState<Order | null>(null)
-  const [showDiscountDialog, setShowDiscountDialog] = useState(false)
-  const [discountType, setDiscountType] = useState<"fixed" | "percent">("fixed")
-  const [discountValue, setDiscountValue] = useState<number>(0)
-  const [discountRef, setDiscountRef] = useState("")
-  const [isUpdatingDiscount, setIsUpdatingDiscount] = useState(false)
+  const {
+    expandedRows,
+    selectedOrderToCancel,
+    showCancelDialog,
+    cancelReason,
+    isCancelling,
+    selectedOrderToUpdateStatus,
+    showUpdateStatusDialog,
+    nextStatus,
+    isUpdatingStatus,
+    detailOrders,
+    loadingDetailOrders,
+    selectedOrderToDiscount,
+    showDiscountDialog,
+    discountType,
+    discountValue,
+    discountRef,
+    isUpdatingDiscount,
+    showCancelItemDialog,
+    cancelItemReason,
+    isCancellingItem,
+  } = tableState
 
   const selectedItemToCancelRef = useRef<{
     order: Order
     itemId: string
   } | null>(null)
-  const [showCancelItemDialog, setShowCancelItemDialog] = useState(false)
-  const [cancelItemReason, setCancelItemReason] = useState("")
-  const [isCancellingItem, setIsCancellingItem] = useState(false)
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
@@ -122,8 +333,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
   )
 
   const handleCancelClick = useCallback((order: Order) => {
-    setSelectedOrderToCancel(order)
-    setShowCancelDialog(true)
+    dispatchTable({ type: "requestCancelOrder", order })
   }, [])
 
   const handleUpdateStatusClick = useCallback((order: Order) => {
@@ -132,34 +342,30 @@ const OrderTable: React.FC<OrderTableProps> = ({
       return
     }
 
-    setSelectedOrderToUpdateStatus(order)
-    setNextStatus(allowedStatuses[0])
-    setShowUpdateStatusDialog(true)
+    dispatchTable({
+      type: "requestUpdateStatus",
+      order,
+      nextStatus: allowedStatuses[0],
+    })
   }, [])
 
   const handleConfirmCancel = useCallback(async () => {
     if (!selectedOrderToCancel) return
     try {
-      setIsCancelling(true)
+      dispatchTable({ type: "startCancelOrder" })
       await onCancelOrder(selectedOrderToCancel, cancelReason || undefined)
     } finally {
-      setIsCancelling(false)
-      setShowCancelDialog(false)
-      setSelectedOrderToCancel(null)
-      setCancelReason("")
+      dispatchTable({ type: "finishCancelOrder" })
     }
   }, [selectedOrderToCancel, cancelReason, onCancelOrder])
 
   const handleConfirmUpdateStatus = useCallback(async () => {
     if (!selectedOrderToUpdateStatus || !nextStatus) return
     try {
-      setIsUpdatingStatus(true)
+      dispatchTable({ type: "startUpdateStatus" })
       await onUpdateOrderStatus(selectedOrderToUpdateStatus, nextStatus)
     } finally {
-      setIsUpdatingStatus(false)
-      setShowUpdateStatusDialog(false)
-      setSelectedOrderToUpdateStatus(null)
-      setNextStatus("")
+      dispatchTable({ type: "finishUpdateStatus" })
     }
   }, [selectedOrderToUpdateStatus, nextStatus, onUpdateOrderStatus])
 
@@ -167,15 +373,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
     (order: Order) => {
       const isExpanding = !expandedRows.has(order._id)
 
-      setExpandedRows((prev) => {
-        const next = new Set(prev)
-        if (next.has(order._id)) {
-          next.delete(order._id)
-        } else {
-          next.add(order._id)
-        }
-        return next
-      })
+      dispatchTable({ type: "toggleExpanded", orderId: order._id })
 
       if (
         !isExpanding ||
@@ -185,13 +383,25 @@ const OrderTable: React.FC<OrderTableProps> = ({
         return
       }
 
-      setLoadingDetailOrders((prev) => ({ ...prev, [order._id]: true }))
+      dispatchTable({
+        type: "setLoadingDetail",
+        orderId: order._id,
+        isLoading: true,
+      })
       void (async () => {
         try {
           const detailOrder = await onLoadOrderDetail(order._id)
-          setDetailOrders((prev) => ({ ...prev, [order._id]: detailOrder }))
+          dispatchTable({
+            type: "setDetailOrder",
+            orderId: order._id,
+            order: detailOrder,
+          })
         } finally {
-          setLoadingDetailOrders((prev) => ({ ...prev, [order._id]: false }))
+          dispatchTable({
+            type: "setLoadingDetail",
+            orderId: order._id,
+            isLoading: false,
+          })
         }
       })()
     },
@@ -207,35 +417,38 @@ const OrderTable: React.FC<OrderTableProps> = ({
       if (!onUpdateOrderItemStatus) return
       await onUpdateOrderItemStatus(order, itemId, status)
       const detailOrder = await onLoadOrderDetail(order._id)
-      setDetailOrders((prev) => ({ ...prev, [order._id]: detailOrder }))
+      dispatchTable({
+        type: "setDetailOrder",
+        orderId: order._id,
+        order: detailOrder,
+      })
     },
     [onUpdateOrderItemStatus, onLoadOrderDetail]
   )
 
   const handleEditDiscountClick = useCallback(
     (order: Order) => {
-      setSelectedOrderToDiscount(order)
       const detail = detailOrders[order._id] || order
-      setDiscountType(
-        detail.discount_type === "percent" ? "percent" : "fixed"
-      )
-      setDiscountValue(detail.discount_value || 0)
-      setDiscountRef(detail.discount_ref ?? "")
-      setShowDiscountDialog(true)
+      dispatchTable({
+        type: "requestDiscount",
+        order,
+        discountType: detail.discount_type === "percent" ? "percent" : "fixed",
+        discountValue: detail.discount_value || 0,
+        discountRef: detail.discount_ref ?? "",
+      })
     },
     [detailOrders]
   )
 
   const handleCancelItemClick = useCallback((order: Order, itemId: string) => {
     selectedItemToCancelRef.current = { order, itemId }
-    setCancelItemReason("")
-    setShowCancelItemDialog(true)
+    dispatchTable({ type: "requestCancelItem" })
   }, [])
 
   const handleConfirmDiscount = useCallback(async () => {
     if (!selectedOrderToDiscount || !onUpdateOrderDiscount) return
     try {
-      setIsUpdatingDiscount(true)
+      dispatchTable({ type: "startDiscount" })
       await onUpdateOrderDiscount(
         selectedOrderToDiscount,
         discountType,
@@ -243,14 +456,13 @@ const OrderTable: React.FC<OrderTableProps> = ({
         discountRef
       )
       const detailOrder = await onLoadOrderDetail(selectedOrderToDiscount._id)
-      setDetailOrders((prev) => ({
-        ...prev,
-        [selectedOrderToDiscount._id]: detailOrder,
-      }))
+      dispatchTable({
+        type: "setDetailOrder",
+        orderId: selectedOrderToDiscount._id,
+        order: detailOrder,
+      })
     } finally {
-      setIsUpdatingDiscount(false)
-      setShowDiscountDialog(false)
-      setSelectedOrderToDiscount(null)
+      dispatchTable({ type: "finishDiscount" })
     }
   }, [
     selectedOrderToDiscount,
@@ -265,7 +477,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
     const selectedItemToCancel = selectedItemToCancelRef.current
     if (!selectedItemToCancel || !onCancelOrderItem) return
     try {
-      setIsCancellingItem(true)
+      dispatchTable({ type: "startCancelItem" })
       await onCancelOrderItem(
         selectedItemToCancel.order,
         selectedItemToCancel.itemId,
@@ -274,20 +486,16 @@ const OrderTable: React.FC<OrderTableProps> = ({
       const detailOrder = await onLoadOrderDetail(
         selectedItemToCancel.order._id
       )
-      setDetailOrders((prev) => ({
-        ...prev,
-        [selectedItemToCancel.order._id]: detailOrder,
-      }))
+      dispatchTable({
+        type: "setDetailOrder",
+        orderId: selectedItemToCancel.order._id,
+        order: detailOrder,
+      })
     } finally {
-      setIsCancellingItem(false)
-      setShowCancelItemDialog(false)
+      dispatchTable({ type: "finishCancelItem" })
       selectedItemToCancelRef.current = null
     }
-  }, [
-    cancelItemReason,
-    onCancelOrderItem,
-    onLoadOrderDetail,
-  ])
+  }, [cancelItemReason, onCancelOrderItem, onLoadOrderDetail])
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -373,11 +581,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
       </div>
       <ConfirmationDialog
         isOpen={showUpdateStatusDialog}
-        onClose={() => {
-          setShowUpdateStatusDialog(false)
-          setSelectedOrderToUpdateStatus(null)
-          setNextStatus("")
-        }}
+        onClose={() => dispatchTable({ type: "closeUpdateStatus" })}
         onConfirm={handleConfirmUpdateStatus}
         title="Cập nhật trạng thái đơn"
         message={`Chọn trạng thái mới cho đơn ${selectedOrderToUpdateStatus?.order_number ?? ""}.`}
@@ -388,7 +592,10 @@ const OrderTable: React.FC<OrderTableProps> = ({
         isLoading={isUpdatingStatus}
       >
         <div className="mt-3">
-          <label htmlFor="order-next-status" className="mb-1 block text-xs text-muted-foreground">
+          <label
+            htmlFor="order-next-status"
+            className="mb-1 block text-xs text-muted-foreground"
+          >
             Trạng thái mới
           </label>
           <select
@@ -396,7 +603,10 @@ const OrderTable: React.FC<OrderTableProps> = ({
             className="h-9 w-full rounded border border-border bg-background px-2 text-sm"
             value={nextStatus}
             onChange={(e) =>
-              setNextStatus(e.target.value as AllowedOrderStatusUpdate)
+              dispatchTable({
+                type: "setNextStatus",
+                nextStatus: e.target.value as AllowedOrderStatusUpdate,
+              })
             }
           >
             {(selectedOrderToUpdateStatus
@@ -412,11 +622,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
       </ConfirmationDialog>
       <ConfirmationDialog
         isOpen={showCancelDialog}
-        onClose={() => {
-          setShowCancelDialog(false)
-          setSelectedOrderToCancel(null)
-          setCancelReason("")
-        }}
+        onClose={() => dispatchTable({ type: "closeCancelOrder" })}
         onConfirm={handleConfirmCancel}
         title="Hủy đơn hàng"
         message={`Bạn có chắc muốn hủy đơn ${selectedOrderToCancel?.order_number}? Hành động này không thể hoàn tác.`}
@@ -427,7 +633,10 @@ const OrderTable: React.FC<OrderTableProps> = ({
         isLoading={isCancelling}
       >
         <div className="mt-3">
-          <label htmlFor="order-cancel-reason" className="mb-1 block text-xs text-muted-foreground">
+          <label
+            htmlFor="order-cancel-reason"
+            className="mb-1 block text-xs text-muted-foreground"
+          >
             Lý do hủy (tuỳ chọn)
           </label>
           <textarea
@@ -435,18 +644,19 @@ const OrderTable: React.FC<OrderTableProps> = ({
             className="min-h-[80px] w-full rounded border border-border p-2 text-sm"
             placeholder="Nhập lý do hủy để lưu lại (ví dụ: Khách đổi ý)"
             value={cancelReason}
-            onChange={(e) => setCancelReason(e.target.value)}
+            onChange={(e) =>
+              dispatchTable({
+                type: "setCancelReason",
+                reason: e.target.value,
+              })
+            }
           />
         </div>
       </ConfirmationDialog>
 
       <ConfirmationDialog
         isOpen={showDiscountDialog}
-        onClose={() => {
-          setShowDiscountDialog(false)
-          setSelectedOrderToDiscount(null)
-          setDiscountRef("")
-        }}
+        onClose={() => dispatchTable({ type: "closeDiscount" })}
         onConfirm={handleConfirmDiscount}
         title="Cập nhật giảm giá"
         message={`Cập nhật giảm giá cho đơn ${selectedOrderToDiscount?.order_number}.`}
@@ -458,7 +668,10 @@ const OrderTable: React.FC<OrderTableProps> = ({
       >
         <div className="mt-3 space-y-3">
           <div>
-            <label htmlFor="order-discount-type" className="mb-1 block text-xs text-muted-foreground">
+            <label
+              htmlFor="order-discount-type"
+              className="mb-1 block text-xs text-muted-foreground"
+            >
               Loại giảm giá
             </label>
             <select
@@ -466,7 +679,10 @@ const OrderTable: React.FC<OrderTableProps> = ({
               className="h-9 w-full rounded border border-border bg-background px-2 text-sm"
               value={discountType}
               onChange={(e) =>
-                setDiscountType(e.target.value as "fixed" | "percent")
+                dispatchTable({
+                  type: "setDiscountType",
+                  discountType: e.target.value as OrderDiscountEditType,
+                })
               }
             >
               <option value="fixed">Tiền mặt</option>
@@ -474,7 +690,10 @@ const OrderTable: React.FC<OrderTableProps> = ({
             </select>
           </div>
           <div>
-            <label htmlFor="order-discount-value" className="mb-1 block text-xs text-muted-foreground">
+            <label
+              htmlFor="order-discount-value"
+              className="mb-1 block text-xs text-muted-foreground"
+            >
               Giá trị
             </label>
             <input
@@ -482,11 +701,19 @@ const OrderTable: React.FC<OrderTableProps> = ({
               type="number"
               className="h-9 w-full rounded border border-border bg-background px-2 text-sm"
               value={discountValue}
-              onChange={(e) => setDiscountValue(Number(e.target.value))}
+              onChange={(e) =>
+                dispatchTable({
+                  type: "setDiscountValue",
+                  discountValue: Number(e.target.value),
+                })
+              }
             />
           </div>
           <div>
-            <label htmlFor="order-discount-reference" className="mb-1 block text-xs text-muted-foreground">
+            <label
+              htmlFor="order-discount-reference"
+              className="mb-1 block text-xs text-muted-foreground"
+            >
               Mã giảm giá / chương trình
             </label>
             <input
@@ -495,7 +722,12 @@ const OrderTable: React.FC<OrderTableProps> = ({
               className="h-9 w-full rounded border border-border bg-background px-2 text-sm"
               placeholder="Nhập mã voucher hoặc tên chương trình"
               value={discountRef}
-              onChange={(e) => setDiscountRef(e.target.value)}
+              onChange={(e) =>
+                dispatchTable({
+                  type: "setDiscountRef",
+                  discountRef: e.target.value,
+                })
+              }
             />
           </div>
         </div>
@@ -504,9 +736,8 @@ const OrderTable: React.FC<OrderTableProps> = ({
       <ConfirmationDialog
         isOpen={showCancelItemDialog}
         onClose={() => {
-          setShowCancelItemDialog(false)
+          dispatchTable({ type: "closeCancelItem" })
           selectedItemToCancelRef.current = null
-          setCancelItemReason("")
         }}
         onConfirm={handleConfirmCancelItem}
         title="Hủy món ăn"
@@ -518,7 +749,10 @@ const OrderTable: React.FC<OrderTableProps> = ({
         isLoading={isCancellingItem}
       >
         <div className="mt-3">
-          <label htmlFor="order-item-cancel-reason" className="mb-1 block text-xs text-muted-foreground">
+          <label
+            htmlFor="order-item-cancel-reason"
+            className="mb-1 block text-xs text-muted-foreground"
+          >
             Lý do hủy (tuỳ chọn)
           </label>
           <textarea
@@ -526,7 +760,12 @@ const OrderTable: React.FC<OrderTableProps> = ({
             className="min-h-[80px] w-full rounded border border-border p-2 text-sm"
             placeholder="Nhập lý do hủy món..."
             value={cancelItemReason}
-            onChange={(e) => setCancelItemReason(e.target.value)}
+            onChange={(e) =>
+              dispatchTable({
+                type: "setCancelItemReason",
+                reason: e.target.value,
+              })
+            }
           />
         </div>
       </ConfirmationDialog>

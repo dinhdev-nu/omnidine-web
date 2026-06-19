@@ -20,30 +20,110 @@ import { useMenuForm } from "./hooks/useMenuForm"
 import { useCategoryForm } from "./hooks/useCategoryForm"
 import { useRequiredPosData } from "@/features/pos/contexts/usePosContext"
 
+type MenuViewMode = "table" | "grid"
+
+type MenuCategoryToggleTarget = {
+  id: string
+  name: string
+  isActive: boolean
+}
+
+type MenuUiState = {
+  viewMode: MenuViewMode
+  showDeleteDialog: boolean
+  itemToDelete: string | null
+  showCategoryManager: boolean
+  showDeleteCategoryDialog: boolean
+  categoryToDelete: string | null
+  showToggleCategoryDialog: boolean
+  categoryToToggle: MenuCategoryToggleTarget | null
+  checkingToggleCategoryId: string | null
+}
+
+type MenuUiAction =
+  | { type: "setViewMode"; viewMode: MenuViewMode }
+  | { type: "requestDeleteItem"; itemId: string }
+  | { type: "closeDeleteItem" }
+  | { type: "setCategoryManagerOpen"; isOpen: boolean }
+  | { type: "requestDeleteCategory"; categoryId: string }
+  | { type: "closeDeleteCategory" }
+  | { type: "requestToggleCategory"; category: MenuCategoryToggleTarget }
+  | { type: "closeToggleCategory" }
+  | { type: "setCheckingToggleCategoryId"; categoryId: string | null }
+
+const menuUiInitialState: MenuUiState = {
+  viewMode: "table",
+  showDeleteDialog: false,
+  itemToDelete: null,
+  showCategoryManager: false,
+  showDeleteCategoryDialog: false,
+  categoryToDelete: null,
+  showToggleCategoryDialog: false,
+  categoryToToggle: null,
+  checkingToggleCategoryId: null,
+}
+
+function menuUiReducer(state: MenuUiState, action: MenuUiAction): MenuUiState {
+  switch (action.type) {
+    case "setViewMode":
+      return { ...state, viewMode: action.viewMode }
+    case "requestDeleteItem":
+      return { ...state, itemToDelete: action.itemId, showDeleteDialog: true }
+    case "closeDeleteItem":
+      return { ...state, itemToDelete: null, showDeleteDialog: false }
+    case "setCategoryManagerOpen":
+      return { ...state, showCategoryManager: action.isOpen }
+    case "requestDeleteCategory":
+      return {
+        ...state,
+        categoryToDelete: action.categoryId,
+        showDeleteCategoryDialog: true,
+      }
+    case "closeDeleteCategory":
+      return {
+        ...state,
+        categoryToDelete: null,
+        showDeleteCategoryDialog: false,
+      }
+    case "requestToggleCategory":
+      return {
+        ...state,
+        categoryToToggle: action.category,
+        showToggleCategoryDialog: true,
+      }
+    case "closeToggleCategory":
+      return {
+        ...state,
+        categoryToToggle: null,
+        showToggleCategoryDialog: false,
+      }
+    case "setCheckingToggleCategoryId":
+      return { ...state, checkingToggleCategoryId: action.categoryId }
+    default:
+      return state
+  }
+}
+
 const MenuSection: React.FC = () => {
   const posData = useRequiredPosData()
   const restaurantId = posData.restaurant._id
   console.log("MenuSection rendered with restaurantId:", restaurantId)
-  const [viewMode, setViewMode] = React.useState<"table" | "grid">("table")
-  const isTableView = viewMode === "table"
-
-  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false)
-  const [itemToDelete, setItemToDelete] = React.useState<string | null>(null)
-  const [showCategoryManager, setShowCategoryManager] = React.useState(false)
-  const [showDeleteCategoryDialog, setShowDeleteCategoryDialog] =
-    React.useState(false)
-  const [categoryToDelete, setCategoryToDelete] = React.useState<string | null>(
-    null
+  const [menuUi, dispatchMenuUi] = React.useReducer(
+    menuUiReducer,
+    menuUiInitialState
   )
-  const [showToggleCategoryDialog, setShowToggleCategoryDialog] =
-    React.useState(false)
-  const [categoryToToggle, setCategoryToToggle] = React.useState<{
-    id: string
-    name: string
-    isActive: boolean
-  } | null>(null)
-  const [checkingToggleCategoryId, setCheckingToggleCategoryId] =
-    React.useState<string | null>(null)
+  const {
+    viewMode,
+    showDeleteDialog,
+    itemToDelete,
+    showCategoryManager,
+    showDeleteCategoryDialog,
+    categoryToDelete,
+    showToggleCategoryDialog,
+    categoryToToggle,
+    checkingToggleCategoryId,
+  } = menuUi
+  const isTableView = viewMode === "table"
 
   // Management hooks
   const {
@@ -145,18 +225,23 @@ const MenuSection: React.FC = () => {
         return
       }
 
-      setCheckingToggleCategoryId(categoryId)
+      dispatchMenuUi({ type: "setCheckingToggleCategoryId", categoryId })
       try {
         const hasActiveItems =
           await checkCategoryHasActiveItemsInCategory(categoryId)
         if (hasActiveItems) {
-          setCategoryToToggle({ id: categoryId, name: category.name, isActive })
-          setShowToggleCategoryDialog(true)
+          dispatchMenuUi({
+            type: "requestToggleCategory",
+            category: { id: categoryId, name: category.name, isActive },
+          })
           return
         }
         await handleToggleCategoryActive(categoryId, isActive)
       } finally {
-        setCheckingToggleCategoryId(null)
+        dispatchMenuUi({
+          type: "setCheckingToggleCategoryId",
+          categoryId: null,
+        })
       }
     },
     [
@@ -193,7 +278,9 @@ const MenuSection: React.FC = () => {
                   <Button
                     variant={isTableView ? "default" : "ghost"}
                     size="sm"
-                    onClick={() => setViewMode("table")}
+                    onClick={() =>
+                      dispatchMenuUi({ type: "setViewMode", viewMode: "table" })
+                    }
                     iconName="Table"
                     className="px-3"
                   >
@@ -202,7 +289,9 @@ const MenuSection: React.FC = () => {
                   <Button
                     variant={isTableView ? "ghost" : "default"}
                     size="sm"
-                    onClick={() => setViewMode("grid")}
+                    onClick={() =>
+                      dispatchMenuUi({ type: "setViewMode", viewMode: "grid" })
+                    }
                     iconName="Grid3X3"
                     className="px-3"
                   >
@@ -296,7 +385,12 @@ const MenuSection: React.FC = () => {
                 onCategoryChange={handleCategoryChange}
                 itemCounts={uiItemCounts}
                 onAddCategory={openAddCategory}
-                onManageCategories={() => setShowCategoryManager(true)}
+                onManageCategories={() =>
+                  dispatchMenuUi({
+                    type: "setCategoryManagerOpen",
+                    isOpen: true,
+                  })
+                }
               />
             </div>
           </div>
@@ -326,10 +420,9 @@ const MenuSection: React.FC = () => {
               items={items}
               categoryMap={categoryMap}
               onEdit={openEditItem}
-              onDelete={(id) => {
-                setItemToDelete(id)
-                setShowDeleteDialog(true)
-              }}
+              onDelete={(id) =>
+                dispatchMenuUi({ type: "requestDeleteItem", itemId: id })
+              }
               onToggleAvailability={handleToggleAvailability}
               onToggleFeatured={handleToggleFeatured}
               onMoveItem={handleReorderItem}
@@ -343,10 +436,9 @@ const MenuSection: React.FC = () => {
                   item={item}
                   categoryName={categoryMap[item.category_id] ?? "Không rõ"}
                   onEdit={openEditItem}
-                  onDelete={(id) => {
-                    setItemToDelete(id)
-                    setShowDeleteDialog(true)
-                  }}
+                  onDelete={(id) =>
+                    dispatchMenuUi({ type: "requestDeleteItem", itemId: id })
+                  }
                   onToggleAvailability={handleToggleAvailability}
                   onToggleFeatured={handleToggleFeatured}
                   onMoveItem={handleReorderItem}
@@ -419,16 +511,12 @@ const MenuSection: React.FC = () => {
           {/* Delete Confirmation Dialog */}
           <ConfirmationDialog
             isOpen={showDeleteDialog}
-            onClose={() => {
-              setShowDeleteDialog(false)
-              setItemToDelete(null)
-            }}
+            onClose={() => dispatchMenuUi({ type: "closeDeleteItem" })}
             onConfirm={async () => {
               if (itemToDelete) {
                 const ok = await handleDeleteItem(itemToDelete)
                 if (ok) {
-                  setShowDeleteDialog(false)
-                  setItemToDelete(null)
+                  dispatchMenuUi({ type: "closeDeleteItem" })
                 }
               }
             }}
@@ -447,16 +535,12 @@ const MenuSection: React.FC = () => {
 
           <ConfirmationDialog
             isOpen={showDeleteCategoryDialog}
-            onClose={() => {
-              setShowDeleteCategoryDialog(false)
-              setCategoryToDelete(null)
-            }}
+            onClose={() => dispatchMenuUi({ type: "closeDeleteCategory" })}
             onConfirm={async () => {
               if (categoryToDelete) {
                 const ok = await handleDeleteCategory(categoryToDelete)
                 if (ok) {
-                  setShowDeleteCategoryDialog(false)
-                  setCategoryToDelete(null)
+                  dispatchMenuUi({ type: "closeDeleteCategory" })
                 }
               }
             }}
@@ -477,10 +561,7 @@ const MenuSection: React.FC = () => {
 
           <ConfirmationDialog
             isOpen={showToggleCategoryDialog}
-            onClose={() => {
-              setShowToggleCategoryDialog(false)
-              setCategoryToToggle(null)
-            }}
+            onClose={() => dispatchMenuUi({ type: "closeToggleCategory" })}
             onConfirm={async () => {
               if (categoryToToggle) {
                 const ok = await handleToggleCategoryActive(
@@ -488,8 +569,7 @@ const MenuSection: React.FC = () => {
                   categoryToToggle.isActive
                 )
                 if (ok) {
-                  setShowToggleCategoryDialog(false)
-                  setCategoryToToggle(null)
+                  dispatchMenuUi({ type: "closeToggleCategory" })
                 }
               }
             }}
@@ -509,16 +589,26 @@ const MenuSection: React.FC = () => {
           <CategoryManagerModal
             isOpen={showCategoryManager}
             categories={categories}
-            onClose={() => setShowCategoryManager(false)}
+            onClose={() =>
+              dispatchMenuUi({
+                type: "setCategoryManagerOpen",
+                isOpen: false,
+              })
+            }
             onEdit={(category) => {
               openEditCategory(category)
-              setShowCategoryManager(false)
+              dispatchMenuUi({
+                type: "setCategoryManagerOpen",
+                isOpen: false,
+              })
             }}
             onToggleActive={requestToggleCategory}
-            onDelete={(categoryId) => {
-              setCategoryToDelete(categoryId)
-              setShowDeleteCategoryDialog(true)
-            }}
+            onDelete={(categoryId) =>
+              dispatchMenuUi({
+                type: "requestDeleteCategory",
+                categoryId,
+              })
+            }
             onMove={handleReorderCategory}
             checkingToggleCategoryId={checkingToggleCategoryId}
             isCategoryActionPending={isCategoryActionPending}

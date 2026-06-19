@@ -23,17 +23,76 @@ import {
 } from "@/services/staff"
 import { toast } from "sonner"
 
+type StaffViewMode = "cards" | "table"
+
+type StaffUiState = {
+  viewMode: StaffViewMode
+  showDetailsModal: boolean
+  showDeleteConfirm: boolean
+  selectedStaffDetail: StaffDetail | null
+  staffToDelete: StaffSummary | null
+}
+
+type StaffUiAction =
+  | { type: "setViewMode"; viewMode: StaffViewMode }
+  | { type: "showDetails"; detail: StaffDetail }
+  | { type: "closeDetails" }
+  | { type: "setSelectedStaffDetail"; detail: StaffDetail }
+  | { type: "requestDelete"; staff: StaffSummary }
+  | { type: "closeDelete" }
+
+const staffUiInitialState: StaffUiState = {
+  viewMode: "cards",
+  showDetailsModal: false,
+  showDeleteConfirm: false,
+  selectedStaffDetail: null,
+  staffToDelete: null,
+}
+
+function staffUiReducer(
+  state: StaffUiState,
+  action: StaffUiAction
+): StaffUiState {
+  switch (action.type) {
+    case "setViewMode":
+      return { ...state, viewMode: action.viewMode }
+    case "showDetails":
+      return {
+        ...state,
+        selectedStaffDetail: action.detail,
+        showDetailsModal: true,
+      }
+    case "closeDetails":
+      return { ...state, showDetailsModal: false }
+    case "setSelectedStaffDetail":
+      return { ...state, selectedStaffDetail: action.detail }
+    case "requestDelete":
+      return {
+        ...state,
+        staffToDelete: action.staff,
+        showDeleteConfirm: true,
+      }
+    case "closeDelete":
+      return { ...state, staffToDelete: null, showDeleteConfirm: false }
+    default:
+      return state
+  }
+}
+
 const StaffSection: React.FC = () => {
   const posData = useRequiredPosData()
   const restaurantId = posData.restaurant._id
-  const [viewMode, setViewMode] = React.useState<"cards" | "table">("cards")
-  const [showDetailsModal, setShowDetailsModal] = React.useState(false)
-  const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false)
-  const [selectedStaffDetail, setSelectedStaffDetail] =
-    React.useState<StaffDetail | null>(null)
-  const [staffToDelete, setStaffToDelete] = React.useState<StaffSummary | null>(
-    null
+  const [staffUi, dispatchStaffUi] = React.useReducer(
+    staffUiReducer,
+    staffUiInitialState
   )
+  const {
+    viewMode,
+    showDetailsModal,
+    showDeleteConfirm,
+    selectedStaffDetail,
+    staffToDelete,
+  } = staffUi
 
   const {
     staffData,
@@ -67,9 +126,19 @@ const StaffSection: React.FC = () => {
 
   const isCardsView = viewMode === "cards"
 
+  const setSelectedStaffDetail = React.useCallback((detail: StaffDetail) => {
+    dispatchStaffUi({ type: "setSelectedStaffDetail", detail })
+  }, [])
+
+  const handleViewModeChange = React.useCallback(
+    (nextViewMode: StaffViewMode) => {
+      dispatchStaffUi({ type: "setViewMode", viewMode: nextViewMode })
+    },
+    []
+  )
+
   const showStaffDetails = React.useCallback((detail: StaffDetail) => {
-    setSelectedStaffDetail(detail)
-    setShowDetailsModal(true)
+    dispatchStaffUi({ type: "showDetails", detail })
   }, [])
 
   const handleViewDetails = React.useCallback(
@@ -108,24 +177,23 @@ const StaffSection: React.FC = () => {
     (staff: StaffSummary) => {
       void openEditModal(staff, setSelectedStaffDetail)
     },
-    [openEditModal]
+    [openEditModal, setSelectedStaffDetail]
   )
 
   const handleEditStaffFromDetails = React.useCallback(
     (staff: StaffSummary, detail?: StaffDetail | null) => {
-      setShowDetailsModal(false)
+      dispatchStaffUi({ type: "closeDetails" })
       void openEditModal(
         staff,
         setSelectedStaffDetail,
         detail ?? selectedStaffDetail
       )
     },
-    [openEditModal, selectedStaffDetail]
+    [openEditModal, selectedStaffDetail, setSelectedStaffDetail]
   )
 
   const handleDeleteRequest = React.useCallback((staff: StaffSummary) => {
-    setStaffToDelete(staff)
-    setShowDeleteConfirm(true)
+    dispatchStaffUi({ type: "requestDelete", staff })
   }, [])
 
   const handleDeleteConfirm = React.useCallback(async () => {
@@ -133,8 +201,7 @@ const StaffSection: React.FC = () => {
     try {
       await deleteStaff(staffToDelete.id)
     } finally {
-      setShowDeleteConfirm(false)
-      setStaffToDelete(null)
+      dispatchStaffUi({ type: "closeDelete" })
     }
   }, [deleteStaff, staffToDelete])
 
@@ -164,7 +231,7 @@ const StaffSection: React.FC = () => {
             viewMode={viewMode}
             onRoleChange={handleRoleChange}
             onStatusChange={handleStatusChange}
-            onViewModeChange={setViewMode}
+            onViewModeChange={handleViewModeChange}
           />
 
           {isCardsView ? (
@@ -264,7 +331,7 @@ const StaffSection: React.FC = () => {
 
       <StaffDetailsModal
         isOpen={showDetailsModal}
-        onClose={() => setShowDetailsModal(false)}
+        onClose={() => dispatchStaffUi({ type: "closeDetails" })}
         staff={selectedStaffCard}
         detail={selectedStaffDetail}
         onEdit={handleEditStaffFromDetails}
@@ -272,10 +339,7 @@ const StaffSection: React.FC = () => {
 
       <ConfirmationDialog
         isOpen={showDeleteConfirm}
-        onClose={() => {
-          setShowDeleteConfirm(false)
-          setStaffToDelete(null)
-        }}
+        onClose={() => dispatchStaffUi({ type: "closeDelete" })}
         onConfirm={handleDeleteConfirm}
         title="Xóa nhân viên"
         message={`Bạn có chắc chắn muốn xóa nhân viên "${staffToDelete?.full_name ?? ""}"? Hành động này không thể hoàn tác.`}

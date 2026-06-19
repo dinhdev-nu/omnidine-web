@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useReducer, useState } from "react"
 import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom"
 import PosLayout from "@/layouts/pos/PosLayout"
 import MainPosSection from "@/features/pos/sections/main-pos/MainPosSection"
@@ -6,12 +6,16 @@ import TableSection from "@/features/pos/sections/table/TableSection"
 import { POS_BASE_PATH } from "@/routes/pos-route-config"
 import { PosProvider } from "@/features/pos/contexts/PosContext"
 import { usePosContext } from "@/features/pos/contexts/usePosContext"
-import { usePosInitData } from "@/features/pos/contexts/usePosInitData"
 import RejectToPreviousPage from "@/components/navigation/RejectToPreviousPage"
 import {
   demoNotifications,
   getRelativeTime,
 } from "@/features/pos/mocks/pos-mock"
+import { fetchPosInit } from "@/services/pos"
+import { toAppError } from "@/services/core/error"
+import type { AppError } from "@/services/core/types"
+import type { PosInitData } from "@/types/domain/pos-init"
+import type { PosContextType } from "@/features/pos/contexts/pos-context"
 import PaymentSection from "@/features/pos/sections/payment/PaymentSection"
 import OrderSection from "@/features/pos/sections/order/OrderSection"
 import MenuSection from "@/features/pos/sections/menu/MenuSection"
@@ -41,6 +45,33 @@ const SECTION_TO_ROUTE_SUFFIX: Record<POSSection, string> = {
   order: "/orders",
   menu: "/menu",
   staff: "/staff",
+}
+
+type PosInitAction =
+  | { type: "loading" }
+  | { type: "success"; data: PosInitData }
+  | { type: "error"; error: AppError }
+
+const initialPosContextValue: PosContextType = {
+  data: null,
+  loading: true,
+  error: null,
+}
+
+function posInitReducer(
+  state: PosContextType,
+  action: PosInitAction
+): PosContextType {
+  switch (action.type) {
+    case "loading":
+      return { ...state, loading: true, error: null }
+    case "success":
+      return { data: action.data, loading: false, error: null }
+    case "error":
+      return { data: null, loading: false, error: action.error }
+    default:
+      return state
+  }
 }
 
 const getPosSubPath = (pathname: string, slug: string) => {
@@ -157,7 +188,47 @@ const PosPageContent: React.FC<{ slug: string }> = ({ slug }) => {
 const PosPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
   const currentSlug = slug?.trim() ?? ""
-  const posContextValue = usePosInitData(currentSlug)
+  const [posContextValue, dispatchPosInit] = useReducer(
+    posInitReducer,
+    initialPosContextValue
+  )
+
+  useEffect(() => {
+    let isActive = true
+
+    const loadPosInit = async () => {
+      if (!currentSlug) {
+        if (isActive) {
+          dispatchPosInit({
+            type: "error",
+            error: { message: "POS slug is required" },
+          })
+        }
+        return
+      }
+
+      try {
+        dispatchPosInit({ type: "loading" })
+        const result = await fetchPosInit(currentSlug)
+        if (isActive) {
+          dispatchPosInit({ type: "success", data: result })
+        }
+      } catch (error) {
+        if (isActive) {
+          dispatchPosInit({
+            type: "error",
+            error: toAppError(error, "Failed to fetch POS init data"),
+          })
+        }
+      }
+    }
+
+    void loadPosInit()
+
+    return () => {
+      isActive = false
+    }
+  }, [currentSlug])
 
   if (!currentSlug) {
     return <RejectToPreviousPage />
