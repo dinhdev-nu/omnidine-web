@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Mail, Eye, EyeOff, ArrowLeft, CheckCircle2 } from "lucide-react"
 import { toast } from "sonner"
-import type { UseSignInReturn } from "../hooks/use-sign-in"
+import type { UseSignInReturn } from "../hooks/useSignIn"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"

@@ -13,12 +13,12 @@ import {
   StaffProfileSection,
   StaffStatusSection,
 } from "./StaffFormModalSections"
-import type { StaffFormData, StaffFormModalProps } from "./StaffFormModal.types"
+import type { StaffFormData, StaffFormModalProps } from "./staff-form-modal.types"
 export type {
   StaffFormData,
   StaffFormMode,
   StaffSubmitSection,
-} from "./StaffFormModal.types"
+} from "./staff-form-modal.types"
 
 const EMPTY_STAFF_ERRORS: Partial<Record<keyof StaffFormData, string>> = {}
 

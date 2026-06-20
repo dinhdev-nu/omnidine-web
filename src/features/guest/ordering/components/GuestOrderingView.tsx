@@ -1,5 +1,5 @@
 import Icon from "@/components/AppIcon"
-import ConfirmationDialog from "@/components/ui/ConfirmationDialog"
+import ConfirmationDialog from "@/components/ui/confirmation-dialog"
 import { GuestOrderingLayout } from "@/layouts/guest/GuestOrderingLayout"
 import Button from "@/features/pos/ui/Button"
 import Input from "@/features/pos/ui/Input"

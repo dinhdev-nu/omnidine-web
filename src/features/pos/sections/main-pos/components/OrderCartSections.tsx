@@ -7,7 +7,7 @@ import Input from "../../../ui/Input"
 import Select from "../../../ui/Select"
 import { Switch } from "../../../ui/Switch"
 
-import type { CartItem, TableOption } from "./OrderCart.types"
+import type { CartItem, TableOption } from "./order-cart.types"
 
 const currencyFormatter = new Intl.NumberFormat("vi-VN", {
   style: "currency",

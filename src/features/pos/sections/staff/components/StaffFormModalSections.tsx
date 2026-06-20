@@ -16,7 +16,7 @@ import type {
   StaffFormModalProps,
   StaffFormSectionProps,
   StaffSubmitSection,
-} from "./StaffFormModal.types"
+} from "./staff-form-modal.types"
 
 const PERMISSIONS_CONFIG = [
   { key: "can_discount", label: "Giảm giá" },

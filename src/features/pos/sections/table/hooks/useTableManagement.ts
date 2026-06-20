@@ -25,7 +25,7 @@ import {
   getDefaultPosition,
   toTableFromListItem,
   toTableFromRecord,
-} from "./utils"
+} from "../table-utils"
 
 type TableStatusFilter = TableStatus | "all"
 type TableActiveFilter = "all" | "active" | "inactive"

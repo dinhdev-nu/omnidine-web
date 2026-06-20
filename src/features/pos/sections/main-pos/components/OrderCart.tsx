@@ -10,7 +10,7 @@ import {
   OrderContextFields,
   OrderSummary,
 } from "./OrderCartSections"
-import type { OrderCartProps, TableOption } from "./OrderCart.types"
+import type { OrderCartProps, TableOption } from "./order-cart.types"
 
 const EMPTY_TABLE_OPTIONS: TableOption[] = []
 

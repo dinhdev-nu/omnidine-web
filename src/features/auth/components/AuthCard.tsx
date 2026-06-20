@@ -4,8 +4,8 @@ import { X } from "lucide-react"
 import { Navigate, useLocation, useNavigate } from "react-router-dom"
 import { SignUpSteps } from "./SignUpSteps"
 import { SignInForm } from "./SignInForm"
-import { useSignUp } from "../hooks/use-sign-up"
-import { useSignIn, type SignInStep } from "../hooks/use-sign-in"
+import { useSignUp } from "../hooks/useSignUp"
+import { useSignIn, type SignInStep } from "../hooks/useSignIn"
 import {
   AUTH_ROUTE_PATHS,
   SIGNIN_STEP_TO_PATH,

@@ -1,4 +1,4 @@
-import type { SignInStep } from "./hooks/use-sign-in"
+import type { SignInStep } from "./hooks/useSignIn"
 
 export type AuthRouteMode =
   | "register"
