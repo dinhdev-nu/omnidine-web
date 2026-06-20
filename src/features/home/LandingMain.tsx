@@ -380,7 +380,333 @@ function ProductivityFeatureCard({ feature }: { feature: IconFeature }) {
   )
 }
 
-export default function LandingMain() {
+function LandingHeroSection() {
+  return (
+    <section className="relative min-h-[calc(630px-var(--header-height))] overflow-hidden pb-10">
+      <div className="absolute top-0 left-0 z-0 grid h-full w-full grid-cols-[clamp(28px,10vw,120px)_auto_clamp(28px,10vw,120px)] border-b border-[--border] dark:border-[--dark-border]">
+        <div className="col-span-1 flex h-full items-center justify-center"></div>
+        <div className="col-span-1 flex h-full items-center justify-center border-x border-[--border] dark:border-[--dark-border]"></div>
+        <div className="col-span-1 flex h-full items-center justify-center"></div>
+      </div>
+      <figure className="pointer-events-none absolute -bottom-[70%] left-1/2 z-0 block aspect-square w-[520px] -translate-x-1/2 rounded-full bg-[--accent-500-40] blur-[200px]"></figure>
+      <figure className="pointer-events-none absolute top-[64px] left-[4vw] z-20 hidden aspect-square w-[32vw] rounded-full bg-[--surface-primary] opacity-50 blur-[100px] md:block dark:bg-[--dark-surface-primary]"></figure>
+      <figure className="pointer-events-none absolute right-[7vw] bottom-[-50px] z-20 hidden aspect-square w-[30vw] rounded-full bg-[--surface-primary] opacity-50 blur-[100px] md:block dark:bg-[--dark-surface-primary]"></figure>
+      <div className="relative z-10 flex flex-col divide-y divide-[--border] pt-[35px] dark:divide-[--dark-border]">
+        <div className="flex flex-col items-center justify-end">
+          <div className="flex items-center gap-2 !border !border-b-0 border-[--border] px-4 py-2 dark:border-[--dark-border]">
+            <div className="flex -space-x-2 rtl:space-x-reverse">
+              {HERO_AVATAR_SRCS.map((src) => (
+                <img
+                  key={src}
+                  alt="Avatar"
+                  className="size-7 shrink-0 rounded-full border-2 border-[--surface-primary] object-cover dark:border-[--dark-surface-primary]"
+                  data-nimg={1}
+                  decoding="async"
+                  height={28}
+                  src={src}
+                  style={{ color: "transparent" }}
+                  width={28}
+                />
+              ))}
+            </div>
+            <p className="text-sm tracking-tight text-[--text-tertiary] dark:text-[--dark-text-tertiary]">
+              1,254 đối tác tin dùng
+            </p>
+          </div>
+        </div>
+        <div>
+          <div className="mx-auto flex min-h-[288px] max-w-[80vw] shrink-0 flex-col items-center justify-center gap-2 px-2 py-4 sm:px-16 lg:px-24">
+            <h1 className="!max-w-screen-lg text-center text-[clamp(32px,7vw,64px)] leading-none font-medium tracking-[-1.44px] text-pretty text-[--text-primary] md:tracking-[-2.16px] dark:text-[--dark-text-primary]">
+              Quản Lý Chuỗi Nhà Hàng Đa Chi Nhánh
+            </h1>
+            <h2 className="text-md max-w-2xl text-center text-pretty text-[--text-tertiary] md:text-lg dark:text-[--dark-text-tertiary]">
+              OmniDine là hệ thống quản lý chuyên nghiệp giúp bạn tự động hoá
+              việc đặt món của khách hàng, chuẩn hoá quy trình phục vụ và nắm
+              bắt báo cáo ngay tại thời gian thực.
+            </h2>
+          </div>
+        </div>
+        <div className="flex items-start justify-center px-8 sm:px-24">
+          <div className="flex w-full max-w-[80vw] flex-col items-center justify-start md:!max-w-[392px]">
+            <a
+              className="max-w-sm:!border-x-0 flex inline-flex !h-14 h-8 w-full shrink-0 flex-col items-center justify-center gap-1 rounded-full rounded-none border !border-x !border-y-0 border-[--border] !bg-transparent bg-[--surface-secondary] px-3.5 !text-base text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 backdrop-blur-xl transition-colors duration-150 hover:!bg-black/5 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:px-5 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:!bg-white/5 dark:hover:bg-[--dark-surface-tertiary]"
+              href="/auth/register"
+            >
+              Dùng Thử Ngay
+            </a>
+            <a
+              className="flex inline-flex !h-14 h-8 w-full shrink-0 flex-col items-center justify-center gap-1 rounded-full rounded-none border-[--accent-600] bg-[--accent-500] px-3.5 !text-base text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:px-5"
+              href="/public/restaurants"
+            >
+              Trải Nghiệm Hệ Thống
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function CompanyLogosSection() {
+  return (
+    <section className="relative flex flex-col items-center gap-10 py-14 md:py-[72px]">
+      <h2 className="text-center tracking-tight text-[--dark-text-tertiary] opacity-50">
+        Các chuỗi nhà hàng đang dùng hệ thống
+      </h2>
+      <div className="no-scrollbar flex max-w-full justify-center overflow-auto">
+        <div className="from-surface-primary dark:from-dark-surface-primary sf-hidden pointer-events-none absolute top-0 left-0 h-full w-[30vw] bg-transparent bg-linear-to-r xl:hidden"></div>
+        <div className="from-surface-primary dark:from-dark-surface-primary sf-hidden pointer-events-none absolute top-0 right-0 h-full w-[30vw] bg-transparent bg-linear-to-l xl:hidden"></div>
+        <div className="companies-module__fhyRlW__scrollbar flex shrink-0 items-center gap-4 px-6 lg:gap-6 lg:px-12">
+          {COMPANY_LOGOS.map((logo) => (
+            <figure
+              key={logo.alt}
+              className="flex h-16 items-center px-2 py-3 lg:p-4"
+            >
+              <img
+                alt={logo.alt}
+                className="w-24 lg:w-32"
+                data-nimg={1}
+                decoding="async"
+                height={20}
+                loading="lazy"
+                src={logo.src}
+                style={{ color: "transparent" }}
+                width={32}
+              />
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function CommunicationFeaturesSection() {
+  return (
+    <section
+      id="features"
+      className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]"
+    >
+      <div className="flex flex-col items-center gap-3 self-center">
+        <h3 className="flex min-h-7 items-center justify-center gap-2 rounded-full bg-[--surface-secondary] px-3.5 pb-px text-sm font-medium text-[--text-tertiary] md:text-base dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-tertiary]">
+          Hệ sinh thái
+        </h3>
+        <div className="flex max-w-[800px] flex-col items-center justify-center gap-1 self-center [&>*]:text-center [&>*]:text-3xl [&>*]:font-medium [&>*]:text-pretty md:[&>*]:text-4xl">
+          <h4>Báo Cáo Phân Tích Thông Minh</h4>
+        </div>
+        <p className="max-w-screen-md text-center text-lg font-light text-pretty text-[--text-tertiary] md:text-xl dark:text-[--dark-text-tertiary]">
+          Kiểm soát hiệu suất chặt chẽ của từng nhân viên cũng như từng cửa
+          hàng. Giảm thiểu tỷ lệ sai sót đơn hàng và theo dõi lợi nhuận chính
+          xác.
+        </p>
+      </div>
+      <div className="flex flex-col gap-6">
+        {COMMUNICATION_FEATURES.map((feature) => (
+          <CommunicationFeatureCard key={feature.title} feature={feature} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function ManagementFeaturesSection() {
+  return (
+    <section className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]">
+      <div className="flex flex-col items-center gap-3 self-center">
+        <h3 className="flex min-h-7 items-center justify-center gap-2 rounded-full bg-[--surface-secondary] px-3.5 pb-px text-sm font-medium text-[--text-tertiary] md:text-base dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-tertiary]">
+          Trọng tâm
+        </h3>
+        <div className="flex max-w-[800px] flex-col items-center justify-center gap-1 self-center [&>*]:text-center [&>*]:text-3xl [&>*]:font-medium [&>*]:text-pretty md:[&>*]:text-4xl">
+          <h4 title="Quản Lý Chuyên Sâu">Giải Pháp Khép Kín</h4>
+        </div>
+        <p className="max-w-screen-md text-center text-lg font-light text-pretty text-[--text-tertiary] md:text-xl dark:text-[--dark-text-tertiary]">
+          Liên kết hoàn hảo giữa khu phục vụ (điểm bán hàng) và hệ thống điều
+          hành (trung tâm) với khả năng truy cập thời gian thực.
+        </p>
+      </div>
+      <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-5">
+        {MANAGEMENT_FEATURES.map((feature) => (
+          <ManagementFeatureCard key={feature.title} feature={feature} />
+        ))}
+      </div>
+      <div className="flex items-center justify-center gap-3 md:order-3">
+        <a
+          className="inline-flex h-9 shrink-0 items-center justify-center gap-1 rounded-full border-[--accent-600] bg-[--accent-500] px-5 text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:h-10 md:text-base"
+          href="/auth/register"
+        >
+          Đăng ký dùng thử
+        </a>
+        <a
+          className="inline-flex h-9 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-5 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:h-10 md:text-base dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
+          href="#features"
+        >
+          Xem thêm
+        </a>
+      </div>
+    </section>
+  )
+}
+
+function PerformanceCalloutSection() {
+  return (
+    <section className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]">
+      <article className="flex flex-col justify-center gap-9 self-stretch rounded-xl bg-[rgba(var(--accent-500),0.1)] p-6 lg:flex-row lg:justify-between lg:p-10 dark:bg-[rgba(var(--accent-600),0.1)]">
+        <div className="flex flex-col gap-2">
+          <h4 className="text-3xl font-medium text-[--text-primary] lg:text-4xl dark:text-[--dark-text-primary]">
+            Đẩy mạnh hiệu suất nhà hàng của bạn với OmniDine
+          </h4>
+          <p className="text-lg text-[--text-secondary] lg:text-xl dark:text-[--dark-text-secondary]">
+            Xoá bỏ hoàn toàn điểm nghẽn bằng nghiệp vụ quản lý hiện đại.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 items-center gap-2 md:flex lg:flex-col">
+          <a
+            className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-full border-[--accent-600] bg-[--accent-500] px-3.5 text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:px-5"
+            href="/auth/register"
+          >
+            Đăng ký
+          </a>
+          <a
+            className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-3.5 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:px-5 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
+            href="#support"
+          >
+            Hỗ trợ
+          </a>
+        </div>
+      </article>
+    </section>
+  )
+}
+
+function CollaborationSection() {
+  return (
+    <section className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]">
+      <img
+        alt="A group of people with speech bubbles above them"
+        className="sf-hidden block hidden rounded-xl border border-[--border] md:order-3 md:w-full dark:block dark:border-[--dark-border]"
+        data-nimg={1}
+        decoding="async"
+        height={600}
+        loading="lazy"
+        src="data:,"
+        style={{ color: "transparent" }}
+        width={1216}
+      />
+      <img
+        alt="A group of people with speech bubbles above them"
+        className="block rounded-xl border border-[--border] md:order-3 md:w-full dark:hidden dark:border-[--dark-border]"
+        data-nimg={1}
+        decoding="async"
+        height={600}
+        loading="lazy"
+        src="/assets/home/landing-banner.webp"
+        style={{ color: "transparent" }}
+        width={1216}
+      />
+      <div className="flex flex-col items-center gap-3 self-center">
+        <h3 className="flex min-h-7 items-center justify-center gap-2 rounded-full bg-[--surface-secondary] px-3.5 pb-px text-sm font-medium text-[--text-tertiary] md:text-base dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-tertiary]">
+          Tự Lập Trình Và Dễ Dàng Đồng Bộ
+        </h3>
+        <div className="flex max-w-[800px] flex-col items-center justify-center gap-1 self-center [&>*]:text-center [&>*]:text-3xl [&>*]:font-medium [&>*]:text-pretty md:[&>*]:text-4xl">
+          <h4 title="Khả Năng Vận Hành Xuyên Suốt">
+            Khả Năng Vận Hành Xuyên Suốt
+          </h4>
+        </div>
+        <p className="max-w-screen-md text-center text-lg font-light text-pretty text-[--text-tertiary] md:text-xl dark:text-[--dark-text-tertiary]">
+          Được trang bị hàng loạt các công cụ làm việc nhóm, chia sẻ dữ liệu và
+          lưu trữ các file giúp duy trì sự liên tục mượt mà từ lúc nhận cho đến
+          khi phát hành sản phẩm.
+        </p>
+      </div>
+      <div className="flex w-full flex-col items-start gap-4 md:order-2 md:grid md:grid-cols-3 md:gap-16">
+        {COLLABORATION_FEATURES.map((feature) => (
+          <CollaborationFeatureCard key={feature.title} feature={feature} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function ProductivitySection() {
+  return (
+    <section className="relative flex flex-col items-center gap-10 py-14 md:py-[72px] lg:container lg:mx-auto lg:!flex-row lg:gap-0 lg:p-28">
+      <div className="relative top-0 container mx-auto shrink self-stretch px-6 lg:w-1/2 lg:pr-12 lg:pl-0 xl:pr-20">
+        <div className="sticky top-[calc(var(--header-height)+40px)] bottom-0 flex flex-col gap-10">
+          <div className="flex flex-col items-start gap-3 self-start">
+            <h3 className="flex min-h-7 items-center justify-center gap-2 rounded-full bg-[--surface-secondary] px-3.5 pb-px text-sm font-medium text-[--text-tertiary] md:text-base dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-tertiary]">
+              Hiệu Suất
+            </h3>
+            <div className="flex max-w-[800px] flex-col items-start justify-center gap-1 self-start [&>*]:text-left [&>*]:text-3xl [&>*]:font-medium [&>*]:text-pretty md:[&>*]:text-4xl">
+              <h4 title="Tối ưu luồng công việc">Tối ưu luồng công việc</h4>
+            </div>
+            <p className="max-w-screen-md text-left text-lg font-light text-pretty text-[--text-tertiary] md:text-xl dark:text-[--dark-text-tertiary]">
+              Hỗ trợ đội ngũ nhân viên duy trì tốc độ và làm việc liền mạch khi
+              xử lý hàng trăm đơn hàng một cách nhanh chóng.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 md:order-3">
+            <a
+              className="inline-flex h-9 shrink-0 items-center justify-center gap-1 rounded-full border-[--accent-600] bg-[--accent-500] px-5 text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:h-10 md:text-base"
+              href="/public/restaurants"
+            >
+              Trải nghiệm
+            </a>
+            <a
+              className="inline-flex h-9 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-5 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:h-10 md:text-base dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
+              href="#features"
+            >
+              Chi tiết
+            </a>
+          </div>
+        </div>
+      </div>
+      <div className="w-full flex-1 shrink-0 lg:w-1/2 lg:flex-1">
+        <div className="no-scrollbar flex gap-10 overflow-auto px-6 lg:flex-col lg:px-0">
+          {PRODUCTIVITY_FEATURES.map((feature) => (
+            <ProductivityFeatureCard key={feature.title} feature={feature} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function FinalCalloutSection() {
+  return (
+    <section className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]">
+      <article className="relative flex flex-col items-center justify-center gap-9 self-stretch overflow-hidden rounded-xl border border-[--border] bg-[--surface-secondary] p-6 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary]">
+        <div className="callout-1-module__wLojUq__line absolute top-10 left-0 h-px w-full bg-linear-to-l from-black/40 to-transparent dark:from-white/40 dark:to-transparent"></div>
+        <div className="callout-1-module__wLojUq__line absolute bottom-[72px] left-0 h-px w-full bg-linear-to-l from-black/40 to-transparent dark:from-white/40 dark:to-transparent"></div>
+        <div className="callout-1-module__wLojUq__line absolute bottom-7 left-0 h-px w-full bg-linear-to-l from-black/40 to-transparent dark:from-white/40 dark:to-transparent"></div>
+        <div className="absolute top-0 left-0 z-10 h-full w-full bg-[--surface-secondary] blur-3xl filter dark:bg-[--dark-surface-secondary]"></div>
+        <div className="relative z-20 flex flex-col items-center gap-2 text-center">
+          <h4 className="text-center text-3xl font-medium tracking-tighter text-[--text-primary] sm:max-w-full sm:px-0 md:text-4xl dark:text-[--dark-text-primary]">
+            Đẩy mạnh hiệu suất nhà hàng cùng OmniDine
+          </h4>
+          <p className="text-lg text-[--text-secondary] md:text-xl dark:text-[--dark-text-secondary]">
+            Mọi tính năng mạnh mẽ được hội tụ trong một hệ thống vận hành.
+          </p>
+        </div>
+        <div className="relative z-10 flex items-center gap-2">
+          <a
+            className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-full border-[--accent-600] bg-[--accent-500] px-3.5 text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:px-5"
+            href="/auth/register"
+          >
+            Đăng ký
+          </a>
+          <a
+            className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-3.5 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:px-5 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
+            href="#features"
+          >
+            Tìm hiểu thêm
+          </a>
+        </div>
+      </article>
+    </section>
+  )
+}
+
+function TestimonialsSection() {
   const scrollRef = React.useRef<HTMLDivElement>(null)
 
   const scrollLeft = () => {
@@ -394,427 +720,154 @@ export default function LandingMain() {
       scrollRef.current.scrollBy({ left: 350, behavior: "smooth" })
     }
   }
-
   return (
-    <>
-      <section className="relative min-h-[calc(630px-var(--header-height))] overflow-hidden pb-10">
-        <div className="absolute top-0 left-0 z-0 grid h-full w-full grid-cols-[clamp(28px,10vw,120px)_auto_clamp(28px,10vw,120px)] border-b border-[--border] dark:border-[--dark-border]">
-          <div className="col-span-1 flex h-full items-center justify-center"></div>
-          <div className="col-span-1 flex h-full items-center justify-center border-x border-[--border] dark:border-[--dark-border]"></div>
-          <div className="col-span-1 flex h-full items-center justify-center"></div>
-        </div>
-        <figure className="pointer-events-none absolute -bottom-[70%] left-1/2 z-0 block aspect-square w-[520px] -translate-x-1/2 rounded-full bg-[--accent-500-40] blur-[200px]"></figure>
-        <figure className="pointer-events-none absolute top-[64px] left-[4vw] z-20 hidden aspect-square w-[32vw] rounded-full bg-[--surface-primary] opacity-50 blur-[100px] md:block dark:bg-[--dark-surface-primary]"></figure>
-        <figure className="pointer-events-none absolute right-[7vw] bottom-[-50px] z-20 hidden aspect-square w-[30vw] rounded-full bg-[--surface-primary] opacity-50 blur-[100px] md:block dark:bg-[--dark-surface-primary]"></figure>
-        <div className="relative z-10 flex flex-col divide-y divide-[--border] pt-[35px] dark:divide-[--dark-border]">
-          <div className="flex flex-col items-center justify-end">
-            <div className="flex items-center gap-2 !border !border-b-0 border-[--border] px-4 py-2 dark:border-[--dark-border]">
-              <div className="flex -space-x-2 rtl:space-x-reverse">
-                {HERO_AVATAR_SRCS.map((src) => (
-                  <img
-                    key={src}
-                    alt="Avatar"
-                    className="size-7 shrink-0 rounded-full border-2 border-[--surface-primary] object-cover dark:border-[--dark-surface-primary]"
-                    data-nimg={1}
-                    decoding="async"
-                    height={28}
-                    src={src}
-                    style={{ color: "transparent" }}
-                    width={28}
-                  />
-                ))}
-              </div>
-              <p className="text-sm tracking-tight text-[--text-tertiary] dark:text-[--dark-text-tertiary]">
-                1,254 đối tác tin dùng
-              </p>
-            </div>
-          </div>
-          <div>
-            <div className="mx-auto flex min-h-[288px] max-w-[80vw] shrink-0 flex-col items-center justify-center gap-2 px-2 py-4 sm:px-16 lg:px-24">
-              <h1 className="!max-w-screen-lg text-center text-[clamp(32px,7vw,64px)] leading-none font-medium tracking-[-1.44px] text-pretty text-[--text-primary] md:tracking-[-2.16px] dark:text-[--dark-text-primary]">
-                Quản Lý Chuỗi Nhà Hàng Đa Chi Nhánh
-              </h1>
-              <h2 className="text-md max-w-2xl text-center text-pretty text-[--text-tertiary] md:text-lg dark:text-[--dark-text-tertiary]">
-                OmniDine là hệ thống quản lý chuyên nghiệp giúp bạn tự động hoá
-                việc đặt món của khách hàng, chuẩn hoá quy trình phục vụ và nắm
-                bắt báo cáo ngay tại thời gian thực.
-              </h2>
-            </div>
-          </div>
-          <div className="flex items-start justify-center px-8 sm:px-24">
-            <div className="flex w-full max-w-[80vw] flex-col items-center justify-start md:!max-w-[392px]">
-              <a
-                className="max-w-sm:!border-x-0 flex inline-flex !h-14 h-8 w-full shrink-0 flex-col items-center justify-center gap-1 rounded-full rounded-none border !border-x !border-y-0 border-[--border] !bg-transparent bg-[--surface-secondary] px-3.5 !text-base text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 backdrop-blur-xl transition-colors duration-150 hover:!bg-black/5 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:px-5 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:!bg-white/5 dark:hover:bg-[--dark-surface-tertiary]"
-                href="/auth/register"
-              >
-                Dùng Thử Ngay
-              </a>
-              <a
-                className="flex inline-flex !h-14 h-8 w-full shrink-0 flex-col items-center justify-center gap-1 rounded-full rounded-none border-[--accent-600] bg-[--accent-500] px-3.5 !text-base text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:px-5"
-                href="/public/restaurants"
-              >
-                Trải Nghiệm Hệ Thống
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section className="relative flex flex-col items-center gap-10 py-14 md:py-[72px]">
-        <h2 className="text-center tracking-tight text-[--dark-text-tertiary] opacity-50">
-          Các chuỗi nhà hàng đang dùng hệ thống
-        </h2>
-        <div className="no-scrollbar flex max-w-full justify-center overflow-auto">
-          <div className="from-surface-primary dark:from-dark-surface-primary sf-hidden pointer-events-none absolute top-0 left-0 h-full w-[30vw] bg-transparent bg-linear-to-r xl:hidden"></div>
-          <div className="from-surface-primary dark:from-dark-surface-primary sf-hidden pointer-events-none absolute top-0 right-0 h-full w-[30vw] bg-transparent bg-linear-to-l xl:hidden"></div>
-          <div className="companies-module__fhyRlW__scrollbar flex shrink-0 items-center gap-4 px-6 lg:gap-6 lg:px-12">
-            {COMPANY_LOGOS.map((logo) => (
-              <figure
-                key={logo.alt}
-                className="flex h-16 items-center px-2 py-3 lg:p-4"
-              >
-                <img
-                  alt={logo.alt}
-                  className="w-24 lg:w-32"
-                  data-nimg={1}
-                  decoding="async"
-                  height={20}
-                  loading="lazy"
-                  src={logo.src}
-                  style={{ color: "transparent" }}
-                  width={32}
-                />
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
-      <section
-        id="features"
-        className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]"
-      >
-        <div className="flex flex-col items-center gap-3 self-center">
-          <h3 className="flex min-h-7 items-center justify-center gap-2 rounded-full bg-[--surface-secondary] px-3.5 pb-px text-sm font-medium text-[--text-tertiary] md:text-base dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-tertiary]">
-            Hệ sinh thái
-          </h3>
-          <div className="flex max-w-[800px] flex-col items-center justify-center gap-1 self-center [&>*]:text-center [&>*]:text-3xl [&>*]:font-medium [&>*]:text-pretty md:[&>*]:text-4xl">
-            <h4>Báo Cáo Phân Tích Thông Minh</h4>
-          </div>
-          <p className="max-w-screen-md text-center text-lg font-light text-pretty text-[--text-tertiary] md:text-xl dark:text-[--dark-text-tertiary]">
-            Kiểm soát hiệu suất chặt chẽ của từng nhân viên cũng như từng cửa
-            hàng. Giảm thiểu tỷ lệ sai sót đơn hàng và theo dõi lợi nhuận chính
-            xác.
-          </p>
-        </div>
-        <div className="flex flex-col gap-6">
-          {COMMUNICATION_FEATURES.map((feature) => (
-            <CommunicationFeatureCard key={feature.title} feature={feature} />
-          ))}
-        </div>
-      </section>
+    <div className="relative overflow-clip">
       <section className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]">
-        <div className="flex flex-col items-center gap-3 self-center">
-          <h3 className="flex min-h-7 items-center justify-center gap-2 rounded-full bg-[--surface-secondary] px-3.5 pb-px text-sm font-medium text-[--text-tertiary] md:text-base dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-tertiary]">
-            Trọng tâm
-          </h3>
-          <div className="flex max-w-[800px] flex-col items-center justify-center gap-1 self-center [&>*]:text-center [&>*]:text-3xl [&>*]:font-medium [&>*]:text-pretty md:[&>*]:text-4xl">
-            <h4 title="Quản Lý Chuyên Sâu">Giải Pháp Khép Kín</h4>
-          </div>
-          <p className="max-w-screen-md text-center text-lg font-light text-pretty text-[--text-tertiary] md:text-xl dark:text-[--dark-text-tertiary]">
-            Liên kết hoàn hảo giữa khu phục vụ (điểm bán hàng) và hệ thống điều
-            hành (trung tâm) với khả năng truy cập thời gian thực.
-          </p>
-        </div>
-        <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-5">
-          {MANAGEMENT_FEATURES.map((feature) => (
-            <ManagementFeatureCard key={feature.title} feature={feature} />
-          ))}
-        </div>
-        <div className="flex items-center justify-center gap-3 md:order-3">
-          <a
-            className="inline-flex h-9 shrink-0 items-center justify-center gap-1 rounded-full border-[--accent-600] bg-[--accent-500] px-5 text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:h-10 md:text-base"
-            href="/auth/register"
-          >
-            Đăng ký dùng thử
-          </a>
-          <a
-            className="inline-flex h-9 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-5 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:h-10 md:text-base dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
-            href="#features"
-          >
-            Xem thêm
-          </a>
-        </div>
-      </section>
-      <section className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]">
-        <article className="flex flex-col justify-center gap-9 self-stretch rounded-xl bg-[rgba(var(--accent-500),0.1)] p-6 lg:flex-row lg:justify-between lg:p-10 dark:bg-[rgba(var(--accent-600),0.1)]">
-          <div className="flex flex-col gap-2">
-            <h4 className="text-3xl font-medium text-[--text-primary] lg:text-4xl dark:text-[--dark-text-primary]">
-              Đẩy mạnh hiệu suất nhà hàng của bạn với OmniDine
-            </h4>
-            <p className="text-lg text-[--text-secondary] lg:text-xl dark:text-[--dark-text-secondary]">
-              Xoá bỏ hoàn toàn điểm nghẽn bằng nghiệp vụ quản lý hiện đại.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 items-center gap-2 md:flex lg:flex-col">
-            <a
-              className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-full border-[--accent-600] bg-[--accent-500] px-3.5 text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:px-5"
-              href="/auth/register"
-            >
-              Đăng ký
-            </a>
-            <a
-              className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-3.5 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:px-5 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
-              href="#support"
-            >
-              Hỗ trợ
-            </a>
-          </div>
-        </article>
-      </section>
-      <section className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]">
-        <img
-          alt="A group of people with speech bubbles above them"
-          className="sf-hidden block hidden rounded-xl border border-[--border] md:order-3 md:w-full dark:block dark:border-[--dark-border]"
-          data-nimg={1}
-          decoding="async"
-          height={600}
-          loading="lazy"
-          src="data:,"
-          style={{ color: "transparent" }}
-          width={1216}
-        />
-        <img
-          alt="A group of people with speech bubbles above them"
-          className="block rounded-xl border border-[--border] md:order-3 md:w-full dark:hidden dark:border-[--dark-border]"
-          data-nimg={1}
-          decoding="async"
-          height={600}
-          loading="lazy"
-          src="/assets/home/landing-banner.webp"
-          style={{ color: "transparent" }}
-          width={1216}
-        />
-        <div className="flex flex-col items-center gap-3 self-center">
-          <h3 className="flex min-h-7 items-center justify-center gap-2 rounded-full bg-[--surface-secondary] px-3.5 pb-px text-sm font-medium text-[--text-tertiary] md:text-base dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-tertiary]">
-            Tự Lập Trình Và Dễ Dàng Đồng Bộ
-          </h3>
-          <div className="flex max-w-[800px] flex-col items-center justify-center gap-1 self-center [&>*]:text-center [&>*]:text-3xl [&>*]:font-medium [&>*]:text-pretty md:[&>*]:text-4xl">
-            <h4 title="Khả Năng Vận Hành Xuyên Suốt">
-              Khả Năng Vận Hành Xuyên Suốt
-            </h4>
-          </div>
-          <p className="max-w-screen-md text-center text-lg font-light text-pretty text-[--text-tertiary] md:text-xl dark:text-[--dark-text-tertiary]">
-            Được trang bị hàng loạt các công cụ làm việc nhóm, chia sẻ dữ liệu
-            và lưu trữ các file giúp duy trì sự liên tục mượt mà từ lúc nhận cho
-            đến khi phát hành sản phẩm.
-          </p>
-        </div>
-        <div className="flex w-full flex-col items-start gap-4 md:order-2 md:grid md:grid-cols-3 md:gap-16">
-          {COLLABORATION_FEATURES.map((feature) => (
-            <CollaborationFeatureCard key={feature.title} feature={feature} />
-          ))}
-        </div>
-      </section>
-      <section className="relative flex flex-col items-center gap-10 py-14 md:py-[72px] lg:container lg:mx-auto lg:!flex-row lg:gap-0 lg:p-28">
-        <div className="relative top-0 container mx-auto shrink self-stretch px-6 lg:w-1/2 lg:pr-12 lg:pl-0 xl:pr-20">
-          <div className="sticky top-[calc(var(--header-height)+40px)] bottom-0 flex flex-col gap-10">
-            <div className="flex flex-col items-start gap-3 self-start">
-              <h3 className="flex min-h-7 items-center justify-center gap-2 rounded-full bg-[--surface-secondary] px-3.5 pb-px text-sm font-medium text-[--text-tertiary] md:text-base dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-tertiary]">
-                Hiệu Suất
-              </h3>
+        <div className="flex w-full flex-col gap-14">
+          <div className="flex justify-between">
+            <div className="flex flex-col items-start gap-3 self-start self-stretch">
               <div className="flex max-w-[800px] flex-col items-start justify-center gap-1 self-start [&>*]:text-left [&>*]:text-3xl [&>*]:font-medium [&>*]:text-pretty md:[&>*]:text-4xl">
-                <h4 title="Tối ưu luồng công việc">Tối ưu luồng công việc</h4>
+                <h4 title="Khách hàng nói gì">Hơn 1200 Đối Tác Tin Dùng</h4>
               </div>
-              <p className="max-w-screen-md text-left text-lg font-light text-pretty text-[--text-tertiary] md:text-xl dark:text-[--dark-text-tertiary]">
-                Hỗ trợ đội ngũ nhân viên duy trì tốc độ và làm việc liền mạch
-                khi xử lý hàng trăm đơn hàng một cách nhanh chóng.
-              </p>
             </div>
-            <div className="flex items-center gap-3 md:order-3">
-              <a
-                className="inline-flex h-9 shrink-0 items-center justify-center gap-1 rounded-full border-[--accent-600] bg-[--accent-500] px-5 text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:h-10 md:text-base"
-                href="/public/restaurants"
+            <div className="hidden gap-4 sm:flex">
+              <button
+                type="button"
+                aria-label="Previous testimonial"
+                onClick={scrollLeft}
+                className="inline-flex !h-auto h-8 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-3.5 px-4 py-2 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:px-5 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
               >
-                Trải nghiệm
-              </a>
-              <a
-                className="inline-flex h-9 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-5 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:h-10 md:text-base dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
-                href="#features"
-              >
-                Chi tiết
-              </a>
-            </div>
-          </div>
-        </div>
-        <div className="w-full flex-1 shrink-0 lg:w-1/2 lg:flex-1">
-          <div className="no-scrollbar flex gap-10 overflow-auto px-6 lg:flex-col lg:px-0">
-            {PRODUCTIVITY_FEATURES.map((feature) => (
-              <ProductivityFeatureCard key={feature.title} feature={feature} />
-            ))}
-          </div>
-        </div>
-      </section>
-      <section className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]">
-        <article className="relative flex flex-col items-center justify-center gap-9 self-stretch overflow-hidden rounded-xl border border-[--border] bg-[--surface-secondary] p-6 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary]">
-          <div className="callout-1-module__wLojUq__line absolute top-10 left-0 h-px w-full bg-linear-to-l from-black/40 to-transparent dark:from-white/40 dark:to-transparent"></div>
-          <div className="callout-1-module__wLojUq__line absolute bottom-[72px] left-0 h-px w-full bg-linear-to-l from-black/40 to-transparent dark:from-white/40 dark:to-transparent"></div>
-          <div className="callout-1-module__wLojUq__line absolute bottom-7 left-0 h-px w-full bg-linear-to-l from-black/40 to-transparent dark:from-white/40 dark:to-transparent"></div>
-          <div className="absolute top-0 left-0 z-10 h-full w-full bg-[--surface-secondary] blur-3xl filter dark:bg-[--dark-surface-secondary]"></div>
-          <div className="relative z-20 flex flex-col items-center gap-2 text-center">
-            <h4 className="text-center text-3xl font-medium tracking-tighter text-[--text-primary] sm:max-w-full sm:px-0 md:text-4xl dark:text-[--dark-text-primary]">
-              Đẩy mạnh hiệu suất nhà hàng cùng OmniDine
-            </h4>
-            <p className="text-lg text-[--text-secondary] md:text-xl dark:text-[--dark-text-secondary]">
-              Mọi tính năng mạnh mẽ được hội tụ trong một hệ thống vận hành.
-            </p>
-          </div>
-          <div className="relative z-10 flex items-center gap-2">
-            <a
-              className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-full border-[--accent-600] bg-[--accent-500] px-3.5 text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:px-5"
-              href="/auth/register"
-            >
-              Đăng ký
-            </a>
-            <a
-              className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-3.5 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:px-5 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
-              href="#features"
-            >
-              Tìm hiểu thêm
-            </a>
-          </div>
-        </article>
-      </section>
-      <div className="relative overflow-clip">
-        <section className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]">
-          <div className="flex w-full flex-col gap-14">
-            <div className="flex justify-between">
-              <div className="flex flex-col items-start gap-3 self-start self-stretch">
-                <div className="flex max-w-[800px] flex-col items-start justify-center gap-1 self-start [&>*]:text-left [&>*]:text-3xl [&>*]:font-medium [&>*]:text-pretty md:[&>*]:text-4xl">
-                  <h4 title="Khách hàng nói gì">Hơn 1200 Đối Tác Tin Dùng</h4>
-                </div>
-              </div>
-              <div className="hidden gap-4 sm:flex">
-                <button
-                  type="button"
-                  aria-label="Previous testimonial"
-                  onClick={scrollLeft}
-                  className="inline-flex !h-auto h-8 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-3.5 px-4 py-2 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:px-5 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
+                <svg
+                  className="size-6"
+                  fill="none"
+                  height={15}
+                  viewBox="0 0 15 15"
+                  width={15}
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <svg
-                    className="size-6"
-                    fill="none"
-                    height={15}
-                    viewBox="0 0 15 15"
-                    width={15}
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      clipRule="evenodd"
-                      d="M6.85 3.15C7.05 3.34 7.05 3.66 6.85 3.85L3.71 7H12.5C12.78 7 13 7.22 13 7.5C13 7.78 12.78 8 12.5 8H3.71L6.85 11.15C7.05 11.34 7.05 11.66 6.85 11.85C6.66 12.05 6.34 12.05 6.15 11.85L2.15 7.85C1.95 7.66 1.95 7.34 2.15 7.15L6.15 3.15C6.34 2.95 6.66 2.95 6.85 3.15Z"
-                      fill="currentColor"
-                      fillRule="evenodd"
-                    ></path>
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  aria-label="Next testimonial"
-                  onClick={scrollRight}
-                  className="inline-flex !h-auto h-8 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] !px-4 px-3.5 !py-2 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:px-5 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
-                >
-                  <svg
-                    className="size-6"
-                    fill="none"
-                    height={15}
-                    viewBox="0 0 15 15"
-                    width={15}
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      clipRule="evenodd"
-                      d="M8.15 3.15C8.34 2.95 8.66 2.95 8.85 3.15L12.85 7.15C13.05 7.34 13.05 7.66 12.85 7.85L8.85 11.85C8.66 12.05 8.34 12.05 8.15 11.85C7.95 11.66 7.95 11.34 8.15 11.15L11.29 8H2.5C2.22 8 2 7.78 2 7.5C2 7.22 2.22 7 2.5 7H11.29L8.15 3.85C7.95 3.66 7.95 3.34 8.15 3.15Z"
-                      fill="currentColor"
-                      fillRule="evenodd"
-                    ></path>
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div className="relative">
-              <div
-                ref={scrollRef}
-                className="relative no-scrollbar flex h-full w-full snap-x snap-mandatory gap-10 overflow-x-auto scroll-smooth md:gap-0"
-                style={{ scrollSnapType: "x mandatory" }}
+                  <path
+                    clipRule="evenodd"
+                    d="M6.85 3.15C7.05 3.34 7.05 3.66 6.85 3.85L3.71 7H12.5C12.78 7 13 7.22 13 7.5C13 7.78 12.78 8 12.5 8H3.71L6.85 11.15C7.05 11.34 7.05 11.66 6.85 11.85C6.66 12.05 6.34 12.05 6.15 11.85L2.15 7.85C1.95 7.66 1.95 7.34 2.15 7.15L6.15 3.15C6.34 2.95 6.66 2.95 6.85 3.15Z"
+                    fill="currentColor"
+                    fillRule="evenodd"
+                  ></path>
+                </svg>
+              </button>
+              <button
+                type="button"
+                aria-label="Next testimonial"
+                onClick={scrollRight}
+                className="inline-flex !h-auto h-8 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] !px-4 px-3.5 !py-2 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:px-5 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
               >
-                {TESTIMONIALS.map((testimonial) => (
-                  <div
-                    key={testimonial.name}
-                    className="max-w-full min-w-0 shrink-0 grow-0 basis-[min(740px,100%)] snap-center self-stretch md:pr-10"
-                  >
-                    <article className="embla__slide !last:visible flex h-full w-full min-w-0 transform touch-pan-y touch-pinch-zoom flex-col rounded-xl border border-[--border] select-none [backface-visibility:hidden] dark:border-[--dark-border]">
-                      <div className="flex flex-1 items-start border-b border-[--border] px-5 py-[18px] md:px-8 md:py-7 dark:border-[--dark-border]">
-                        <blockquote className="text-xl leading-[135%] font-extralight text-pretty whitespace-pre-wrap text-[--text-primary] sm:text-2xl md:text-4xl dark:text-[--dark-text-primary]">
-                          {testimonial.text}
-                        </blockquote>
-                      </div>
-                      <div className="flex items-center gap-4 pl-5">
-                        <div className="flex flex-1 items-center gap-5 border-r border-[--border] py-4 dark:border-[--dark-border]">
-                          {testimonial.avatarStyle ? (
-                            <img
-                              alt={testimonial.name}
-                              className="hidden size-16 rounded-full md:block"
-                              data-nimg={1}
-                              decoding="async"
-                              height={64}
-                              loading="lazy"
-                              src={testimonial.avatarSrc}
-                              style={testimonial.avatarStyle}
-                              width={64}
-                            />
-                          ) : (
-                            <img
-                              alt={testimonial.name}
-                              className="hidden size-16 rounded-full md:block"
-                              data-nimg={1}
-                              decoding="async"
-                              height={64}
-                              loading="lazy"
-                              src={testimonial.avatarSrc}
-                              style={{ color: "transparent" }}
-                              width={64}
-                            />
-                          )}
-                          <div className="flex flex-1 flex-col">
-                            <h5 className="text-base font-medium md:text-lg">
-                              {testimonial.name}
-                            </h5>
-                            <p className="text-sm text-pretty text-[--text-tertiary] md:text-base dark:text-[--dark-text-tertiary]">
-                              {testimonial.role}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="pr-5">
+                <svg
+                  className="size-6"
+                  fill="none"
+                  height={15}
+                  viewBox="0 0 15 15"
+                  width={15}
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    clipRule="evenodd"
+                    d="M8.15 3.15C8.34 2.95 8.66 2.95 8.85 3.15L12.85 7.15C13.05 7.34 13.05 7.66 12.85 7.85L8.85 11.85C8.66 12.05 8.34 12.05 8.15 11.85C7.95 11.66 7.95 11.34 8.15 11.15L11.29 8H2.5C2.22 8 2 7.78 2 7.5C2 7.22 2.22 7 2.5 7H11.29L8.15 3.85C7.95 3.66 7.95 3.34 8.15 3.15Z"
+                    fill="currentColor"
+                    fillRule="evenodd"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div className="relative">
+            <div
+              ref={scrollRef}
+              className="relative no-scrollbar flex h-full w-full snap-x snap-mandatory gap-10 overflow-x-auto scroll-smooth md:gap-0"
+              style={{ scrollSnapType: "x mandatory" }}
+            >
+              {TESTIMONIALS.map((testimonial) => (
+                <div
+                  key={testimonial.name}
+                  className="max-w-full min-w-0 shrink-0 grow-0 basis-[min(740px,100%)] snap-center self-stretch md:pr-10"
+                >
+                  <article className="embla__slide !last:visible flex h-full w-full min-w-0 transform touch-pan-y touch-pinch-zoom flex-col rounded-xl border border-[--border] select-none [backface-visibility:hidden] dark:border-[--dark-border]">
+                    <div className="flex flex-1 items-start border-b border-[--border] px-5 py-[18px] md:px-8 md:py-7 dark:border-[--dark-border]">
+                      <blockquote className="text-xl leading-[135%] font-extralight text-pretty whitespace-pre-wrap text-[--text-primary] sm:text-2xl md:text-4xl dark:text-[--dark-text-primary]">
+                        {testimonial.text}
+                      </blockquote>
+                    </div>
+                    <div className="flex items-center gap-4 pl-5">
+                      <div className="flex flex-1 items-center gap-5 border-r border-[--border] py-4 dark:border-[--dark-border]">
+                        {testimonial.avatarStyle ? (
                           <img
-                            alt={testimonial.companyAlt}
-                            className="w-12 md:w-16"
+                            alt={testimonial.name}
+                            className="hidden size-16 rounded-full md:block"
                             data-nimg={1}
                             decoding="async"
-                            height={48}
+                            height={64}
                             loading="lazy"
-                            src={testimonial.companySrc}
-                            style={{ color: "transparent" }}
-                            width={testimonial.companyWidth}
+                            src={testimonial.avatarSrc}
+                            style={testimonial.avatarStyle}
+                            width={64}
                           />
+                        ) : (
+                          <img
+                            alt={testimonial.name}
+                            className="hidden size-16 rounded-full md:block"
+                            data-nimg={1}
+                            decoding="async"
+                            height={64}
+                            loading="lazy"
+                            src={testimonial.avatarSrc}
+                            style={{ color: "transparent" }}
+                            width={64}
+                          />
+                        )}
+                        <div className="flex flex-1 flex-col">
+                          <h5 className="text-base font-medium md:text-lg">
+                            {testimonial.name}
+                          </h5>
+                          <p className="text-sm text-pretty text-[--text-tertiary] md:text-base dark:text-[--dark-text-tertiary]">
+                            {testimonial.role}
+                          </p>
                         </div>
                       </div>
-                    </article>
-                  </div>
-                ))}
-              </div>
-              <div className="sf-hidden mt-4 flex w-full justify-center gap-2 md:hidden"></div>
+                      <div className="pr-5">
+                        <img
+                          alt={testimonial.companyAlt}
+                          className="w-12 md:w-16"
+                          data-nimg={1}
+                          decoding="async"
+                          height={48}
+                          loading="lazy"
+                          src={testimonial.companySrc}
+                          style={{ color: "transparent" }}
+                          width={testimonial.companyWidth}
+                        />
+                      </div>
+                    </div>
+                  </article>
+                </div>
+              ))}
             </div>
+            <div className="sf-hidden mt-4 flex w-full justify-center gap-2 md:hidden"></div>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
+    </div>
+  )
+}
+
+export default function LandingMain() {
+  return (
+    <>
+      <LandingHeroSection />
+      <CompanyLogosSection />
+      <CommunicationFeaturesSection />
+      <ManagementFeaturesSection />
+      <PerformanceCalloutSection />
+      <CollaborationSection />
+      <ProductivitySection />
+      <FinalCalloutSection />
+      <TestimonialsSection />
     </>
   )
 }

@@ -293,7 +293,7 @@ function guestRestaurantsReducer(
   }
 }
 
-export default function GuestRestaurantsPage() {
+function useGuestRestaurantsPageController() {
   const navigate = useNavigate()
   const clearAuth = useAuthStore((state) => state.clearAuth)
   const clearUser = useUserStore((state) => state.clear)
@@ -519,6 +519,92 @@ export default function GuestRestaurantsPage() {
     }
   }, [handleLoadMore, hasMorePosts, isLoadingMore])
 
+  const openAttentionModal = useCallback(() => {
+    dispatchFeed({ type: "setAttentionModalOpen", isOpen: true })
+  }, [])
+
+  const closeAttentionModal = useCallback(() => {
+    dispatchFeed({ type: "setAttentionModalOpen", isOpen: false })
+  }, [])
+
+  const openCreatePage = useCallback(() => {
+    navigate("/restaurants/new")
+  }, [navigate])
+
+  const openRestaurantsPage = useCallback(() => {
+    navigate("/restaurants")
+  }, [navigate])
+
+  const openPublicRestaurant = useCallback(
+    (slug: string) => {
+      navigate(`/public/restaurants/${slug}`)
+    },
+    [navigate]
+  )
+
+  return {
+    activeFilter,
+    closeAttentionModal,
+    displayedPosts,
+    handleBookmark,
+    handleFilterChange,
+    handleLike,
+    handleLoadMore,
+    handleLocationChange,
+    handleLogout,
+    hasMorePosts,
+    isAttentionModalOpen,
+    isLoadingMore,
+    isRestaurantsLoading,
+    loadMoreRef,
+    nearbyRestaurants,
+    openAttentionModal,
+    openCreatePage,
+    openPublicRestaurant,
+    openRestaurantsPage,
+    profile,
+    remainingPostsCount,
+    restaurantsError,
+    restaurantsErrorMeta,
+    showFAB,
+  }
+}
+
+type GuestRestaurantsController = ReturnType<
+  typeof useGuestRestaurantsPageController
+>
+
+function GuestRestaurantsView({
+  controller,
+}: {
+  controller: GuestRestaurantsController
+}) {
+  const {
+    activeFilter,
+    closeAttentionModal,
+    displayedPosts,
+    handleBookmark,
+    handleFilterChange,
+    handleLike,
+    handleLoadMore,
+    handleLocationChange,
+    handleLogout,
+    hasMorePosts,
+    isAttentionModalOpen,
+    isLoadingMore,
+    isRestaurantsLoading,
+    loadMoreRef,
+    nearbyRestaurants,
+    openAttentionModal,
+    openCreatePage,
+    openPublicRestaurant,
+    openRestaurantsPage,
+    profile,
+    remainingPostsCount,
+    restaurantsError,
+    restaurantsErrorMeta,
+    showFAB,
+  } = controller
   return (
     <>
       <GuestRestaurantsLayout
@@ -526,9 +612,7 @@ export default function GuestRestaurantsPage() {
         onLocationChange={handleLocationChange}
         onLogout={handleLogout}
         showCreateFab={showFAB}
-        onOpenAttentionModal={() =>
-          dispatchFeed({ type: "setAttentionModalOpen", isOpen: true })
-        }
+        onOpenAttentionModal={openAttentionModal}
       >
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           <aside className="hidden lg:col-span-3 lg:block">
@@ -562,9 +646,7 @@ export default function GuestRestaurantsPage() {
                       >
                         <button
                           type="button"
-                          onClick={() =>
-                            navigate(`/public/restaurants/${restaurant.slug}`)
-                          }
+                          onClick={() => openPublicRestaurant(restaurant.slug)}
                           className="relative shrink-0"
                           aria-label={`Mở chi tiết ${restaurant.name}`}
                         >
@@ -584,7 +666,7 @@ export default function GuestRestaurantsPage() {
                           <button
                             type="button"
                             onClick={() =>
-                              navigate(`/public/restaurants/${restaurant.slug}`)
+                              openPublicRestaurant(restaurant.slug)
                             }
                             className="block w-full text-left"
                             aria-label={`Mở chi tiết ${restaurant.name}`}
@@ -622,7 +704,7 @@ export default function GuestRestaurantsPage() {
                 </p>
                 <button
                   type="button"
-                  onClick={() => navigate("/restaurants")}
+                  onClick={openRestaurantsPage}
                   className="w-full rounded-2xl bg-primary py-2.5 text-sm font-medium text-primary-foreground transition-colors duration-200 hover:bg-primary/90"
                 >
                   Khám phá ngay
@@ -756,9 +838,7 @@ export default function GuestRestaurantsPage() {
                 </div>
               </div>
 
-              <CreateRestaurantBanner
-                onOpenCreatePage={() => navigate("/restaurants/new")}
-              />
+              <CreateRestaurantBanner onOpenCreatePage={openCreatePage} />
             </div>
           </aside>
         </div>
@@ -766,11 +846,15 @@ export default function GuestRestaurantsPage() {
 
       <AttentionModal
         isOpen={isAttentionModalOpen}
-        onClose={() =>
-          dispatchFeed({ type: "setAttentionModalOpen", isOpen: false })
-        }
-        onOpenCreatePage={() => navigate("/restaurants/new")}
+        onClose={closeAttentionModal}
+        onOpenCreatePage={openCreatePage}
       />
     </>
   )
+}
+
+export default function GuestRestaurantsPage() {
+  const controller = useGuestRestaurantsPageController()
+
+  return <GuestRestaurantsView controller={controller} />
 }

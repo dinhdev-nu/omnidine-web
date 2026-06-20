@@ -279,7 +279,7 @@ function orderTableReducer(
   }
 }
 
-const OrderTable: React.FC<OrderTableProps> = ({
+function useOrderTableController({
   orders,
   highlightedOrderId,
   onLoadOrderDetail,
@@ -289,7 +289,7 @@ const OrderTable: React.FC<OrderTableProps> = ({
   onUpdateOrderItemStatus,
   onCancelOrderItem,
   onUpdateOrderDiscount,
-}) => {
+}: OrderTableProps) {
   const [tableState, dispatchTable] = useReducer(
     orderTableReducer,
     orderTableInitialState
@@ -498,87 +498,192 @@ const OrderTable: React.FC<OrderTableProps> = ({
   }, [cancelItemReason, onCancelOrderItem, onLoadOrderDetail])
 
   // ── Render ─────────────────────────────────────────────────────────────────
+  return {
+    orders,
+    highlightedOrderId,
+    expandedRows,
+    detailOrders,
+    loadingDetailOrders,
+    dispatchTable,
+    selectedOrderToCancel,
+    showCancelDialog,
+    cancelReason,
+    isCancelling,
+    selectedOrderToUpdateStatus,
+    showUpdateStatusDialog,
+    nextStatus,
+    isUpdatingStatus,
+    selectedOrderToDiscount,
+    showDiscountDialog,
+    discountType,
+    discountValue,
+    discountRef,
+    isUpdatingDiscount,
+    showCancelItemDialog,
+    cancelItemReason,
+    isCancellingItem,
+    selectedItemToCancelRef,
+    handleOrderClick,
+    handleCancelClick,
+    handleUpdateStatusClick,
+    handleConfirmCancel,
+    handleConfirmUpdateStatus,
+    handleToggleExpand,
+    handleUpdateOrderItemStatus,
+    handleEditDiscountClick,
+    handleCancelItemClick,
+    handleConfirmDiscount,
+    handleConfirmCancelItem,
+  }
+}
 
+type OrderTableController = ReturnType<typeof useOrderTableController>
+
+interface OrderTableViewProps {
+  controller: OrderTableController
+}
+
+function OrderDesktopTable({ controller }: OrderTableViewProps) {
+  const {
+    orders,
+    detailOrders,
+    loadingDetailOrders,
+    highlightedOrderId,
+    expandedRows,
+    handleToggleExpand,
+    handleOrderClick,
+    handleUpdateStatusClick,
+    handleCancelClick,
+    handleUpdateOrderItemStatus,
+    handleCancelItemClick,
+    handleEditDiscountClick,
+  } = controller
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card">
-      {/* Desktop Table */}
-      <div className="hidden overflow-x-auto lg:block">
-        <table className="w-full">
-          <thead className="border-b border-border bg-muted/50">
-            <tr>
-              <th className="p-4 text-left font-medium text-muted-foreground">
-                <div className="flex items-center space-x-2">
-                  <span>Số đơn</span>
-                </div>
-              </th>
-              <th className="p-4 text-left font-medium text-muted-foreground">
-                <span>Ngày tạo</span>
-              </th>
-              <th className="p-4 text-left font-medium text-muted-foreground">
-                Loại đơn
-              </th>
-              <th className="p-4 text-left font-medium text-muted-foreground">
-                Khách hàng
-              </th>
-              <th className="p-4 text-left font-medium text-muted-foreground">
-                Tổng tiền
-              </th>
-              <th className="p-4 text-left font-medium text-muted-foreground">
-                Nguồn đơn
-              </th>
-              <th className="p-4 text-left font-medium text-muted-foreground">
-                Trạng thái
-              </th>
-              <th className="p-4 text-left font-medium text-muted-foreground">
-                TT Thanh toán
-              </th>
-              <th className="p-4 text-left font-medium text-muted-foreground">
-                Thao tác
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order) => (
-              <OrderTableDesktopRow
-                key={order._id}
-                order={order}
-                detailOrder={detailOrders[order._id]}
-                isLoadingDetail={loadingDetailOrders[order._id]}
-                highlighted={highlightedOrderId === order._id}
-                expanded={expandedRows.has(order._id)}
-                onToggleExpand={handleToggleExpand}
-                onPaymentClick={handleOrderClick}
-                onUpdateStatusClick={handleUpdateStatusClick}
-                onCancelOrder={handleCancelClick}
-                onUpdateOrderItemStatus={handleUpdateOrderItemStatus}
-                onCancelOrderItemClick={handleCancelItemClick}
-                onEditDiscountClick={handleEditDiscountClick}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="hidden overflow-x-auto lg:block">
+      <table className="w-full">
+        <thead className="border-b border-border bg-muted/50">
+          <tr>
+            <th className="p-4 text-left font-medium text-muted-foreground">
+              <div className="flex items-center space-x-2">
+                <span>Số đơn</span>
+              </div>
+            </th>
+            <th className="p-4 text-left font-medium text-muted-foreground">
+              <span>Ngày tạo</span>
+            </th>
+            <th className="p-4 text-left font-medium text-muted-foreground">
+              Loại đơn
+            </th>
+            <th className="p-4 text-left font-medium text-muted-foreground">
+              Khách hàng
+            </th>
+            <th className="p-4 text-left font-medium text-muted-foreground">
+              Tổng tiền
+            </th>
+            <th className="p-4 text-left font-medium text-muted-foreground">
+              Nguồn đơn
+            </th>
+            <th className="p-4 text-left font-medium text-muted-foreground">
+              Trạng thái
+            </th>
+            <th className="p-4 text-left font-medium text-muted-foreground">
+              TT Thanh toán
+            </th>
+            <th className="p-4 text-left font-medium text-muted-foreground">
+              Thao tác
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {orders.map((order) => (
+            <OrderTableDesktopRow
+              key={order._id}
+              order={order}
+              detailOrder={detailOrders[order._id]}
+              isLoadingDetail={loadingDetailOrders[order._id]}
+              highlighted={highlightedOrderId === order._id}
+              expanded={expandedRows.has(order._id)}
+              onToggleExpand={handleToggleExpand}
+              onPaymentClick={handleOrderClick}
+              onUpdateStatusClick={handleUpdateStatusClick}
+              onCancelOrder={handleCancelClick}
+              onUpdateOrderItemStatus={handleUpdateOrderItemStatus}
+              onCancelOrderItemClick={handleCancelItemClick}
+              onEditDiscountClick={handleEditDiscountClick}
+            />
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
 
-      {/* Mobile Card Layout */}
-      <div className="space-y-4 p-4 lg:hidden">
-        {orders.map((order) => (
-          <OrderTableMobileCard
-            key={order._id}
-            order={order}
-            detailOrder={detailOrders[order._id]}
-            isLoadingDetail={loadingDetailOrders[order._id]}
-            highlighted={highlightedOrderId === order._id}
-            expanded={expandedRows.has(order._id)}
-            onToggleExpand={handleToggleExpand}
-            onPaymentClick={handleOrderClick}
-            onUpdateStatusClick={handleUpdateStatusClick}
-            onCancelOrder={handleCancelClick}
-            onUpdateOrderItemStatus={handleUpdateOrderItemStatus}
-            onCancelOrderItemClick={handleCancelItemClick}
-            onEditDiscountClick={handleEditDiscountClick}
-          />
-        ))}
-      </div>
+function OrderMobileCards({ controller }: OrderTableViewProps) {
+  const {
+    orders,
+    detailOrders,
+    loadingDetailOrders,
+    highlightedOrderId,
+    expandedRows,
+    handleToggleExpand,
+    handleOrderClick,
+    handleUpdateStatusClick,
+    handleCancelClick,
+    handleUpdateOrderItemStatus,
+    handleCancelItemClick,
+    handleEditDiscountClick,
+  } = controller
+  return (
+    <div className="space-y-4 p-4 lg:hidden">
+      {orders.map((order) => (
+        <OrderTableMobileCard
+          key={order._id}
+          order={order}
+          detailOrder={detailOrders[order._id]}
+          isLoadingDetail={loadingDetailOrders[order._id]}
+          highlighted={highlightedOrderId === order._id}
+          expanded={expandedRows.has(order._id)}
+          onToggleExpand={handleToggleExpand}
+          onPaymentClick={handleOrderClick}
+          onUpdateStatusClick={handleUpdateStatusClick}
+          onCancelOrder={handleCancelClick}
+          onUpdateOrderItemStatus={handleUpdateOrderItemStatus}
+          onCancelOrderItemClick={handleCancelItemClick}
+          onEditDiscountClick={handleEditDiscountClick}
+        />
+      ))}
+    </div>
+  )
+}
+
+function OrderTableDialogs({ controller }: OrderTableViewProps) {
+  const {
+    showUpdateStatusDialog,
+    dispatchTable,
+    handleConfirmUpdateStatus,
+    selectedOrderToUpdateStatus,
+    nextStatus,
+    isUpdatingStatus,
+    showCancelDialog,
+    handleConfirmCancel,
+    selectedOrderToCancel,
+    isCancelling,
+    cancelReason,
+    showDiscountDialog,
+    handleConfirmDiscount,
+    selectedOrderToDiscount,
+    isUpdatingDiscount,
+    discountType,
+    discountValue,
+    discountRef,
+    showCancelItemDialog,
+    selectedItemToCancelRef,
+    handleConfirmCancelItem,
+    isCancellingItem,
+    cancelItemReason,
+  } = controller
+  return (
+    <>
       <ConfirmationDialog
         isOpen={showUpdateStatusDialog}
         onClose={() => dispatchTable({ type: "closeUpdateStatus" })}
@@ -769,8 +874,24 @@ const OrderTable: React.FC<OrderTableProps> = ({
           />
         </div>
       </ConfirmationDialog>
+    </>
+  )
+}
+
+function OrderTableView({ controller }: OrderTableViewProps) {
+  return (
+    <div className="overflow-hidden rounded-lg border border-border bg-card">
+      <OrderDesktopTable controller={controller} />
+      <OrderMobileCards controller={controller} />
+      <OrderTableDialogs controller={controller} />
     </div>
   )
+}
+
+const OrderTable: React.FC<OrderTableProps> = (props) => {
+  const controller = useOrderTableController(props)
+
+  return <OrderTableView controller={controller} />
 }
 
 export default OrderTable

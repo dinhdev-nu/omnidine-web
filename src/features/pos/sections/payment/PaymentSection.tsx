@@ -51,7 +51,7 @@ const createPaymentFlowState = (orderId: string): PaymentFlowState => ({
   paymentResult: {},
 })
 
-const PaymentSection: React.FC<PaymentSectionProps> = ({ orderId }) => {
+function usePaymentSectionController(orderId?: string | null) {
   const navigate = useNavigate()
   const { slug } = useParams<{ slug: string }>()
   const { restaurant } = useRequiredPosData()
@@ -198,9 +198,73 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ orderId }) => {
     if (slug) navigate(`${POS_BASE_PATH}/${slug}/orders`)
   }
 
-  let stepContent: React.ReactNode = null
+  return {
+    resolvedOrderId,
+    currentStep,
+    selectedMethod,
+    paymentResult,
+    renderedAt,
+    orderData,
+    isLoadingOrderDetails,
+    orderDetailError,
+    orderItems,
+    subtotal,
+    discountAmount,
+    taxAmount,
+    totalAmount,
+    tableNumber,
+    cashChange,
+    cashAmountError,
+    quickAmounts,
+    qrCodeUrl,
+    updateFlow,
+    handleLeavePayment,
+    handleBackToMethod,
+    handleMethodSelect,
+    handleCashComplete,
+    handleCardComplete,
+    handleWalletComplete,
+    handleResetFlow,
+  }
+}
+
+type PaymentSectionController = ReturnType<typeof usePaymentSectionController>
+
+interface PaymentSectionViewProps {
+  controller: PaymentSectionController
+}
+
+function PaymentStepContent({ controller }: PaymentSectionViewProps) {
+  const {
+    resolvedOrderId,
+    currentStep,
+    selectedMethod,
+    paymentResult,
+    orderData,
+    isLoadingOrderDetails,
+    orderDetailError,
+    orderItems,
+    subtotal,
+    discountAmount,
+    taxAmount,
+    totalAmount,
+    tableNumber,
+    cashChange,
+    cashAmountError,
+    quickAmounts,
+    qrCodeUrl,
+    updateFlow,
+    handleLeavePayment,
+    handleBackToMethod,
+    handleMethodSelect,
+    handleCashComplete,
+    handleCardComplete,
+    handleWalletComplete,
+    handleResetFlow,
+  } = controller
+
   if (!resolvedOrderId) {
-    stepContent = (
+    return (
       <div className="space-y-4 py-12 text-center">
         <Icon
           name="FileText"
@@ -225,8 +289,10 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ orderId }) => {
         </Button>
       </div>
     )
-  } else if (isLoadingOrderDetails) {
-    stepContent = (
+  }
+
+  if (isLoadingOrderDetails) {
+    return (
       <div className="py-12 text-center">
         <Icon
           name="Loader"
@@ -236,8 +302,10 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ orderId }) => {
         <p className="text-muted-foreground">Đang tải chi tiết đơn hàng...</p>
       </div>
     )
-  } else if (orderDetailError) {
-    stepContent = (
+  }
+
+  if (orderDetailError) {
+    return (
       <div className="space-y-4 py-12 text-center">
         <Icon
           name="AlertCircle"
@@ -260,8 +328,10 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ orderId }) => {
         </Button>
       </div>
     )
-  } else if (orderData && currentStep === "method") {
-    stepContent = (
+  }
+
+  if (orderData && currentStep === "method") {
+    return (
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <div>
           <OrderSummary
@@ -343,8 +413,10 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ orderId }) => {
         </div>
       </div>
     )
-  } else if (orderData && currentStep === "payment") {
-    stepContent = (
+  }
+
+  if (orderData && currentStep === "payment") {
+    return (
       <div className="mx-auto max-w-md">
         {selectedMethod === "cash" && (
           <CashPaymentForm
@@ -375,8 +447,10 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ orderId }) => {
         )}
       </div>
     )
-  } else if (orderData && currentStep === "success") {
-    stepContent = (
+  }
+
+  if (orderData && currentStep === "success") {
+    return (
       <div className="mx-auto max-w-lg">
         <PaymentSuccess
           paymentData={paymentResult}
@@ -399,6 +473,20 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ orderId }) => {
       </div>
     )
   }
+
+  return null
+}
+
+function PaymentSectionLayout({ controller }: PaymentSectionViewProps) {
+  const {
+    currentStep,
+    orderData,
+    resolvedOrderId,
+    tableNumber,
+    renderedAt,
+    handleLeavePayment,
+    handleBackToMethod,
+  } = controller
 
   return (
     <div className="h-full min-h-0 overflow-auto p-4 md:p-5">
@@ -483,7 +571,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ orderId }) => {
       </div>
 
       <div className="bg-surface rounded-lg border border-border p-4 md:p-5">
-        {stepContent}
+        <PaymentStepContent controller={controller} />
       </div>
 
       <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-3 md:p-4">
@@ -500,6 +588,12 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ orderId }) => {
       </div>
     </div>
   )
+}
+
+const PaymentSection: React.FC<PaymentSectionProps> = ({ orderId }) => {
+  const controller = usePaymentSectionController(orderId)
+
+  return <PaymentSectionLayout controller={controller} />
 }
 
 export default PaymentSection

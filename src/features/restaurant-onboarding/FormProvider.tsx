@@ -428,12 +428,16 @@ function createRestaurantFormReducer(
   }
 }
 
-export function CreateRestaurantProvider({
-  children,
+type CreateRestaurantProviderValueOptions = Pick<
+  CreateRestaurantProviderProps,
+  "isEditing" | "initialFormData" | "initialImagePreviews"
+>
+
+function useCreateRestaurantProviderValue({
   isEditing = false,
   initialFormData,
   initialImagePreviews,
-}: CreateRestaurantProviderProps) {
+}: CreateRestaurantProviderValueOptions) {
   const navigate = useNavigate()
   const slugCheckRequestIdRef = useRef(0)
 
@@ -1116,6 +1120,21 @@ export function CreateRestaurantProvider({
     }),
     [state, actions, meta]
   )
+
+  return value
+}
+
+export function CreateRestaurantProvider({
+  children,
+  isEditing = false,
+  initialFormData,
+  initialImagePreviews,
+}: CreateRestaurantProviderProps) {
+  const value = useCreateRestaurantProviderValue({
+    isEditing,
+    initialFormData,
+    initialImagePreviews,
+  })
 
   return (
     <CreateRestaurantContext.Provider value={value}>
