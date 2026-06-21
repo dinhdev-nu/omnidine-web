@@ -1,4 +1,4 @@
-import type { Order } from '@/types/order-type';
+import type { Order } from '@/types/domain/order';
 
 export const generateIdempotencyKey = (): string => crypto.randomUUID();
 

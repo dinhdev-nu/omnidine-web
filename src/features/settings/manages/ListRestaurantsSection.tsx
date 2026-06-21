@@ -1,431 +1,108 @@
-import { useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useEffect, useReducer } from "react"
+import { useNavigate } from "react-router-dom"
+import { getOwnerRestaurants } from "@/services/restaurants"
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
-import { getOwnerRestaurants } from "@/services/restaurants";
-import type { OwnerRestaurantListItem } from "@/types/restaurant-type";
-import { useNavigate } from "react-router-dom";
-import { QRCodeSVG } from "qrcode.react";
-import { toast } from "sonner";
-import {
-    MapPin,
-    Mail,
-    Phone,
-    Store,
-    Settings,
-    Share2,
-    TrendingUp,
-    TrendingDown,
-} from "lucide-react";
-
-type RestaurantTier = "Công khai" | "Bản nháp";
-
-const tierColors: Record<RestaurantTier, string> = {
-    "Công khai": "bg-primary/10 text-primary border-primary/25",
-    "Bản nháp": "bg-muted text-muted-foreground border-border",
-};
-
-function getRestaurantReadinessScore(restaurant: OwnerRestaurantListItem) {
-    let score = 45;
-
-    if (restaurant.is_published) score += 25;
-    if (restaurant.accepts_online_orders) score += 20;
-    if (restaurant.email || restaurant.phone) score += 5;
-    if (restaurant.website) score += 5;
-
-    return Math.min(score, 100);
-}
-
-function getRestaurantTrend(restaurant: OwnerRestaurantListItem): "up" | "down" | "stable" {
-    if (restaurant.is_published && restaurant.accepts_online_orders) return "up";
-    if (!restaurant.is_published && !restaurant.accepts_online_orders) return "down";
-    return "stable";
-}
-
-function formatCreatedDate(value: string) {
-    return new Intl.DateTimeFormat("vi-VN", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-    }).format(new Date(value));
-}
-
-function getHealthBarClass(score: number) {
-    if (score >= 80) return "bg-primary";
-    if (score >= 60) return "bg-amber-500";
-    return "bg-destructive";
-}
-
-function getHealthTextClass(score: number) {
-    if (score >= 80) return "text-primary";
-    if (score >= 60) return "text-amber-600 dark:text-amber-400";
-    return "text-destructive";
-}
+  initialRestaurantListState,
+  restaurantListReducer,
+} from "./list-restaurants.state"
+import { RestaurantCard } from "./components/list-restaurants/RestaurantCard"
+import { RestaurantSkeletonGrid } from "./components/list-restaurants/RestaurantSkeletonGrid"
+import { ShareRestaurantDialog } from "./components/list-restaurants/ShareRestaurantDialog"
 
 export function ListRestaurantsSection() {
-    const navigate = useNavigate();
-    const [restaurants, setRestaurants] = useState<OwnerRestaurantListItem[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [shareTarget, setShareTarget] = useState<OwnerRestaurantListItem | null>(null);
-    const [shareMode, setShareMode] = useState<"public" | "pos">("public");
+  const navigate = useNavigate()
+  const [state, dispatch] = useReducer(
+    restaurantListReducer,
+    initialRestaurantListState
+  )
+  const { restaurants, isLoading, error, shareTarget, shareMode } = state
 
-    const sharePublicUrl = shareTarget
-        ? `${window.location.origin}/public/restaurants/${shareTarget.slug}/menu`
-        : "";
+  const sharePublicUrl = shareTarget
+    ? `${window.location.origin}/public/restaurants/${shareTarget.slug}/menu`
+    : ""
 
-    const sharePosUrl = shareTarget
-        ? `${window.location.origin}/pos/${shareTarget.slug}`
-        : "";
+  const sharePosUrl = shareTarget
+    ? `${window.location.origin}/pos/${shareTarget.slug}`
+    : ""
 
-    useEffect(() => {
-        if (shareTarget) {
-            setShareMode("public");
-        }
-    }, [shareTarget]);
+  useEffect(() => {
+    let isActive = true
 
-    const handleCopyShareLink = async (url: string, label: string) => {
-        if (!url) return;
+    async function loadRestaurants() {
+      try {
+        dispatch({ type: "loadStarted" })
 
-        try {
-            await navigator.clipboard.writeText(url);
-            toast.success(`Đã sao chép liên kết ${label}`);
-        } catch {
-            toast.error("Không thể sao chép liên kết. Vui lòng thử lại.");
-        }
-    };
+        const response = await getOwnerRestaurants({ page: 1, limit: 10 })
+        console.log("Đã tải danh sách nhà hàng:", response)
+        if (!isActive) return
 
-    useEffect(() => {
-        let isActive = true;
+        dispatch({ type: "loadSucceeded", restaurants: response.data })
+      } catch {
+        if (!isActive) return
 
-        async function loadRestaurants() {
-            try {
-                setIsLoading(true);
-                setError(null);
+        dispatch({
+          type: "loadFailed",
+          message: "Không thể tải danh sách nhà hàng.",
+        })
+      }
+    }
 
-                const response = await getOwnerRestaurants({ page: 1, limit: 10 });
-                console.log("Đã tải danh sách nhà hàng:", response);
-                if (!isActive) return;
+    loadRestaurants()
 
-                setRestaurants(response.data);
-            } catch {
-                if (!isActive) return;
+    return () => {
+      isActive = false
+    }
+  }, [])
 
-                setError("Không thể tải danh sách nhà hàng.");
-                setRestaurants([]);
-            } finally {
-                if (isActive) {
-                    setIsLoading(false);
-                }
-            }
-        }
-
-        loadRestaurants();
-
-        return () => {
-            isActive = false;
-        };
-    }, []);
-
-    return (
-        <div>
-            {error && (
-                <div className="mb-4 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-                    {error}
-                </div>
-            )}
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] gap-4 xl:gap-5">
-                {isLoading &&
-                    Array.from({ length: 6 }).map((_, index) => (
-                        <Card
-                            key={`restaurant-skeleton-${index}`}
-                            className="h-full border-border bg-card animate-pulse"
-                        >
-                            <CardContent className="flex h-full flex-col p-5">
-                                <div className="mb-4 flex min-w-0 items-start justify-between gap-3">
-                                    <div className="flex min-w-0 items-center gap-3">
-                                        <div className="h-12 w-12 rounded-full bg-muted" />
-                                        <div className="min-w-0 space-y-2">
-                                            <div className="h-4 w-28 rounded bg-muted" />
-                                            <div className="h-3 w-20 rounded bg-muted" />
-                                        </div>
-                                    </div>
-                                    <div className="h-6 w-20 rounded-full bg-muted" />
-                                </div>
-                                <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <div className="space-y-2">
-                                        <div className="h-3 w-32 rounded bg-muted" />
-                                        <div className="h-3 w-28 rounded bg-muted" />
-                                        <div className="h-3 w-24 rounded bg-muted" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <div className="h-3 w-full rounded bg-muted" />
-                                        <div className="h-3 w-full rounded bg-muted" />
-                                        <div className="h-3 w-3/4 rounded bg-muted" />
-                                    </div>
-                                </div>
-                                <div className="mt-auto border-t border-border pt-4 space-y-4">
-                                    <div className="flex items-center justify-between gap-3">
-                                        <div className="h-3 w-28 rounded bg-muted" />
-                                        <div className="h-3 w-16 rounded bg-muted" />
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="h-10 flex-1 rounded border border-border bg-muted/40" />
-                                        <div className="h-10 flex-1 rounded border border-border bg-muted/40" />
-                                        <div className="h-10 w-10 rounded bg-muted/40" />
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
-
-                {!isLoading &&
-                    restaurants.map((restaurant, index) => {
-                        const readinessScore = getRestaurantReadinessScore(restaurant);
-                        const trend = getRestaurantTrend(restaurant);
-                        const tier: RestaurantTier = restaurant.is_published ? "Công khai" : "Bản nháp";
-                        const needsVerification =
-                            !restaurant.is_published || !restaurant.accepts_online_orders;
-
-                        return (
-                            <Card
-                                key={restaurant._id}
-                                className="h-full border-border bg-card transition-colors duration-200 group animate-in fade-in slide-in-from-bottom-2 duration-200"
-                                style={{ animationDelay: `${index * 30}ms` }}
-                            >
-                                <CardContent className="flex h-full flex-col p-5">
-                                    <div className="mb-4 flex min-w-0 items-start justify-between gap-3">
-                                        <div className="flex min-w-0 items-center gap-3">
-                                            <Avatar className="size-12">
-                                                <AvatarImage
-                                                    src={restaurant.logo_url ?? undefined}
-                                                    alt={restaurant.name}
-                                                />
-                                                <AvatarFallback className="bg-secondary text-foreground font-semibold text-sm">
-                                                    {restaurant.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            <div className="min-w-0">
-                                                <h3 className="truncate font-semibold text-foreground group-hover:text-primary transition-colors">
-                                                    {restaurant.name}
-                                                </h3>
-                                                <p className="truncate text-sm text-muted-foreground">{restaurant.cuisine_type ?? "Chưa phân loại"}</p>
-                                            </div>
-                                        </div>
-                                        <Badge className={`${tierColors[tier]} shrink-0 border`}>
-                                            {tier === "Công khai" ? "Công khai" : "Chưa công khai"}
-                                        </Badge>
-                                    </div>
-
-                                    <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                        <div className="space-y-2">
-                                            <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
-                                                <MapPin className="w-3.5 h-3.5" />
-                                                <span className="truncate">{restaurant.city}</span>
-                                            </div>
-                                            <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
-                                                <Mail className="w-3.5 h-3.5" />
-                                                <span className="truncate">{restaurant.email ?? "Chưa cập nhật"}</span>
-                                            </div>
-                                            <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
-                                                <Phone className="w-3.5 h-3.5" />
-                                                <span className="truncate">{restaurant.phone ?? "Chưa cập nhật"}</span>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <div className="flex items-center justify-between gap-3 text-sm">
-                                                <span className="text-muted-foreground">Slug</span>
-                                                <span className="font-medium text-foreground tabular-nums">
-                                                    {restaurant.slug}
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center justify-between gap-3 text-sm">
-                                                <span className="text-muted-foreground">Đơn hàng trực tuyến</span>
-                                                <span className="font-medium text-foreground tabular-nums">
-                                                    {restaurant.accepts_online_orders ? "Bật" : "Tắt"}
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center justify-between gap-3 text-sm">
-                                                <span className="text-muted-foreground">Tạo lúc</span>
-                                                <span className="font-medium text-foreground">{formatCreatedDate(restaurant.created_at)}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Health Score */}
-                                    <div className="mt-auto flex items-center justify-between gap-3 pt-4 border-t border-border">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-sm text-muted-foreground">Điểm sẵn sàng</span>
-                                            {trend === "up" && (
-                                                <TrendingUp className="w-3.5 h-3.5 text-primary" />
-                                            )}
-                                            {trend === "down" && (
-                                                <TrendingDown className="w-3.5 h-3.5 text-destructive" />
-                                            )}
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-24 h-2 bg-secondary rounded-full overflow-hidden">
-                                                <div
-                                                    className={cn(
-                                                        "h-full rounded-full transition-[width] duration-700 ease-out",
-                                                        getHealthBarClass(readinessScore)
-                                                    )}
-                                                    style={{ width: `${readinessScore}%` }}
-                                                />
-                                            </div>
-                                            <span
-                                                className={cn(
-                                                    "text-sm font-semibold tabular-nums",
-                                                    getHealthTextClass(readinessScore)
-                                                )}
-                                            >
-                                                {readinessScore}%
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {/* Quick Actions */}
-                                    <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="h-10 flex-1 bg-transparent"
-                                            onClick={() => navigate(`/pos/${restaurant.slug}`)}
-                                        >
-                                            <Store className="w-3.5 h-3.5 mr-1.5" />
-                                            Bán hàng
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="h-10 flex-1 bg-transparent"
-                                            onClick={() =>
-                                                navigate(`/dashboard/${restaurant._id}`, {
-                                                    state: {
-                                                        restaurant: {
-                                                            _id: restaurant._id,
-                                                            name: restaurant.name,
-                                                            logo_url: restaurant.logo_url,
-                                                        },
-                                                    },
-                                                })
-                                            }
-                                            title={
-                                                needsVerification
-                                                    ? "Xác nhận nhà hàng: bật đặt hàng và công khai cho khách"
-                                                    : "Mở trang quản lý"
-                                            }
-                                        >
-                                            <Settings className="w-3.5 h-3.5 mr-1.5" />
-                                            {needsVerification ? "Quản lý xác nhận" : "Quản lý"}
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            aria-label={`Chia sẻ ${restaurant.name}`}
-                                            onClick={() => setShareTarget(restaurant)}
-                                        >
-                                            <Share2 className="w-4 h-4" />
-                                        </Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        );
-                    })}
-
-                {!isLoading && restaurants.length === 0 && !error && (
-                    <div className="col-span-full rounded-xl border border-dashed border-border bg-card px-6 py-10 text-center text-sm text-muted-foreground">
-                        Chưa có nhà hàng nào.
-                    </div>
-                )}
-            </div>
-
-            <Dialog open={Boolean(shareTarget)} onOpenChange={(isOpen) => !isOpen && setShareTarget(null)}>
-                <DialogContent className="sm:max-w-md" showCloseButton={false}>
-                    <DialogHeader>
-                        <DialogTitle className="text-base font-semibold">Chia sẻ nhà hàng</DialogTitle>
-                        <DialogDescription>
-                            Có 2 liên kết chia sẻ: trang công khai và trang POS.
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <div className="grid gap-4 py-2">
-                        <Tabs value={shareMode} onValueChange={(value) => setShareMode(value === "pos" ? "pos" : "public")}>
-                            <TabsList className="h-11 w-full gap-1 border border-border bg-secondary p-1">
-                                <TabsTrigger
-                                    value="public"
-                                    className="flex-1 data-[state=active]:bg-card data-[state=active]:text-foreground"
-                                >
-                                    Công khai
-                                </TabsTrigger>
-                                <TabsTrigger
-                                    value="pos"
-                                    className="flex-1 data-[state=active]:bg-card data-[state=active]:text-foreground"
-                                >
-                                    POS
-                                </TabsTrigger>
-                            </TabsList>
-                        </Tabs>
-
-                        <div className="overflow-hidden rounded-xl border border-border bg-card shadow-xs">
-                            <div
-                                className="flex w-[200%] transition-transform duration-300 ease-out"
-                                style={{ transform: shareMode === "public" ? "translateX(0%)" : "translateX(-50%)" }}
-                            >
-                                <div className="w-1/2 p-3">
-                                    <p className="mb-3 text-sm font-medium text-foreground">Liên kết công khai</p>
-                                    <div className="mb-3 flex justify-center rounded-lg border border-border bg-background p-3">
-                                        <QRCodeSVG value={sharePublicUrl} size={140} includeMargin />
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <Input value={sharePublicUrl} readOnly aria-label="Liên kết công khai của nhà hàng" />
-                                        <Button
-                                            variant="default"
-                                            onClick={() => handleCopyShareLink(sharePublicUrl, "Công khai")}
-                                        >
-                                            Sao chép
-                                        </Button>
-                                    </div>
-                                </div>
-
-                                <div className="w-1/2 p-3 border-l border-border">
-                                    <p className="mb-3 text-sm font-medium text-foreground">Liên kết POS</p>
-                                    <div className="mb-3 flex justify-center rounded-lg border border-border bg-background p-3">
-                                        <QRCodeSVG value={sharePosUrl} size={140} includeMargin />
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <Input value={sharePosUrl} readOnly aria-label="Liên kết POS của nhà hàng" />
-                                        <Button
-                                            variant="default"
-                                            onClick={() => handleCopyShareLink(sharePosUrl, "POS")}
-                                        >
-                                            Sao chép
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <DialogFooter>
-                        <Button variant="default" onClick={() => setShareTarget(null)}>
-                            Đóng
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+  return (
+    <div>
+      {error && (
+        <div className="mb-4 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+          {error}
         </div>
-    );
+      )}
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] gap-4 xl:gap-5">
+        {isLoading && <RestaurantSkeletonGrid />}
+
+        {!isLoading &&
+          restaurants.map((restaurant, index) => (
+            <RestaurantCard
+              key={restaurant._id}
+              restaurant={restaurant}
+              index={index}
+              onOpenPos={(slug) => navigate(`/pos/${slug}`)}
+              onOpenDashboard={(targetRestaurant) =>
+                navigate(`/dashboard/${targetRestaurant._id}`, {
+                  state: {
+                    restaurant: {
+                      _id: targetRestaurant._id,
+                      name: targetRestaurant.name,
+                      logo_url: targetRestaurant.logo_url,
+                    },
+                  },
+                })
+              }
+              onShare={(targetRestaurant) =>
+                dispatch({ type: "openShare", restaurant: targetRestaurant })
+              }
+            />
+          ))}
+
+        {!isLoading && restaurants.length === 0 && !error && (
+          <div className="col-span-full rounded-xl border border-dashed border-border bg-card px-6 py-10 text-center text-sm text-muted-foreground">
+            Chưa có nhà hàng nào.
+          </div>
+        )}
+      </div>
+
+      <ShareRestaurantDialog
+        shareTarget={shareTarget}
+        shareMode={shareMode}
+        sharePublicUrl={sharePublicUrl}
+        sharePosUrl={sharePosUrl}
+        onShareModeChange={(mode) => dispatch({ type: "setShareMode", mode })}
+        onClose={() => dispatch({ type: "closeShare" })}
+      />
+    </div>
+  )
 }

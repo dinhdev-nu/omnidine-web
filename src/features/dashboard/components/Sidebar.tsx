@@ -102,7 +102,7 @@ export function Sidebar({
                     const isActive = activeSection === item.id;
 
                     return (
-                        <button
+                        <button type="button"
                             key={item.id}
                             onClick={() => onSectionChange(item.id)}
                             className={cn(
@@ -141,7 +141,7 @@ export function Sidebar({
 
             {/* Collapse button */}
             <div className="p-3 border-t border-sidebar-border">
-                <button
+                <button type="button"
                     onClick={() => onCollapsedChange(!collapsed)}
                     className="dashboard-sidebar-collapse-button w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
                 >

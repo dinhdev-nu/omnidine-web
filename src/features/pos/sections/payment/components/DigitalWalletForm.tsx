@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Icon from '@/components/AppIcon';
-import Button from '../../../components/Button';
+import Button from '../../../ui/Button';
+
+const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
 
 type WalletType = 'momo' | 'zalopay' | 'banking' | 'qr';
 
@@ -20,6 +22,13 @@ interface WalletInfo {
   bgColor: string;
   borderColor: string;
   instructions: string;
+}
+
+interface QrImageState {
+  src: string;
+  isLoaded: boolean;
+  isLoading: boolean;
+  retryCount: number;
 }
 
 const WALLET_INFO: Record<WalletType, WalletInfo> = {
@@ -48,7 +57,7 @@ const WALLET_INFO: Record<WalletType, WalletInfo> = {
 const MAX_RETRIES = 10;
 
 const formatCurrency = (amount: number): string =>
-  new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+  currencyFormatter.format(amount);
 
 const DigitalWalletForm: React.FC<DigitalWalletFormProps> = ({
   totalAmount = 0,
@@ -58,55 +67,78 @@ const DigitalWalletForm: React.FC<DigitalWalletFormProps> = ({
   onPaymentComplete,
   onCancel,
 }) => {
-  const [isImageLoaded,   setIsImageLoaded]   = useState(false);
-  const [isImageLoading,  setIsImageLoading]  = useState(true);
-  const [retryCount,      setRetryCount]      = useState(0);
-  const [imageKey,        setImageKey]        = useState(0);
+  const [imageState, setImageState] = useState<QrImageState>({
+    src: '',
+    isLoaded: false,
+    isLoading: true,
+    retryCount: 0,
+  });
+  const [renderedAt] = useState(() => new Date().toLocaleString('vi-VN'));
   const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const clearRetryTimeout = useCallback(() => {
+    const timeoutId = retryTimeoutRef.current;
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      retryTimeoutRef.current = null;
+    }
+  }, []);
+
   const currentWallet = WALLET_INFO[walletType] ?? WALLET_INFO.momo;
+  const currentImageState =
+    imageState.src === qrCodeUrl
+      ? imageState
+      : {
+          src: qrCodeUrl,
+          isLoaded: false,
+          isLoading: Boolean(qrCodeUrl),
+          retryCount: 0,
+        };
+  const { isLoaded: isImageLoaded, isLoading: isImageLoading, retryCount } = currentImageState;
 
   // Cleanup on unmount
   useEffect(() => {
-    return () => {
-      if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
-    };
-  }, []);
-
-  // Reset when qrCodeUrl changes
-  useEffect(() => {
-    if (qrCodeUrl) {
-      setIsImageLoaded(false);
-      setIsImageLoading(true);
-      setRetryCount(0);
-      setImageKey((k) => k + 1);
-    }
-  }, [qrCodeUrl]);
+    return clearRetryTimeout;
+  }, [clearRetryTimeout]);
 
   const handleImageLoad = () => {
-    setIsImageLoaded(true);
-    setIsImageLoading(false);
-    setRetryCount(0);
-    if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
+    setImageState({
+      src: qrCodeUrl,
+      isLoaded: true,
+      isLoading: false,
+      retryCount: 0,
+    });
+    clearRetryTimeout();
   };
 
   const handleImageError = () => {
-    setIsImageLoaded(false);
     if (retryCount < MAX_RETRIES) {
       const delay = Math.min(1000 * (retryCount + 1), 3000);
       retryTimeoutRef.current = setTimeout(() => {
-        setRetryCount((c) => c + 1);
-        setImageKey((k) => k + 1);
+        setImageState((prev) => ({
+          src: qrCodeUrl,
+          isLoaded: false,
+          isLoading: true,
+          retryCount: prev.src === qrCodeUrl ? prev.retryCount + 1 : 1,
+        }));
       }, delay);
     } else {
-      setIsImageLoading(false);
+      setImageState({
+        src: qrCodeUrl,
+        isLoaded: false,
+        isLoading: false,
+        retryCount,
+      });
     }
   };
 
   const handleManualRetry = () => {
-    setRetryCount(0);
-    setIsImageLoading(true);
-    setImageKey((k) => k + 1);
+    setImageState({
+      src: qrCodeUrl,
+      isLoaded: false,
+      isLoading: true,
+      retryCount: retryCount + 1,
+    });
   };
 
   return (
@@ -147,8 +179,8 @@ const DigitalWalletForm: React.FC<DigitalWalletFormProps> = ({
 
               {/* QR image */}
               <img
-                key={imageKey}
-                src={`${qrCodeUrl}${qrCodeUrl.includes('?') ? '&' : '?'}t=${imageKey}`}
+                key={`${qrCodeUrl}:${retryCount}`}
+                src={`${qrCodeUrl}${qrCodeUrl.includes('?') ? '&' : '?'}t=${retryCount}`}
                 alt="QR Code Payment"
                 className={`w-full h-full object-contain rounded-lg transition-opacity duration-300 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
                 onLoad={handleImageLoad}
@@ -162,7 +194,7 @@ const DigitalWalletForm: React.FC<DigitalWalletFormProps> = ({
                     <Icon name="AlertCircle" size={32} className="text-red-500 mx-auto" />
                     <div>
                       <p className="text-xs font-medium text-red-700">Không thể tải mã QR</p>
-                      <button
+                      <button type="button"
                         onClick={handleManualRetry}
                         className="mt-2 px-3 py-1.5 bg-red-500 text-white text-xs font-medium rounded hover:bg-red-600 transition-colors"
                       >
@@ -217,7 +249,7 @@ const DigitalWalletForm: React.FC<DigitalWalletFormProps> = ({
               <span className="text-xs text-muted-foreground">Thời gian</span>
             </div>
             <span className="text-xs font-medium text-foreground">
-              {new Date().toLocaleString('vi-VN')}
+              {renderedAt}
             </span>
           </div>
         </div>

@@ -40,7 +40,7 @@
       <td><img src="./public/settings.png" alt="OmniDine POS" /></td>
     </tr>
     <tr>
-      <td><img src="./public/poin-of-sale.png" alt="OmniDine POS" /></td>
+      <td><img src="./public/point-of-sale.png" alt="OmniDine POS" /></td>
       <td><img src="./public/public-restaurants.png" alt="OmniDine Dashboard" /></td>
     </tr>
   </table>

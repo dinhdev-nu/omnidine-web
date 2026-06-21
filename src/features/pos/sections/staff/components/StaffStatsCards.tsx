@@ -1,5 +1,5 @@
 import React from 'react';
-import Icon from '../../../components/AppIcon';
+import Icon from '../../../ui/AppIcon';
 
 interface StaffStats {
     total: number;

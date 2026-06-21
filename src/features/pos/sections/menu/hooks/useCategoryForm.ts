@@ -5,7 +5,7 @@ import {
     updateMenuCategory,
     toMenuEndpointError,
 } from '@/services/menu';
-import type { MenuCategoryWithCount } from '@/types/menu-type';
+import type { MenuCategoryWithCount } from '@/types/domain/menu';
 
 export function useCategoryForm(restaurantId: string, onSuccess: () => void) {
     const [showCategoryModal, setShowCategoryModal] = React.useState(false);

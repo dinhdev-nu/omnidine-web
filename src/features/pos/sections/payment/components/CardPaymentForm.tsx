@@ -1,7 +1,9 @@
 import React, { useState } from "react"
 import Icon from "@/components/AppIcon"
-import Input from "../../../components/Input"
-import Button from "../../../components/Button"
+import Input from "../../../ui/Input"
+import Button from "../../../ui/Button"
+
+const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
 
 interface CardPaymentFormProps {
   totalAmount?: number
@@ -12,6 +14,8 @@ interface CardPaymentFormProps {
   onPaymentSubmit: (cardData: CardFormData) => void
   onCancel: () => void
 }
+
+const EMPTY_CARD_ERRORS: NonNullable<CardPaymentFormProps["errors"]> = {}
 
 export interface CardFormData {
   cardNumber: string
@@ -27,7 +31,7 @@ const CARD_TYPES = [
 ]
 
 const formatCurrency = (amount: number): string =>
-  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
+  currencyFormatter.format(
     amount
   )
 
@@ -52,7 +56,7 @@ const formatExpiryDate = (value: string): string => {
 const CardPaymentForm: React.FC<CardPaymentFormProps> = ({
   totalAmount = 0,
   isProcessing = false,
-  errors = {},
+  errors = EMPTY_CARD_ERRORS,
   onPaymentSubmit,
   onCancel,
 }) => {
@@ -75,8 +79,8 @@ const CardPaymentForm: React.FC<CardPaymentFormProps> = ({
       {/* Supported Cards */}
       <div className="flex justify-center space-x-4 rounded-lg bg-muted/30 p-4">
         <span className="mr-2 text-sm text-muted-foreground">Hỗ trợ:</span>
-        {CARD_TYPES.map((card, index) => (
-          <div key={index} className="flex items-center space-x-1">
+        {CARD_TYPES.map((card) => (
+          <div key={card.name} className="flex items-center space-x-1">
             <Icon name={card.icon} size={20} className={card.color} />
             <span className="text-sm font-medium text-foreground">
               {card.name}

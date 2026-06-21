@@ -1,8 +1,8 @@
 import React from 'react';
-import Icon from '../../../components/AppIcon';
-import Select from '../../../components/Select';
-import Button from '../../../components/Button';
-import type { StaffPosition, StaffStatus } from '@/types/staff-type';
+import Icon from '../../../ui/AppIcon';
+import Select from '../../../ui/Select';
+import Button from '../../../ui/Button';
+import type { StaffPosition, StaffStatus } from '@/types/domain/staff';
 
 interface StaffFiltersProps {
     filterRole: StaffPosition | '';

@@ -2,8 +2,8 @@ import React from 'react';
 import Icon from '@/components/AppIcon';
 import Image from '@/components/AppImage';
 import { cn } from '@/lib/utils';
-import Button from '../../../components/Button';
-import type { StaffDetail, StaffSummary, StaffPosition, StaffStatus } from '@/types/staff-type';
+import Button from '../../../ui/Button';
+import type { StaffDetail, StaffSummary, StaffPosition, StaffStatus } from '@/types/domain/staff';
 
 interface StaffDetailsModalProps {
   isOpen: boolean;
@@ -107,7 +107,12 @@ const StaffDetailsModal: React.FC<StaffDetailsModalProps> = ({
   return (
     <div className="fixed inset-0 z-[1200] flex items-center justify-center overflow-hidden">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <button
+        type="button"
+        aria-label="ÄÃ³ng chi tiáº¿t nhÃ¢n viÃªn"
+        className="absolute inset-0 bg-black/50"
+        onClick={onClose}
+      />
 
       {/* Modal */}
       <div className="relative bg-card border border-border rounded-lg shadow-modal w-full max-w-4xl max-h-[90vh] overflow-hidden mx-4 animate-in fade-in zoom-in-95 duration-200">

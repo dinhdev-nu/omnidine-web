@@ -10,7 +10,7 @@ import {
     updateRestaurantStaffPermissions,
     updateRestaurantStaffStatus,
 } from '@/services/staff';
-import type { StaffPosition, StaffStatus, StaffDetail, StaffApiEndpoint, StaffSummary } from '@/types/staff-type';
+import type { StaffPosition, StaffStatus, StaffDetail, StaffApiEndpoint, StaffSummary } from '@/types/domain/staff';
 import type { StaffFormData, StaffFormMode, StaffSubmitSection } from '../components/StaffFormModal';
 
 const DEFAULT_FORM_DATA: StaffFormData = {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getOrderDetail, toOrderEndpointError } from '@/services/orders';
-import type { Order } from '@/types/order-type';
+import type { Order } from '@/types/domain/order';
 
 interface UseOrderDataResult {
   orderData: Order | null;
@@ -8,44 +8,72 @@ interface UseOrderDataResult {
   error: string;
 }
 
+interface OrderDataState extends UseOrderDataResult {
+  requestKey: string;
+}
+
+const getInitialOrderDataState = (requestKey: string): OrderDataState => ({
+  requestKey,
+  orderData: null,
+  isLoading: Boolean(requestKey),
+  error: '',
+});
+
 export function useOrderData(restaurantId: string, orderId: string): UseOrderDataResult {
-  const [orderData, setOrderData] = useState<Order | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const trimmedOrderId = orderId.trim();
+  const requestKey = restaurantId && trimmedOrderId ? `${restaurantId}:${trimmedOrderId}` : '';
+  const [storedState, setStoredState] = useState<OrderDataState>(() =>
+    getInitialOrderDataState(requestKey)
+  );
+  let state = storedState;
+
+  if (storedState.requestKey !== requestKey) {
+    state = getInitialOrderDataState(requestKey);
+    setStoredState(state);
+  }
 
   useEffect(() => {
     let isActive = true;
 
-    if (!orderId.trim()) {
-      setOrderData(null);
-      setError('');
-      setIsLoading(false);
-      return;
-    }
-
-    setIsLoading(true);
-    setError('');
+    if (!requestKey) return;
 
     void (async () => {
       try {
-        const detailOrder = await getOrderDetail(restaurantId, orderId);
+        const detailOrder = await getOrderDetail(restaurantId, trimmedOrderId);
         if (!isActive) return;
-        setOrderData(detailOrder);
+        setStoredState((current) =>
+          current.requestKey === requestKey
+            ? {
+                requestKey,
+                orderData: detailOrder,
+                isLoading: false,
+                error: '',
+              }
+            : current
+        );
       } catch (err) {
         if (!isActive) return;
-        setOrderData(null);
-        setError(toOrderEndpointError('detail', err).message);
-      } finally {
-        if (isActive) {
-          setIsLoading(false);
-        }
+        setStoredState((current) =>
+          current.requestKey === requestKey
+            ? {
+                requestKey,
+                orderData: null,
+                isLoading: false,
+                error: toOrderEndpointError('detail', err).message,
+              }
+            : current
+        );
       }
     })();
 
     return () => {
       isActive = false;
     };
-  }, [restaurantId, orderId]);
+  }, [requestKey, restaurantId, trimmedOrderId]);
 
-  return { orderData, isLoading, error };
+  return {
+    orderData: state.orderData,
+    isLoading: state.isLoading,
+    error: state.error,
+  };
 }

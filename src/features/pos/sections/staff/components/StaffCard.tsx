@@ -2,8 +2,8 @@ import { memo } from 'react';
 import Icon from '@/components/AppIcon';
 import Image from '@/components/AppImage';
 import { cn } from '@/lib/utils';
-import type { StaffSummary, StaffPosition, StaffStatus } from '@/types/staff-type';
-import Button from '../../../components/Button';
+import type { StaffSummary, StaffPosition, StaffStatus } from '@/types/domain/staff';
+import Button from '../../../ui/Button';
 
 export type StaffListItem = StaffSummary;
 

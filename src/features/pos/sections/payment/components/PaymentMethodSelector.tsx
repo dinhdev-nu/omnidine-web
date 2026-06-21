@@ -72,10 +72,12 @@ const PAYMENT_METHODS: PaymentMethod[] = [
   },
 ];
 
+const EMPTY_PAYMENT_METHODS: PaymentMethodId[] = [];
+
 const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
   selectedMethod,
   onMethodSelect,
-  availableMethods = [],
+  availableMethods = EMPTY_PAYMENT_METHODS,
   isLoading = false,
   loadingMethod = '',
   enabledMethods,
@@ -97,7 +99,7 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
           const isDisabled = Array.isArray(enabledMethods) && !enabledMethods.includes(method.id);
 
           return (
-            <button
+            <button type="button"
               key={method.id}
               onClick={() => onMethodSelect(method.id)}
               disabled={isLoading || isDisabled}

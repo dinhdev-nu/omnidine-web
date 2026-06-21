@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import type { TablePosition, TableListItem } from '@/types/table-type';
+import type { TablePosition, TableListItem } from '@/types/domain/table';
 import TableCard from './TableCard';
 
 interface DraggableTableProps {

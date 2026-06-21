@@ -1,8 +1,10 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import Image from '@/components/AppImage';
-import Button from '../../../components/Button.tsx';
+import Button from '../../../ui/Button.tsx';
 import Icon from '@/components/AppIcon';
-import { POS_BASE_PATH } from '@/routes/pos-route';
+import { POS_BASE_PATH } from '@/routes/pos-route-config';
+
+const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
 
 interface MenuItem {
   _id: string;
@@ -20,7 +22,7 @@ interface MenuGridProps {
 }
 
 const formatPrice = (price: number): string =>
-  new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+  currencyFormatter.format(price);
 
 const getStockStatusColor = (stock: number): string => {
   if (stock === 0) return 'bg-error text-error-foreground';

@@ -7,7 +7,7 @@ export default function LandingGlobalStyles() {
       <style
         dangerouslySetInnerHTML={{
           __html:
-            '\n  :root{--sf-img-32: url("/assets/home/iVBORw0KGg.png")}\n '
+            '\n  :root{--sf-img-32: url("/assets/home/avatar-placeholder-1.png")}\n '
         }}
       />
       <style

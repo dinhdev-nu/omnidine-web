@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react"
-import { AnimatePresence, motion } from "framer-motion"
+import { useState } from "react"
+import { AnimatePresence, LazyMotion, domAnimation, m } from "framer-motion"
 import { X } from "lucide-react"
-import { useLocation, useNavigate } from "react-router-dom"
+import { Navigate, useLocation, useNavigate } from "react-router-dom"
 import { SignUpSteps } from "./SignUpSteps"
 import { SignInForm } from "./SignInForm"
-import { useSignUp } from "../hooks/use-sign-up"
-import { useSignIn, type SignInStep } from "../hooks/use-sign-in"
+import { useSignUp } from "../hooks/useSignUp"
+import { useSignIn, type SignInStep } from "../hooks/useSignIn"
 import {
   AUTH_ROUTE_PATHS,
   SIGNIN_STEP_TO_PATH,
@@ -30,7 +30,10 @@ interface AuthCardProps {
   mode: AuthRouteMode
 }
 
-function resolveSignInStep(mode: AuthRouteMode, currentStep: SignInStep): SignInStep {
+function resolveSignInStep(
+  mode: AuthRouteMode,
+  currentStep: SignInStep
+): SignInStep {
   switch (mode) {
     case "2fa":
       return currentStep === "credentials" ? "2fa" : currentStep
@@ -39,7 +42,11 @@ function resolveSignInStep(mode: AuthRouteMode, currentStep: SignInStep): SignIn
     case "reset-password-verify":
       return currentStep === "credentials" ? "forgot-otp" : currentStep
     case "reset-password":
-      return currentStep === "credentials" ? "forgot-reset" : currentStep === "forgot-done" ? "forgot-done" : currentStep
+      return currentStep === "credentials"
+        ? "forgot-reset"
+        : currentStep === "forgot-done"
+          ? "forgot-done"
+          : currentStep
     default:
       return currentStep
   }
@@ -47,11 +54,13 @@ function resolveSignInStep(mode: AuthRouteMode, currentStep: SignInStep): SignIn
 
 export function AuthCard({ mode }: AuthCardProps) {
   const navigate = useNavigate()
-  const location = useLocation()
+  const { pathname } = useLocation()
   const signUpHook = useSignUp()
   const signInHook = useSignIn()
   const [tabDir, setTabDir] = useState(1)
-  const activeTab: "signup" | "signin" = isSignUpMode(mode) ? "signup" : "signin"
+  const activeTab: "signup" | "signin" = isSignUpMode(mode)
+    ? "signup"
+    : "signin"
 
   const signUpStep = signUpHook.step
   const setSignUpStep = signUpHook.setStep
@@ -59,52 +68,43 @@ export function AuthCard({ mode }: AuthCardProps) {
   const signInStep = signInHook.signInStep
   const setSignInStep = signInHook.setSignInStep
 
-  useEffect(() => {
-    if (activeTab === "signup") {
-      const hasSignUpProgress = Boolean(
-        signUpForm.email || signUpForm.phoneNumber || signUpForm.password || signUpForm.otp
-      )
+  const hasSignUpProgress = Boolean(
+    signUpForm.email ||
+    signUpForm.phoneNumber ||
+    signUpForm.password ||
+    signUpForm.otp
+  )
+  const targetSignUpStep =
+    activeTab === "signup" &&
+    mode === "verify-email" &&
+    signUpStep !== "otp" &&
+    !hasSignUpProgress
+      ? "otp"
+      : signUpStep
+  const targetSignInStep =
+    activeTab === "signin" ? resolveSignInStep(mode, signInStep) : signInStep
 
-      if (mode === "verify-email") {
-        if (signUpStep !== "otp" && !hasSignUpProgress) {
-          setSignUpStep("otp")
-          return
-        }
-      }
+  if (activeTab === "signup" && signUpStep !== targetSignUpStep) {
+    setSignUpStep(targetSignUpStep)
+  }
 
-      const targetPath = SIGNUP_STEP_TO_PATH[signUpStep]
-      if (location.pathname !== targetPath) {
-        navigate(targetPath)
-      }
-      return
-    }
+  if (activeTab === "signin" && signInStep !== targetSignInStep) {
+    setSignInStep(targetSignInStep)
+  }
 
-    const targetStep = resolveSignInStep(mode, signInStep)
-    if (signInStep !== targetStep) {
-      setSignInStep(targetStep)
-    }
-    const targetPath = SIGNIN_STEP_TO_PATH[targetStep]
-    if (location.pathname !== targetPath) {
-      navigate(targetPath)
-    }
-  }, [
-    activeTab,
-    location.pathname,
-    mode,
-    navigate,
-    setSignInStep,
-    setSignUpStep,
-    signInStep,
-    signUpForm.email,
-    signUpForm.otp,
-    signUpForm.password,
-    signUpForm.phoneNumber,
-    signUpStep,
-  ])
+  const targetPath =
+    activeTab === "signup"
+      ? SIGNUP_STEP_TO_PATH[targetSignUpStep]
+      : SIGNIN_STEP_TO_PATH[targetSignInStep]
+
+  if (pathname !== targetPath) {
+    return <Navigate to={targetPath} replace />
+  }
 
   const switchTab = (newTab: string) => {
     const nextTab = newTab === "signin" ? "signin" : "signup"
-    const dir = TAB_ORDER.indexOf(nextTab) > TAB_ORDER.indexOf(activeTab) ? 1 : -1
+    const dir =
+      TAB_ORDER.indexOf(nextTab) > TAB_ORDER.indexOf(activeTab) ? 1 : -1
     setTabDir(dir)
 
     if (nextTab === "signup") {
@@ -130,8 +130,18 @@ export function AuthCard({ mode }: AuthCardProps) {
           <Tabs value={activeTab} onValueChange={switchTab}>
             <div className="mb-6 flex items-center justify-between gap-3">
               <TabsList className="h-11 flex-1 gap-1 border border-border bg-secondary p-1">
-                <TabsTrigger value="signup" className="flex-1 data-[state=active]:bg-card data-[state=active]:text-foreground">Đăng ký</TabsTrigger>
-                <TabsTrigger value="signin" className="flex-1 data-[state=active]:bg-card data-[state=active]:text-foreground">Đăng nhập</TabsTrigger>
+                <TabsTrigger
+                  value="signup"
+                  className="flex-1 data-[state=active]:bg-card data-[state=active]:text-foreground"
+                >
+                  Đăng ký
+                </TabsTrigger>
+                <TabsTrigger
+                  value="signin"
+                  className="flex-1 data-[state=active]:bg-card data-[state=active]:text-foreground"
+                >
+                  Đăng nhập
+                </TabsTrigger>
               </TabsList>
               <Button
                 type="button"
@@ -147,29 +157,33 @@ export function AuthCard({ mode }: AuthCardProps) {
           </Tabs>
 
           <div className="relative overflow-hidden">
-            <AnimatePresence initial={false} custom={tabDir} mode="wait">
-              <motion.div
-                key={activeTab}
-                custom={tabDir}
-                variants={tabSlideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
-              >
-                {activeTab === "signup" ? (
-                  <SignUpSteps hook={signUpHook} />
-                ) : (
-                  <SignInForm hook={signInHook} />
-                )}
-              </motion.div>
-            </AnimatePresence>
+            <LazyMotion features={domAnimation}>
+              <AnimatePresence initial={false} custom={tabDir} mode="wait">
+                <m.div
+                  key={activeTab}
+                  custom={tabDir}
+                  variants={tabSlideVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
+                >
+                  {activeTab === "signup" ? (
+                    <SignUpSteps hook={signUpHook} />
+                  ) : (
+                    <SignInForm hook={signInHook} />
+                  )}
+                </m.div>
+              </AnimatePresence>
+            </LazyMotion>
           </div>
 
           {/* Social divider */}
           <div className="my-6 flex items-center gap-3">
             <Separator className="flex-1" />
-            <span className="text-xs font-medium tracking-wide text-muted-foreground">HOẶC</span>
+            <span className="text-xs font-medium tracking-wide text-muted-foreground">
+              HOẶC
+            </span>
             <Separator className="flex-1" />
           </div>
 
@@ -184,7 +198,7 @@ export function AuthCard({ mode }: AuthCardProps) {
               <img
                 src="/assets/auth/google.svg"
                 alt="Google"
-                className="w-4 h-4"
+                className="h-4 w-4"
               />
               Google
             </Button>
@@ -194,7 +208,7 @@ export function AuthCard({ mode }: AuthCardProps) {
               onClick={signInHook.handleAppleLogin}
               className="h-11 gap-2"
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
               </svg>
               Apple
@@ -202,7 +216,8 @@ export function AuthCard({ mode }: AuthCardProps) {
           </div>
 
           <p className="mt-5 text-center text-xs text-muted-foreground">
-            Bằng việc tiếp tục, bạn đồng ý với các Điều Khoản Dịch Vụ của chúng tôi
+            Bằng việc tiếp tục, bạn đồng ý với các Điều Khoản Dịch Vụ của chúng
+            tôi
           </p>
         </CardContent>
       </Card>

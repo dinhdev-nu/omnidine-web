@@ -1,38 +1,34 @@
-import React from 'react';
-import * as LucideIcons from 'lucide-react';
-import type { LucideProps } from 'lucide-react';
+import React from "react"
+import type { LucideProps } from "lucide-react"
+import { getAppIcon } from "@/components/app-icon-registry"
 
-export interface AppIconProps extends Omit<LucideProps, 'ref'> {
-  name: string;
-  size?: number;
-  color?: string;
-  className?: string;
+export interface AppIconProps extends Omit<LucideProps, "ref"> {
+  name: string
+  size?: number
+  color?: string
+  className?: string
 }
 
 const AppIcon: React.FC<AppIconProps> = ({
   name,
   size = 24,
   color,
-  className = '',
+  className = "",
   ...props
 }) => {
-  // Convert icon name to PascalCase if needed
-  const iconName = name as keyof typeof LucideIcons;
-  const IconComponent = LucideIcons[iconName] as React.ComponentType<LucideProps>;
+  const IconComponent = getAppIcon(name)
 
   if (!IconComponent) {
-    console.warn(`Icon "${name}" not found in lucide-react`);
-    return null;
+    console.warn(`Icon "${name}" not found in app icon registry`)
+    return null
   }
 
-  return (
-    <IconComponent
-      size={size}
-      color={color}
-      className={className}
-      {...props}
-    />
-  );
-};
+  return React.createElement(IconComponent, {
+    size,
+    color,
+    className,
+    ...props,
+  })
+}
 
-export default AppIcon;
+export default AppIcon

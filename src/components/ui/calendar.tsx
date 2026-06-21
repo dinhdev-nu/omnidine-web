@@ -7,8 +7,13 @@ import {
 } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
-import { Button, buttonVariants } from "@/components/ui/button"
-import { ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button-variants"
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronDownIcon,
+} from "lucide-react"
 
 function Calendar({
   className,
@@ -151,7 +156,10 @@ function Calendar({
 
           if (orientation === "right") {
             return (
-              <ChevronRightIcon className={cn("size-4", className)} {...props} />
+              <ChevronRightIcon
+                className={cn("size-4", className)}
+                {...props}
+              />
             )
           }
 
@@ -188,13 +196,19 @@ function CalendarDayButton({
   const defaultClassNames = getDefaultClassNames()
 
   const ref = React.useRef<HTMLButtonElement>(null)
-  React.useEffect(() => {
-    if (modifiers.focused) ref.current?.focus()
-  }, [modifiers.focused])
+  const handleButtonRef = React.useCallback(
+    (node: HTMLButtonElement | null) => {
+      ref.current = node
+      if (node && modifiers.focused) {
+        node.focus()
+      }
+    },
+    [modifiers.focused]
+  )
 
   return (
     <Button
-      ref={ref}
+      ref={handleButtonRef}
       variant="ghost"
       size="icon"
       data-day={day.date.toLocaleDateString(locale?.code)}

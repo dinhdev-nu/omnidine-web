@@ -1,437 +1,125 @@
-import { useEffect, useState } from "react"
+import { useEffect, useReducer } from "react"
 import { toast } from "sonner"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import {
-    InputGroup,
-    InputGroupAddon,
-    InputGroupInput,
-    InputGroupText,
-} from "@/components/ui/input-group"
-import {
-    Lock,
-    Key,
-    RefreshCw,
-    Globe,
-    AlertTriangle,
-    Download,
-    Trash2,
-} from "lucide-react"
 import { useUserStore } from "@/stores/user-store"
-import { toAppError } from "@/services/error"
+import { toAppError } from "@/services/core/error"
 import {
-    changePassword,
-    enable2fa,
-    disable2fa,
-    getSessions,
-    revokeSession,
-    type SessionInfo,
-} from "@/services/auths"
-
-import { AUDIT_LOG } from "./constants"
+  changePassword,
+  disable2fa,
+  enable2fa,
+  getSessions,
+  revokeSession,
+} from "@/services/auth"
+import {
+  securityInitialState,
+  securityReducer,
+} from "./security-section.state"
+import { AuditLogCard } from "./components/security-section/AuditLogCard"
+import { DangerZoneCard } from "./components/security-section/DangerZoneCard"
+import { PasswordSecurityCard } from "./components/security-section/PasswordSecurityCard"
+import { SessionsCard } from "./components/security-section/SessionsCard"
+import { TwoFactorCard } from "./components/security-section/TwoFactorCard"
 
 export function SecuritySection() {
-    const profile = useUserStore((state) => state.profile)
-    const fetchProfile = useUserStore((state) => state.fetchProfile)
+  const profile = useUserStore((state) => state.profile)
+  const fetchProfile = useUserStore((state) => state.fetchProfile)
 
-    const [currentPassword, setCurrentPassword] = useState("")
-    const [newPassword, setNewPassword] = useState("")
-    const [confirmNewPassword, setConfirmNewPassword] = useState("")
-    const [passwordError, setPasswordError] = useState<string | null>(null)
-    const [isChangingPassword, setIsChangingPassword] = useState(false)
-    const [passwordSuccess, setPasswordSuccess] = useState(false)
-    const [sessions, setSessions] = useState<SessionInfo[]>([])
-    const [isLoadingSessions, setIsLoadingSessions] = useState(false)
+  const [securityState, dispatchSecurity] = useReducer(
+    securityReducer,
+    securityInitialState
+  )
 
-    const [show2faForm, setShow2faForm] = useState(false)
-    const [twoFaPassword, setTwoFaPassword] = useState("")
-    const [isTwoFaLoading, setIsTwoFaLoading] = useState(false)
+  useEffect(() => {
+    let cancelled = false
 
-    const [deleteConfirm, setDeleteConfirm] = useState("")
-
-    useEffect(() => {
-        let cancelled = false
-
-        setIsLoadingSessions(true)
-        getSessions()
-            .then((data) => {
-                if (!cancelled) setSessions(data)
-            })
-            .catch(() => { })
-            .finally(() => {
-                if (!cancelled) setIsLoadingSessions(false)
-            })
-
-        return () => {
-            cancelled = true
+    getSessions()
+      .then((data) => {
+        if (!cancelled) {
+          dispatchSecurity({ type: "sessionsLoaded", sessions: data })
         }
-    }, [])
-
-    const handleChangePassword = async () => {
-        // Remove client-side password match validation; server will validate
-        setPasswordError(null)
-        setPasswordSuccess(false)
-        setIsChangingPassword(true)
-
-        try {
-            await changePassword(currentPassword, newPassword)
-            setCurrentPassword("")
-            setNewPassword("")
-            setConfirmNewPassword("")
-            setPasswordSuccess(true)
-        } catch (error) {
-            toast.error(toAppError(error, "Không thể đổi mật khẩu").message)
-        } finally {
-            setIsChangingPassword(false)
+      })
+      .catch(() => { })
+      .finally(() => {
+        if (!cancelled) {
+          dispatchSecurity({ type: "sessionsLoadingFinished" })
         }
+      })
+
+    return () => {
+      cancelled = true
     }
+  }, [])
 
-    const handleRevokeSession = async (sessionId: string) => {
-        try {
-            await revokeSession(sessionId)
-            setSessions((prev) => prev.filter((session) => session.session_id !== sessionId))
-        } catch (error) {
-            toast.error(toAppError(error, "Không thể thu hồi phiên").message)
-        }
+  const handleChangePassword = async () => {
+    // Remove client-side password match validation; server will validate
+    dispatchSecurity({ type: "startPasswordChange" })
+
+    try {
+      await changePassword(
+        securityState.currentPassword,
+        securityState.newPassword
+      )
+      dispatchSecurity({ type: "passwordChangeSucceeded" })
+    } catch (error) {
+      toast.error(toAppError(error, "Không thể đổi mật khẩu").message)
+    } finally {
+      dispatchSecurity({ type: "passwordChangeFinished" })
     }
+  }
 
-    const handleToggle2fa = async () => {
-        if (!twoFaPassword.trim()) return
-
-        setIsTwoFaLoading(true)
-
-        try {
-            if (profile?.two_factor_enabled) {
-                await disable2fa(twoFaPassword)
-                toast.success("Đã tắt xác thực 2 lớp")
-            } else {
-                await enable2fa(twoFaPassword)
-                toast.success("Đã bật xác thực 2 lớp")
-            }
-            setTwoFaPassword("")
-            setShow2faForm(false)
-            await fetchProfile()
-        } catch (error) {
-            toast.error(toAppError(error, "Không thể cập nhật 2FA").message)
-        } finally {
-            setIsTwoFaLoading(false)
-        }
+  const handleRevokeSession = async (sessionId: string) => {
+    try {
+      await revokeSession(sessionId)
+      dispatchSecurity({ type: "sessionRevoked", sessionId })
+    } catch (error) {
+      toast.error(toAppError(error, "Không thể thu hồi phiên").message)
     }
+  }
 
-    return (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <Card className="border-border bg-card">
-                <CardHeader>
-                    <CardTitle className="text-base font-medium">Mật khẩu & Xác thực</CardTitle>
-                    <CardDescription>Quản lý cài đặt bảo mật tài khoản của bạn</CardDescription>
-                </CardHeader>
+  const handleToggle2fa = async () => {
+    if (!securityState.twoFaPassword.trim()) return
 
-                <CardContent className="space-y-6">
-                    <div className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="currentPassword">Mật khẩu hiện tại</Label>
-                            <InputGroup className="max-w-md">
-                                <InputGroupAddon align="inline-start">
-                                    <InputGroupText>
-                                        <Lock className="w-4 h-4" />
-                                    </InputGroupText>
-                                </InputGroupAddon>
-                                <InputGroupInput
-                                    id="currentPassword"
-                                    type="password"
-                                    value={currentPassword}
-                                    onChange={(event) => setCurrentPassword(event.target.value)}
-                                />
-                            </InputGroup>
-                        </div>
+    dispatchSecurity({ type: "startTwoFaChange" })
 
-                        <div className="space-y-2">
-                            <Label htmlFor="newPassword">Mật khẩu mới</Label>
-                            <InputGroup className="max-w-md">
-                                <InputGroupAddon align="inline-start">
-                                    <InputGroupText>
-                                        <Key className="w-4 h-4" />
-                                    </InputGroupText>
-                                </InputGroupAddon>
-                                <InputGroupInput
-                                    id="newPassword"
-                                    type="password"
-                                    value={newPassword}
-                                    onChange={(event) => setNewPassword(event.target.value)}
-                                />
-                            </InputGroup>
-                        </div>
+    try {
+      if (profile?.two_factor_enabled) {
+        await disable2fa(securityState.twoFaPassword)
+        toast.success("Đã tắt xác thực 2 lớp")
+      } else {
+        await enable2fa(securityState.twoFaPassword)
+        toast.success("Đã bật xác thực 2 lớp")
+      }
+      dispatchSecurity({ type: "twoFaChangeSucceeded" })
+      await fetchProfile()
+    } catch (error) {
+      toast.error(toAppError(error, "Không thể cập nhật 2FA").message)
+    } finally {
+      dispatchSecurity({ type: "twoFaChangeFinished" })
+    }
+  }
 
-                        <div className="space-y-2">
-                            <Label htmlFor="confirmPassword">Xác nhận mật khẩu mới</Label>
-                            <InputGroup className="max-w-md">
-                                <InputGroupAddon align="inline-start">
-                                    <InputGroupText>
-                                        <Key className="w-4 h-4" />
-                                    </InputGroupText>
-                                </InputGroupAddon>
-                                <InputGroupInput
-                                    id="confirmPassword"
-                                    type="password"
-                                    value={confirmNewPassword}
-                                    onChange={(event) => setConfirmNewPassword(event.target.value)}
-                                />
-                            </InputGroup>
-                        </div>
-
-                        {passwordError && <p className="text-sm text-destructive">{passwordError}</p>}
-                        {passwordSuccess && <p className="text-sm text-success">Đã cập nhật mật khẩu</p>}
-                        <Button
-                            variant="outline"
-                            onClick={handleChangePassword}
-                            disabled={isChangingPassword || !currentPassword || !newPassword || !confirmNewPassword}
-                        >
-                            {isChangingPassword ? (
-                                <>
-                                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />Đang cập nhật...
-                                </>
-                            ) : (
-                                "Cập nhật mật khẩu"
-                            )}
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-
-            <Card className="border-border bg-card">
-                <CardHeader>
-                    <CardTitle className="text-base font-medium">Xác thực hai lớp</CardTitle>
-                    <CardDescription>Thêm một lớp bảo mật cho tài khoản của bạn</CardDescription>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between p-4 rounded-lg bg-secondary/50 border border-border">
-                        <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${profile?.two_factor_enabled ? "bg-success/20" : "bg-muted"}`}>
-                                <Key className={`w-5 h-5 ${profile?.two_factor_enabled ? "text-success" : "text-muted-foreground"}`} />
-                            </div>
-                            <div>
-                                <p className="font-medium text-foreground">Ứng dụng xác thực</p>
-                                <p className="text-sm text-muted-foreground">Dùng ứng dụng xác thực để nhận mã 2FA</p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                            <Badge className={profile?.two_factor_enabled ? "bg-success/20 text-success border-success/30" : "bg-muted text-muted-foreground border-border"}>
-                                {profile?.two_factor_enabled ? "Đã bật" : "Đã tắt"}
-                            </Badge>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                    setShow2faForm((value) => !value)
-                                    setTwoFaPassword("")
-                                }}
-                            >
-                                {show2faForm ? "Hủy" : "Quản lý"}
-                            </Button>
-                        </div>
-                    </div>
-
-                    {show2faForm && (
-                        <div className="px-4 py-3 rounded-lg border border-border bg-secondary/20 space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
-                            <p className="text-sm text-muted-foreground">
-                                {profile?.two_factor_enabled
-                                    ? "Nhập mật khẩu để tắt 2FA."
-                                    : "Nhập mật khẩu để bật 2FA."}
-                            </p>
-                            <div className="flex items-center gap-2">
-                                <InputGroup className="max-w-xs">
-                                    <InputGroupAddon align="inline-start">
-                                        <InputGroupText>
-                                            <Lock className="w-4 h-4" />
-                                        </InputGroupText>
-                                    </InputGroupAddon>
-                                    <InputGroupInput
-                                        type="password"
-                                        placeholder="Mật khẩu hiện tại"
-                                        value={twoFaPassword}
-                                        onChange={(event) => setTwoFaPassword(event.target.value)}
-                                        onKeyDown={(event) => event.key === "Enter" && handleToggle2fa()}
-                                    />
-                                </InputGroup>
-                                <Button
-                                    size="sm"
-                                    variant={profile?.two_factor_enabled ? "destructive" : "default"}
-                                    onClick={handleToggle2fa}
-                                    disabled={isTwoFaLoading || !twoFaPassword.trim()}
-                                >
-                                    {isTwoFaLoading ? (
-                                        <RefreshCw className="w-4 h-4 animate-spin" />
-                                    ) : profile?.two_factor_enabled ? (
-                                        "Tắt 2FA"
-                                    ) : (
-                                        "Bật 2FA"
-                                    )}
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
-
-            <Card className="border-border bg-card">
-                <CardHeader>
-                    <CardTitle className="text-base font-medium">Phiên đang hoạt động</CardTitle>
-                    <CardDescription>Quản lý các thiết bị bạn đang đăng nhập</CardDescription>
-                </CardHeader>
-
-                <CardContent>
-                    <div className="space-y-3">
-                        {isLoadingSessions ? (
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <RefreshCw className="w-4 h-4 animate-spin" />Đang tải phiên...
-                            </div>
-                        ) : sessions.length === 0 ? (
-                            <p className="text-sm text-muted-foreground">Không tìm thấy phiên nào đang hoạt động.</p>
-                        ) : (
-                            sessions.map((session, index) => (
-                                <div
-                                    key={session.session_id}
-                                    className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 border border-border animate-in fade-in slide-in-from-left-2"
-                                    style={{ animationDelay: `${index * 75}ms` }}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
-                                            <Globe className="w-4 h-4 text-muted-foreground" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium text-foreground">
-                                                {session.device_info?.browser} — {session.device_info?.os}
-                                                {session.is_current && (
-                                                    <Badge className="ml-2 bg-success/20 text-success border-success/30 text-xs">Hiện tại</Badge>
-                                                )}
-                                            </p>
-                                            <p className="text-xs text-muted-foreground">
-                                                {session.ip_address} · {new Date(session.created_at).toLocaleDateString("vi-VN")}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {!session.is_current && (
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="text-destructive hover:text-destructive"
-                                            onClick={() => handleRevokeSession(session.session_id)}
-                                        >
-                                            Thu hồi
-                                        </Button>
-                                    )}
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </CardContent>
-            </Card>
-
-            <Card className="border-border bg-card">
-                <CardHeader>
-                    <CardTitle className="text-base font-medium">Nhật ký kiểm tra bảo mật</CardTitle>
-                    <CardDescription>Các sự kiện bảo mật gần đây trên tài khoản của bạn</CardDescription>
-                </CardHeader>
-
-                <CardContent>
-                    <div className="space-y-1">
-                        {AUDIT_LOG.map((event, index) => {
-                            const IconComp = event.icon
-                            const isAlert = event.type === "login" && event.label.includes("thất bại")
-
-                            return (
-                                <div
-                                    key={event.id}
-                                    className="flex items-center gap-3 py-2.5 border-b border-border last:border-0 animate-in fade-in slide-in-from-left-2"
-                                    style={{ animationDelay: `${index * 50}ms` }}
-                                >
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isAlert ? "bg-destructive/10" : "bg-secondary"}`}>
-                                        <IconComp className={`w-3.5 h-3.5 ${isAlert ? "text-destructive" : "text-muted-foreground"}`} />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className={`text-sm font-medium ${isAlert ? "text-destructive" : "text-foreground"}`}>
-                                            {event.label}
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {event.ip} {event.detail && `· ${event.detail}`}
-                                        </p>
-                                    </div>
-                                    <span className="text-xs text-muted-foreground flex-shrink-0">
-                                        {new Date(event.at).toLocaleDateString("vi-VN")}
-                                    </span>
-                                </div>
-                            )
-                        })}
-                    </div>
-                </CardContent>
-            </Card>
-
-            <Card className="border-border bg-card border-destructive/30">
-                <CardHeader>
-                    <div className="flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4 text-destructive" />
-                        <CardTitle className="text-base font-medium text-destructive">Vùng nguy hiểm</CardTitle>
-                    </div>
-                    <CardDescription>Các thao tác không thể hoàn tác ảnh hưởng đến tài khoản của bạn</CardDescription>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between p-4 rounded-lg bg-secondary/30 border border-border">
-                        <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center">
-                                <Download className="w-4 h-4 text-muted-foreground" />
-                            </div>
-                            <div>
-                                <p className="font-medium text-foreground text-sm">Xuất dữ liệu của tôi</p>
-                                <p className="text-xs text-muted-foreground">Tải toàn bộ dữ liệu của bạn dưới dạng tệp ZIP</p>
-                            </div>
-                        </div>
-                        <Button variant="outline" size="sm">Xuất</Button>
-                    </div>
-
-                    <div className="p-4 rounded-lg bg-destructive/5 border border-destructive/20 space-y-3">
-                        <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-lg bg-destructive/10 flex items-center justify-center">
-                                <Trash2 className="w-4 h-4 text-destructive" />
-                            </div>
-                            <div>
-                                <p className="font-medium text-foreground text-sm">Xóa tài khoản</p>
-                                <p className="text-xs text-muted-foreground">
-                                    Xóa vĩnh viễn tài khoản và toàn bộ dữ liệu liên quan. Không thể hoàn tác.
-                                </p>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="deleteConfirm" className="text-xs text-muted-foreground">
-                                Nhập <span className="font-mono text-foreground">DELETE</span> để xác nhận
-                            </Label>
-                            <InputGroup>
-                                <InputGroupInput
-                                    id="deleteConfirm"
-                                    value={deleteConfirm}
-                                    onChange={(event) => setDeleteConfirm(event.target.value)}
-                                    placeholder="Nhập DELETE để xác nhận"
-                                    className="font-mono"
-                                />
-                            </InputGroup>
-                            <Button
-                                variant="destructive"
-                                size="sm"
-                                disabled={deleteConfirm !== "DELETE"}
-                                className="w-full sm:w-auto"
-                            >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Xóa vĩnh viễn tài khoản
-                            </Button>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-    )
+  return (
+    <div className="animate-in space-y-6 duration-300 fade-in slide-in-from-bottom-2">
+      <PasswordSecurityCard
+        state={securityState}
+        dispatchSecurity={dispatchSecurity}
+        onChangePassword={handleChangePassword}
+      />
+      <TwoFactorCard
+        state={securityState}
+        twoFactorEnabled={Boolean(profile?.two_factor_enabled)}
+        dispatchSecurity={dispatchSecurity}
+        onToggle2fa={handleToggle2fa}
+      />
+      <SessionsCard
+        sessions={securityState.sessions}
+        isLoadingSessions={securityState.isLoadingSessions}
+        onRevokeSession={handleRevokeSession}
+      />
+      <AuditLogCard />
+      <DangerZoneCard
+        deleteConfirm={securityState.deleteConfirm}
+        dispatchSecurity={dispatchSecurity}
+      />
+    </div>
+  )
 }

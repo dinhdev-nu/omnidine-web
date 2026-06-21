@@ -1,6 +1,8 @@
 import React from 'react';
 import Icon from '@/components/AppIcon';
 
+const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
+
 interface OrderItem {
   itemId: string;
   name: string;
@@ -32,7 +34,7 @@ interface OrderSummaryProps {
 }
 
 const formatCurrency = (amount: number): string =>
-  new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+  currencyFormatter.format(amount);
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({
   orderItems,
@@ -48,7 +50,10 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   tableNumber = null,
   discountRef = null,
   discountType = 'none',
-}) => (
+}) => {
+  const [renderedAt] = React.useState(() => new Date().toLocaleString('vi-VN'));
+
+  return (
   <div className="bg-surface border border-border rounded-lg p-6">
     <div className="flex items-center justify-between mb-6">
       <h3 className="text-lg font-semibold text-foreground">Chi tiết đơn hàng</h3>
@@ -126,10 +131,11 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     <div className="mt-6 p-3 bg-muted/30 rounded-lg">
       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
         <Icon name="Clock" size={16} />
-        <span>Thời gian: {new Date().toLocaleString('vi-VN')}</span>
+        <span>Thời gian: {renderedAt}</span>
       </div>
     </div>
   </div>
-);
+  );
+};
 
 export default OrderSummary;

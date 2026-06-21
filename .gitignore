@@ -29,4 +29,6 @@ skills-lock.json
 *.sln
 *.sw?
 
+.env
+
 /docs/*

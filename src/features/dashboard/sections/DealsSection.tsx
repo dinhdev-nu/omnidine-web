@@ -74,6 +74,11 @@ const filterLabels: Record<string, string> = {
     cancelled: "Đã hủy",
 };
 
+const currencyFormatter = new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+});
+
 const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleDateString("vi-VN", {
@@ -84,10 +89,7 @@ const formatDate = (dateString: string): string => {
 };
 
 const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat("vi-VN", {
-        style: "currency",
-        currency: "VND",
-    }).format(amount);
+    return currencyFormatter.format(amount);
 };
 
 export function DealsSection() {
@@ -104,6 +106,7 @@ export function DealsSection() {
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <input
+                            aria-label="TÃ¬m Ä‘Æ¡n hÃ ng"
                             type="text"
                             placeholder="Tìm đơn hàng..."
                             className="w-64 h-9 pl-9 pr-4 rounded-lg bg-secondary border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-accent transition-all duration-200"
@@ -111,7 +114,7 @@ export function DealsSection() {
                     </div>
                     <div className="flex items-center gap-2">
                         {(["all", "pending", "processing", "completed", "cancelled"] as const).map((filter) => (
-                            <button
+                            <button type="button"
                                 key={filter}
                                 className={cn(
                                     "px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200",
@@ -125,7 +128,7 @@ export function DealsSection() {
                         ))}
                     </div>
                 </div>
-                <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
+                <button type="button" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
                     <Filter className="w-4 h-4" />
                     Thêm bộ lọc
                     <ChevronDown className="w-3 h-3" />
@@ -139,7 +142,7 @@ export function DealsSection() {
                         <thead>
                             <tr className="border-b border-border bg-secondary/50">
                                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                                    <button className="flex items-center gap-1 hover:text-foreground transition-colors">
+                                    <button type="button" className="flex items-center gap-1 hover:text-foreground transition-colors">
                                         Mã đơn hàng
                                         <ArrowUpDown className="w-3 h-3" />
                                     </button>
@@ -147,7 +150,7 @@ export function DealsSection() {
                                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Khách hàng</th>
                                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Bàn</th>
                                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                                    <button className="flex items-center gap-1 hover:text-foreground transition-colors">
+                                    <button type="button" className="flex items-center gap-1 hover:text-foreground transition-colors">
                                         Tổng tiền
                                         <ArrowUpDown className="w-3 h-3" />
                                     </button>
@@ -157,7 +160,7 @@ export function DealsSection() {
                                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Thanh toán</th>
                                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Nhân viên</th>
                                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Ngày tạo</th>
-                                <th className="w-12"></th>
+                                <th className="w-12" aria-label="Thao tÃ¡c"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -226,7 +229,7 @@ export function DealsSection() {
                                             <span className="text-xs text-muted-foreground">{formatDate(order.createdAt)}</span>
                                         </td>
                                         <td className="py-4 px-4">
-                                            <button className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
+                                            <button type="button" className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
                                                 <MoreHorizontal className="w-4 h-4" />
                                             </button>
                                         </td>
@@ -243,13 +246,13 @@ export function DealsSection() {
                         Hiển thị 1-{sampleOrders.length} trên {sampleOrders.length} đơn hàng
                     </span>
                     <div className="flex items-center gap-2">
-                        <button className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed">
+                        <button type="button" className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed">
                             Trước
                         </button>
-                        <button className="px-3 py-1.5 rounded-lg text-sm bg-accent text-white font-medium">
+                        <button type="button" className="px-3 py-1.5 rounded-lg text-sm bg-accent text-white font-medium">
                             1
                         </button>
-                        <button className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed">
+                        <button type="button" className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed">
                             Sau
                         </button>
                     </div>

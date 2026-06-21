@@ -1,9 +1,9 @@
 import React from "react"
 import Icon from "@/components/AppIcon"
 import Image from "@/components/AppImage"
-import Button from "../../../components/Button"
-import type { MenuCategoryWithCount } from "@/types/menu-type"
-import { Spinner } from "../../../components/Spinner"
+import Button from "../../../ui/Button"
+import type { MenuCategoryWithCount } from "@/types/domain/menu"
+import { Spinner } from "../../../ui/Spinner"
 
 type CategoryAction = "toggle-active" | "reorder-up" | "reorder-down" | "delete"
 
@@ -37,7 +37,12 @@ const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[1300] flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <button
+        type="button"
+        aria-label="ÄÃ³ng modal quáº£n lÃ½ danh má»¥c"
+        className="absolute inset-0 bg-black/50"
+        onClick={onClose}
+      />
       <div className="shadow-modal relative mx-4 w-full max-w-3xl animate-in rounded-lg border border-border bg-card duration-200 zoom-in-95 fade-in">
         <div className="flex items-center justify-between border-b border-border p-6">
           <div className="flex items-center gap-3">

@@ -68,7 +68,7 @@ const PosLayout = memo<LayoutProps>(({
 
       {/* Content area: chỉ phần này thay đổi khi navigate */}
       <main
-        tabIndex={0}
+        tabIndex={-1}
         className={[
           'pos flex-1 min-h-0 overflow-y-auto overflow-x-hidden transition-all duration-300 ease-smooth focus:outline-none',
           sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-60',
