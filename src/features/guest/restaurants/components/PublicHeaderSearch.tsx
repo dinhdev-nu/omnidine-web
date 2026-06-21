@@ -1,209 +1,21 @@
-import { Search, X } from "lucide-react"
-import {
-  useEffect,
-  useEffectEvent,
-  useReducer,
-  useRef,
-  type RefObject,
-} from "react"
+import { useEffect, useEffectEvent, useReducer, useRef } from "react"
 import { useNavigate } from "react-router-dom"
-
 import { searchPublicRestaurants } from "@/services/restaurants"
 import { toAppError } from "@/services/core/error"
 import type { PublicRestaurantSearchItem } from "@/types/domain/restaurant"
-import PublicHeaderSearchContent from "./PublicHeaderSearchContent.tsx"
+import { DesktopPublicHeaderSearch } from "./DesktopPublicHeaderSearch"
+import { MobilePublicHeaderSearch } from "./MobilePublicHeaderSearch"
+import {
+  PUBLIC_RESTAURANT_LIMIT,
+  PUBLIC_RESTAURANT_PAGE,
+  SEARCH_DEBOUNCE_MS,
+} from "./public-header-search.config"
 import {
   publicHeaderSearchInitialState,
   publicHeaderSearchReducer,
-} from "./public-header-search-state"
+} from "../public-header-search-state"
 import type { SearchFilters } from "./public-header-search-types"
-
-const PUBLIC_RESTAURANT_PAGE = 1
-const PUBLIC_RESTAURANT_LIMIT = 5
-const SEARCH_DEBOUNCE_MS = 250
-
-type PublicHeaderSearchProps = {
-  isOpen: boolean
-  onOpenChange: (isOpen: boolean) => void
-}
-
-type SearchContentProps = {
-  searchQuery: string
-  searchFilters: SearchFilters
-  isSearchLoading: boolean
-  searchError: string | null
-  searchResults: PublicRestaurantSearchItem[]
-  isLocating: boolean
-  onSelectRestaurant: (restaurant: PublicRestaurantSearchItem) => void
-  onUseCurrentLocation: () => void
-  onClearLocation: () => void
-  onFilterChange: <K extends keyof SearchFilters>(
-    key: K,
-    value: SearchFilters[K]
-  ) => void
-  onSelectOpenChange: (open: boolean) => void
-}
-
-type DesktopSearchProps = SearchContentProps & {
-  isOpen: boolean
-  searchAreaRef: RefObject<HTMLDivElement | null>
-  searchInputRef: RefObject<HTMLInputElement | null>
-  onOpen: () => void
-  onQueryChange: (query: string) => void
-}
-
-function DesktopPublicHeaderSearch({
-  isOpen,
-  searchAreaRef,
-  searchInputRef,
-  searchQuery,
-  searchFilters,
-  isSearchLoading,
-  searchError,
-  searchResults,
-  isLocating,
-  onOpen,
-  onQueryChange,
-  onSelectRestaurant,
-  onUseCurrentLocation,
-  onClearLocation,
-  onFilterChange,
-  onSelectOpenChange,
-}: DesktopSearchProps) {
-  return (
-    <div
-      ref={searchAreaRef}
-      className="relative mx-8 hidden max-w-2xl flex-1 lg:block"
-    >
-      <div className="relative w-full">
-        <Search className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-        <input
-          ref={searchInputRef}
-          aria-label="TÃ¬m nhÃ  hÃ ng"
-          name="feed-search"
-          type="text"
-          value={searchQuery}
-          onChange={(event) => {
-            onQueryChange(event.target.value)
-            onOpen()
-          }}
-          onFocus={onOpen}
-          placeholder="Tìm kiếm nhà hàng, món ăn..."
-          className="w-full rounded-full border border-border bg-secondary py-2.5 pr-10 pl-12 text-sm text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
-        />
-        {searchQuery && (
-          <button
-            type="button"
-            aria-label="Xóa tìm kiếm"
-            onClick={() => {
-              onQueryChange("")
-              onOpen()
-              searchInputRef.current?.focus()
-            }}
-            className="absolute top-1/2 right-3 -translate-y-1/2 rounded-full p-1 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
-      </div>
-
-      {isOpen && (
-        <div className="absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-2xl border border-border bg-popover shadow-xl">
-          <PublicHeaderSearchContent
-            searchQuery={searchQuery}
-            searchFilters={searchFilters}
-            isSearchLoading={isSearchLoading}
-            searchError={searchError}
-            searchResults={searchResults}
-            isLocating={isLocating}
-            onSelectRestaurant={onSelectRestaurant}
-            onUseCurrentLocation={onUseCurrentLocation}
-            onClearLocation={onClearLocation}
-            onFilterChange={onFilterChange}
-            onSelectOpenChange={onSelectOpenChange}
-          />
-        </div>
-      )}
-    </div>
-  )
-}
-
-type MobileSearchProps = SearchContentProps & {
-  isOpen: boolean
-  searchAreaRef: RefObject<HTMLDivElement | null>
-  searchInputRef: RefObject<HTMLInputElement | null>
-  onOpen: () => void
-  onQueryChange: (query: string) => void
-}
-
-function MobilePublicHeaderSearch({
-  isOpen,
-  searchAreaRef,
-  searchInputRef,
-  searchQuery,
-  searchFilters,
-  isSearchLoading,
-  searchError,
-  searchResults,
-  isLocating,
-  onOpen,
-  onQueryChange,
-  onSelectRestaurant,
-  onUseCurrentLocation,
-  onClearLocation,
-  onFilterChange,
-  onSelectOpenChange,
-}: MobileSearchProps) {
-  return (
-    <div className="lg:hidden">
-      {isOpen && (
-        <div ref={searchAreaRef} className="relative mt-3">
-          <div className="relative">
-            <Search className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-            <input
-              ref={searchInputRef}
-              aria-label="TÃ¬m nhÃ  hÃ ng"
-              type="text"
-              value={searchQuery}
-              onChange={(event) => {
-                onQueryChange(event.target.value)
-                onOpen()
-              }}
-              placeholder="Tìm kiếm nhà hàng, món ăn..."
-              className="w-full rounded-2xl border border-border bg-secondary py-3 pr-10 pl-12 text-sm text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                aria-label="Xóa tìm kiếm"
-                onClick={() => onQueryChange("")}
-                className="absolute top-1/2 right-3 -translate-y-1/2 rounded-full p-1 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-
-          <div className="mt-2 overflow-hidden rounded-2xl border border-border bg-popover shadow-xl">
-            <PublicHeaderSearchContent
-              searchQuery={searchQuery}
-              searchFilters={searchFilters}
-              isSearchLoading={isSearchLoading}
-              searchError={searchError}
-              searchResults={searchResults}
-              isLocating={isLocating}
-              onSelectRestaurant={onSelectRestaurant}
-              onUseCurrentLocation={onUseCurrentLocation}
-              onClearLocation={onClearLocation}
-              onFilterChange={onFilterChange}
-              onSelectOpenChange={onSelectOpenChange}
-            />
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
+import type { PublicHeaderSearchProps } from "./public-header-search.view-types"
 
 export default function PublicHeaderSearch({
   isOpen,

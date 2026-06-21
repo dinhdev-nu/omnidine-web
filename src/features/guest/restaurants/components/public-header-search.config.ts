@@ -1,0 +1,5 @@
+export const PUBLIC_RESTAURANT_PAGE = 1
+
+export const PUBLIC_RESTAURANT_LIMIT = 5
+
+export const SEARCH_DEBOUNCE_MS = 250

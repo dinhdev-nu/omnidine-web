@@ -4,15 +4,13 @@ import { toast } from "sonner"
 import { uploadSingleFile } from "@/services/uploads"
 import type { StaffPermissions } from "@/types/domain/staff"
 
-import {
-  StaffAccountSection,
-  StaffAvatarSection,
-  StaffFormFooter,
-  StaffFormHeader,
-  StaffPermissionsSection,
-  StaffProfileSection,
-  StaffStatusSection,
-} from "./StaffFormModalSections"
+import { StaffAccountSection } from "./staff-form-modal-sections/StaffAccountSection"
+import { StaffAvatarSection } from "./staff-form-modal-sections/StaffAvatarSection"
+import { StaffFormFooter } from "./staff-form-modal-sections/StaffFormFooter"
+import { StaffFormHeader } from "./staff-form-modal-sections/StaffFormHeader"
+import { StaffPermissionsSection } from "./staff-form-modal-sections/StaffPermissionsSection"
+import { StaffProfileSection } from "./staff-form-modal-sections/StaffProfileSection"
+import { StaffStatusSection } from "./staff-form-modal-sections/StaffStatusSection"
 import type { StaffFormData, StaffFormModalProps } from "./staff-form-modal.types"
 export type {
   StaffFormData,

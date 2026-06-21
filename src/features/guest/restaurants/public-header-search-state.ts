@@ -1,6 +1,6 @@
 import type { PublicRestaurantSearchItem } from "@/types/domain/restaurant"
 
-import type { SearchFilters } from "./public-header-search-types"
+import type { SearchFilters } from "./components/public-header-search-types"
 
 const DEFAULT_SEARCH_FILTERS: SearchFilters = {
   city: "",
