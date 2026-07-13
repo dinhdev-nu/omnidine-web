@@ -17,10 +17,16 @@ function Input({
   error,
   required,
   wrapperClassName,
+  "aria-describedby": ariaDescribedBy,
   ...props
 }: InputProps) {
   const generatedId = React.useId()
   const inputId = id ?? generatedId
+  const descriptionId = `${inputId}-description`
+  const errorId = `${inputId}-error`
+  const feedbackId = error ? errorId : description ? descriptionId : undefined
+  const describedBy =
+    [ariaDescribedBy, feedbackId].filter(Boolean).join(" ") || undefined
 
   const inputElement = (
     <input
@@ -28,9 +34,10 @@ function Input({
       type={type}
       required={required}
       aria-invalid={Boolean(error)}
+      aria-describedby={describedBy}
       className={cn(
-        "h-10 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm",
-        "transition-colors outline-none",
+        "h-11 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm",
+        "transition-colors outline-none motion-reduce:transition-none",
         "focus:border-ring focus:ring-2 focus:ring-ring/20",
         "disabled:cursor-not-allowed disabled:opacity-50",
         "placeholder:text-muted-foreground",
@@ -57,9 +64,15 @@ function Input({
       {inputElement}
 
       {error ? (
-        <p className="text-sm text-destructive">{error}</p>
+        <p id={errorId} role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
       ) : (
-        description && <p className="text-sm text-muted-foreground">{description}</p>
+        description && (
+          <p id={descriptionId} className="text-sm text-muted-foreground">
+            {description}
+          </p>
+        )
       )}
     </div>
   )

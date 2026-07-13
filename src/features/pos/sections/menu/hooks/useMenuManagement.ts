@@ -45,6 +45,7 @@ export function useMenuManagement(restaurantId: string) {
   const setMenuCategories = usePOSStore((state) => state.setMenuCategories)
   const setMenuItems = usePOSStore((state) => state.setMenuItems)
   const [isLoadingData, setIsLoadingData] = React.useState(true)
+  const [loadError, setLoadError] = React.useState<string | null>(null)
 
   // Categories and Items
   const [categories, setCategories] = React.useState<MenuCategoryWithCount[]>(
@@ -114,6 +115,7 @@ export function useMenuManagement(restaurantId: string) {
     async (silent = false) => {
       if (!silent) setIsLoadingData(true)
       try {
+        setLoadError(null)
         const queryParams: ListMenuItemsQuery = { page, limit }
         if (filterCategory !== "all") {
           queryParams.category_id = filterCategory
@@ -135,12 +137,14 @@ export function useMenuManagement(restaurantId: string) {
         setMenuItems(itemsRes.data)
         setPagination(itemsRes.pagination || DEFAULT_PAGINATION)
       } catch (error) {
+        const endpointError = toMenuEndpointError("list", error)
         setCategories([])
         setItems([])
         setMenuCategories([])
         setMenuItems([])
         setPagination(DEFAULT_PAGINATION)
-        toast.error(toMenuEndpointError("list", error).message)
+        setLoadError(endpointError.message)
+        toast.error(endpointError.message)
       } finally {
         if (!silent) setIsLoadingData(false)
       }
@@ -357,7 +361,7 @@ export function useMenuManagement(restaurantId: string) {
 
   const checkCategoryHasActiveItemsInCategory = async (
     categoryId: string
-  ): Promise<boolean> => {
+  ): Promise<boolean | null> => {
     try {
       const result = await listMenuItems(restaurantId, {
         category_id: categoryId,
@@ -368,8 +372,9 @@ export function useMenuManagement(restaurantId: string) {
 
       const total = result.pagination.total
       return total > 0
-    } catch {
-      return false
+    } catch (error) {
+      toast.error(toMenuEndpointError("check category", error).message)
+      return null
     }
   }
 
@@ -392,6 +397,7 @@ export function useMenuManagement(restaurantId: string) {
 
   return {
     isLoadingData,
+    loadError,
     categories,
     items,
     page,
@@ -408,6 +414,7 @@ export function useMenuManagement(restaurantId: string) {
     menuStats,
     categoryMap,
     refetch: () => fetchMenuData(true),
+    retry: () => fetchMenuData(false),
     isItemActionPending,
     isCategoryActionPending,
     handleToggleAvailability,

@@ -1,69 +1,75 @@
-import React from 'react';
-import Icon from '../../../ui/AppIcon';
+import Icon from "../../../ui/AppIcon"
 
 interface StaffStats {
-    total: number;
-    active: number;
-    onLeave: number;
-    terminated: number;
+  total: number
+  active: number
+  onLeave: number
+  terminated: number
 }
 
 interface StaffStatsCardsProps {
-    stats: StaffStats;
+  stats: StaffStats
 }
 
-const StaffStatsCards: React.FC<StaffStatsCardsProps> = ({ stats }) => {
-    return (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-card border border-border rounded-lg p-4">
-                <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10">
-                        <Icon name="Users" size={20} className="text-primary" />
-                    </div>
-                    <div>
-                        <p className="text-lg font-semibold text-card-foreground">{stats.total}</p>
-                        <p className="text-sm text-muted-foreground">Tổng nhân viên</p>
-                    </div>
-                </div>
-            </div>
+const StaffStatsCards = ({ stats }: StaffStatsCardsProps) => {
+  const cards = [
+    {
+      key: "total",
+      label: "Tổng nhân viên",
+      value: stats.total,
+      icon: "Users",
+      iconClassName: "bg-primary/10 text-primary",
+    },
+    {
+      key: "active",
+      label: "Đang làm việc (trang này)",
+      value: stats.active,
+      icon: "UserCheck",
+      iconClassName: "bg-success/10 text-success",
+    },
+    {
+      key: "on-leave",
+      label: "Đang nghỉ (trang này)",
+      value: stats.onLeave,
+      icon: "UserX",
+      iconClassName: "bg-warning/10 text-warning",
+    },
+    {
+      key: "terminated",
+      label: "Đã nghỉ việc (trang này)",
+      value: stats.terminated,
+      icon: "UserMinus",
+      iconClassName: "bg-error/10 text-error",
+    },
+  ]
 
-            <div className="bg-card border border-border rounded-lg p-4">
-                <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-lg bg-success/10">
-                        <Icon name="UserCheck" size={20} className="text-success" />
-                    </div>
-                    <div>
-                        <p className="text-lg font-semibold text-card-foreground">{stats.active}</p>
-                        <p className="text-sm text-muted-foreground">Đang làm việc (trang này)</p>
-                    </div>
-                </div>
-            </div>
-
-            <div className="bg-card border border-border rounded-lg p-4">
-                <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-lg bg-warning/10">
-                        <Icon name="UserX" size={20} className="text-warning" />
-                    </div>
-                    <div>
-                        <p className="text-lg font-semibold text-card-foreground">{stats.onLeave}</p>
-                        <p className="text-sm text-muted-foreground">Đang nghỉ (trang này)</p>
-                    </div>
-                </div>
-            </div>
-
-            <div className="bg-card border border-border rounded-lg p-4">
-                <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-lg bg-error/10">
-                        <Icon name="UserMinus" size={20} className="text-error" />
-                    </div>
-                    <div>
-                        <p className="text-lg font-semibold text-card-foreground">{stats.terminated}</p>
-                        <p className="text-sm text-muted-foreground">Đã nghỉ việc (trang này)</p>
-                    </div>
-                </div>
-            </div>
+  return (
+    <dl
+      aria-label="Thống kê nhân viên"
+      className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4"
+    >
+      {cards.map((card) => (
+        <div
+          key={card.key}
+          className="flex min-w-0 flex-col items-start gap-3 rounded-lg border border-border bg-card p-3 sm:flex-row sm:items-center sm:p-4"
+        >
+          <div
+            className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${card.iconClassName}`}
+          >
+            <Icon name={card.icon} size={20} aria-hidden="true" />
+          </div>
+          <div className="min-w-0">
+            <dt className="text-xs leading-snug break-words text-muted-foreground sm:text-sm">
+              {card.label}
+            </dt>
+            <dd className="mt-1 text-lg font-semibold text-card-foreground">
+              {card.value}
+            </dd>
+          </div>
         </div>
-    );
-};
+      ))}
+    </dl>
+  )
+}
 
-export default StaffStatsCards;
+export default StaffStatsCards

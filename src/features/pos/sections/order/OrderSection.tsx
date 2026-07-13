@@ -17,6 +17,7 @@ const OrderSection: React.FC = () => {
         orders,
         filters,
         isLoadingOrders,
+        ordersError,
         isLoadingMore,
         hasMore,
         totalFetched,
@@ -52,23 +53,23 @@ const OrderSection: React.FC = () => {
     }, [navigate, slug]);
 
     return (
-        <div className="p-4 space-y-4">
+        <section className="min-w-0 space-y-4 p-3 sm:p-4">
             {/* Page Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold text-foreground">Lịch sử đơn hàng</h1>
-                    <p className="text-muted-foreground mt-1">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                <div className="min-w-0">
+                    <h1 className="text-2xl font-bold text-foreground text-balance">Lịch sử đơn hàng</h1>
+                    <p className="mt-1 text-muted-foreground text-pretty">
                         Theo dõi và quản lý tất cả giao dịch của cửa hàng
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="grid grid-cols-1 gap-3 min-[390px]:grid-cols-2 xl:flex xl:shrink-0">
                     <Button
                         variant="outline"
                         iconName="RefreshCw"
                         iconPosition="left"
                         onClick={onRefresh}
                         disabled={isLoadingOrders}
-                        className="hover-scale"
+                        className="w-full hover-scale xl:w-auto"
                     >
                         Làm mới
                     </Button>
@@ -77,7 +78,7 @@ const OrderSection: React.FC = () => {
                         iconName="Plus"
                         iconPosition="left"
                         onClick={handleCreateOrder}
-                        className="hover-scale"
+                        className="w-full hover-scale xl:w-auto"
                     >
                         Tạo đơn mới
                     </Button>
@@ -92,12 +93,12 @@ const OrderSection: React.FC = () => {
             />
 
             {/* Results Summary */}
-            <div className="flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">
+            <div className="flex flex-col gap-2 rounded-lg bg-muted/20 p-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                <div className="text-muted-foreground">
                     Hiển thị {orders.length} đơn hàng từ tổng số {pagination.total} đơn
                 </div>
-                <div className="flex items-center gap-2">
-                    <Icon name="Filter" size={16} className="text-muted-foreground" />
+                <div className="flex items-center gap-2 text-muted-foreground">
+                    <Icon name="Filter" size={16} aria-hidden="true" />
                     <span className="text-sm text-muted-foreground">
                         Đã áp dụng {activeFiltersCount} bộ lọc
                     </span>
@@ -106,14 +107,24 @@ const OrderSection: React.FC = () => {
 
             {/* Orders Table */}
             {isLoadingOrders ? (
-                <div className="text-center py-12">
-                    <Icon name="Loader2" size={48} className="text-muted-foreground mx-auto mb-4 animate-spin" />
-                    <h3 className="text-lg font-medium text-foreground mb-2">
-                        Đang tải dữ liệu...
-                    </h3>
+                <div role="status" aria-live="polite" className="block py-12 text-center">
+                    <Icon name="Loader2" size={48} aria-hidden="true" className="mx-auto mb-4 animate-spin text-muted-foreground motion-reduce:animate-none" />
+                    <h2 className="mb-2 text-lg font-medium text-foreground">
+                        Đang tải dữ liệu…
+                    </h2>
                     <p className="text-muted-foreground">
                         Vui lòng chờ trong giây lát
                     </p>
+                </div>
+            ) : ordersError ? (
+                <div role="alert" className="flex min-h-64 flex-col items-center justify-center gap-4 rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-center">
+                    <div>
+                        <h2 className="text-lg font-medium text-foreground">Không thể tải đơn hàng</h2>
+                        <p className="mt-1 text-sm text-muted-foreground">{ordersError}</p>
+                    </div>
+                    <Button variant="outline" iconName="RefreshCw" iconPosition="left" onClick={onRefresh}>
+                        Thử lại
+                    </Button>
                 </div>
             ) : (
                 <>
@@ -139,7 +150,7 @@ const OrderSection: React.FC = () => {
                                 iconPosition="right"
                                 className="hover-scale"
                             >
-                                {isLoadingMore ? 'Đang tải...' : 'Tải thêm đơn hàng'}
+                                {isLoadingMore ? 'Đang tải…' : 'Tải thêm đơn hàng'}
                             </Button>
                             <p className="text-xs text-muted-foreground">
                                 Mỗi lần tải thêm 20 đơn hàng
@@ -151,7 +162,7 @@ const OrderSection: React.FC = () => {
                     {orders.length > 0 && !hasMore && (
                         <div className="text-center py-6">
                             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 text-sm text-muted-foreground">
-                                <Icon name="CheckCircle2" size={16} />
+                                <Icon name="CheckCircle2" size={16} aria-hidden="true" />
                                 <span>Đã tải tất cả {totalFetched} đơn hàng từ server</span>
                             </div>
                         </div>
@@ -160,30 +171,25 @@ const OrderSection: React.FC = () => {
             )}
 
             {/* Empty State */}
-            {!isLoadingOrders && orders.length === 0 && (
-                <div className="text-center py-12">
-                    <Icon name="Search" size={48} className="text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-foreground mb-2">
+            {!isLoadingOrders && !ordersError && orders.length === 0 && (
+                <div className="py-12 text-center">
+                    <Icon name="Search" size={48} aria-hidden="true" className="mx-auto mb-4 text-muted-foreground" />
+                    <h2 className="mb-2 text-lg font-medium text-foreground">
                         Không tìm thấy đơn hàng
-                    </h3>
-                    <p className="text-muted-foreground mb-4">
-                        {orders.length === 0
-                            ? 'Chưa có đơn hàng nào trong hệ thống'
-                            : 'Thử điều chỉnh bộ lọc hoặc tìm kiếm với từ khóa khác'
-                        }
+                    </h2>
+                    <p className="mb-4 text-muted-foreground">
+                        Thử điều chỉnh bộ lọc hoặc tạo đơn hàng mới.
                     </p>
-                    {orders.length > 0 && (
-                        <Button
-                            variant="outline"
-                            onClick={onClearFilters}
-                            className="hover-scale"
-                        >
-                            Xóa tất cả bộ lọc
-                        </Button>
-                    )}
+                    <Button
+                        variant="outline"
+                        onClick={onClearFilters}
+                        className="hover-scale"
+                    >
+                        Xóa bộ lọc
+                    </Button>
                 </div>
             )}
-        </div>
+        </section>
     );
 };
 

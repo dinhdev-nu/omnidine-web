@@ -1,5 +1,6 @@
 import Icon from "@/components/AppIcon"
 import Image from "@/components/AppImage"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import Button from "../../../ui/Button"
 import Input from "../../../ui/Input"
 import { SAMPLE_IMAGES } from "./menu-item-modal.constants"
@@ -16,61 +17,69 @@ export function MenuItemImageFields({
   onRemoveImageAt,
 }: MenuItemImageFieldsProps) {
   return (
-    <div className="space-y-4">
+    <div className="flex min-w-0 flex-col gap-4">
       <div>
-        <p className="mb-2 block text-sm font-medium text-foreground">
+        <p className="mb-2 text-sm font-medium text-foreground">
           Hình ảnh món ăn
         </p>
-        <div className="mb-3 flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setUploadMethod("upload")}
-            className={`flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-              uploadMethod === "upload"
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
-            }`}
+        <ToggleGroup
+          type="single"
+          variant="outline"
+          value={uploadMethod}
+          onValueChange={(value) => {
+            if (value === "upload" || value === "url") {
+              setUploadMethod(value)
+            }
+          }}
+          aria-label="Cách thêm hình ảnh"
+          className="mb-3 w-full"
+        >
+          <ToggleGroupItem
+            value="upload"
+            aria-label="Tải ảnh từ thiết bị"
+            className="min-h-11 min-w-0 flex-1"
           >
-            <Icon name="Upload" size={16} className="mr-2 inline" />
+            <Icon name="Upload" size={16} aria-hidden="true" />
             Tải ảnh lên
-          </button>
-          <button
-            type="button"
-            onClick={() => setUploadMethod("url")}
-            className={`flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-              uploadMethod === "url"
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
-            }`}
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            value="url"
+            aria-label="Thêm ảnh bằng URL"
+            className="min-h-11 min-w-0 flex-1"
           >
-            <Icon name="Link" size={16} className="mr-2 inline" />
+            <Icon name="Link" size={16} aria-hidden="true" />
             URL
-          </button>
-        </div>
+          </ToggleGroupItem>
+        </ToggleGroup>
       </div>
 
       {uploadMethod === "upload" ? (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <input
             type="file"
-            id="image-upload"
-            accept="image/*"
+            id="menu-item-images"
+            name="images"
+            accept="image/jpeg,image/png,image/webp"
             multiple
             onChange={handleFileUpload}
-            className="hidden"
+            aria-describedby="menu-item-image-help"
+            className="peer sr-only"
           />
+          <span id="menu-item-image-help" className="sr-only">
+            Chấp nhận ảnh PNG, JPG hoặc WEBP, tối đa 5 MB mỗi ảnh.
+          </span>
           <label
-            htmlFor="image-upload"
-            className="group block flex h-48 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-border bg-muted transition-colors hover:border-primary hover:bg-primary/5"
+            htmlFor="menu-item-images"
+            className="group flex min-h-48 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-border bg-muted transition-colors hover:border-primary hover:bg-primary/5 peer-focus-visible:border-ring peer-focus-visible:ring-2 peer-focus-visible:ring-ring/30 motion-reduce:transition-none"
           >
             {imagePreviews.length > 0 ? (
               <div className="relative h-full w-full">
                 <Image
                   src={imagePreviews[0]}
-                  alt="Preview"
+                  alt="Ảnh xem trước của món ăn"
                   className="h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 motion-reduce:transition-none">
                   <div className="text-center text-white">
                     <Icon name="Upload" size={32} className="mx-auto mb-2" />
                     <p className="text-sm font-medium">Thêm ảnh</p>
@@ -90,7 +99,9 @@ export function MenuItemImageFields({
                 <p className="mb-1 text-sm font-medium">
                   Nhấn để chọn nhiều ảnh
                 </p>
-                <p className="text-xs">PNG, JPG, WEBP (Max 5MB)</p>
+                <p className="text-xs">
+                  PNG, JPG, WEBP (tối đa 5 MB mỗi ảnh)
+                </p>
               </div>
             )}
           </label>
@@ -104,14 +115,14 @@ export function MenuItemImageFields({
                 >
                   <Image
                     src={url}
-                    alt={`Preview ${index + 1}`}
+                    alt={`Ảnh món ăn ${index + 1}`}
                     className="h-full w-full object-cover"
                   />
                   <button
                     type="button"
                     onClick={() => onRemoveImageAt(index)}
-                    className="absolute top-1 right-1 rounded bg-black/70 p-1 text-white"
-                    aria-label="Xóa ảnh"
+                    className="absolute top-0 right-0 flex size-11 items-center justify-center rounded-bl-lg bg-black/70 text-white transition-colors hover:bg-black/90 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none motion-reduce:transition-none"
+                    aria-label={`Xóa ảnh ${index + 1}`}
                   >
                     <Icon name="X" size={12} />
                   </button>
@@ -121,19 +132,25 @@ export function MenuItemImageFields({
           )}
         </div>
       ) : (
-        <div className="max-h-[400px] space-y-3 overflow-y-auto pr-1">
-          <div className="flex gap-2">
+        <div className="flex max-h-[400px] flex-col gap-3 overflow-y-auto pr-1">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <Input
+              id="menu-item-image-url"
+              name="imageUrl"
               label="URL hình ảnh"
               type="url"
+              inputMode="url"
+              autoComplete="url"
               value={pendingImageUrl}
               onChange={(e) => setPendingImageUrl(e.target.value)}
               placeholder="https://example.com/image.jpg"
+              wrapperClassName="min-w-0 flex-1"
             />
             <Button
               type="button"
               variant="outline"
-              className="self-end"
+              className="w-full self-end sm:w-auto"
+              disabled={!pendingImageUrl.trim()}
               onClick={() => {
                 const url = pendingImageUrl.trim()
                 if (!url) return
@@ -149,7 +166,7 @@ export function MenuItemImageFields({
             {imagePreviews.length > 0 ? (
               <Image
                 src={imagePreviews[0]}
-                alt="Preview"
+                alt="Ảnh xem trước của món ăn"
                 className="h-full w-full object-cover"
               />
             ) : (
@@ -169,14 +186,14 @@ export function MenuItemImageFields({
                 >
                   <Image
                     src={url}
-                    alt={`Preview ${index + 1}`}
+                    alt={`Ảnh món ăn ${index + 1}`}
                     className="h-full w-full object-cover"
                   />
                   <button
                     type="button"
                     onClick={() => onRemoveImageAt(index)}
-                    className="absolute top-1 right-1 rounded bg-black/70 p-1 text-white"
-                    aria-label="Xóa ảnh"
+                    className="absolute top-0 right-0 flex size-11 items-center justify-center rounded-bl-lg bg-black/70 text-white transition-colors hover:bg-black/90 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none motion-reduce:transition-none"
+                    aria-label={`Xóa ảnh ${index + 1}`}
                   >
                     <Icon name="X" size={12} />
                   </button>
@@ -195,11 +212,12 @@ export function MenuItemImageFields({
                   key={url}
                   type="button"
                   onClick={() => onAddImageUrl(url)}
-                  className="transition-smooth h-16 w-full overflow-hidden rounded border border-border hover:ring-2 hover:ring-primary"
+                  className="h-16 w-full overflow-hidden rounded border border-border transition-[box-shadow] hover:ring-2 hover:ring-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none motion-reduce:transition-none"
+                  aria-label={`Chọn ảnh mẫu ${index + 1}`}
                 >
                   <Image
                     src={url}
-                    alt={`Sample ${index + 1}`}
+                    alt=""
                     className="h-full w-full object-cover"
                   />
                 </button>

@@ -321,6 +321,7 @@ export function useOrderTableController({
     order: Order
     itemId: string
   } | null>(null)
+  const cancelItemReturnFocusRef = useRef<HTMLElement | null>(null)
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
@@ -396,6 +397,8 @@ export function useOrderTableController({
             orderId: order._id,
             order: detailOrder,
           })
+        } catch {
+          // The service callback already surfaces a recoverable error to the user.
         } finally {
           dispatchTable({
             type: "setLoadingDetail",
@@ -415,13 +418,17 @@ export function useOrderTableController({
       status: AllowedOrderItemStatusUpdate
     ) => {
       if (!onUpdateOrderItemStatus) return
-      await onUpdateOrderItemStatus(order, itemId, status)
-      const detailOrder = await onLoadOrderDetail(order._id)
-      dispatchTable({
-        type: "setDetailOrder",
-        orderId: order._id,
-        order: detailOrder,
-      })
+      try {
+        await onUpdateOrderItemStatus(order, itemId, status)
+        const detailOrder = await onLoadOrderDetail(order._id)
+        dispatchTable({
+          type: "setDetailOrder",
+          orderId: order._id,
+          order: detailOrder,
+        })
+      } catch {
+        // The service callback already surfaces a recoverable error to the user.
+      }
     },
     [onUpdateOrderItemStatus, onLoadOrderDetail]
   )
@@ -440,27 +447,39 @@ export function useOrderTableController({
     [detailOrders]
   )
 
-  const handleCancelItemClick = useCallback((order: Order, itemId: string) => {
-    selectedItemToCancelRef.current = { order, itemId }
-    dispatchTable({ type: "requestCancelItem" })
-  }, [])
+  const handleCancelItemClick = useCallback(
+    (
+      order: Order,
+      itemId: string,
+      returnFocusElement?: HTMLElement | null
+    ) => {
+      selectedItemToCancelRef.current = { order, itemId }
+      cancelItemReturnFocusRef.current = returnFocusElement ?? null
+      dispatchTable({ type: "requestCancelItem" })
+    },
+    []
+  )
 
   const handleConfirmDiscount = useCallback(async () => {
     if (!selectedOrderToDiscount || !onUpdateOrderDiscount) return
     try {
       dispatchTable({ type: "startDiscount" })
-      await onUpdateOrderDiscount(
-        selectedOrderToDiscount,
-        discountType,
-        discountValue,
-        discountRef
-      )
-      const detailOrder = await onLoadOrderDetail(selectedOrderToDiscount._id)
-      dispatchTable({
-        type: "setDetailOrder",
-        orderId: selectedOrderToDiscount._id,
-        order: detailOrder,
-      })
+      try {
+        await onUpdateOrderDiscount(
+          selectedOrderToDiscount,
+          discountType,
+          discountValue,
+          discountRef
+        )
+        const detailOrder = await onLoadOrderDetail(selectedOrderToDiscount._id)
+        dispatchTable({
+          type: "setDetailOrder",
+          orderId: selectedOrderToDiscount._id,
+          order: detailOrder,
+        })
+      } catch {
+        // The service callback already surfaces a recoverable error to the user.
+      }
     } finally {
       dispatchTable({ type: "finishDiscount" })
     }
@@ -478,19 +497,23 @@ export function useOrderTableController({
     if (!selectedItemToCancel || !onCancelOrderItem) return
     try {
       dispatchTable({ type: "startCancelItem" })
-      await onCancelOrderItem(
-        selectedItemToCancel.order,
-        selectedItemToCancel.itemId,
-        cancelItemReason
-      )
-      const detailOrder = await onLoadOrderDetail(
-        selectedItemToCancel.order._id
-      )
-      dispatchTable({
-        type: "setDetailOrder",
-        orderId: selectedItemToCancel.order._id,
-        order: detailOrder,
-      })
+      try {
+        await onCancelOrderItem(
+          selectedItemToCancel.order,
+          selectedItemToCancel.itemId,
+          cancelItemReason
+        )
+        const detailOrder = await onLoadOrderDetail(
+          selectedItemToCancel.order._id
+        )
+        dispatchTable({
+          type: "setDetailOrder",
+          orderId: selectedItemToCancel.order._id,
+          order: detailOrder,
+        })
+      } catch {
+        // The service callback already surfaces a recoverable error to the user.
+      }
     } finally {
       dispatchTable({ type: "finishCancelItem" })
       selectedItemToCancelRef.current = null
@@ -523,6 +546,7 @@ export function useOrderTableController({
     cancelItemReason,
     isCancellingItem,
     selectedItemToCancelRef,
+    cancelItemReturnFocusRef,
     handleOrderClick,
     handleCancelClick,
     handleUpdateStatusClick,

@@ -29,17 +29,18 @@ export function OrderDesktopSummaryRow({
 >) {
   return (
     <tr
-      className={`transition-smooth border-b border-border hover:bg-muted/30 ${highlighted ? "animate-pulse bg-primary/10" : ""}`}
+      className={`transition-smooth border-b border-border hover:bg-muted/30 motion-reduce:transition-none ${highlighted ? "animate-pulse bg-primary/10 motion-reduce:animate-none" : ""}`}
     >
       <td className="p-4">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="icon"
+            aria-label={`${expanded ? "Thu gọn" : "Mở"} chi tiết đơn ${order.order_number}`}
+            aria-expanded={expanded}
             onClick={() => onToggleExpand(order)}
-            className="h-6 w-6"
           >
-            <Icon name={expanded ? "ChevronDown" : "ChevronRight"} size={16} />
+            <Icon name={expanded ? "ChevronDown" : "ChevronRight"} size={16} aria-hidden="true" />
           </Button>
           <span className="font-mono text-sm font-medium">
             #{order.order_number}
@@ -62,8 +63,8 @@ export function OrderDesktopSummaryRow({
         </div>
       </td>
       <td className="p-4">
-        <div className="flex items-center space-x-2">
-          <span className="font-semibold text-foreground">
+        <div className="flex items-center gap-2">
+          <span className="font-semibold text-foreground tabular-nums">
             {formatCurrency(order.total_amount)}
           </span>
           <span className="text-xs text-muted-foreground">
@@ -83,16 +84,16 @@ export function OrderDesktopSummaryRow({
         <TablePaymentStatusBadge status={order.payment_status} />
       </td>
       <td className="p-4">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-1">
           {order.payment_status === "unpaid" && (
             <Button
               variant="ghost"
               size="icon"
               onClick={() => onPaymentClick(order)}
               className="hover-scale"
-              title="Thanh toán"
+              aria-label={`Thanh toán đơn ${order.order_number}`}
             >
-              <Icon name="CreditCard" size={16} />
+              <Icon name="CreditCard" size={16} aria-hidden="true" />
             </Button>
           )}
           {order.status !== "cancelled" &&
@@ -103,9 +104,9 @@ export function OrderDesktopSummaryRow({
                 size="icon"
                 onClick={() => onUpdateStatusClick(order)}
                 className="hover-scale"
-                title="Cập nhật trạng thái"
+                aria-label={`Cập nhật trạng thái đơn ${order.order_number}`}
               >
-                <Icon name="GitBranch" size={16} />
+                <Icon name="GitBranch" size={16} aria-hidden="true" />
               </Button>
             )}
           {order.status !== "cancelled" && order.status !== "completed" && (
@@ -114,9 +115,9 @@ export function OrderDesktopSummaryRow({
               size="icon"
               onClick={() => onCancelOrder(order)}
               className="hover-scale"
-              title="Hủy đơn"
+              aria-label={`Hủy đơn ${order.order_number}`}
             >
-              <Icon name="Trash" size={16} />
+              <Icon name="Trash" size={16} aria-hidden="true" />
             </Button>
           )}
         </div>

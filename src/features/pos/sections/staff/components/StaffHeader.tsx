@@ -1,35 +1,33 @@
-import React from 'react';
-import Button from '../../../ui/Button';
+import Button from "../../../ui/Button"
 
 interface StaffHeaderProps {
-    onAddStaff: () => void;
+  onAddStaff: (trigger: HTMLButtonElement) => void
 }
 
-const StaffHeader: React.FC<StaffHeaderProps> = ({ onAddStaff }) => {
-    return (
-        <div className="flex items-center justify-between mb-4">
-            <div>
-                <h1 className="flex items-center gap-3 text-2xl font-semibold text-foreground">
-                    <span>Quản lý nhân viên</span>
-                </h1>
-                <p className="text-muted-foreground mt-1">
-                    Quản lý thông tin và quyền truy cập của nhân viên trong hệ thống POS
-                </p>
-            </div>
+const StaffHeader = ({ onAddStaff }: StaffHeaderProps) => (
+  <header className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div className="min-w-0">
+      <h1
+        id="staff-section-title"
+        className="text-2xl leading-tight font-semibold break-words text-foreground"
+      >
+        Quản lý nhân viên
+      </h1>
+      <p className="mt-1 max-w-3xl leading-relaxed text-muted-foreground">
+        Quản lý thông tin và quyền truy cập của nhân viên trong hệ thống POS.
+      </p>
+    </div>
 
-            <div className="flex items-center gap-3">
-                <Button
-                    variant="default"
-                    onClick={onAddStaff}
-                    iconName="UserPlus"
-                    iconPosition="left"
-                    className="hover-scale"
-                >
-                    Thêm nhân viên
-                </Button>
-            </div>
-        </div>
-    );
-};
+    <Button
+      variant="default"
+      onClick={(event) => onAddStaff(event.currentTarget)}
+      iconName="UserPlus"
+      iconPosition="left"
+      className="w-full shrink-0 sm:w-auto"
+    >
+      Thêm nhân viên
+    </Button>
+  </header>
+)
 
-export default StaffHeader;
+export default StaffHeader

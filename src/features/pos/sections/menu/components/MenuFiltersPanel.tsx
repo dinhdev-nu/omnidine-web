@@ -16,13 +16,18 @@ export function MenuFiltersPanel({ controller }: MenuSectionViewProps) {
     setLimit,
     uiItemCounts,
     openAddCategory,
-    dispatchMenuUi,
+    openCategoryManager,
   } = controller
   return (
-    <div className="mb-6 rounded-lg border border-border bg-card p-6">
+    <section
+      className="mb-6 rounded-lg border border-border bg-card p-4 sm:p-6"
+      aria-label="Bộ lọc thực đơn"
+    >
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <Select
+            name="availabilityFilter"
+            label="Trạng thái bán"
             placeholder="Lọc trạng thái bán"
             options={[
               { value: "all", label: "Tất cả trạng thái" },
@@ -38,6 +43,8 @@ export function MenuFiltersPanel({ controller }: MenuSectionViewProps) {
           />
 
           <Select
+            name="featuredFilter"
+            label="Mức độ nổi bật"
             placeholder="Lọc nổi bật"
             options={[
               { value: "all", label: "Tất cả" },
@@ -53,6 +60,8 @@ export function MenuFiltersPanel({ controller }: MenuSectionViewProps) {
           />
 
           <Select
+            name="categoryFilter"
+            label="Danh mục"
             placeholder="Lọc danh mục"
             options={[
               { value: "all", label: "Tất cả danh mục" },
@@ -66,6 +75,8 @@ export function MenuFiltersPanel({ controller }: MenuSectionViewProps) {
           />
 
           <Select
+            name="pageSize"
+            label="Số món mỗi trang"
             placeholder="Số món mỗi trang"
             options={[
               { value: "10", label: "10 món" },
@@ -88,14 +99,9 @@ export function MenuFiltersPanel({ controller }: MenuSectionViewProps) {
           onCategoryChange={handleCategoryChange}
           itemCounts={uiItemCounts}
           onAddCategory={openAddCategory}
-          onManageCategories={() =>
-            dispatchMenuUi({
-              type: "setCategoryManagerOpen",
-              isOpen: true,
-            })
-          }
+          onManageCategories={openCategoryManager}
         />
       </div>
-    </div>
+    </section>
   )
 }

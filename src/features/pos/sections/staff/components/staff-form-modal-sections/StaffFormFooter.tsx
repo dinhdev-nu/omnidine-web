@@ -1,39 +1,42 @@
+import { DialogClose, DialogFooter } from "@/components/ui/dialog"
 import Button from "../../../../ui/Button"
-import type { StaffFormModalProps } from "../staff-form-modal.types"
 
 export interface StaffFormFooterProps {
   isEditMode: boolean
-  isLoading: boolean
+  isDisabled: boolean
   submitIcon: string
   submitText: string
-  onClose: () => void
-  onSubmit: StaffFormModalProps["onSubmit"]
 }
 
 export function StaffFormFooter({
   isEditMode,
-  isLoading,
+  isDisabled,
   submitIcon,
   submitText,
-  onClose,
-  onSubmit,
 }: StaffFormFooterProps) {
   return (
-    <div className="flex items-center justify-end gap-3 border-t border-border p-6">
-      <Button variant="outline" onClick={onClose} disabled={isLoading}>
-        Hủy
-      </Button>
+    <DialogFooter className="mx-0 mb-0 rounded-none px-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-6">
+      <DialogClose asChild>
+        <Button
+          variant="outline"
+          disabled={isDisabled}
+          className="w-full sm:w-auto"
+        >
+          Hủy
+        </Button>
+      </DialogClose>
       {!isEditMode && (
         <Button
+          type="submit"
           variant="default"
-          onClick={() => onSubmit("all")}
-          disabled={isLoading}
+          disabled={isDisabled}
           iconName={submitIcon}
           iconPosition="left"
+          className="w-full sm:w-auto"
         >
           {submitText}
         </Button>
       )}
-    </div>
+    </DialogFooter>
   )
 }

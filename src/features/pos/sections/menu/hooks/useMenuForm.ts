@@ -41,7 +41,11 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
     React.useState<MenuItem | null>(null)
   const [formData, setFormData] =
     React.useState<MenuItemFormData>(DEFAULT_MENU_ITEM)
+  const [formErrors, setFormErrors] = React.useState<
+    Partial<Record<keyof MenuItemFormData, string>>
+  >({})
   const uploadRequestIdRef = React.useRef(0)
+  const itemModalTriggerRef = React.useRef<HTMLElement | null>(null)
 
   const areImageListsEqual = React.useCallback((a: string[], b: string[]) => {
     return (
@@ -51,18 +55,21 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
 
   const resetForm = React.useCallback(() => {
     setFormData(DEFAULT_MENU_ITEM)
+    setFormErrors({})
     setEditingItemId(null)
     setEditingItemDetail(null)
     setIsUploadingImage(false)
   }, [])
 
   const openAddItem = React.useCallback(() => {
+    itemModalTriggerRef.current = document.activeElement as HTMLElement | null
     resetForm()
     setShowItemModal(true)
   }, [resetForm])
 
   const openEditItem = React.useCallback(
     async (item: MenuItem) => {
+      itemModalTriggerRef.current = document.activeElement as HTMLElement | null
       setIsSubmitting(true)
       try {
         const detail = await getMenuItemDetail(restaurantId, item._id)
@@ -93,6 +100,12 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
   const handleFieldChange = React.useCallback(
     (field: keyof MenuItemFormData, value: string) => {
       setFormData((prev) => ({ ...prev, [field]: value }))
+      setFormErrors((prev) => {
+        if (!prev[field]) return prev
+        const next = { ...prev }
+        delete next[field]
+        return next
+      })
     },
     []
   )
@@ -150,23 +163,43 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
   }, [])
 
   const handleSubmit = async () => {
-    if (!formData.name || !formData.price || !formData.category) {
-      toast.error("Vui lòng nhập đầy đủ Tên, Giá và Chọn danh mục")
-      return
+    const nextErrors: Partial<Record<keyof MenuItemFormData, string>> = {}
+    const normalizedName = formData.name.trim()
+    const normalizedPrice = formData.price.trim()
+    const parsedPrice = Number(normalizedPrice)
+
+    if (!normalizedName) {
+      nextErrors.name = "Vui lòng nhập tên món ăn"
+    }
+    if (!normalizedPrice) {
+      nextErrors.price = "Vui lòng nhập giá món ăn"
+    } else if (!Number.isFinite(parsedPrice) || parsedPrice < 0) {
+      nextErrors.price = "Giá phải là số lớn hơn hoặc bằng 0"
+    }
+    if (!formData.category) {
+      nextErrors.category = "Vui lòng chọn danh mục"
     }
 
     const normalizedSortOrder = formData.sortOrder.trim()
     if (normalizedSortOrder) {
       const parsed = Number(normalizedSortOrder)
       if (!Number.isInteger(parsed) || parsed < 0) {
-        toast.error("Thứ tự hiển thị phải là số nguyên >= 0")
-        return
+        nextErrors.sortOrder =
+          "Thứ tự hiển thị phải là số nguyên lớn hơn hoặc bằng 0"
       }
     }
 
+    if (Object.keys(nextErrors).length > 0) {
+      setFormErrors(nextErrors)
+      toast.error("Vui lòng kiểm tra lại thông tin món ăn")
+      return
+    }
+
+    setFormErrors({})
+
     setIsSubmitting(true)
     try {
-      const price = parseFloat(formData.price) || 0
+      const price = parsedPrice
       const is_available = formData.status === "available"
       const is_featured = formData.featured === "featured"
       const normalizedImageUrls = formData.imageUrls.flatMap((url) => {
@@ -269,6 +302,7 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
     isEditing: Boolean(editingItemId),
     isUploadingImage,
     formData,
+    formErrors,
     imagePreviewUrls: formData.imageUrls,
     handleFieldChange,
     handleImageFileChange,
@@ -278,5 +312,6 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
     openAddItem,
     openEditItem,
     resetForm,
+    itemModalTriggerRef,
   }
 }

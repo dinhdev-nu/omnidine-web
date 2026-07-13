@@ -36,6 +36,7 @@ interface PaymentFlowState {
   selectedMethod: PaymentMethodId | ""
   amountDigits: string
   paymentResult: PaymentData
+  isProcessingCash: boolean
 }
 
 const createPaymentFlowState = (orderId: string): PaymentFlowState => ({
@@ -44,6 +45,7 @@ const createPaymentFlowState = (orderId: string): PaymentFlowState => ({
   selectedMethod: "",
   amountDigits: "",
   paymentResult: {},
+  isProcessingCash: false,
 })
 
 export function usePaymentSectionController(orderId?: string | null) {
@@ -65,7 +67,13 @@ export function usePaymentSectionController(orderId?: string | null) {
     setStoredFlow(flow)
   }
 
-  const { currentStep, selectedMethod, amountDigits, paymentResult } = flow
+  const {
+    currentStep,
+    selectedMethod,
+    amountDigits,
+    paymentResult,
+    isProcessingCash,
+  } = flow
 
   const updateFlow = (nextFlow: Partial<Omit<PaymentFlowState, "orderId">>) => {
     setStoredFlow((current) => ({
@@ -122,6 +130,7 @@ export function usePaymentSectionController(orderId?: string | null) {
       currentStep: "method",
       selectedMethod: "",
       amountDigits: "",
+      isProcessingCash: false,
     })
   }
 
@@ -152,8 +161,9 @@ export function usePaymentSectionController(orderId?: string | null) {
   }
 
   const handleCashComplete = async () => {
-    if (cashPaidAmount < totalAmount || !orderData) return
+    if (isProcessingCash || cashPaidAmount < totalAmount || !orderData) return
     try {
+      updateFlow({ isProcessingCash: true })
       await createCashPayment(restaurantId, resolvedOrderId, {
         method: "cash",
         amount: totalAmount,
@@ -163,8 +173,9 @@ export function usePaymentSectionController(orderId?: string | null) {
       completePayment("cash", cashPaidAmount, cashChange)
     } catch (error) {
       const appError = toPaymentEndpointError("create", error)
-      console.error("Cash payment error:", appError)
       toast.error(appError.message)
+    } finally {
+      updateFlow({ isProcessingCash: false })
     }
   }
 
@@ -189,6 +200,7 @@ export function usePaymentSectionController(orderId?: string | null) {
       selectedMethod: "",
       amountDigits: "",
       paymentResult: {},
+      isProcessingCash: false,
     })
     if (slug) navigate(`${POS_BASE_PATH}/${slug}/orders`)
   }
@@ -210,6 +222,7 @@ export function usePaymentSectionController(orderId?: string | null) {
     tableNumber,
     cashChange,
     cashAmountError,
+    isProcessingCash,
     quickAmounts,
     qrCodeUrl,
     updateFlow,

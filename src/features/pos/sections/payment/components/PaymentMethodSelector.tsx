@@ -89,51 +89,55 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
 
   return (
     <div className="space-y-3">
-      <h3 className="mb-2 text-base font-semibold text-foreground">
+      <h2 className="mb-2 text-base font-semibold text-foreground">
         Chọn phương thức thanh toán
-      </h3>
-      <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
+      </h2>
+      <div className="grid grid-cols-1 gap-2.5 min-[390px]:grid-cols-2">
         {filteredMethods.map((method) => {
           const isMethodLoading = isLoading && loadingMethod === method.id;
           const isSelected = selectedMethod === method.id;
           const isDisabled = Array.isArray(enabledMethods) && !enabledMethods.includes(method.id);
 
           return (
-            <button type="button"
+            <button
+              type="button"
               key={method.id}
               onClick={() => onMethodSelect(method.id)}
               disabled={isLoading || isDisabled}
+              aria-pressed={isSelected}
+              aria-busy={isMethodLoading}
               className={`
-                relative rounded-lg border-2 p-3 transition-all duration-200 hover-scale
+                relative min-h-24 rounded-lg border-2 p-3 text-left transition-[border-color,background-color,color,box-shadow,transform,opacity] duration-200 hover-scale motion-reduce:transition-none
                 ${isSelected ? `${method.color} border-current shadow-md` : 'bg-surface border-border hover:border-muted-foreground/30'}
                 ${isLoading || isDisabled ? 'cursor-not-allowed opacity-60' : ''}
               `}
             >
-              <div className="flex items-center gap-2.5">
+              <div className="flex min-w-0 items-center gap-2.5">
                 <div className={`flex size-10 items-center justify-center rounded-lg ${isSelected ? 'bg-white/20' : 'bg-muted'}`}>
                   {isMethodLoading ? (
-                    <Icon name="Loader" size={20} className="text-primary animate-spin" />
+                    <Icon name="Loader" size={20} aria-hidden="true" className="animate-spin text-primary motion-reduce:animate-none" />
                   ) : (
                     <Icon
                       name={method.icon}
                       size={20}
+                      aria-hidden="true"
                       className={isSelected ? method.iconColor : 'text-muted-foreground'}
                     />
                   )}
                 </div>
 
-                <div className="flex-1 text-left">
-                  <h4 className={`font-medium text-sm ${isSelected ? 'text-current' : 'text-foreground'}`}>
-                    {isMethodLoading ? 'Đang tạo mã QR...' : method.name}
-                  </h4>
+                <div className="min-w-0 flex-1">
+                  <span className={`block text-sm font-medium ${isSelected ? 'text-current' : 'text-foreground'}`}>
+                    {isMethodLoading ? 'Đang tạo mã QR…' : method.name}
+                  </span>
                   <p className={`mt-0.5 text-xs ${isSelected ? 'text-current/80' : 'text-muted-foreground'}`}>
                     {method.description}{isDisabled ? ' — Không khả dụng' : ''}
                   </p>
                 </div>
 
                 {isSelected && !isMethodLoading && (
-                  <div className="w-6 h-6 rounded-full bg-current flex items-center justify-center">
-                    <Icon name="Check" size={14} color="white" />
+                  <div aria-hidden="true" className="flex size-6 items-center justify-center rounded-full bg-current">
+                    <Icon name="Check" size={14} color="white" aria-hidden="true" />
                   </div>
                 )}
               </div>

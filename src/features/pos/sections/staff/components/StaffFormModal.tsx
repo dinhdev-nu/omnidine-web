@@ -1,9 +1,14 @@
 import React from "react"
 import { toast } from "sonner"
 
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog"
 import { uploadSingleFile } from "@/services/uploads"
 import type { StaffPermissions } from "@/types/domain/staff"
 
+import { Spinner } from "../../../ui/Spinner"
 import { StaffAccountSection } from "./staff-form-modal-sections/StaffAccountSection"
 import { StaffAvatarSection } from "./staff-form-modal-sections/StaffAvatarSection"
 import { StaffFormFooter } from "./staff-form-modal-sections/StaffFormFooter"
@@ -26,21 +31,23 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
   formData,
   errors = EMPTY_STAFF_ERRORS,
   isLoading = false,
+  isInitializing = false,
   onClose,
   onFieldChange,
   onSubmit,
+  returnFocusRef,
 }) => {
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [isUploading, setIsUploading] = React.useState(false)
   const imagePreview = formData.avatar_url ?? ""
-
-  if (!isOpen) return null
 
   const isEditMode = mode === "edit"
   const title = isEditMode ? "Chỉnh sửa nhân viên" : "Thêm nhân viên mới"
   const icon = isEditMode ? "Edit" : "UserPlus"
   const submitText = isEditMode ? "Lưu thay đổi" : "Thêm nhân viên"
   const submitIcon = isEditMode ? "Save" : "UserPlus"
+  const areControlsDisabled = isLoading || isInitializing
+  const isCloseDisabled = isLoading || isUploading
 
   const handleRemoveImage = () => {
     onFieldChange("avatar_url", "")
@@ -82,51 +89,80 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
     formData,
     errors,
     isEditMode,
-    isLoading,
+    isLoading: areControlsDisabled,
     isUploading,
     onSubmit,
     onFieldChange,
   }
 
   return (
-    <div className="fixed inset-0 z-[1200] flex items-center justify-center overflow-hidden">
-      <button
-        type="button"
-        aria-label="Đóng modal nhân viên"
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-      />
-
-      <div className="shadow-modal relative mx-4 max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-lg border border-border bg-card">
-        <StaffFormHeader title={title} icon={icon} onClose={onClose} />
-
-        <div className="max-h-[calc(90vh-200px)] space-y-6 overflow-y-auto p-6">
-          <StaffProfileSection {...sectionProps} />
-          <StaffAccountSection {...sectionProps} />
-          <StaffStatusSection {...sectionProps} />
-          <StaffAvatarSection
-            {...sectionProps}
-            imagePreview={imagePreview}
-            fileInputRef={fileInputRef}
-            handleFileChange={handleFileChange}
-            handleRemoveImage={handleRemoveImage}
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open && !isCloseDisabled) onClose()
+      }}
+    >
+      <DialogContent
+        showCloseButton={false}
+        aria-busy={isLoading || isUploading || isInitializing}
+        className="block max-h-[calc(100dvh-1rem)] max-w-[calc(100%-1rem)] gap-0 overflow-hidden rounded-lg p-0 sm:max-h-[calc(100dvh-2rem)] sm:max-w-2xl"
+        onCloseAutoFocus={(event) => {
+          const trigger = returnFocusRef?.current
+          if (trigger?.isConnected) {
+            event.preventDefault()
+            trigger.focus()
+          }
+        }}
+      >
+        <form
+          className="grid max-h-[calc(100dvh-1rem)] min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden sm:max-h-[calc(100dvh-2rem)]"
+          onSubmit={(event) => {
+            event.preventDefault()
+            onSubmit("all")
+          }}
+        >
+          <StaffFormHeader
+            title={title}
+            icon={icon}
+            isCloseDisabled={isCloseDisabled}
           />
-          <StaffPermissionsSection
-            {...sectionProps}
-            togglePermission={togglePermission}
-          />
-        </div>
 
-        <StaffFormFooter
-          isEditMode={isEditMode}
-          isLoading={isLoading}
-          submitIcon={submitIcon}
-          submitText={submitText}
-          onClose={onClose}
-          onSubmit={onSubmit}
-        />
-      </div>
-    </div>
+          <div className="flex min-h-0 flex-col gap-4 overflow-y-auto overscroll-contain p-4 sm:gap-6 sm:p-6">
+            {isInitializing && (
+              <div
+                role="status"
+                aria-live="polite"
+                className="flex min-h-11 items-center gap-3 rounded-lg border border-border bg-muted/30 px-4 text-sm text-muted-foreground"
+              >
+                <Spinner className="size-4" aria-hidden="true" />
+                Đang tải thông tin nhân viên…
+              </div>
+            )}
+            <StaffProfileSection {...sectionProps} />
+            <StaffAccountSection {...sectionProps} />
+            <StaffStatusSection {...sectionProps} />
+            <StaffAvatarSection
+              {...sectionProps}
+              imagePreview={imagePreview}
+              fileInputRef={fileInputRef}
+              handleFileChange={handleFileChange}
+              handleRemoveImage={handleRemoveImage}
+            />
+            <StaffPermissionsSection
+              {...sectionProps}
+              togglePermission={togglePermission}
+            />
+          </div>
+
+          <StaffFormFooter
+            isEditMode={isEditMode}
+            isDisabled={isCloseDisabled || isInitializing}
+            submitIcon={submitIcon}
+            submitText={submitText}
+          />
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 

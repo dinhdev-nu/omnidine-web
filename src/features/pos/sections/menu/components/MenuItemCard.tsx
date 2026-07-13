@@ -1,11 +1,16 @@
 import React from "react"
-import Image from "@/components/AppImage"
+
 import Icon from "@/components/AppIcon"
-import Button from "../../../ui/Button"
+import Image from "@/components/AppImage"
 import type { MenuItem } from "@/types/domain/menu"
+
+import Button from "../../../ui/Button"
 import { Spinner } from "../../../ui/Spinner"
 
-const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
+const currencyFormatter = new Intl.NumberFormat("vi-VN", {
+  style: "currency",
+  currency: "VND",
+})
 
 type ItemAction =
   | "toggle-availability"
@@ -25,10 +30,7 @@ interface MenuItemCardProps {
   isItemActionPending: (itemId: string, action: ItemAction) => boolean
 }
 
-const formatPrice = (price: number): string =>
-  currencyFormatter.format(
-    price
-  )
+const formatPrice = (price: number): string => currencyFormatter.format(price)
 
 const MenuItemCard: React.FC<MenuItemCardProps> = ({
   item,
@@ -59,129 +61,152 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
     isDeletePending
 
   return (
-    <div className="transition-smooth hover:shadow-interactive rounded-lg border border-border bg-card p-4">
-      {/* Header */}
-      <div className="mb-3 flex items-start justify-between">
-        <div className="flex items-center gap-3">
-          <div className="size-16 overflow-hidden rounded-lg bg-muted">
+    <article
+      className="rounded-lg border border-border bg-card p-4 transition-[box-shadow] hover:shadow-md motion-reduce:transition-none"
+      aria-busy={isAnyPending}
+    >
+      <div className="flex flex-col gap-3">
+        <div className="flex min-w-0 items-start gap-3">
+          <div className="size-16 shrink-0 overflow-hidden rounded-lg bg-muted">
             <Image
               src={item.images?.[0]?.url ?? ""}
               alt={item.name}
-              className="h-full w-full object-cover"
+              className="size-full object-cover"
             />
+          </div>
+          <div className="min-w-0 flex-1 pt-1">
+            <h2 className="truncate text-sm font-medium text-foreground" title={item.name}>
+              {item.name}
+            </h2>
+            <p className="truncate text-xs text-muted-foreground" title={categoryName}>
+              {categoryName}
+            </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div
+          className="grid grid-cols-5 gap-1"
+          aria-label={`Thao tác cho món ${item.name}`}
+        >
           <Button
             variant="ghost"
             size="icon"
             onClick={() => onMoveItem(item._id, "up")}
-            className="size-8"
+            className="justify-self-center"
             disabled={isAnyPending}
+            aria-label={`Đưa món ${item.name} lên`}
             title="Đưa lên"
           >
             {isMoveUpPending ? (
               <Spinner className="size-4" />
             ) : (
-              <Icon name="ChevronUp" size={16} />
+              <Icon name="ChevronUp" size={16} aria-hidden="true" />
             )}
           </Button>
           <Button
             variant="ghost"
             size="icon"
             onClick={() => onMoveItem(item._id, "down")}
-            className="size-8"
+            className="justify-self-center"
             disabled={isAnyPending}
+            aria-label={`Đưa món ${item.name} xuống`}
             title="Đưa xuống"
           >
             {isMoveDownPending ? (
               <Spinner className="size-4" />
             ) : (
-              <Icon name="ChevronDown" size={16} />
+              <Icon name="ChevronDown" size={16} aria-hidden="true" />
             )}
           </Button>
           <Button
             variant="ghost"
             size="icon"
             onClick={() => onToggleFeatured(item._id, item.is_featured)}
-            className="size-8"
+            className="justify-self-center"
             disabled={isAnyPending}
+            aria-label={
+              item.is_featured
+                ? `Bỏ nổi bật món ${item.name}`
+                : `Đánh dấu nổi bật món ${item.name}`
+            }
             title={item.is_featured ? "Bỏ nổi bật" : "Đánh dấu nổi bật"}
           >
             {isToggleFeaturedPending ? (
               <Spinner className="size-4" />
             ) : (
-              <Icon name={item.is_featured ? "StarOff" : "Star"} size={16} />
+              <Icon
+                name={item.is_featured ? "StarOff" : "Star"}
+                size={16}
+                aria-hidden="true"
+              />
             )}
           </Button>
           <Button
             variant="ghost"
             size="icon"
             onClick={() => onEdit(item)}
-            className="size-8"
+            className="justify-self-center"
             disabled={isAnyPending}
+            aria-label={`Chỉnh sửa món ${item.name}`}
+            title="Chỉnh sửa"
           >
-            <Icon name="Edit" size={16} />
+            <Icon name="Edit" size={16} aria-hidden="true" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
             onClick={() => onDelete(item._id)}
-            className="text-error hover:text-error size-8"
+            className="justify-self-center text-error hover:text-error"
             disabled={isAnyPending}
+            aria-label={`Xóa món ${item.name}`}
+            title="Xóa"
           >
             {isDeletePending ? (
               <Spinner className="size-4" />
             ) : (
-              <Icon name="Trash2" size={16} />
+              <Icon name="Trash2" size={16} aria-hidden="true" />
             )}
           </Button>
         </div>
       </div>
 
-      {/* Details */}
-      <div className="space-y-2">
-        <div>
-          <h3 className="truncate text-sm font-medium text-foreground">
-            {item.name}
-          </h3>
-          <p className="truncate text-xs text-muted-foreground">
-            {categoryName}
-          </p>
-        </div>
-
-        <div className="flex items-center justify-between">
+      <div className="mt-3 flex flex-col gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="text-sm font-semibold text-primary">
             {formatPrice(item.base_price)}
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
             {item.is_featured && (
-              <div className="flex items-center gap-1 text-warning">
-                <Icon name="Star" size={12} />
+              <span className="flex items-center gap-1 text-warning">
+                <Icon name="Star" size={12} aria-hidden="true" />
                 <span className="text-xs">Nổi bật</span>
-              </div>
+              </span>
             )}
-            {item.is_available ? (
-              <div className="flex items-center gap-1 text-success">
-                <Icon name="CheckCircle" size={12} />
-                <span className="text-xs">Kích hoạt</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 text-warning">
-                <Icon name="XCircle" size={12} />
-                <span className="text-xs">Tạm ngưng</span>
-              </div>
-            )}
+            <span
+              className={
+                item.is_available
+                  ? "flex items-center gap-1 text-success"
+                  : "flex items-center gap-1 text-warning"
+              }
+            >
+              <Icon
+                name={item.is_available ? "CheckCircle" : "XCircle"}
+                size={12}
+                aria-hidden="true"
+              />
+              <span className="text-xs">
+                {item.is_available ? "Kích hoạt" : "Tạm ngưng"}
+              </span>
+            </span>
           </div>
         </div>
 
-        <div className="text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Cập nhật:{" "}
           {new Date(item.updated_at || item.created_at).toLocaleDateString(
             "vi-VN"
           )}
-        </div>
+        </p>
 
         <div className="border-t border-border pt-2">
           <Button
@@ -189,14 +214,20 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
             size="sm"
             fullWidth
             onClick={() => onToggleAvailability(item._id, item.is_available)}
-            iconName={item.is_available ? "XCircle" : "CheckCircle"}
+            iconName={
+              isToggleAvailabilityPending
+                ? undefined
+                : item.is_available
+                  ? "XCircle"
+                  : "CheckCircle"
+            }
             iconPosition="left"
             disabled={isAnyPending}
           >
             {isToggleAvailabilityPending ? (
               <span className="inline-flex items-center gap-2">
                 <Spinner className="size-4" />
-                Đang cập nhật...
+                Đang cập nhật…
               </span>
             ) : item.is_available ? (
               "Tạm ngưng"
@@ -206,7 +237,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
           </Button>
         </div>
       </div>
-    </div>
+    </article>
   )
 }
 

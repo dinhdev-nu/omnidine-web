@@ -6,10 +6,6 @@ import { PosProvider } from "@/features/pos/contexts/PosContext"
 import { usePosContext } from "@/features/pos/contexts/usePosContext"
 import { Spinner } from "@/features/pos/ui/Spinner"
 import RejectToPreviousPage from "@/components/navigation/RejectToPreviousPage"
-import {
-  demoNotifications,
-  getRelativeTime,
-} from "@/features/pos/mocks/pos-mock"
 import { fetchPosInit } from "@/services/pos"
 import { toAppError } from "@/services/core/error"
 import type { AppError } from "@/services/core/types"
@@ -198,10 +194,8 @@ const PosPageContent: React.FC<{ slug: string }> = ({ slug }) => {
 
   return (
     <PosLayout
-      notifications={demoNotifications}
       isOperational={isOperational}
       onToggleOperational={handleToggleOperational}
-      getRelativeTime={getRelativeTime}
       activeSection={activeSection}
       onSectionChange={handleSectionChange}
     >

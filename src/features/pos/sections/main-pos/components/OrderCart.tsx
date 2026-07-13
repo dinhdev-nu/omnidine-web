@@ -34,6 +34,8 @@ const OrderCart = ({
   selectedTable = null,
   onTableChange,
   tableOptions = EMPTY_TABLE_OPTIONS,
+  isLoadingTables = false,
+  tablesError = null,
   discountType = "percent",
   discountValue = 0,
   hideDiscount = false,
@@ -83,6 +85,8 @@ const OrderCart = ({
           selectedTable={selectedTable}
           onTableChange={onTableChange}
           tableOptions={tableOptions}
+          isLoadingTables={isLoadingTables}
+          tablesError={tablesError}
         />
       </div>
 

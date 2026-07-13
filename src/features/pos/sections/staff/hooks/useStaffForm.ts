@@ -51,20 +51,26 @@ export function useStaffForm(restaurantId: string, onSuccess: () => void) {
     const [showStaffModal, setShowStaffModal] = React.useState(false);
     const [staffModalMode, setStaffModalMode] = React.useState<StaffFormMode>('add');
     const [isSubmitting, setIsSubmitting] = React.useState(false);
+    const [isInitializing, setIsInitializing] = React.useState(false);
     const [editingStaffId, setEditingStaffId] = React.useState<string | null>(null);
     const [staffFormData, setStaffFormData] = React.useState<StaffFormData>(DEFAULT_FORM_DATA);
     
     // Track the original detail to compare diffs (like avatar/status changes)
     const [originalDetail, setOriginalDetail] = React.useState<StaffDetail | null>(null);
+    const staffModalTriggerRef = React.useRef<HTMLElement | null>(null);
 
     const resetForm = React.useCallback(() => {
         setStaffFormData(DEFAULT_FORM_DATA);
         setOriginalDetail(null);
     }, []);
 
-    const openAddModal = React.useCallback(() => {
+    const openAddModal = React.useCallback((trigger?: HTMLElement) => {
+        staffModalTriggerRef.current = trigger?.isConnected
+            ? trigger
+            : document.activeElement as HTMLElement | null;
         setStaffModalMode('add');
         setEditingStaffId(null);
+        setIsInitializing(false);
         resetForm();
         setShowStaffModal(true);
     }, [resetForm]);
@@ -74,8 +80,11 @@ export function useStaffForm(restaurantId: string, onSuccess: () => void) {
         externalDetailSetter?: (detail: StaffDetail) => void,
         knownDetail?: StaffDetail | null,
     ) => {
+        staffModalTriggerRef.current = document.activeElement as HTMLElement | null;
         setStaffModalMode('edit');
         setEditingStaffId(staff.id);
+        resetForm();
+        setIsInitializing(true);
         setShowStaffModal(true);
 
         try {
@@ -105,8 +114,11 @@ export function useStaffForm(restaurantId: string, onSuccess: () => void) {
             });
         } catch (error) {
             toast.error(toStaffEndpointError('detail', error).message);
+            setShowStaffModal(false);
+        } finally {
+            setIsInitializing(false);
         }
-    }, [restaurantId]);
+    }, [restaurantId, resetForm]);
 
     const handleFieldChange = React.useCallback((field: keyof StaffFormData, value: string | typeof DEFAULT_FORM_DATA.permissions) => {
         setStaffFormData((prev) => ({ ...prev, [field]: value }));
@@ -336,11 +348,13 @@ export function useStaffForm(restaurantId: string, onSuccess: () => void) {
         setShowStaffModal,
         staffModalMode,
         isSubmitting,
+        isInitializing,
         staffFormData,
         handleFieldChange,
         handleSubmit,
         openAddModal,
         openEditModal,
-        resetForm
+        resetForm,
+        staffModalTriggerRef,
     };
 }

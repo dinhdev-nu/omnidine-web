@@ -1,3 +1,5 @@
+import { useRef } from "react"
+
 import Button from "../../../ui/Button"
 import Icon from "../../../ui/AppIcon"
 import {
@@ -28,6 +30,7 @@ function OrderTableDetailItemRow({
 }: OrderTableDetailItemRowProps) {
   const isCancelled = item.status === "cancelled"
   const itemId = item._id || ""
+  const actionsTriggerRef = useRef<HTMLButtonElement>(null)
 
   return (
     <div
@@ -67,11 +70,13 @@ function OrderTableDetailItemRow({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
+                  ref={actionsTriggerRef}
                   variant="ghost"
                   size="icon"
-                  className="ml-1 h-6 w-6 text-muted-foreground hover:text-foreground"
+                  className="ml-1 text-muted-foreground hover:text-foreground"
+                  aria-label={`Mở thao tác cho ${item.item_name}`}
                 >
-                  <Icon name="MoreVertical" size={14} />
+                  <Icon name="MoreVertical" size={14} aria-hidden="true" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-36">
@@ -99,7 +104,13 @@ function OrderTableDetailItemRow({
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-destructive focus:text-destructive"
-                  onClick={() => onCancelOrderItemClick?.(order, itemId)}
+                  onClick={() =>
+                    onCancelOrderItemClick?.(
+                      order,
+                      itemId,
+                      actionsTriggerRef.current
+                    )
+                  }
                 >
                   Hủy món
                 </DropdownMenuItem>

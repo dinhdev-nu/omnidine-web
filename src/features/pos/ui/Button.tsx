@@ -35,19 +35,20 @@ const variantStyles: Record<ButtonVariant, string> = {
   ghost: "hover:bg-muted hover:text-foreground",
   secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
   success:
-    "bg-green-600 text-white hover:bg-green-700 focus-visible:ring-green-600",
+    "bg-success text-white hover:bg-success/90 focus-visible:ring-success",
   warning:
-    "bg-yellow-600 text-white hover:bg-yellow-700 focus-visible:ring-yellow-600",
-  error: "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600",
+    "bg-warning text-foreground hover:bg-warning/90 focus-visible:ring-warning",
+  error:
+    "bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:ring-destructive",
   link: "text-primary underline-offset-4 hover:underline",
 }
 
 const sizeStyles: Record<ButtonSize, string> = {
-  xs: "h-7 px-2 text-xs rounded-md",
-  sm: "h-9 px-3 text-sm rounded-md",
-  default: "h-10 px-4 text-sm rounded-lg",
+  xs: "h-11 px-2 text-xs rounded-md",
+  sm: "h-11 px-3 text-sm rounded-md",
+  default: "h-11 px-4 text-sm rounded-lg",
   lg: "h-11 px-6 text-base rounded-lg",
-  icon: "h-10 w-10 p-0 rounded-lg",
+  icon: "size-11 p-0 rounded-lg",
 }
 
 const iconSizes: Record<ButtonSize, number> = {
@@ -85,8 +86,8 @@ const Button = ({
       disabled={disabled}
       className={cn(
         // Base styles
-        "inline-flex items-center justify-center font-medium",
-        "transition-all duration-200 ease-in-out",
+        "inline-flex shrink-0 touch-manipulation items-center justify-center font-medium",
+        "transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-200 ease-in-out motion-reduce:transition-none",
         "focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
         "disabled:pointer-events-none disabled:opacity-50",
         "select-none",

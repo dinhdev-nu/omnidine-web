@@ -15,7 +15,11 @@ export interface OrderTableMobileCardProps {
     itemId: string,
     status: AllowedOrderItemStatusUpdate
   ) => void
-  onCancelOrderItemClick?: (order: Order, itemId: string) => void
+  onCancelOrderItemClick?: (
+    order: Order,
+    itemId: string,
+    returnFocusElement?: HTMLElement | null
+  ) => void
   onEditDiscountClick?: (order: Order) => void
 }
 

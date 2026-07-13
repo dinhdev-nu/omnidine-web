@@ -39,12 +39,18 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
   const allCount = Object.values(itemCounts).reduce((sum, count) => sum + count, 0);
 
   return (
-    <div className="flex items-center gap-2 overflow-x-auto pb-2">
+    <div
+      className="flex items-center gap-2 overflow-x-auto overscroll-x-contain pb-2"
+      role="group"
+      aria-label="Lọc nhanh theo danh mục"
+      tabIndex={0}
+    >
       <Button
         variant={selectedCategory === 'all' ? 'default' : 'outline'}
         size="sm"
         onClick={() => onCategoryChange('all')}
         className="flex-shrink-0"
+        aria-pressed={selectedCategory === 'all'}
       >
         <span>Tất cả</span>
         {allCount > 0 && (
@@ -64,14 +70,15 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
             variant={isSelected ? 'default' : 'outline'}
             size="sm"
             onClick={() => onCategoryChange(category.id)}
-            className="flex-shrink-0"
+            className="max-w-[min(18rem,calc(100vw-4rem))] flex-shrink-0"
+            aria-pressed={isSelected}
           >
             {category.imageUrl && (
               <span className="mr-2 size-5 overflow-hidden rounded-full border border-border">
                 <Image src={category.imageUrl} alt={category.name} className="h-full w-full object-cover" />
               </span>
             )}
-            <span>{category.name}</span>
+            <span className="truncate">{category.name}</span>
             {count > 0 && (
               <span className={getBadgeClass(isSelected)}>
                 {count}

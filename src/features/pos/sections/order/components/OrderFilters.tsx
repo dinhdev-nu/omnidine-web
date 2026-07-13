@@ -57,16 +57,6 @@ const SOURCE_OPTIONS = [
   { value: 'phone', label: 'Điện thoại' },
 ];
 
-const TABLE_OPTIONS = [
-  { value: 'all', label: 'Tất cả bàn' },
-  { value: 'takeaway', label: 'Mang về' },
-  { value: 'delivery', label: 'Giao hàng' },
-  ...Array.from({ length: 20 }, (_, i) => ({
-    value: `table-${i + 1}`,
-    label: `Bàn ${i + 1}`,
-  })),
-];
-
 // ── Component ──────────────────────────────────────────────────────────────────
 
 const OrderFilters: React.FC<OrderFiltersProps> = ({
@@ -74,33 +64,36 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
   onFilterChange,
   onClearFilters,
 }) => (
-  <div className="mb-3 rounded-lg border border-border bg-card p-3">
-    <div className="mb-2 flex items-center justify-between">
-      <h3 className="text-lg font-semibold text-foreground">Bộ lọc tìm kiếm</h3>
-      <div className="flex items-center gap-2">
+  <section aria-labelledby="order-filters-heading" className="rounded-lg border border-border bg-card p-3 sm:p-4">
+    <div className="mb-3 flex flex-col gap-3 min-[390px]:flex-row min-[390px]:items-center min-[390px]:justify-between">
+      <h2 id="order-filters-heading" className="text-lg font-semibold text-foreground">Bộ lọc tìm kiếm</h2>
+      <div className="flex">
         <Button
           variant="ghost"
           size="sm"
           iconName="RotateCcw"
           iconPosition="left"
           onClick={onClearFilters}
-          className="hover-scale"
+          className="w-full hover-scale min-[390px]:w-auto"
         >
           Xóa bộ lọc
         </Button>
       </div>
     </div>
 
-    <div className="mb-2 grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-5">
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
       <Input
         type="date"
         label="Ngày"
+        name="order-date"
+        autoComplete="off"
         value={filters.date}
         onChange={(e) => onFilterChange('date', e.target.value)}
         className="w-full"
       />
       <Select
         label="Trạng thái đơn"
+        name="order-status"
         options={STATUS_OPTIONS}
         value={filters.status ?? 'all'}
         onChange={(event) => onFilterChange('status', event.target.value)}
@@ -108,28 +101,32 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
       />
       <Select
         label="TT Thanh toán"
+        name="order-payment-status"
         options={PAYMENT_STATUS_OPTIONS}
         value={filters.paymentStatus ?? 'all'}
         onChange={(event) => onFilterChange('paymentStatus', event.target.value)}
         className="w-full"
       />
-      <Select
-        label="Bàn/Khu vực"
-        options={TABLE_OPTIONS}
-        value={filters.table ?? 'all'}
+      <Input
+        type="search"
+        label="Mã bàn"
+        name="order-table"
+        autoComplete="off"
+        placeholder="Nhập mã bàn…"
+        value={filters.table ?? ''}
         onChange={(event) => onFilterChange('table', event.target.value)}
-        searchable
         className="w-full"
       />
       <Select
         label="Nguồn đơn"
+        name="order-source"
         options={SOURCE_OPTIONS}
         value={filters.source ?? 'all'}
         onChange={(event) => onFilterChange('source', event.target.value)}
         className="w-full"
       />
     </div>
-  </div>
+  </section>
 );
 
 export default OrderFilters;

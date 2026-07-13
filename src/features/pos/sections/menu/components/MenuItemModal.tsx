@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 import {
   DEFAULT_MENU_ITEM,
   EMPTY_CATEGORIES,
@@ -27,11 +28,10 @@ const MenuItemModal: React.FC<MenuItemModalProps> = ({
   onImageFileChange,
   onAddImageUrl,
   onRemoveImageAt,
+  returnFocusRef,
 }) => {
   const [uploadMethod, setUploadMethod] = useState<UploadMethod>("upload")
   const [pendingImageUrl, setPendingImageUrl] = useState("")
-
-  if (!isOpen) return null
 
   const formData = item ?? DEFAULT_MENU_ITEM
   const categoryOptions = categories.map((cat) => ({
@@ -49,48 +49,73 @@ const MenuItemModal: React.FC<MenuItemModalProps> = ({
   const imagePreviews = imagePreviewUrls
 
   return (
-    <div className="fixed inset-0 z-[1200] flex items-center justify-center overflow-hidden">
-      <button
-        type="button"
-        aria-label="Đóng modal món ăn"
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open && !isLoading) onClose()
+      }}
+    >
+      <DialogContent
+        showCloseButton={false}
+        overlayClassName="bg-black/50"
+        className="flex max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-2xl flex-col gap-0 overflow-hidden rounded-lg border border-border bg-card p-0 shadow-xl sm:max-w-2xl"
+        aria-busy={isLoading}
+        onEscapeKeyDown={(event) => {
+          if (isLoading) event.preventDefault()
+        }}
+        onPointerDownOutside={(event) => {
+          if (isLoading) event.preventDefault()
+        }}
+        onCloseAutoFocus={(event) => {
+          const trigger = returnFocusRef?.current
+          if (trigger?.isConnected) {
+            event.preventDefault()
+            trigger.focus()
+          }
+        }}
+      >
+        <form
+          noValidate
+          className="flex min-h-0 flex-1 flex-col overflow-hidden"
+          onSubmit={(event) => {
+            event.preventDefault()
+            if (!isLoading) onSave(formData)
+          }}
+        >
+          <MenuItemModalHeader
+            isEditing={isEditing}
+            isLoading={isLoading}
+          />
 
-      <div className="shadow-modal relative mx-4 max-h-[90vh] w-full max-w-2xl animate-in overflow-hidden rounded-lg border border-border bg-card duration-200 zoom-in-95 fade-in">
-        <MenuItemModalHeader isEditing={isEditing} onClose={onClose} />
-
-        <div className="max-h-[calc(90vh-140px)] space-y-6 overflow-y-auto p-6">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <MenuItemDetailsFields
-              formData={formData}
-              categoryOptions={categoryOptions}
-              errors={errors}
-              isEditing={isEditing}
-              onFieldChange={onFieldChange}
-            />
-            <MenuItemImageFields
-              uploadMethod={uploadMethod}
-              setUploadMethod={setUploadMethod}
-              pendingImageUrl={pendingImageUrl}
-              setPendingImageUrl={setPendingImageUrl}
-              handleFileUpload={handleFileUpload}
-              imagePreviews={imagePreviews}
-              onAddImageUrl={onAddImageUrl}
-              onRemoveImageAt={onRemoveImageAt}
-            />
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <MenuItemDetailsFields
+                formData={formData}
+                categoryOptions={categoryOptions}
+                errors={errors}
+                isEditing={isEditing}
+                onFieldChange={onFieldChange}
+              />
+              <MenuItemImageFields
+                uploadMethod={uploadMethod}
+                setUploadMethod={setUploadMethod}
+                pendingImageUrl={pendingImageUrl}
+                setPendingImageUrl={setPendingImageUrl}
+                handleFileUpload={handleFileUpload}
+                imagePreviews={imagePreviews}
+                onAddImageUrl={onAddImageUrl}
+                onRemoveImageAt={onRemoveImageAt}
+              />
+            </div>
           </div>
-        </div>
 
-        <MenuItemModalFooter
-          isLoading={isLoading}
-          isEditing={isEditing}
-          formData={formData}
-          onClose={onClose}
-          onSave={onSave}
-        />
-      </div>
-    </div>
+          <MenuItemModalFooter
+            isLoading={isLoading}
+            isEditing={isEditing}
+          />
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 

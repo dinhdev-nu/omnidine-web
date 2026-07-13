@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useReducer } from "react"
+import { useCallback, useMemo, useReducer, useRef } from "react"
 import { useFetch } from "@/hooks/useFetch"
 import { usePosContext } from "@/features/pos/contexts/usePosContext"
 import { ClearCartDialog } from "./components/ClearCartDialog"
@@ -35,7 +35,11 @@ function MainPosSection() {
     [normalizedRestaurantId]
   )
 
-  const { data: availableTablesData } = useFetch(
+  const {
+    data: availableTablesData,
+    isLoading: isLoadingTables,
+    error: tablesError,
+  } = useFetch(
     fetchAvailableActiveTables,
     availableTablesFetchArgs,
     {
@@ -43,11 +47,17 @@ function MainPosSection() {
     }
   )
 
-  const { uiCategories, uiMenuItems } = useMainPosMenuData({
+  const {
+    uiCategories,
+    uiMenuItems,
+    isLoadingMenuData,
+    menuError,
+  } = useMainPosMenuData({
     restaurantId,
     activeCategory: state.activeCategory,
     searchQuery: state.searchQuery,
   })
+  const mobileCartTriggerRef = useRef<HTMLButtonElement>(null)
 
   const handleAddToCart = useCallback((item: PosOrderItemInput) => {
     dispatch({ type: "addToCart", item })
@@ -89,19 +99,15 @@ function MainPosSection() {
 
   const tableOptions = useMemo(() => {
     const tables = availableTablesData?.data ?? []
-    return tables.map((table) => {
+    return tables.flatMap((table) => {
       const tableId = table._id || table.id
-      if (!tableId) {
-        console.warn("Table missing ID:", table)
-        return {
-          value: "",
-          label: `${table.table_number} (NO ID)`,
-        }
-      }
-      return {
-        value: tableId,
-        label: `${table.table_number}${table.name?.trim() ? ` - ${table.name.trim()}` : ""} (${table.capacity})`,
-      }
+      if (!tableId) return []
+      return [
+        {
+          value: tableId,
+          label: `${table.table_number}${table.name?.trim() ? ` - ${table.name.trim()}` : ""} (${table.capacity})`,
+        },
+      ]
     })
   }, [availableTablesData])
 
@@ -142,11 +148,12 @@ function MainPosSection() {
     <>
       <div className="relative flex h-full min-h-0 flex-col lg:flex-row">
         <MainPosMenuPanel
-          showMobileCart={state.showMobileCart}
           searchQuery={state.searchQuery}
           activeCategory={state.activeCategory}
           uiCategories={uiCategories}
           uiMenuItems={uiMenuItems}
+          isLoading={isLoadingMenuData}
+          error={menuError}
           onSearchQueryChange={(value) =>
             dispatch({ type: "setSearchQuery", value })
           }
@@ -159,6 +166,8 @@ function MainPosSection() {
         <MainPosCartPanel
           state={state}
           tableOptions={tableOptions}
+          isLoadingTables={isLoadingTables}
+          tablesError={tablesError}
           staffOptions={staffOptions}
           orderNumber={hookOrderNumber}
           isCreatingOrder={isCreatingOrder}
@@ -185,6 +194,7 @@ function MainPosSection() {
           onHideMobileCart={() =>
             dispatch({ type: "setShowMobileCart", value: false })
           }
+          mobileCartTriggerRef={mobileCartTriggerRef}
         />
       </div>
 
@@ -192,6 +202,7 @@ function MainPosSection() {
         cartItems={state.cartItems}
         totalItems={totalItems}
         onOpen={() => dispatch({ type: "setShowMobileCart", value: true })}
+        triggerRef={mobileCartTriggerRef}
       />
 
       <ClearCartDialog

@@ -34,6 +34,7 @@ export interface MenuItemModalProps {
   onImageFileChange: (files: File[]) => void
   onAddImageUrl: (url: string) => void
   onRemoveImageAt: (index: number) => void
+  returnFocusRef?: React.RefObject<HTMLElement | null>
 }
 
 export type UploadMethod = "upload" | "url"
@@ -42,7 +43,7 @@ export type CategoryOption = { value: string; label: string }
 
 export interface MenuItemModalHeaderProps {
   isEditing: boolean
-  onClose: () => void
+  isLoading: boolean
 }
 
 export interface MenuItemDetailsFieldsProps {
@@ -67,7 +68,4 @@ export interface MenuItemImageFieldsProps {
 export interface MenuItemModalFooterProps {
   isLoading: boolean
   isEditing: boolean
-  formData: MenuItemFormData
-  onClose: () => void
-  onSave: (data: MenuItemFormData) => void
 }

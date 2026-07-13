@@ -1,8 +1,15 @@
-import React from "react"
+import { useRef, type ReactNode, type RefObject } from "react"
 
+import Icon from "@/components/AppIcon"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 
-import Icon from "./AppIcon"
 import Button from "./Button"
 import { Spinner } from "./Spinner"
 
@@ -17,7 +24,8 @@ export interface ConfirmationDialogProps {
   variant?: "default" | "danger" | "warning" | "success"
   icon?: string
   isLoading?: boolean
-  children?: React.ReactNode
+  children?: ReactNode
+  returnFocusRef?: RefObject<HTMLElement | null>
 }
 
 const variantStyles = {
@@ -39,7 +47,7 @@ const variantStyles = {
   },
 }
 
-const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
+const ConfirmationDialog = ({
   isOpen,
   onClose,
   onConfirm,
@@ -51,107 +59,88 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   icon = "AlertCircle",
   isLoading = false,
   children,
-}) => {
-  const titleId = React.useId()
-  const descriptionId = React.useId()
+  returnFocusRef,
+}: ConfirmationDialogProps) => {
   const styles = variantStyles[variant]
-  const handleClose = React.useCallback(() => {
-    if (!isLoading) {
-      onClose()
-    }
-  }, [isLoading, onClose])
-  const handleDialogRef = React.useCallback(
-    (dialog: HTMLDialogElement | null) => {
-      if (dialog && !dialog.open) {
-        dialog.showModal()
-      }
-    },
-    []
-  )
-
-  if (!isOpen) return null
+  const fallbackReturnFocusRef = useRef<HTMLElement | null>(null)
+  const handleClose = () => {
+    if (!isLoading) onClose()
+  }
 
   return (
-    <dialog
-      ref={handleDialogRef}
-      className="fixed inset-0 z-[1300] m-0 flex size-full max-h-none max-w-none items-center justify-center overflow-hidden border-0 bg-transparent p-4 text-inherit backdrop:bg-transparent"
-      aria-labelledby={titleId}
-      aria-describedby={descriptionId}
-      onCancel={(event) => {
-        event.preventDefault()
-        handleClose()
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) handleClose()
       }}
     >
-      <button
-        type="button"
-        aria-label="ÄÃ³ng há»™p thoáº¡i"
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={handleClose}
-      />
-
-      <div
-        className={cn(
-          "shadow-modal relative mx-4 w-full max-w-md overflow-hidden rounded-lg border border-border bg-card",
-          "animate-in duration-200 zoom-in-95 fade-in"
-        )}
-        aria-labelledby={titleId}
-        aria-describedby={descriptionId}
-        onClick={(event) => event.stopPropagation()}
+      <DialogContent
+        showCloseButton={false}
+        overlayClassName="z-[1300] bg-black/50 backdrop-blur-sm"
+        className="z-[1301] w-[calc(100%-2rem)] max-w-md gap-0 overflow-hidden p-0 sm:max-w-md"
+        onOpenAutoFocus={() => {
+          fallbackReturnFocusRef.current =
+            document.activeElement as HTMLElement | null
+        }}
+        onCloseAutoFocus={(event) => {
+          const trigger = returnFocusRef?.current ?? fallbackReturnFocusRef.current
+          if (trigger?.isConnected) {
+            event.preventDefault()
+            trigger.focus()
+          }
+        }}
       >
-        <div className="flex items-center justify-between border-b border-border p-6">
+        <div className="flex min-w-0 items-center justify-between gap-3 border-b border-border p-4 sm:p-6">
           <div className="flex min-w-0 items-center gap-3">
             <div
+              aria-hidden="true"
               className={cn(
-                "flex size-8 shrink-0 items-center justify-center rounded-lg",
+                "flex size-10 shrink-0 items-center justify-center rounded-lg",
                 styles.iconWrapper
               )}
             >
               <Icon name={icon} size={20} aria-hidden="true" />
             </div>
-
-            <h3
-              id={titleId}
-              className="min-w-0 text-xl font-semibold text-pretty text-foreground"
-            >
+            <DialogTitle className="min-w-0 text-xl text-pretty text-foreground">
               {title}
-            </h3>
+            </DialogTitle>
           </div>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleClose}
-            disabled={isLoading}
-            className="hover-scale"
-            aria-label="Đóng hộp thoại"
-          >
-            <Icon name="X" size={20} aria-hidden="true" />
-          </Button>
+          <DialogClose asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Đóng hộp thoại"
+              disabled={isLoading}
+              className="shrink-0 hover-scale"
+            >
+              <Icon name="X" size={20} aria-hidden="true" />
+            </Button>
+          </DialogClose>
         </div>
 
-        <div className="max-h-[calc(90vh-144px)] overflow-y-auto p-6">
-          <p
-            id={descriptionId}
-            className="text-sm leading-relaxed break-words text-muted-foreground"
-          >
+        <div className="max-h-[calc(100dvh-15rem)] overflow-y-auto overscroll-contain p-4 sm:p-6">
+          <DialogDescription className="leading-relaxed break-words">
             {message}
-          </p>
+          </DialogDescription>
           {children}
         </div>
 
-        <div className="flex flex-col-reverse gap-3 border-t border-border p-6 sm:flex-row sm:justify-end">
-          <Button
-            variant="outline"
-            onClick={handleClose}
-            disabled={isLoading}
-            className="w-full sm:w-auto"
-          >
-            {cancelText}
-          </Button>
+        <div className="flex flex-col-reverse gap-3 border-t border-border bg-card p-4 sm:flex-row sm:justify-end sm:p-6">
+          <DialogClose asChild>
+            <Button
+              variant="outline"
+              disabled={isLoading}
+              className="w-full sm:w-auto"
+            >
+              {cancelText}
+            </Button>
+          </DialogClose>
           <Button
             variant={styles.confirmButton}
             onClick={onConfirm}
             disabled={isLoading}
+            aria-busy={isLoading}
             className="w-full sm:w-auto"
           >
             {isLoading ? (
@@ -164,8 +153,8 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
             )}
           </Button>
         </div>
-      </div>
-    </dialog>
+      </DialogContent>
+    </Dialog>
   )
 }
 

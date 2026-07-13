@@ -86,6 +86,8 @@ const StaffSection: React.FC = () => {
     staffUiReducer,
     staffUiInitialState
   )
+  const [isDetailLoading, setIsDetailLoading] = React.useState(false)
+  const detailRequestIdRef = React.useRef(0)
   const {
     viewMode,
     showDetailsModal,
@@ -97,6 +99,9 @@ const StaffSection: React.FC = () => {
   const {
     staffData,
     isLoadingData,
+    listError,
+    retry,
+    pendingStaffIds,
     total,
     page,
     setPage,
@@ -116,15 +121,22 @@ const StaffSection: React.FC = () => {
     setShowStaffModal,
     staffModalMode,
     isSubmitting,
+    isInitializing,
     staffFormData,
     handleFieldChange,
     handleSubmit,
     openAddModal,
     openEditModal,
     resetForm,
+    staffModalTriggerRef,
   } = useStaffForm(restaurantId, refetch)
+  const staffDetailsTriggerRef = React.useRef<HTMLElement | null>(null)
 
   const isCardsView = viewMode === "cards"
+  const isStaffBusy = React.useCallback(
+    (staffId: string) => pendingStaffIds.has(staffId),
+    [pendingStaffIds]
+  )
 
   const setSelectedStaffDetail = React.useCallback((detail: StaffDetail) => {
     dispatchStaffUi({ type: "setSelectedStaffDetail", detail })
@@ -141,8 +153,17 @@ const StaffSection: React.FC = () => {
     dispatchStaffUi({ type: "showDetails", detail })
   }, [])
 
+  const handleCloseDetails = React.useCallback(() => {
+    detailRequestIdRef.current += 1
+    setIsDetailLoading(false)
+    dispatchStaffUi({ type: "closeDetails" })
+  }, [])
+
   const handleViewDetails = React.useCallback(
     async (staff: StaffSummary) => {
+      staffDetailsTriggerRef.current = document.activeElement as HTMLElement | null
+      const requestId = detailRequestIdRef.current + 1
+      detailRequestIdRef.current = requestId
       const fallbackDetail: StaffDetail = {
         _id: staff.id,
         restaurant_id: restaurantId,
@@ -161,13 +182,22 @@ const StaffSection: React.FC = () => {
         updated_at: staff.created_at,
       }
 
+      setIsDetailLoading(true)
       showStaffDetails(fallbackDetail)
 
       try {
         const detail = await getRestaurantStaffDetail(restaurantId, staff.id)
-        showStaffDetails(detail)
+        if (detailRequestIdRef.current === requestId) {
+          showStaffDetails(detail)
+        }
       } catch (error) {
-        toast.error(toStaffEndpointError("detail", error).message)
+        if (detailRequestIdRef.current === requestId) {
+          toast.error(toStaffEndpointError("detail", error).message)
+        }
+      } finally {
+        if (detailRequestIdRef.current === requestId) {
+          setIsDetailLoading(false)
+        }
       }
     },
     [restaurantId, showStaffDetails]
@@ -182,14 +212,14 @@ const StaffSection: React.FC = () => {
 
   const handleEditStaffFromDetails = React.useCallback(
     (staff: StaffSummary, detail?: StaffDetail | null) => {
-      dispatchStaffUi({ type: "closeDetails" })
+      handleCloseDetails()
       void openEditModal(
         staff,
         setSelectedStaffDetail,
         detail ?? selectedStaffDetail
       )
     },
-    [openEditModal, selectedStaffDetail, setSelectedStaffDetail]
+    [handleCloseDetails, openEditModal, selectedStaffDetail, setSelectedStaffDetail]
   )
 
   const handleDeleteRequest = React.useCallback((staff: StaffSummary) => {
@@ -212,109 +242,143 @@ const StaffSection: React.FC = () => {
   )
 
   return (
-    <div>
-      {isLoadingData ? (
-        <div className="flex items-center justify-center gap-3 p-6 text-muted-foreground">
-          <Spinner className="size-5" />
-          <span className="text-sm">Đang tải danh sách nhân viên...</span>
-        </div>
-      ) : (
-        <div className="p-6">
-          <div className="mb-8">
-            <StaffHeader onAddStaff={openAddModal} />
-            <StaffStatsCards stats={staffStats} />
+    <section aria-labelledby="staff-section-title">
+      <div className="p-4 sm:p-6">
+        <StaffHeader onAddStaff={openAddModal} />
+
+        {isLoadingData ? (
+          <div
+            role="status"
+            aria-live="polite"
+            className="flex min-h-48 items-center justify-center gap-3 rounded-lg border border-border bg-card p-6 text-muted-foreground"
+          >
+            <Spinner className="size-5" aria-hidden="true" />
+            <span className="text-sm">Đang tải danh sách nhân viên…</span>
           </div>
+        ) : listError ? (
+          <div
+            role="alert"
+            className="flex min-h-48 flex-col items-center justify-center gap-4 rounded-lg border border-error/30 bg-error/5 p-6 text-center"
+          >
+            <Icon name="CircleAlert" size={32} className="text-error" aria-hidden="true" />
+            <div className="max-w-xl">
+              <h2 className="text-lg font-semibold text-foreground">
+                Không thể tải danh sách nhân viên
+              </h2>
+              <p className="mt-1 break-words text-muted-foreground">
+                {listError}
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              iconName="RefreshCw"
+              iconPosition="left"
+              onClick={() => void retry()}
+            >
+              Thử lại
+            </Button>
+          </div>
+        ) : (
+          <>
+            <StaffStatsCards stats={staffStats} />
 
-          <StaffFilters
-            filterRole={filterRole}
-            filterStatus={filterStatus}
-            viewMode={viewMode}
-            onRoleChange={handleRoleChange}
-            onStatusChange={handleStatusChange}
-            onViewModeChange={handleViewModeChange}
-          />
+            <StaffFilters
+              filterRole={filterRole}
+              filterStatus={filterStatus}
+              viewMode={viewMode}
+              onRoleChange={handleRoleChange}
+              onStatusChange={handleStatusChange}
+              onViewModeChange={handleViewModeChange}
+            />
 
-          {isCardsView ? (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {staffData.map((staff) => (
-                <StaffCard
-                  key={staff.id}
-                  staff={staff}
+            {staffData.length > 0 &&
+              (isCardsView ? (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 xl:gap-6">
+                  {staffData.map((staff) => (
+                    <StaffCard
+                      key={staff.id}
+                      staff={staff}
+                      isBusy={isStaffBusy(staff.id)}
+                      onEdit={handleEditStaff}
+                      onToggleStatus={toggleStatus}
+                      onViewDetails={handleViewDetails}
+                      onDelete={handleDeleteRequest}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <StaffTable
+                  staff={staffData}
+                  isStaffBusy={isStaffBusy}
                   onEdit={handleEditStaff}
                   onToggleStatus={toggleStatus}
                   onViewDetails={handleViewDetails}
                   onDelete={handleDeleteRequest}
                 />
               ))}
-            </div>
-          ) : (
-            <StaffTable
-              staff={staffData}
-              onEdit={handleEditStaff}
-              onToggleStatus={toggleStatus}
-              onViewDetails={handleViewDetails}
-              onDelete={handleDeleteRequest}
-            />
-          )}
 
-          {total > limit && (
-            <div className="mt-6 flex items-center justify-end gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => p - 1)}
+            {total > limit && (
+              <nav
+                aria-label="Phân trang danh sách nhân viên"
+                className="mt-6 flex items-center justify-between gap-3 sm:justify-end"
               >
-                Trước
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                Trang {page}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page * limit >= total}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                Sau
-              </Button>
-            </div>
-          )}
-
-          {staffData.length === 0 && (
-            <div className="py-12 text-center">
-              <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-muted">
-                <Icon
-                  name="Users"
-                  size={32}
-                  className="text-muted-foreground"
-                />
-              </div>
-              <h3 className="mb-2 text-lg font-medium text-foreground">
-                {filterRole || filterStatus
-                  ? "Không tìm thấy kết quả tìm kiếm"
-                  : "Chưa có nhân viên nào"}
-              </h3>
-              <p className="mb-6 text-muted-foreground">
-                {filterRole || filterStatus
-                  ? "Thử thay đổi bộ lọc hoặc bỏ lọc để xem toàn bộ"
-                  : "Thêm nhân viên đầu tiên để bắt đầu quản lý"}
-              </p>
-              {!filterRole && !filterStatus && (
                 <Button
-                  variant="default"
-                  onClick={openAddModal}
-                  iconName="UserPlus"
-                  iconPosition="left"
-                  className="hover-scale"
+                  variant="outline"
+                  size="sm"
+                  disabled={page <= 1}
+                  onClick={() => setPage((currentPage) => currentPage - 1)}
                 >
-                  Thêm nhân viên đầu tiên
+                  Trước
                 </Button>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+                <span aria-live="polite" className="text-sm text-muted-foreground">
+                  Trang {page}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page * limit >= total}
+                  onClick={() => setPage((currentPage) => currentPage + 1)}
+                >
+                  Sau
+                </Button>
+              </nav>
+            )}
+
+            {staffData.length === 0 && (
+              <div role="status" className="py-10 text-center sm:py-12">
+                <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-muted">
+                  <Icon
+                    name="Users"
+                    size={32}
+                    className="text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                </div>
+                <h2 className="text-lg font-medium text-foreground">
+                  {filterRole || filterStatus
+                    ? "Không tìm thấy nhân viên phù hợp"
+                    : "Chưa có nhân viên nào"}
+                </h2>
+                <p className="mx-auto mt-2 mb-6 max-w-xl text-muted-foreground">
+                  {filterRole || filterStatus
+                    ? "Hãy thay đổi hoặc xóa bộ lọc để xem toàn bộ danh sách."
+                    : "Thêm nhân viên đầu tiên để bắt đầu quản lý đội ngũ."}
+                </p>
+                {!filterRole && !filterStatus && (
+                  <Button
+                    variant="default"
+                    onClick={() => openAddModal()}
+                    iconName="UserPlus"
+                    iconPosition="left"
+                  >
+                    Thêm nhân viên đầu tiên
+                  </Button>
+                )}
+              </div>
+            )}
+          </>
+        )}
+      </div>
 
       <StaffFormModal
         isOpen={showStaffModal}
@@ -327,14 +391,18 @@ const StaffSection: React.FC = () => {
         formData={staffFormData}
         mode={staffModalMode}
         isLoading={isSubmitting}
+        isInitializing={isInitializing}
+        returnFocusRef={staffModalTriggerRef}
       />
 
       <StaffDetailsModal
         isOpen={showDetailsModal}
-        onClose={() => dispatchStaffUi({ type: "closeDetails" })}
+        onClose={handleCloseDetails}
         staff={selectedStaffCard}
         detail={selectedStaffDetail}
+        isLoading={isDetailLoading}
         onEdit={handleEditStaffFromDetails}
+        returnFocusRef={staffDetailsTriggerRef}
       />
 
       <ConfirmationDialog
@@ -347,8 +415,9 @@ const StaffSection: React.FC = () => {
         cancelText="Hủy"
         variant="danger"
         icon="Trash2"
+        isLoading={Boolean(staffToDelete && isStaffBusy(staffToDelete.id))}
       />
-    </div>
+    </section>
   )
 }
 

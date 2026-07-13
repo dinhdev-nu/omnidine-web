@@ -14,15 +14,21 @@ export function StaffStatusSection({
   onFieldChange,
 }: StaffFormSectionProps) {
   return (
-    <div className="space-y-4 rounded-lg border border-border p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="flex items-center gap-2 text-base font-semibold text-foreground">
-            <Icon name="Activity" size={18} />
-            <span>Tráº¡ng thÃ¡i lÃ m viá»‡c</span>
+    <section
+      aria-labelledby="staff-status-section-title"
+      className="flex flex-col gap-4 rounded-lg border border-border p-4"
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h3
+            id="staff-status-section-title"
+            className="flex items-center gap-2 text-base font-semibold text-foreground"
+          >
+            <Icon name="Activity" size={18} aria-hidden="true" />
+            <span>Trạng thái làm việc</span>
           </h3>
           <p className="mt-1 text-xs text-muted-foreground">
-            Cáº­p nháº­t qua API: update-status
+            Chọn trạng thái hiện tại của nhân viên.
           </p>
         </div>
         <SectionSaveButton
@@ -34,13 +40,15 @@ export function StaffStatusSection({
       </div>
 
       <Select
-        label="Tráº¡ng thÃ¡i"
-        placeholder="Chá»n tráº¡ng thÃ¡i"
+        name="status"
+        label="Trạng thái"
+        placeholder="Chọn trạng thái"
         options={STATUS_OPTIONS}
         value={formData.status}
         onChange={(event) => onFieldChange("status", event.target.value)}
         error={errors.status}
+        disabled={isLoading}
       />
-    </div>
+    </section>
   )
 }
