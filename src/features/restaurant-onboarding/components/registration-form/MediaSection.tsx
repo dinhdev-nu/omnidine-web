@@ -40,7 +40,7 @@ export function MediaSection({
               />
               <div
                 className={cn(
-                  "group flex size-32 items-center justify-center overflow-hidden rounded-xl border-2 transition-all peer-focus-visible:ring-2 peer-focus-visible:ring-ring/60 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background peer-focus-visible:outline-none",
+                  "group flex size-32 items-center justify-center overflow-hidden rounded-xl border-2 transition-[background-color,border-color,box-shadow] motion-reduce:transition-none peer-focus-visible:ring-2 peer-focus-visible:ring-ring/60 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background peer-focus-visible:outline-none",
                   logoPreview
                     ? "border-transparent shadow-lg"
                     : "border-dashed border-border hover:border-primary/50 hover:bg-primary/5"
@@ -55,7 +55,7 @@ export function MediaSection({
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex flex-col items-center gap-2 text-muted-foreground/60 transition-colors group-hover:text-primary">
+                  <div className="flex flex-col items-center gap-2 text-muted-foreground/60 transition-colors motion-reduce:transition-none group-hover:text-primary">
                     <Store className="size-8" />
                     <span className="text-xs font-semibold tracking-wider uppercase">
                       Tải lên
@@ -80,7 +80,7 @@ export function MediaSection({
               />
               <div
                 className={cn(
-                  "group relative flex h-full w-full items-center justify-center overflow-hidden rounded-xl border-2 transition-all peer-focus-visible:ring-2 peer-focus-visible:ring-ring/60 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background peer-focus-visible:outline-none",
+                  "group relative flex h-full w-full items-center justify-center overflow-hidden rounded-xl border-2 transition-[background-color,border-color,box-shadow] motion-reduce:transition-none peer-focus-visible:ring-2 peer-focus-visible:ring-ring/60 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background peer-focus-visible:outline-none",
                   coverPreview
                     ? "border-transparent shadow-lg"
                     : "border-dashed border-border hover:border-primary/50 hover:bg-primary/5"
@@ -95,12 +95,12 @@ export function MediaSection({
                       height={400}
                       className="h-full w-full object-cover"
                     />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity motion-reduce:transition-none group-hover:opacity-100">
                       <Camera className="size-8 text-white" />
                     </div>
                   </>
                 ) : (
-                  <div className="flex flex-col items-center gap-2 text-muted-foreground/60 transition-colors group-hover:text-primary">
+                  <div className="flex flex-col items-center gap-2 text-muted-foreground/60 transition-colors motion-reduce:transition-none group-hover:text-primary">
                     <ImagePlus className="size-8" />
                     <span className="text-xs font-semibold tracking-wider uppercase">
                       Tải ảnh bìa
@@ -125,7 +125,7 @@ export function MediaSection({
               className="peer sr-only"
               aria-label="Tải thư viện ảnh"
             />
-            <div className="flex min-h-24 w-full items-center justify-center rounded-xl border-2 border-dashed border-border transition-all peer-focus-visible:ring-2 peer-focus-visible:ring-ring/60 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background peer-focus-visible:outline-none hover:border-primary/50 hover:bg-primary/5">
+            <div className="flex min-h-24 w-full items-center justify-center rounded-xl border-2 border-dashed border-border transition-[background-color,border-color] motion-reduce:transition-none peer-focus-visible:ring-2 peer-focus-visible:ring-ring/60 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background peer-focus-visible:outline-none hover:border-primary/50 hover:bg-primary/5">
               <div className="flex flex-col items-center gap-2 text-muted-foreground/70">
                 <ImagePlus className="size-6" />
                 <span className="text-xs font-semibold tracking-wider uppercase">

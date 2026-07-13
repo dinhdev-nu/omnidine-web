@@ -44,24 +44,24 @@ export function useCreateRestaurantSubmit({
 
       REQUIRED_FIELDS.forEach((field) => {
         if (!isFieldFilled(payload, field)) {
-          nextErrors[field] = "TrÆ°á»ng nÃ y lÃ  báº¯t buá»™c"
+          nextErrors[field] = "Trường này là bắt buộc"
         }
       })
 
       if (!isOperatingHoursComplete(payload.operating_hours)) {
         nextErrors.operating_hours =
-          "Giá» hoáº¡t Ä‘á»™ng khÃ´ng há»£p lá»‡ (Ä‘á»‹nh dáº¡ng HH:mm)"
+          "Giờ hoạt động không hợp lệ (định dạng HH:mm)"
       }
 
       if (!hasAtLeastOneOpenDay(payload)) {
         nextErrors.operating_hours =
-          "NhÃ  hÃ ng pháº£i má»Ÿ Ã­t nháº¥t 1 ngÃ y trong tuáº§n"
+          "Nhà hàng phải mở ít nhất 1 ngày trong tuần"
       }
 
       setErrors(nextErrors)
 
       if (Object.keys(nextErrors).length > 0) {
-        toast.error("Vui lÃ²ng kiá»ƒm tra láº¡i thÃ´ng tin báº¯t buá»™c")
+        toast.error("Vui lòng kiểm tra lại thông tin bắt buộc")
         return false
       }
 
@@ -74,7 +74,7 @@ export function useCreateRestaurantSubmit({
     if (isSubmitting) return
 
     if (isUploadingAssets) {
-      toast.info("Äang táº£i áº£nh lÃªn, vui lÃ²ng Ä‘á»£i hoÃ n táº¥t")
+      toast.info("Đang tải ảnh lên, vui lòng đợi hoàn tất")
       return
     }
 
@@ -91,7 +91,7 @@ export function useCreateRestaurantSubmit({
 
       const createdRestaurant = await createRestaurant(payload)
 
-      toast.success("Táº¡o nhÃ  hÃ ng thÃ nh cÃ´ng")
+      toast.success("Tạo nhà hàng thành công")
       navigate("/restaurants", {
         replace: true,
         state: {
@@ -99,12 +99,12 @@ export function useCreateRestaurantSubmit({
         },
       })
     } catch (error) {
-      const appError = toAppError(error, "KhÃ´ng thá»ƒ táº¡o nhÃ  hÃ ng")
+      const appError = toAppError(error, "Không thể tạo nhà hàng")
       if (appError.errorCode === "CONFLICT_ERROR") {
         setSlugCheckStatus("taken")
         setErrors((prev) => ({
           ...prev,
-          slug: "Slug Ä‘Ã£ Ä‘Æ°á»£c sá»­ dá»¥ng, vui lÃ²ng chá»n slug khÃ¡c",
+          slug: "Slug đã được sử dụng, vui lòng chọn slug khác",
         }))
       }
 

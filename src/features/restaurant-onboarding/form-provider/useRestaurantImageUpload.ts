@@ -58,7 +58,7 @@ export function useRestaurantImageUpload({
       )
 
       if (invalidFile) {
-        toast.error("Chá»‰ há»— trá»£ áº£nh JPEG hoáº·c PNG")
+        toast.error("Chỉ hỗ trợ ảnh JPEG hoặc PNG")
         event.target.value = ""
         return
       }
@@ -84,8 +84,8 @@ export function useRestaurantImageUpload({
           }))
           toast.success(
             type === "logo_url"
-              ? "Logo Ä‘Ã£ Ä‘Æ°á»£c táº£i lÃªn"
-              : "áº¢nh bÃ¬a Ä‘Ã£ Ä‘Æ°á»£c táº£i lÃªn"
+              ? "Logo đã được tải lên"
+              : "Ảnh bìa đã được tải lên"
           )
         } catch (error) {
           setFormData((prev) => ({
@@ -97,7 +97,7 @@ export function useRestaurantImageUpload({
           } else {
             setCoverPreview(null)
           }
-          const appError = toAppError(error, "KhÃ´ng thá»ƒ táº£i áº£nh lÃªn mÃ¡y chá»§")
+          const appError = toAppError(error, "Không thể tải ảnh lên máy chủ")
           toast.error(getUploadErrorMessage(appError))
         } finally {
           endUpload()
@@ -134,14 +134,14 @@ export function useRestaurantImageUpload({
             ...uploadedItems.map((item) => item.url),
           ],
         }))
-        toast.success(`ÄÃ£ táº£i lÃªn ${uploadedItems.length} áº£nh trong thÆ° viá»‡n`)
+        toast.success(`Đã tải lên ${uploadedItems.length} ảnh trong thư viện`)
       } catch (error) {
         setGalleryPreviews((prev) =>
           prev.slice(0, Math.max(0, prev.length - nextFiles.length))
         )
         const appError = toAppError(
           error,
-          "KhÃ´ng thá»ƒ táº£i má»™t sá»‘ áº£nh trong thÆ° viá»‡n lÃªn mÃ¡y chá»§"
+          "Không thể tải một số ảnh trong thư viện lên máy chủ"
         )
         toast.error(getUploadErrorMessage(appError))
       } finally {
