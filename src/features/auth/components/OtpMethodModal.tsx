@@ -1,6 +1,14 @@
+import { useRef } from "react"
 import { ChevronRight, Loader2 } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 
 interface OtpMethod {
@@ -17,16 +25,46 @@ interface OtpMethodModalProps {
   onClose: () => void
 }
 
-export function OtpMethodModal({ methods, isSendingOtp, onSelect, onClose }: OtpMethodModalProps) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 px-4 backdrop-blur-sm">
-      <Card className="w-full max-w-sm border-border bg-card shadow-xl">
-        <CardHeader className="text-center">
-          <CardTitle className="text-lg">Gửi mã xác minh</CardTitle>
-          <CardDescription>Chọn cách bạn muốn nhận mã của bạn</CardDescription>
-        </CardHeader>
+export function OtpMethodModal({
+  methods,
+  isSendingOtp,
+  onSelect,
+  onClose,
+}: OtpMethodModalProps) {
+  const returnFocusRef = useRef<HTMLElement | null>(null)
 
-        <CardContent className="space-y-3">
+  return (
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open && !isSendingOtp) onClose()
+      }}
+    >
+      <DialogContent
+        showCloseButton={false}
+        className="max-w-sm"
+        onOpenAutoFocus={() => {
+          returnFocusRef.current = document.activeElement as HTMLElement | null
+        }}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault()
+          returnFocusRef.current?.focus()
+        }}
+        onEscapeKeyDown={(event) => {
+          if (isSendingOtp) event.preventDefault()
+        }}
+        onPointerDownOutside={(event) => {
+          if (isSendingOtp) event.preventDefault()
+        }}
+      >
+        <DialogHeader className="text-center sm:text-center">
+          <DialogTitle className="text-lg">Gửi mã xác minh</DialogTitle>
+          <DialogDescription>
+            Chọn cách bạn muốn nhận mã của bạn
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="flex flex-col gap-3">
           {methods.map((method) => (
             <Button
               key={method.id}
@@ -35,36 +73,44 @@ export function OtpMethodModal({ methods, isSendingOtp, onSelect, onClose }: Otp
               onClick={() => onSelect(method.id)}
               disabled={isSendingOtp}
               className={cn(
-                "h-auto w-full justify-start gap-3 rounded-xl p-4 text-left",
+                "h-auto min-h-11 w-full justify-start gap-3 rounded-xl p-4 text-left whitespace-normal",
                 isSendingOtp && "cursor-not-allowed opacity-60"
               )}
             >
-              <span className="text-2xl leading-none" aria-hidden="true">{method.icon}</span>
-              <span className="flex-1">
-                <span className="block text-sm font-medium text-foreground">{method.label}</span>
+              <span className="text-2xl leading-none" aria-hidden="true">
+                {method.icon}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium text-foreground">
+                  {method.label}
+                </span>
                 {method.description && (
-                  <span className="block text-xs text-muted-foreground">{method.description}</span>
+                  <span className="block text-xs text-muted-foreground">
+                    {method.description}
+                  </span>
                 )}
               </span>
               {isSendingOtp ? (
-                <Loader2 className="animate-spin text-muted-foreground" />
+                <Loader2 className="animate-spin text-muted-foreground motion-reduce:animate-none" />
               ) : (
                 <ChevronRight className="text-muted-foreground" />
               )}
             </Button>
           ))}
+        </div>
 
+        <div className="mt-1">
           <Button
             type="button"
             variant="ghost"
             onClick={onClose}
             disabled={isSendingOtp}
-            className="mt-1 w-full text-muted-foreground hover:text-foreground"
+            className="w-full text-muted-foreground hover:text-foreground"
           >
             Hủy
           </Button>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }

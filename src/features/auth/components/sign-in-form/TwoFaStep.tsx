@@ -37,9 +37,9 @@ export function TwoFaStep({ hook }: SignInFormProps) {
       </Button>
 
       <div>
-        <h2 className="text-xl font-semibold text-foreground">
+        <h1 className="text-xl font-semibold text-foreground">
           Xác thực hai yếu tố
-        </h2>
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Nhập mã gồm 6 số chúng tôi đã gửi tới thiết bị của bạn
         </p>
@@ -62,7 +62,7 @@ export function TwoFaStep({ hook }: SignInFormProps) {
         <button
           type="button"
           onClick={() => toast.info("Kiểm tra thư rác!")}
-          className="text-muted-foreground transition-colors hover:text-foreground"
+          className="-ml-2 min-h-11 touch-manipulation px-2 text-muted-foreground transition-colors motion-reduce:transition-none hover:text-foreground"
         >
           Không nhận được mã?
         </button>
@@ -73,7 +73,7 @@ export function TwoFaStep({ hook }: SignInFormProps) {
           onClick={handleResendTwoFaOtp}
           disabled={resendDisabled}
           className={cn(
-            "h-auto px-2 text-sm font-medium",
+            "px-2 text-sm font-medium",
             resendDisabled
               ? "text-muted-foreground"
               : "text-foreground hover:text-foreground/80"

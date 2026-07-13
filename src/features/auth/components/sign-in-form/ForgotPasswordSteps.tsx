@@ -4,6 +4,12 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group"
+import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
@@ -23,7 +29,13 @@ export function ForgotEmailStep({ hook }: SignInFormProps) {
   } = hook
 
   return (
-    <div className="space-y-5 p-1">
+    <form
+      className="space-y-5 p-1"
+      onSubmit={(event) => {
+        event.preventDefault()
+        handleForgotSubmitEmail()
+      }}
+    >
       <Button
         type="button"
         variant="ghost"
@@ -36,9 +48,9 @@ export function ForgotEmailStep({ hook }: SignInFormProps) {
       </Button>
 
       <div>
-        <h2 className="text-xl font-semibold text-foreground">
+        <h1 className="text-xl font-semibold text-foreground">
           Khôi phục mật khẩu
-        </h2>
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Nhập Email của bạn để nhận mã OTP
         </p>
@@ -76,14 +88,13 @@ export function ForgotEmailStep({ hook }: SignInFormProps) {
       )}
 
       <Button
-        type="button"
-        onClick={handleForgotSubmitEmail}
+        type="submit"
         disabled={isLoading || !forgotEmail.trim()}
         className="w-full"
       >
         {isLoading ? "Đang gửi…" : "Gửi mã"}
       </Button>
-    </div>
+    </form>
   )
 }
 
@@ -102,7 +113,13 @@ export function ForgotOtpStep({ hook }: SignInFormProps) {
   const resendDisabled = forgotCountdown > 0 || isResendingForgotOtp
 
   return (
-    <div className="space-y-5 p-1">
+    <form
+      className="space-y-5 p-1"
+      onSubmit={(event) => {
+        event.preventDefault()
+        handleForgotVerifyOtp()
+      }}
+    >
       <Button
         type="button"
         variant="ghost"
@@ -115,7 +132,7 @@ export function ForgotOtpStep({ hook }: SignInFormProps) {
       </Button>
 
       <div>
-        <h2 className="text-xl font-semibold text-foreground">Nhập mã OTP</h2>
+        <h1 className="text-xl font-semibold text-foreground">Nhập mã OTP</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Chúng tôi vừa gửi mã gồm 6 số tới{" "}
           <span className="font-medium text-foreground">{forgotEmail}</span>
@@ -139,7 +156,7 @@ export function ForgotOtpStep({ hook }: SignInFormProps) {
         <button
           type="button"
           onClick={() => toast.info("Kiểm tra thư rác!")}
-          className="text-muted-foreground transition-colors hover:text-foreground"
+          className="-ml-2 min-h-11 touch-manipulation px-2 text-muted-foreground transition-colors motion-reduce:transition-none hover:text-foreground"
         >
           Không nhận được mã?
         </button>
@@ -150,7 +167,7 @@ export function ForgotOtpStep({ hook }: SignInFormProps) {
           onClick={handleForgotResendOtp}
           disabled={resendDisabled}
           className={cn(
-            "h-auto px-2 text-sm font-medium",
+            "px-2 text-sm font-medium",
             resendDisabled
               ? "text-muted-foreground"
               : "text-foreground hover:text-foreground/80"
@@ -165,14 +182,13 @@ export function ForgotOtpStep({ hook }: SignInFormProps) {
       </div>
 
       <Button
-        type="button"
-        onClick={handleForgotVerifyOtp}
+        type="submit"
         disabled={isLoading || forgotOtp.trim().length < 6}
         className="w-full"
       >
         {isLoading ? "Đang xác thực…" : "Xác thực mã"}
       </Button>
-    </div>
+    </form>
   )
 }
 
@@ -180,6 +196,7 @@ export function ForgotResetStep({ hook }: SignInFormProps) {
   const {
     isLoading,
     errorMessage,
+    forgotEmail,
     forgotNewPassword,
     setForgotNewPassword,
     forgotConfirmPassword,
@@ -190,11 +207,27 @@ export function ForgotResetStep({ hook }: SignInFormProps) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   return (
-    <div className="space-y-5 p-1">
+    <form
+      className="space-y-5 p-1"
+      onSubmit={(event) => {
+        event.preventDefault()
+        handleForgotResetPassword()
+      }}
+    >
+      <input
+        type="email"
+        name="username"
+        value={forgotEmail}
+        autoComplete="username"
+        readOnly
+        tabIndex={-1}
+        aria-hidden="true"
+        className="sr-only"
+      />
       <div>
-        <h2 className="text-xl font-semibold text-foreground">
+        <h1 className="text-xl font-semibold text-foreground">
           Bạn muốn đặt lại mật khẩu?
-        </h2>
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Đã xác minh thành công. Hãy thiết lập mật khẩu mới.
         </p>
@@ -202,60 +235,60 @@ export function ForgotResetStep({ hook }: SignInFormProps) {
 
       <div className="space-y-1.5">
         <Label htmlFor="new-password">Mật khẩu mới</Label>
-        <div className="relative">
-          <Input
+        <InputGroup>
+          <InputGroupInput
             id="new-password"
             name="newPassword"
             type={showNewPassword ? "text" : "password"}
             value={forgotNewPassword}
             onChange={(event) => setForgotNewPassword(event.target.value)}
-            className="pr-10"
             placeholder="Tối thiểu 8 ký tự"
             autoComplete="new-password"
           />
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => setShowNewPassword((value) => !value)}
-            className="absolute top-1/2 right-1 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            aria-label={
-              showNewPassword ? "Ẩn mật khẩu mới" : "Hiển thị mật khẩu mới"
-            }
-          >
-            {showNewPassword ? <EyeOff /> : <Eye />}
-          </Button>
-        </div>
+          <InputGroupAddon align="inline-end" className="pr-0">
+            <InputGroupButton
+              type="button"
+              size="icon-sm"
+              onClick={() => setShowNewPassword((value) => !value)}
+              className="text-muted-foreground hover:text-foreground"
+              aria-label={
+                showNewPassword ? "Ẩn mật khẩu mới" : "Hiển thị mật khẩu mới"
+              }
+            >
+              {showNewPassword ? <EyeOff /> : <Eye />}
+            </InputGroupButton>
+          </InputGroupAddon>
+        </InputGroup>
       </div>
 
       <div className="space-y-1.5">
         <Label htmlFor="confirm-password">Xác nhận mật khẩu</Label>
-        <div className="relative">
-          <Input
+        <InputGroup>
+          <InputGroupInput
             id="confirm-password"
             name="confirmPassword"
             type={showConfirmPassword ? "text" : "password"}
             value={forgotConfirmPassword}
             onChange={(event) => setForgotConfirmPassword(event.target.value)}
-            className="pr-10"
             placeholder="Nhập lại mật khẩu"
             autoComplete="new-password"
           />
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => setShowConfirmPassword((value) => !value)}
-            className="absolute top-1/2 right-1 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            aria-label={
-              showConfirmPassword
-                ? "Ẩn mật khẩu xác nhận"
-                : "Hiển thị mật khẩu xác nhận"
-            }
-          >
-            {showConfirmPassword ? <EyeOff /> : <Eye />}
-          </Button>
-        </div>
+          <InputGroupAddon align="inline-end" className="pr-0">
+            <InputGroupButton
+              type="button"
+              size="icon-sm"
+              onClick={() => setShowConfirmPassword((value) => !value)}
+              className="text-muted-foreground hover:text-foreground"
+              aria-label={
+                showConfirmPassword
+                  ? "Ẩn mật khẩu xác nhận"
+                  : "Hiển thị mật khẩu xác nhận"
+              }
+            >
+              {showConfirmPassword ? <EyeOff /> : <Eye />}
+            </InputGroupButton>
+          </InputGroupAddon>
+        </InputGroup>
       </div>
 
       {errorMessage && (
@@ -269,14 +302,13 @@ export function ForgotResetStep({ hook }: SignInFormProps) {
       )}
 
       <Button
-        type="button"
-        onClick={handleForgotResetPassword}
+        type="submit"
         disabled={isLoading || !forgotNewPassword || !forgotConfirmPassword}
         className="w-full"
       >
         {isLoading ? "Đang tiến hành…" : "Lưu Thay Đổi"}
       </Button>
-    </div>
+    </form>
   )
 }
 
@@ -287,9 +319,9 @@ export function ForgotDoneStep({ hook }: SignInFormProps) {
         <CheckCircle2 className="h-14 w-14 text-success" />
       </div>
       <div>
-        <h2 className="text-xl font-semibold text-foreground">
+        <h1 className="text-xl font-semibold text-foreground">
           Bạn đã đổi mật khẩu thành công!
-        </h2>
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Mật khẩu mới của bạn đã được thiết lập. Hãy đăng nhập để tiếp tục.
         </p>

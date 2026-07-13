@@ -2,6 +2,12 @@ import { Eye, EyeOff, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 import { Label } from "@/components/ui/label"
 import type { CredentialsStepProps } from "./types"
 
@@ -25,9 +31,9 @@ export function CredentialsStep({
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-1">
       <div>
-        <h2 className="text-xl font-semibold text-foreground">
+        <h1 className="text-xl font-semibold text-foreground">
           Đăng nhập tài khoản
-        </h2>
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Nhập thông tin bên dưới để tiếp tục
         </p>
@@ -58,28 +64,28 @@ export function CredentialsStep({
 
       <div className="space-y-1.5">
         <Label htmlFor="signin-password">Mật khẩu</Label>
-        <div className="relative">
-          <Input
+        <InputGroup>
+          <InputGroupInput
             id="signin-password"
             name="password"
             type={showPassword ? "text" : "password"}
             value={form.password}
             onChange={(event) => handlePasswordChange(event.target.value)}
-            className="pr-10"
             placeholder="Mật khẩu"
             autoComplete="current-password"
           />
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            onClick={onTogglePassword}
-            className="absolute top-1/2 right-1 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            aria-label={showPassword ? "Ẩn mật khẩu" : "Hiển thị mật khẩu"}
-          >
-            {showPassword ? <EyeOff /> : <Eye />}
-          </Button>
-        </div>
+          <InputGroupAddon align="inline-end" className="pr-0">
+            <InputGroupButton
+              type="button"
+              size="icon-sm"
+              onClick={onTogglePassword}
+              className="text-muted-foreground hover:text-foreground"
+              aria-label={showPassword ? "Ẩn mật khẩu" : "Hiển thị mật khẩu"}
+            >
+              {showPassword ? <EyeOff /> : <Eye />}
+            </InputGroupButton>
+          </InputGroupAddon>
+        </InputGroup>
       </div>
 
       <div className="flex items-center justify-between text-sm">
@@ -101,7 +107,7 @@ export function CredentialsStep({
           variant="ghost"
           size="sm"
           onClick={handleForgotPassword}
-          className="h-auto px-2 text-muted-foreground hover:text-foreground"
+          className="px-2 text-muted-foreground hover:text-foreground"
         >
           Quên mật khẩu?
         </Button>
