@@ -4,15 +4,20 @@ import { TESTIMONIALS } from "./landing-main.data"
 export function TestimonialsSection() {
   const scrollRef = React.useRef<HTMLDivElement>(null)
 
+  const getScrollBehavior = (): ScrollBehavior =>
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ? "auto"
+      : "smooth"
+
   const scrollLeft = () => {
     if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: -350, behavior: "smooth" })
+      scrollRef.current.scrollBy({ left: -350, behavior: getScrollBehavior() })
     }
   }
 
   const scrollRight = () => {
     if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: 350, behavior: "smooth" })
+      scrollRef.current.scrollBy({ left: 350, behavior: getScrollBehavior() })
     }
   }
   return (
@@ -30,7 +35,7 @@ export function TestimonialsSection() {
                 type="button"
                 aria-label="Previous testimonial"
                 onClick={scrollLeft}
-                className="inline-flex !h-auto h-8 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-3.5 px-4 py-2 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:px-5 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
+                className="inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-[--border] bg-[--surface-secondary] text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
               >
                 <svg
                   className="size-6"
@@ -52,7 +57,7 @@ export function TestimonialsSection() {
                 type="button"
                 aria-label="Next testimonial"
                 onClick={scrollRight}
-                className="inline-flex !h-auto h-8 shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] !px-4 px-3.5 !py-2 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:px-5 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
+                className="inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-[--border] bg-[--surface-secondary] text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
               >
                 <svg
                   className="size-6"
@@ -75,7 +80,7 @@ export function TestimonialsSection() {
           <div className="relative">
             <div
               ref={scrollRef}
-              className="relative no-scrollbar flex h-full w-full snap-x snap-mandatory gap-10 overflow-x-auto scroll-smooth md:gap-0"
+              className="no-scrollbar relative flex h-full w-full snap-x snap-mandatory gap-10 overflow-x-auto scroll-smooth motion-reduce:scroll-auto md:gap-0"
               style={{ scrollSnapType: "x mandatory" }}
             >
               {TESTIMONIALS.map((testimonial) => (

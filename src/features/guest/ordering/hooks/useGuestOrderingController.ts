@@ -221,7 +221,11 @@ export function useGuestOrderingController({
   )
 
   // --- API Data Fetching ---
-  const { data: tableData, error: tableError } = useFetch(
+  const {
+    data: tableData,
+    error: tableError,
+    isLoading: isTableLoading,
+  } = useFetch(
     getPublicTableByQrCode,
     tableFetchArgs,
     { enabled: !!tableQrCode }
@@ -235,7 +239,11 @@ export function useGuestOrderingController({
     [resolvedSlug]
   )
 
-  const { data: menuData, error: menuError } = useFetch(
+  const {
+    data: menuData,
+    error: menuError,
+    isLoading: isMenuLoading,
+  } = useFetch(
     getPublicMenu,
     menuFetchArgs,
     { enabled: !!resolvedSlug }
@@ -391,14 +399,22 @@ export function useGuestOrderingController({
 
   useEffect(() => {
     const handleMobileCartShortcut = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        dispatchOrdering({ type: "closeMobileCart" })
+      if (event.key !== "Escape") return
+
+      const eventTarget = event.target
+      if (
+        showClearCartDialog ||
+        (eventTarget instanceof Element && eventTarget.closest('[role="dialog"]'))
+      ) {
+        return
       }
+
+      dispatchOrdering({ type: "closeMobileCart" })
     }
 
     window.addEventListener("keydown", handleMobileCartShortcut)
     return () => window.removeEventListener("keydown", handleMobileCartShortcut)
-  }, [])
+  }, [showClearCartDialog])
 
   useEffect(() => {
     const handleCategoryShortcut = (event: KeyboardEvent) => {
@@ -577,6 +593,10 @@ export function useGuestOrderingController({
   return {
     tableError,
     menuError,
+    isLoading:
+      isTableLoading ||
+      isMenuLoading ||
+      Boolean(resolvedSlug && !menuData && !menuError),
     isOperational,
     user,
     menuData,

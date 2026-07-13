@@ -9,7 +9,8 @@ import {
     Share2,
     Store,
 } from "lucide-react"
-import { useNavigate, useParams } from "react-router-dom"
+import { Link, useNavigate, useParams } from "react-router-dom"
+import { toast } from "sonner"
 
 import AppImage from "@/components/AppImage"
 import { Badge } from "@/components/ui/badge"
@@ -47,8 +48,8 @@ function formatOperatingHour(day: PublicRestaurantDetail["operating_hours"][DayK
 
 function getStatusBadgeClass(isPublished: boolean) {
     return isPublished
-        ? "border-emerald-300/80 bg-emerald-500/90 text-white hover:bg-emerald-500"
-        : "border-amber-300/80 bg-amber-500/90 text-white hover:bg-amber-500"
+        ? "border-success/40 bg-success text-white hover:bg-success"
+        : "border-warning/40 bg-warning text-foreground hover:bg-warning"
 }
 
 function resolveTodayKey() {
@@ -86,8 +87,8 @@ export default function GuestRestaurantDetailsPage() {
     const handleLogout = useCallback(async () => {
         try {
             await logoutApi()
-        } catch (caughtError) {
-            console.error("Logout error:", caughtError)
+        } catch {
+            // Local session cleanup still completes when the remote logout endpoint is unavailable.
         } finally {
             clearAuth()
             clearUser()
@@ -111,10 +112,10 @@ export default function GuestRestaurantDetailsPage() {
                 if (!isActive) return
 
                 setRestaurant(response)
-            } catch (caughtError) {
+            } catch {
                 if (!isActive) return
 
-                console.error("Failed to load public restaurant detail:", caughtError)
+                toast.error("Không thể tải thông tin nhà hàng")
                 navigate("/public/restaurants", { replace: true })
             } finally {
                 if (isActive) {
@@ -156,15 +157,10 @@ export default function GuestRestaurantDetailsPage() {
             await navigator.clipboard.writeText(window.location.href)
             setIsLinkCopied(true)
             window.setTimeout(() => setIsLinkCopied(false), 1400)
-        } catch (caughtError) {
-            console.error("Failed to copy link:", caughtError)
+        } catch {
+            toast.error("Không thể sao chép liên kết")
         }
     }, [])
-
-    const handleOrderByPhone = useCallback(() => {
-        if (!detail?.phone) return
-        window.location.href = `tel:${detail.phone.replace(/\s+/g, "")}`
-    }, [detail?.phone])
 
     return (
         <GuestRestaurantsLayout
@@ -173,72 +169,90 @@ export default function GuestRestaurantDetailsPage() {
             showCreateFab={false}
             onOpenAttentionModal={() => undefined}
         >
-            <div className="space-y-4 pb-24 lg:pb-6">
+            <div className="flex flex-col gap-4 pb-24 lg:pb-6">
                 <Card className="sticky top-20 z-30 border border-border bg-card/95 shadow-sm backdrop-blur-sm">
                     <CardContent className="p-3 sm:p-4">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                             <div className="flex items-center gap-2">
                                 <Button
-                                    type="button"
                                     variant="outline"
                                     size="lg"
-                                    onClick={() => navigate("/public/restaurants")}
+                                    className="min-h-11"
+                                    asChild
                                 >
-                                    <ArrowLeft className="h-4 w-4" />
-                                    Danh sách
+                                    <Link to="/public/restaurants">
+                                        <ArrowLeft data-icon="inline-start" />
+                                        Danh sách
+                                    </Link>
                                 </Button>
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    size="lg"
-                                    onClick={handleCopyLink}
-                                >
-                                    <Share2 className="h-4 w-4" />
+                                     size="lg"
+                                     onClick={handleCopyLink}
+                                     className="min-h-11"
+                                 >
+                                     <Share2 data-icon="inline-start" />
                                     {isLinkCopied ? "Đã sao chép" : "Chia sẻ"}
                                 </Button>
                             </div>
 
                             <div className="flex items-center gap-2">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="lg"
-                                    onClick={handleOrderByPhone}
-                                    disabled={!detail?.phone}
-                                >
-                                    <Phone className="h-4 w-4" />
-                                    Gọi đặt món
-                                </Button>
-                                <Button
-                                    type="button"
-                                    size="lg"
-                                    disabled={!detail?.accepts_online_orders}
-                                    onClick={() => slug && navigate(`/public/restaurants/${slug}/menu`)}
-                                >
-                                    <Store className="h-4 w-4" />
-                                    {detail?.accepts_online_orders ? "Đặt món online" : "Chưa hỗ trợ online"}
-                                </Button>
+                                {detail?.phone ? (
+                                    <Button variant="outline" size="lg" className="min-h-11" asChild>
+                                        <a href={`tel:${detail.phone.replace(/\s+/g, "")}`}>
+                                            <Phone data-icon="inline-start" />
+                                            Gọi đặt món
+                                        </a>
+                                    </Button>
+                                ) : (
+                                    <Button variant="outline" size="lg" className="min-h-11" disabled>
+                                        <Phone data-icon="inline-start" />
+                                        Gọi đặt món
+                                    </Button>
+                                )}
+                                {detail?.accepts_online_orders && slug ? (
+                                    <Button size="lg" className="min-h-11" asChild>
+                                        <Link to={`/public/restaurants/${slug}/menu`}>
+                                            <Store data-icon="inline-start" />
+                                            Đặt món online
+                                        </Link>
+                                    </Button>
+                                ) : (
+                                    <Button size="lg" className="min-h-11" disabled>
+                                        <Store data-icon="inline-start" />
+                                        Chưa hỗ trợ online
+                                    </Button>
+                                )}
                             </div>
                         </div>
                     </CardContent>
                 </Card>
 
                 {isLoading ? (
-                    <section className="space-y-4">
-                        <div className="h-56 animate-pulse rounded-3xl bg-muted/40" />
+                    <div
+                        role="status"
+                        aria-live="polite"
+                        aria-label="Đang tải chi tiết nhà hàng"
+                        className="flex flex-col gap-4"
+                    >
+                        <div className="h-56 animate-pulse rounded-3xl bg-muted/40 motion-reduce:animate-none" />
                         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                            <div className="h-40 animate-pulse rounded-2xl bg-muted/40 lg:col-span-2" />
-                            <div className="h-40 animate-pulse rounded-2xl bg-muted/40" />
+                            <div className="h-40 animate-pulse rounded-2xl bg-muted/40 motion-reduce:animate-none lg:col-span-2" />
+                            <div className="h-40 animate-pulse rounded-2xl bg-muted/40 motion-reduce:animate-none" />
                         </div>
-                    </section>
+                    </div>
                 ) : detail ? (
                     <>
                         <section className="grid grid-cols-1 gap-4 lg:grid-cols-12">
                             <Card className="relative overflow-hidden rounded-3xl border border-border bg-card lg:col-span-5">
                                 <AppImage
-                                    src={detail.cover_image_url ?? detail.logo_url ?? FALLBACK_RESTAURANT_IMAGE}
-                                    alt={detail.name}
-                                    className="h-[240px] w-full object-cover"
+                                     src={detail.cover_image_url ?? detail.logo_url ?? FALLBACK_RESTAURANT_IMAGE}
+                                     alt={detail.name}
+                                     width={1200}
+                                     height={800}
+                                     fetchPriority="high"
+                                     className="h-[240px] w-full object-cover"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                                 <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
@@ -256,7 +270,7 @@ export default function GuestRestaurantDetailsPage() {
                                             Mức giá: {formatPriceRange(detail.price_range)}
                                         </Badge>
                                         {detail.accepts_online_orders && (
-                                            <Badge className="inline-flex items-center gap-1 rounded-full border border-emerald-300/70 bg-emerald-500/90 px-2.5 py-1 font-semibold text-white shadow-sm hover:bg-emerald-500">
+                                            <Badge className="inline-flex items-center gap-1 rounded-full border border-success/40 bg-success px-2.5 py-1 font-semibold text-white shadow-sm hover:bg-success">
                                                 Online
                                             </Badge>
                                         )}
@@ -268,29 +282,29 @@ export default function GuestRestaurantDetailsPage() {
                                 <CardHeader className="pb-1">
                                     <CardTitle>Thông tin nhanh</CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+                                <CardContent className="flex flex-col gap-4">
+                                    <p className="text-sm leading-relaxed break-words text-muted-foreground">
                                         {detail.description ?? "Nhà hàng đang hoàn thiện thông tin chi tiết."}
                                     </p>
 
                                     <Separator />
 
-                                    <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                                         <div className="flex items-start gap-2 rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-muted-foreground">
-                                            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
-                                            <span className="line-clamp-2">{fullAddress}</span>
+                                            <MapPin className="mt-0.5 size-4 shrink-0 text-destructive" />
+                                            <span className="min-w-0 break-words">{fullAddress}</span>
                                         </div>
                                         <div className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-muted-foreground">
-                                            <Phone className="h-4 w-4 shrink-0" />
+                                            <Phone className="size-4 shrink-0" />
                                             <span className="truncate">{detail.phone ?? "Đang cập nhật"}</span>
                                         </div>
                                         <div className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-muted-foreground">
-                                            <Building2 className="h-4 w-4 shrink-0" />
-                                            <span className="truncate">{detail.email ?? "Đang cập nhật"}</span>
+                                            <Building2 className="size-4 shrink-0" />
+                                            <span className="min-w-0 break-words">{detail.email ?? "Đang cập nhật"}</span>
                                         </div>
                                         <div className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-muted-foreground">
-                                            <Globe className="h-4 w-4 shrink-0" />
-                                            <span className="truncate">{detail.website ?? "Đang cập nhật"}</span>
+                                            <Globe className="size-4 shrink-0" />
+                                            <span className="min-w-0 break-words">{detail.website ?? "Đang cập nhật"}</span>
                                         </div>
                                     </div>
                                 </CardContent>
@@ -306,7 +320,7 @@ export default function GuestRestaurantDetailsPage() {
                                     <div className="mb-3 rounded-xl border border-border bg-background px-3 py-2 text-sm">
                                         <div className="flex items-center justify-between">
                                             <span className="inline-flex items-center gap-1 text-muted-foreground">
-                                                <Clock3 className="h-4 w-4" />
+                                                <Clock3 className="size-4" />
                                                 Hôm nay ({DAY_LABELS[todayKey]})
                                             </span>
                                             <span className="font-semibold text-foreground">
@@ -341,9 +355,12 @@ export default function GuestRestaurantDetailsPage() {
                                             {galleryImages.slice(0, 4).map((image, index) => (
                                                 <AppImage
                                                     key={`${image}-${index}`}
-                                                    src={image}
-                                                    alt={`${detail.name} ${index + 1}`}
-                                                    className="h-28 w-full rounded-xl border border-border object-cover"
+                                                     src={image}
+                                                     alt={`${detail.name} ${index + 1}`}
+                                                     width={600}
+                                                     height={400}
+                                                     loading="lazy"
+                                                     className="h-28 w-full rounded-xl border border-border object-cover"
                                                 />
                                             ))}
                                         </div>

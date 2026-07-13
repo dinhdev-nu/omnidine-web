@@ -1,3 +1,5 @@
+import { toast } from "sonner"
+
 export default function LandingNewsletter() {
   return (
     <>
@@ -11,21 +13,28 @@ export default function LandingNewsletter() {
               Tham gia bản tin của chúng tôi để nhận những tin tức đặc quyền và thông báo quan trọng nhất.
             </p>
           </div>
-          <form action="javascript:throw new Error('A React form was unexpectedly submitted. If you called form.submit() manually, consider using form.requestSubmit() instead. If you\'re trying to use event.stopPropagation() in a submit event handler, consider also calling event.preventDefault().')">
+          <form
+            onSubmit={(event) => {
+              event.preventDefault()
+              toast.info("Đăng ký bản tin hiện chưa khả dụng. Vui lòng thử lại sau.")
+            }}
+          >
             <div className="relative">
               <input
-                className="h-9 w-full rounded-full border border-[--border] py-2 pl-4 pr-28 dark:border-[--dark-border] md:h-11 disabled:opacity-50 placeholder:text-sm placeholder:text-[--text-tertiary] dark:placeholder-[--dark-text-tertiary] text-sm text-[--text-primary] dark:text-[--dark-text-primary] outline-hidden focus-visible:ring-2 focus-visible:ring-[--control]"
+                className="h-11 w-full rounded-full border border-[--border] py-2 pr-24 pl-4 text-sm text-[--text-primary] outline-hidden placeholder:text-sm placeholder:text-[--text-tertiary] focus-visible:ring-2 focus-visible:ring-[--control] disabled:opacity-50 dark:border-[--dark-border] dark:text-[--dark-text-primary] dark:placeholder-[--dark-text-tertiary]"
                 id="MTskZ6YnzTzluaWN1Nbuw"
                 aria-label="Email"
                 name="email"
+                autoComplete="email"
                 placeholder="john@gmail.com"
                 required
                 type="email"
                 defaultValue=""
               />
               <button
-                className="gap-1 font-normal shrink-0 rounded-full ring-[--control] focus-visible:ring-2 outline-hidden outline-0 bg-[--text-primary] text-[--surface-primary] dark:bg-[--dark-text-primary] dark:text-[--dark-surface-primary] border border-[--dark-border] dark:border-[--border] hover:bg-[--dark-surface-tertiary] dark:hover:bg-[--surface-tertiary] inline-flex items-center justify-center px-3.5 text-sm h-8 md:px-5 absolute right-1 top-1 !h-7 peer-disabled:opacity-50 md:right-1.5 md:top-1.5 md:!h-8"
+                className="absolute top-0 right-0 inline-flex h-11 shrink-0 items-center justify-center gap-1 rounded-full border border-[--dark-border] bg-[--text-primary] px-4 text-sm font-normal text-[--surface-primary] ring-[--control] outline-hidden outline-0 transition-colors hover:bg-[--dark-surface-tertiary] focus-visible:ring-2 motion-reduce:transition-none peer-disabled:opacity-50 dark:border-[--border] dark:bg-[--dark-text-primary] dark:text-[--dark-surface-primary] dark:hover:bg-[--surface-tertiary]"
                 type="submit"
+                title="Đăng ký bản tin hiện chưa khả dụng"
               >
                 Gửi
               </button>

@@ -26,9 +26,11 @@ export function NotificationsMenu({
       <button
         type="button"
         onClick={onToggle}
-        className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-all duration-200 hover:bg-secondary hover:text-foreground"
+        aria-label={showNotifications ? "Đóng thông báo" : "Mở thông báo"}
+        aria-expanded={showNotifications}
+        className="relative flex size-11 touch-manipulation items-center justify-center rounded-lg text-muted-foreground transition-colors duration-200 hover:bg-secondary hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none"
       >
-        <Icon name="Bell" size={20} />
+        <Icon aria-hidden="true" name="Bell" size={20} />
         {notifications.length > 0 && (
           <span className="absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-accent px-1 text-xs font-semibold text-white">
             {notifications.length > 99 ? "99+" : notifications.length}
@@ -37,7 +39,7 @@ export function NotificationsMenu({
       </button>
 
       {showNotifications && (
-        <div className="shadow-modal fixed top-20 right-2 left-2 z-1150 w-auto rounded-lg border border-border bg-popover sm:absolute sm:top-full sm:right-0 sm:left-auto sm:mt-2 sm:w-80">
+        <div className="shadow-modal fixed top-[calc(5rem+env(safe-area-inset-top))] right-[calc(0.5rem+env(safe-area-inset-right))] left-[calc(0.5rem+env(safe-area-inset-left))] z-[1150] w-auto rounded-lg border border-border bg-popover sm:absolute sm:top-full sm:right-0 sm:left-auto sm:mt-2 sm:w-80">
           <div className="border-b border-border p-4">
             <h3 className="font-medium text-popover-foreground">Thông báo</h3>
             {notifications.length > 0 && (
@@ -85,7 +87,7 @@ export function NotificationsMenu({
           </div>
           {notifications?.length > 0 && (
             <div className="border-t border-border p-3">
-              <Button variant="ghost" size="sm" fullWidth>
+              <Button variant="ghost" size="sm" fullWidth disabled title="Đánh dấu hàng loạt chưa khả dụng">
                 Đánh dấu tất cả đã đọc
               </Button>
             </div>
@@ -124,13 +126,17 @@ export function UserProfileMenu({
       <Button
         variant="ghost"
         onClick={onToggle}
-        className="hover-scale flex items-center space-x-2"
+        aria-label={showUserMenu ? "Đóng menu tài khoản" : "Mở menu tài khoản"}
+        aria-expanded={showUserMenu}
+        className="hover-scale flex min-h-11 items-center gap-2"
       >
         {userAvatarSrc ? (
           <div className="h-8 w-8 overflow-hidden rounded-full border-2 border-border/50">
             <img
               src={userAvatarSrc}
               alt={userName}
+              width={32}
+              height={32}
               className="h-full w-full object-cover"
               onError={(event) => {
                 event.currentTarget.onerror = null
@@ -152,7 +158,7 @@ export function UserProfileMenu({
       </Button>
 
       {showUserMenu && (
-        <div className="shadow-modal fixed top-20 right-2 left-2 z-1150 w-auto rounded-lg border border-border bg-popover sm:absolute sm:top-full sm:right-0 sm:left-auto sm:mt-2 sm:w-48">
+        <div className="shadow-modal fixed top-[calc(5rem+env(safe-area-inset-top))] right-[calc(0.5rem+env(safe-area-inset-right))] left-[calc(0.5rem+env(safe-area-inset-left))] z-[1150] w-auto rounded-lg border border-border bg-popover sm:absolute sm:top-full sm:right-0 sm:left-auto sm:mt-2 sm:w-48">
           <div className="p-2">
             {isGuest ? (
               <>
