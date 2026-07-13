@@ -6,7 +6,7 @@ import { RiskFactorsCard } from "./forecasting/RiskFactorsCard"
 
 export function ForecastingSection() {
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <ForecastingHeaderControls />
       <ForecastingKpiSummary />
       <ForecastRevenueChart />

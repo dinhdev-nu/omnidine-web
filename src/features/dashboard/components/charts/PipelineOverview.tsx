@@ -14,7 +14,7 @@ const stages: Stage[] = [
 
 export function PipelineOverview() {
     return (
-        <div className="bg-card border border-border rounded-xl p-5 h-[380px] animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+        <section className="min-h-[380px] min-w-0 animate-in rounded-xl border border-border bg-card p-4 duration-500 fade-in slide-in-from-bottom-4 motion-reduce:animate-none sm:p-5 delay-100">
             <div className="mb-6">
                 <h3 className="text-base font-semibold text-foreground">Giai đoạn quy trình</h3>
                 <p className="text-sm text-muted-foreground mt-0.5">Phân bổ theo giai đoạn</p>
@@ -25,13 +25,18 @@ export function PipelineOverview() {
                     <div key={stage.name} className="space-y-2">
                         <div className="flex items-center justify-between">
                             <span className="text-sm font-medium text-foreground">{stage.name}</span>
-                            <div className="flex items-center gap-2">
+                            <div className="flex shrink-0 items-center gap-2 tabular-nums">
                                 <span className="text-sm text-muted-foreground">{stage.count}</span>
                                 <span className="text-sm font-semibold text-foreground">{stage.value}%</span>
                             </div>
                         </div>
                         <div className="h-2 bg-secondary rounded-full overflow-hidden">
                             <div
+                                role="progressbar"
+                                aria-label={`Tỷ lệ giai đoạn ${stage.name}`}
+                                aria-valuemin={0}
+                                aria-valuemax={100}
+                                aria-valuenow={stage.value}
                                 className={`h-full ${stage.color} rounded-full`}
                                 style={{ width: `${stage.value}%` }}
                             />
@@ -42,11 +47,11 @@ export function PipelineOverview() {
 
             {/* Total pipeline value */}
             <div className="mt-6 pt-5 border-t border-border">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="text-sm text-muted-foreground">Tổng giá trị quy trình</span>
-                    <span className="text-xl font-bold text-foreground">4.8 tỷ đ</span>
+                    <span className="text-xl font-bold text-foreground tabular-nums">4.8 tỷ đ</span>
                 </div>
             </div>
-        </div>
+        </section>
     );
 }

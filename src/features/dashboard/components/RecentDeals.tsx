@@ -79,15 +79,21 @@ const statusConfig: Record<DealStatus, StatusConfig> = {
 
 export function RecentDeals() {
     return (
-        <div className="bg-card border border-border rounded-xl p-5 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
-            <div className="flex items-center justify-between mb-5">
-                <div>
+        <section className="min-w-0 animate-in rounded-xl border border-border bg-card p-4 duration-500 fade-in slide-in-from-bottom-4 motion-reduce:animate-none sm:p-5 delay-200">
+            <div className="mb-5 flex items-start justify-between gap-3">
+                <div className="min-w-0">
                     <h3 className="text-base font-semibold text-foreground">Giao dịch gần đây</h3>
                     <p className="text-sm text-muted-foreground mt-0.5">Hoạt động mới nhất</p>
                 </div>
-                <button type="button" className="flex items-center gap-1 text-sm text-accent hover:text-accent/80 font-medium transition-colors group">
+                <button
+                    type="button"
+                    disabled
+                    title="Chưa hỗ trợ xem tất cả giao dịch"
+                    aria-label="Xem tất cả giao dịch (chưa khả dụng)"
+                    className="flex min-h-11 shrink-0 items-center gap-1 rounded-md px-2 text-sm font-medium text-muted-foreground opacity-60 disabled:cursor-not-allowed"
+                >
                     Xem tất cả
-                    <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    <ArrowUpRight aria-hidden="true" className="size-4" />
                 </button>
             </div>
 
@@ -99,23 +105,23 @@ export function RecentDeals() {
                     return (
                         <div
                             key={deal.company}
-                            className="group flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-all duration-200 cursor-pointer animate-in fade-in slide-in-from-left-2"
+                            className="group flex min-w-0 animate-in flex-col items-start gap-3 rounded-lg p-3 transition-colors duration-200 fade-in slide-in-from-left-2 hover:bg-secondary/50 motion-reduce:animate-none motion-reduce:transition-none sm:flex-row sm:items-center sm:justify-between"
                             style={{ animationDelay: `${(index + 3) * 100}ms`, animationFillMode: "both" }}
                         >
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-sm font-semibold text-muted-foreground group-hover:bg-accent/10 group-hover:text-accent transition-all duration-200">
+                            <div className="flex min-w-0 items-center gap-3">
+                                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-secondary text-sm font-semibold text-muted-foreground transition-[background-color,color] duration-200 group-hover:bg-accent/10 group-hover:text-accent motion-reduce:transition-none">
                                     {deal.company.charAt(0)}
                                 </div>
-                                <div>
-                                    <p className="text-sm font-medium text-foreground">{deal.company}</p>
-                                    <p className="text-xs text-muted-foreground">{deal.rep} • {deal.date}</p>
+                                <div className="min-w-0">
+                                    <p className="text-sm font-medium text-foreground break-words">{deal.company}</p>
+                                    <p className="text-xs text-muted-foreground break-words">{deal.rep} • {deal.date}</p>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3">
-                                <span className="text-sm font-semibold text-foreground">{deal.value}</span>
+                            <div className="flex w-full flex-wrap items-center justify-between gap-2 sm:w-auto sm:shrink-0 sm:justify-end">
+                                <span className="text-sm font-semibold text-foreground tabular-nums">{deal.value}</span>
                                 <div className={cn("flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium", status.bg, status.color)}>
-                                    <StatusIcon className="w-3 h-3" />
+                                    <StatusIcon aria-hidden="true" className="w-3 h-3" />
                                     {status.label}
                                 </div>
                             </div>
@@ -123,6 +129,6 @@ export function RecentDeals() {
                     );
                 })}
             </div>
-        </div>
+        </section>
     );
 }

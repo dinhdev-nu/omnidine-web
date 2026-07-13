@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react"
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { useLocation, useNavigate, useParams } from "react-router-dom"
 import "@/layouts/dashboard/analysis-reporting.css"
 import { Header } from "@/features/dashboard/components/Header"
@@ -17,6 +17,7 @@ import { getRestaurantDetail } from "@/services/restaurants"
 import { toAppError } from "@/services/core/error"
 import { useAuthStore } from "@/stores/auth-store"
 import { useUserStore } from "@/stores/user-store"
+import { Button } from "@/components/ui/button"
 
 type DashboardRestaurantState = {
   restaurant?: {
@@ -63,6 +64,8 @@ export default function Dashboard() {
   const fetchProfile = useUserStore((state) => state.fetchProfile)
   const [activeSection, setActiveSection] = useState<SectionId>("settings")
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
+  const mobileMenuTriggerRef = useRef<HTMLButtonElement>(null)
   const [theme, setTheme] = useState<ThemeMode>(() => {
     const stored = localStorage.getItem("dashboard-theme")
     return stored === "dark" || stored === "light" ? stored : "light"
@@ -71,6 +74,16 @@ export default function Dashboard() {
   useEffect(() => {
     localStorage.setItem("dashboard-theme", theme)
   }, [theme])
+
+  useEffect(() => {
+    const desktopMedia = window.matchMedia("(min-width: 1024px)")
+    const closeMobileSidebar = (event: MediaQueryListEvent) => {
+      if (event.matches) setMobileSidebarOpen(false)
+    }
+
+    desktopMedia.addEventListener("change", closeMobileSidebar)
+    return () => desktopMedia.removeEventListener("change", closeMobileSidebar)
+  }, [])
 
   useEffect(() => {
     if (!accessToken) return
@@ -117,6 +130,20 @@ export default function Dashboard() {
 
   const shouldShowLoadingState =
     Boolean(restaurantId) && !stateRestaurant && isRestaurantLoading
+  const restaurantAppError = restaurantError
+    ? toAppError(restaurantError, "Không thể tải thông tin nhà hàng")
+    : null
+  const shouldRedirectForRestaurantError = Boolean(
+    restaurantAppError &&
+      (restaurantAppError.status === 403 ||
+        restaurantAppError.errorCode === "ForbiddenException")
+  )
+  const shouldShowRestaurantError = Boolean(
+    restaurantId &&
+      !stateRestaurant &&
+      restaurantAppError &&
+      !shouldRedirectForRestaurantError
+  )
 
   return (
     <DashboardLayout
@@ -128,6 +155,9 @@ export default function Dashboard() {
           onSectionChange={setActiveSection}
           collapsed={sidebarCollapsed}
           onCollapsedChange={setSidebarCollapsed}
+          mobileOpen={mobileSidebarOpen}
+          onMobileOpenChange={setMobileSidebarOpen}
+          mobileMenuTriggerRef={mobileMenuTriggerRef}
         />
       }
       header={
@@ -135,19 +165,43 @@ export default function Dashboard() {
           activeSection={activeSection}
           theme={theme}
           onThemeToggle={toggleTheme}
+          mobileMenuOpen={mobileSidebarOpen}
+          onMobileMenuOpen={() => setMobileSidebarOpen(true)}
+          mobileMenuTriggerRef={mobileMenuTriggerRef}
         />
       }
       sidebarCollapsed={sidebarCollapsed}
     >
       {shouldShowLoadingState ? (
-        <div className="flex min-h-[60vh] items-center justify-center rounded-2xl border border-border bg-card text-sm text-muted-foreground">
-          Đang tải thông tin nhà hàng...
+        <output
+          aria-live="polite"
+          className="flex min-h-[60vh] items-center justify-center rounded-2xl border border-border bg-card text-sm text-muted-foreground"
+        >
+          Đang tải thông tin nhà hàng…
+        </output>
+      ) : null}
+      {shouldShowRestaurantError ? (
+        <div
+          role="alert"
+          className="flex min-h-[50vh] flex-col items-center justify-center gap-4 rounded-2xl border border-destructive/30 bg-card p-6 text-center"
+        >
+          <div>
+            <h2 className="font-semibold text-foreground">
+              Không thể tải bảng điều khiển
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {restaurantAppError?.message}
+            </p>
+          </div>
+          <Button type="button" variant="outline" onClick={() => window.location.reload()}>
+            Thử lại
+          </Button>
         </div>
       ) : null}
-      {!shouldShowLoadingState ? (
+      {!shouldShowLoadingState && !shouldShowRestaurantError ? (
         <div
           key={activeSection}
-          className="animate-in duration-500 fade-in slide-in-from-bottom-4"
+          className="animate-in duration-500 motion-reduce:animate-none fade-in slide-in-from-bottom-4"
         >
           {activeSection === "settings" ? (
             <SettingsSection restaurantDetail={restaurantDetail} />

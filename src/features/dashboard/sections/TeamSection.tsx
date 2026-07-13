@@ -1,4 +1,4 @@
-import { memo, Suspense } from "react"
+import { memo } from "react"
 import { cn } from "@/lib/utils"
 import {
   Trophy,
@@ -13,11 +13,11 @@ import {
   Bar,
   CartesianGrid,
   BarChart,
-  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
-} from "@/features/dashboard/components/charts/lazy-recharts"
+} from "recharts"
+import { useReducedMotion } from "@/features/dashboard/components/charts/use-reduced-motion"
 
 interface TeamMember {
   id: string
@@ -129,33 +129,36 @@ const TeamMemberCard = memo(function TeamMemberCard({
 
   return (
     <div
-      className="group animate-in rounded-xl border border-border bg-card p-5 transition-all duration-300 fade-in slide-in-from-bottom-4 hover:border-accent/50"
+      className="group min-w-0 animate-in rounded-xl border border-border bg-card p-4 transition-[border-color] duration-300 fade-in slide-in-from-bottom-4 hover:border-accent/50 motion-reduce:animate-none motion-reduce:transition-none sm:p-5"
       style={{ animationDelay: `${index * 100}ms`, animationFillMode: "both" }}
     >
-      <div className="mb-4 flex items-start justify-between">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-accent/80 to-chart-1 text-sm font-bold text-white">
+      <div className="mb-4 flex min-w-0 items-start justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="relative shrink-0">
+            <div aria-hidden="true" className="flex size-12 items-center justify-center rounded-full bg-gradient-to-br from-accent/80 to-chart-1 text-sm font-bold text-white">
               {member.avatar}
             </div>
             {member.rank <= 3 && (
               <div className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-warning">
-                <Trophy className="h-3 w-3 text-white" />
+                <Trophy aria-hidden="true" className="h-3 w-3 text-white" />
               </div>
             )}
           </div>
-          <div>
-            <h4 className="text-sm font-semibold text-foreground">
+          <div className="min-w-0">
+            <h4 className="text-sm font-semibold text-foreground break-words">
               {member.name}
             </h4>
-            <p className="text-xs text-muted-foreground">{member.role}</p>
+            <p className="text-xs text-muted-foreground break-words">{member.role}</p>
           </div>
         </div>
         <button
           type="button"
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground opacity-0 transition-all duration-200 group-hover:opacity-100 hover:bg-secondary hover:text-foreground"
+          disabled
+          title="Thao tác thành viên chưa khả dụng"
+          aria-label={`Thao tác cho ${member.name} (chưa khả dụng)`}
+          className="flex size-11 shrink-0 items-center justify-center rounded-lg text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60"
         >
-          <MoreHorizontal className="h-4 w-4" />
+          <MoreHorizontal aria-hidden="true" className="h-4 w-4" />
         </button>
       </div>
 
@@ -163,13 +166,13 @@ const TeamMemberCard = memo(function TeamMemberCard({
       <div className="mb-4 grid grid-cols-2 gap-4">
         <div>
           <p className="mb-1 text-xs text-muted-foreground">Doanh thu</p>
-          <p className="text-lg font-bold text-foreground">
+          <p className="text-lg font-bold text-foreground tabular-nums">
             {(member.revenue / 1000000000).toFixed(1)} tỷ
           </p>
         </div>
         <div>
           <p className="mb-1 text-xs text-muted-foreground">Giao dịch chốt</p>
-          <p className="text-lg font-bold text-foreground">{member.deals}</p>
+          <p className="text-lg font-bold text-foreground tabular-nums">{member.deals}</p>
         </div>
       </div>
 
@@ -188,8 +191,13 @@ const TeamMemberCard = memo(function TeamMemberCard({
         </div>
         <div className="h-2 overflow-hidden rounded-full bg-secondary">
           <div
+            role="progressbar"
+            aria-label={`Mức đạt chỉ tiêu của ${member.name}`}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.min(Math.round(quotaPercentage), 100)}
             className={cn(
-              "h-full rounded-full transition-all duration-700",
+              "h-full rounded-full transition-[width] duration-700 motion-reduce:transition-none",
               isAboveQuota ? "bg-success" : "bg-accent"
             )}
             style={{ width: `${Math.min(quotaPercentage, 100)}%` }}
@@ -200,17 +208,22 @@ const TeamMemberCard = memo(function TeamMemberCard({
       {/* Change indicator */}
       <div className="flex items-center justify-between border-t border-border pt-4">
         <div className="flex items-center gap-2">
+          <a
+            href={`mailto:${member.email}`}
+            title={`Gửi email đến ${member.email}`}
+            aria-label={`Gửi email cho ${member.name}`}
+            className="flex size-11 touch-manipulation items-center justify-center rounded-lg bg-secondary text-muted-foreground transition-colors hover:bg-secondary/80 hover:text-foreground motion-reduce:transition-none"
+          >
+            <Mail aria-hidden="true" className="h-4 w-4" />
+          </a>
           <button
             type="button"
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary text-muted-foreground transition-colors hover:bg-secondary/80 hover:text-foreground"
+            disabled
+            title="Chưa có số điện thoại của thành viên"
+            aria-label={`Gọi điện cho ${member.name} (chưa có số điện thoại)`}
+            className="flex size-11 items-center justify-center rounded-lg bg-secondary text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <Mail className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary text-muted-foreground transition-colors hover:bg-secondary/80 hover:text-foreground"
-          >
-            <Phone className="h-4 w-4" />
+            <Phone aria-hidden="true" className="h-4 w-4" />
           </button>
         </div>
         <div
@@ -220,9 +233,9 @@ const TeamMemberCard = memo(function TeamMemberCard({
           )}
         >
           {member.change >= 0 ? (
-            <TrendingUp className="h-4 w-4" />
+            <TrendingUp aria-hidden="true" className="h-4 w-4" />
           ) : (
-            <TrendingDown className="h-4 w-4" />
+            <TrendingDown aria-hidden="true" className="h-4 w-4" />
           )}
           {member.change >= 0 ? "+" : ""}
           {member.change}%
@@ -233,51 +246,53 @@ const TeamMemberCard = memo(function TeamMemberCard({
 })
 
 export function TeamSection() {
+  const shouldReduceMotion = useReducedMotion()
+
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       {/* Header stats */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="animate-in rounded-xl border border-border bg-card p-5 duration-500 fade-in slide-in-from-bottom-4">
+        <div className="animate-in rounded-xl border border-border bg-card p-5 duration-500 fade-in slide-in-from-bottom-4 motion-reduce:animate-none">
           <div className="mb-2 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
-              <Target className="h-5 w-5 text-accent" />
+              <Target aria-hidden="true" className="h-5 w-5 text-accent" />
             </div>
             <span className="text-sm text-muted-foreground">Doanh thu đội</span>
           </div>
-          <p className="text-2xl font-bold text-foreground">
+          <p className="text-2xl font-bold text-foreground tabular-nums">
             {(totalRevenue / 1000000000).toFixed(1)} tỷ
           </p>
         </div>
-        <div className="animate-in rounded-xl border border-border bg-card p-5 delay-100 duration-500 fade-in slide-in-from-bottom-4">
+        <div className="animate-in rounded-xl border border-border bg-card p-5 delay-100 duration-500 fade-in slide-in-from-bottom-4 motion-reduce:animate-none">
           <div className="mb-2 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-chart-1/10">
-              <TrendingUp className="h-5 w-5 text-chart-1" />
+              <TrendingUp aria-hidden="true" className="h-5 w-5 text-chart-1" />
             </div>
             <span className="text-sm text-muted-foreground">
               Tổng giao dịch
             </span>
           </div>
-          <p className="text-2xl font-bold text-foreground">{totalDeals}</p>
+          <p className="text-2xl font-bold text-foreground tabular-nums">{totalDeals}</p>
         </div>
-        <div className="animate-in rounded-xl border border-border bg-card p-5 delay-200 duration-500 fade-in slide-in-from-bottom-4">
+        <div className="animate-in rounded-xl border border-border bg-card p-5 delay-200 duration-500 fade-in slide-in-from-bottom-4 motion-reduce:animate-none">
           <div className="mb-2 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10">
-              <Trophy className="h-5 w-5 text-success" />
+              <Trophy aria-hidden="true" className="h-5 w-5 text-success" />
             </div>
             <span className="text-sm text-muted-foreground">
               Đạt chỉ tiêu TB
             </span>
           </div>
-          <p className="text-2xl font-bold text-foreground">
+          <p className="text-2xl font-bold text-foreground tabular-nums">
             {avgQuotaAttainment.toFixed(0)}%
           </p>
         </div>
       </div>
 
       {/* Performance chart */}
-      <div className="animate-in rounded-xl border border-border bg-card p-5 delay-150 duration-500 fade-in slide-in-from-bottom-4">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
+      <section className="min-w-0 animate-in rounded-xl border border-border bg-card p-4 delay-150 duration-500 fade-in slide-in-from-bottom-4 motion-reduce:animate-none sm:p-5">
+        <div className="mb-4 flex flex-col items-start justify-between gap-3 sm:mb-6 sm:flex-row">
+          <div className="min-w-0">
             <h3 className="text-base font-semibold text-foreground">
               Doanh thu vs Chỉ tiêu
             </h3>
@@ -285,24 +300,24 @@ export function TeamSection() {
               So sánh hiệu suất cá nhân
             </p>
           </div>
-          <div className="flex items-center gap-4 text-xs">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
             <div className="flex items-center gap-1.5">
-              <div className="h-2.5 w-2.5 rounded-full bg-chart-1" />
+              <div aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-chart-1" />
               <span className="text-muted-foreground">Doanh thu (tr)</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="h-2.5 w-2.5 rounded-full bg-chart-2" />
+              <div aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-chart-2" />
               <span className="text-muted-foreground">Chỉ tiêu (tr)</span>
             </div>
           </div>
         </div>
-        <div className="h-[250px]">
-          <Suspense fallback={<div className="h-full" />}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={performanceData}
-                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-              >
+        <div role="img" aria-label="Biểu đồ doanh thu và chỉ tiêu của từng thành viên" className="h-[230px] min-w-0 sm:h-[250px]">
+            <BarChart
+              responsive
+              style={{ width: "100%", height: "100%" }}
+              data={performanceData}
+              margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+            >
                 <CartesianGrid
                   strokeDasharray="3 3"
                   stroke="oklch(0.22 0.005 260)"
@@ -334,26 +349,26 @@ export function TeamSection() {
                 />
                 <Bar
                   dataKey="quota"
+                  isAnimationActive={!shouldReduceMotion}
                   fill="oklch(0.7 0.18 145)"
                   radius={[4, 4, 0, 0]}
                 />
                 <Bar
                   dataKey="revenue"
+                  isAnimationActive={!shouldReduceMotion}
                   fill="oklch(0.7 0.18 220)"
                   radius={[4, 4, 0, 0]}
                 />
-              </BarChart>
-            </ResponsiveContainer>
-          </Suspense>
+            </BarChart>
         </div>
-      </div>
+      </section>
 
       {/* Team members grid */}
       <div>
         <h3 className="mb-4 text-base font-semibold text-foreground">
           Thành viên đội
         </h3>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {teamMembers.map((member, index) => (
             <TeamMemberCard key={member.id} member={member} index={index} />
           ))}

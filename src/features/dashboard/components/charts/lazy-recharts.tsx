@@ -55,11 +55,6 @@ export const PieChart = lazy(async () => {
   return { default: PieChart }
 })
 
-export const ResponsiveContainer = lazy(async () => {
-  const { ResponsiveContainer } = await import("recharts")
-  return { default: ResponsiveContainer }
-})
-
 export const Tooltip = lazy(async () => {
   const { Tooltip } = await import("recharts")
   return { default: Tooltip }

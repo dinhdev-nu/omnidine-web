@@ -1,13 +1,12 @@
-import { Suspense } from "react"
 import {
   Area,
   CartesianGrid,
   AreaChart,
-  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
-} from "./lazy-recharts"
+} from "recharts"
+import { useReducedMotion } from "./use-reduced-motion"
 
 interface RevenueDataPoint {
   month: string
@@ -31,10 +30,12 @@ const data: RevenueDataPoint[] = [
 ]
 
 export function RevenueChart() {
+  const shouldReduceMotion = useReducedMotion()
+
   return (
-    <div className="h-[380px] animate-in rounded-xl border border-border bg-card p-5 duration-500 fade-in slide-in-from-bottom-4">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
+    <section className="min-h-[380px] min-w-0 animate-in rounded-xl border border-border bg-card p-4 duration-500 fade-in slide-in-from-bottom-4 motion-reduce:animate-none sm:p-5">
+      <div className="mb-4 flex flex-col items-start justify-between gap-3 sm:mb-6 sm:flex-row">
+        <div className="min-w-0">
           <h3 className="text-base font-semibold text-foreground">
             Xu hướng doanh thu
           </h3>
@@ -42,25 +43,29 @@ export function RevenueChart() {
             Hiệu suất hàng tháng so với mục tiêu
           </p>
         </div>
-        <div className="flex items-center gap-4 text-xs">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
           <div className="flex items-center gap-1.5">
-            <div className="h-2.5 w-2.5 rounded-full bg-chart-1" />
+            <div aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-chart-1" />
             <span className="text-muted-foreground">Doanh thu</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="h-2.5 w-2.5 rounded-full bg-chart-2" />
+            <div aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-chart-2" />
             <span className="text-muted-foreground">Mục tiêu</span>
           </div>
         </div>
       </div>
 
-      <div className="h-[280px]">
-        <Suspense fallback={<div className="h-full" />}>
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart
-              data={data}
-              margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-            >
+      <div
+        role="img"
+        aria-label="Biểu đồ doanh thu và mục tiêu theo tháng từ tháng 1 đến tháng 12"
+        className="h-[240px] min-w-0 sm:h-[280px]"
+      >
+          <AreaChart
+            responsive
+            style={{ width: "100%", height: "100%" }}
+            data={data}
+            margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+          >
               <defs>
                 <linearGradient
                   id="revenueGradient"
@@ -128,6 +133,7 @@ export function RevenueChart() {
               <Area
                 type="monotone"
                 dataKey="target"
+                isAnimationActive={!shouldReduceMotion}
                 stroke="oklch(0.7 0.18 145)"
                 strokeWidth={2}
                 fill="url(#targetGradient)"
@@ -136,15 +142,14 @@ export function RevenueChart() {
               <Area
                 type="monotone"
                 dataKey="revenue"
+                isAnimationActive={!shouldReduceMotion}
                 stroke="oklch(0.7 0.18 220)"
                 strokeWidth={2}
                 fill="url(#revenueGradient)"
                 dot={false}
               />
-            </AreaChart>
-          </ResponsiveContainer>
-        </Suspense>
+          </AreaChart>
       </div>
-    </div>
+    </section>
   )
 }

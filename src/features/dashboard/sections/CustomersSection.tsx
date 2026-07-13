@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -169,25 +170,43 @@ const summaryStats = [
 const tiers = ["Doanh nghiệp", "Tăng trưởng", "Khởi đầu"] as const;
 
 export function CustomersSection() {
+    const [searchQuery, setSearchQuery] = useState("");
+    const [selectedTier, setSelectedTier] = useState<Customer["tier"] | null>(null);
+    const filteredCustomers = useMemo(() => {
+        const normalizedQuery = searchQuery.trim().toLocaleLowerCase("vi");
+        return customers.filter((customer) => {
+            const matchesTier = selectedTier === null || customer.tier === selectedTier;
+            const matchesSearch = normalizedQuery.length === 0 || [
+                customer.name,
+                customer.industry,
+                customer.location,
+                customer.contact,
+                customer.email,
+                customer.phone,
+            ].some((value) => value.toLocaleLowerCase("vi").includes(normalizedQuery));
+            return matchesTier && matchesSearch;
+        });
+    }, [searchQuery, selectedTier]);
+
     return (
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 {summaryStats.map((stat, index) => (
                     <Card
                         key={stat.label}
-                        className="border-border bg-card hover:border-muted-foreground/30 transition-all duration-300"
+                        className="min-w-0 border-border bg-card transition-[border-color] duration-300 hover:border-muted-foreground/30 motion-reduce:transition-none"
                         style={{ animationDelay: `${index * 50}ms` }}
                     >
                         <CardContent className="p-4">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm text-muted-foreground">{stat.label}</p>
-                                    <p className={`text-2xl font-semibold mt-1 ${stat.color}`}>
+                                    <p className={`mt-1 text-2xl font-semibold tabular-nums ${stat.color}`}>
                                         {stat.value}
                                     </p>
                                 </div>
-                                <stat.icon className={`w-8 h-8 ${stat.color} opacity-50`} />
+                                <stat.icon aria-hidden="true" className={`size-8 shrink-0 ${stat.color} opacity-50`} />
                             </div>
                         </CardContent>
                     </Card>
@@ -195,87 +214,96 @@ export function CustomersSection() {
             </div>
 
             {/* Filters and Search */}
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                <div className="flex items-center gap-3 flex-wrap">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <div className="flex flex-col items-stretch justify-between gap-4 xl:flex-row xl:items-center">
+                <div className="flex min-w-0 flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                    <div className="relative w-full sm:w-auto">
+                        <Search aria-hidden="true" className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
-                            placeholder="Tìm khách hàng..."
-                            className="pl-10 w-[280px] bg-secondary border-border focus:border-accent"
+                            aria-label="Tìm khách hàng"
+                            name="customer-search"
+                            type="search"
+                            autoComplete="off"
+                            spellCheck={false}
+                            placeholder="Tìm khách hàng…"
+                            className="w-full border-border bg-secondary pl-10 focus:border-accent sm:w-[280px]"
+                            value={searchQuery}
+                            onChange={(event) => setSearchQuery(event.target.value)}
                         />
                     </div>
-                    <div className="flex items-center gap-2">
-                        <Filter className="w-4 h-4 text-muted-foreground" />
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Filter aria-hidden="true" className="size-4 text-muted-foreground" />
                         {tiers.map((tier) => (
                             <Button
                                 key={tier}
-                                variant="outline"
+                                variant={selectedTier === tier ? "default" : "outline"}
                                 size="sm"
+                                aria-pressed={selectedTier === tier}
+                                onClick={() => setSelectedTier((current) => current === tier ? null : tier)}
                             >
                                 {tier}
                             </Button>
                         ))}
                     </div>
                 </div>
-                <Button className="bg-accent hover:bg-accent/90 text-white">
-                    <Plus className="w-4 h-4 mr-2" />
+                <Button className="w-full bg-accent text-white hover:bg-accent/90 sm:w-auto xl:shrink-0" disabled title="Tạo khách hàng chưa khả dụng">
+                    <Plus aria-hidden="true" className="mr-2 size-4" />
                     Thêm khách hàng
                 </Button>
             </div>
 
             {/* Customer Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                {customers.map((customer, index) => (
+            <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
+                {filteredCustomers.map((customer, index) => (
                     <Card
                         key={customer.id}
-                        className="border-border bg-card hover:border-accent/50 transition-all duration-300 group animate-in fade-in slide-in-from-bottom-2"
+                        className="group min-w-0 animate-in border-border bg-card transition-[border-color] duration-300 fade-in slide-in-from-bottom-2 hover:border-accent/50 motion-reduce:animate-none motion-reduce:transition-none"
                         style={{ animationDelay: `${index * 75}ms` }}
                     >
-                        <CardContent className="p-5">
-                            <div className="flex items-start justify-between mb-4">
-                                <div className="flex items-center gap-3">
-                                    <Avatar className="w-12 h-12">
+                        <CardContent className="p-4 sm:p-5">
+                            <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                                <div className="flex min-w-0 flex-1 items-center gap-3">
+                                    <Avatar className="size-12 shrink-0">
                                         <AvatarFallback className="bg-secondary text-foreground font-semibold text-sm">
                                             {customer.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                                         </AvatarFallback>
                                     </Avatar>
-                                    <div>
-                                        <h3 className="font-semibold text-foreground group-hover:text-accent transition-colors">
+                                    <div className="min-w-0">
+                                        <h3 className="font-semibold text-foreground break-words transition-colors group-hover:text-accent motion-reduce:transition-none">
                                             {customer.name}
                                         </h3>
                                         <p className="text-sm text-muted-foreground">{customer.industry}</p>
                                     </div>
                                 </div>
-                                <Badge className={`${tierColors[customer.tier]} border`}>
+                                <Badge className={`${tierColors[customer.tier]} shrink-0 border`}>
                                     {customer.tier}
                                 </Badge>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4 mb-4">
+                            <div className="mb-4 grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2">
                                 <div className="space-y-2">
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                        <MapPin className="w-3.5 h-3.5" />
-                                        {customer.location}
+                                        <MapPin aria-hidden="true" className="size-3.5 shrink-0" />
+                                        <span className="min-w-0 break-words">{customer.location}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                        <Mail className="w-3.5 h-3.5" />
-                                        {customer.email}
+                                        <Mail aria-hidden="true" className="size-3.5 shrink-0" />
+                                        <span className="min-w-0 break-all">{customer.email}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                        <Phone className="w-3.5 h-3.5" />
-                                        {customer.phone}
+                                        <Phone aria-hidden="true" className="size-3.5 shrink-0" />
+                                        <span className="min-w-0 break-words">{customer.phone}</span>
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between text-sm">
                                         <span className="text-muted-foreground">Revenue</span>
-                                        <span className="font-medium text-foreground">
+                                        <span className="font-medium text-foreground tabular-nums">
                                             ${customer.totalRevenue.toLocaleString()}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between text-sm">
                                         <span className="text-muted-foreground">Active Deals</span>
-                                        <span className="font-medium text-foreground">{customer.activeDeals}</span>
+                                        <span className="font-medium text-foreground tabular-nums">{customer.activeDeals}</span>
                                     </div>
                                     <div className="flex items-center justify-between text-sm">
                                         <span className="text-muted-foreground">Last Contact</span>
@@ -285,20 +313,25 @@ export function CustomersSection() {
                             </div>
 
                             {/* Health Score */}
-                            <div className="flex items-center justify-between pt-4 border-t border-border">
+                            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
                                 <div className="flex items-center gap-2">
                                     <span className="text-sm text-muted-foreground">Điểm sức khỏe</span>
                                     {customer.trend === "up" && (
-                                        <TrendingUp className="w-3.5 h-3.5 text-accent" />
+                                        <TrendingUp aria-hidden="true" className="size-3.5 text-accent" />
                                     )}
                                     {customer.trend === "down" && (
-                                        <TrendingDown className="w-3.5 h-3.5 text-destructive" />
+                                        <TrendingDown aria-hidden="true" className="size-3.5 text-destructive" />
                                     )}
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <div className="w-24 h-2 bg-secondary rounded-full overflow-hidden">
                                         <div
-                                            className="h-full rounded-full transition-all duration-1000 ease-out"
+                                            role="progressbar"
+                                            aria-label={`Điểm sức khỏe của ${customer.name}`}
+                                            aria-valuemin={0}
+                                            aria-valuemax={100}
+                                            aria-valuenow={customer.healthScore}
+                                            className="h-full rounded-full transition-[width] duration-1000 ease-out motion-reduce:transition-none"
                                             style={{
                                                 width: `${customer.healthScore}%`,
                                                 backgroundColor:
@@ -311,7 +344,7 @@ export function CustomersSection() {
                                         />
                                     </div>
                                     <span
-                                        className={`text-sm font-semibold ${customer.healthScore >= 80
+                                        className={`text-sm font-semibold tabular-nums ${customer.healthScore >= 80
                                             ? "text-accent"
                                             : customer.healthScore >= 60
                                                 ? "text-chart-3"
@@ -324,23 +357,28 @@ export function CustomersSection() {
                             </div>
 
                             {/* Quick Actions */}
-                            <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border">
-                                <Button variant="outline" size="sm" className="flex-1 bg-transparent">
-                                    <Calendar className="w-3.5 h-3.5 mr-1.5" />
+                            <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border pt-4">
+                                <Button variant="outline" size="sm" className="flex-1 bg-transparent" disabled title="Lịch hẹn chưa khả dụng">
+                                    <Calendar aria-hidden="true" className="mr-1.5 size-3.5" />
                                     Lịch hẹn
                                 </Button>
-                                <Button variant="outline" size="sm" className="flex-1 bg-transparent">
-                                    <Mail className="w-3.5 h-3.5 mr-1.5" />
+                                <Button variant="outline" size="sm" className="flex-1 bg-transparent" disabled title="Gửi email chưa khả dụng">
+                                    <Mail aria-hidden="true" className="mr-1.5 size-3.5" />
                                     Email
                                 </Button>
-                                <Button variant="ghost" size="sm">
-                                    <ExternalLink className="w-4 h-4" />
+                                <Button aria-label={`Mở chi tiết ${customer.name}`} variant="ghost" size="icon" disabled title="Chi tiết khách hàng chưa khả dụng">
+                                    <ExternalLink aria-hidden="true" className="size-4" />
                                 </Button>
                             </div>
                         </CardContent>
                     </Card>
                 ))}
             </div>
+            {filteredCustomers.length === 0 && (
+                <p role="status" className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+                    Không tìm thấy khách hàng phù hợp.
+                </p>
+            )}
         </div>
     );
 }

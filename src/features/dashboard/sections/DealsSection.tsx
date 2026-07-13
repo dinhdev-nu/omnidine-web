@@ -94,33 +94,44 @@ const formatCurrency = (amount: number): string => {
 
 export function DealsSection() {
     return (
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
             {/* Header */}
             <div>
                 <p className="text-sm text-muted-foreground">Xem và quản lý tất cả đơn hàng của bạn tại một nơi</p>
             </div>
 
             {/* Filters and search */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <div className="flex flex-col items-stretch justify-between gap-4 xl:flex-row xl:items-start">
+                <div className="flex w-full flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                    <div className="relative w-full sm:w-auto">
+                        <Search aria-hidden="true" className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                         <input
-                            aria-label="TÃ¬m Ä‘Æ¡n hÃ ng"
-                            type="text"
-                            placeholder="Tìm đơn hàng..."
-                            className="w-64 h-9 pl-9 pr-4 rounded-lg bg-secondary border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-accent transition-all duration-200"
+                            aria-label="Tìm đơn hàng"
+                            aria-description="Tính năng tìm kiếm đơn hàng chưa khả dụng"
+                            name="order-search"
+                            type="search"
+                            disabled
+                            title="Tìm kiếm đơn hàng chưa khả dụng"
+                            autoComplete="off"
+                            spellCheck={false}
+                            placeholder="Tìm đơn hàng…"
+                            className="h-11 w-full rounded-lg border border-border bg-secondary pr-4 pl-9 text-sm text-foreground transition-[border-color,box-shadow] duration-200 placeholder:text-muted-foreground focus:border-accent focus:ring-2 focus:ring-ring/20 focus:outline-none motion-reduce:transition-none disabled:cursor-not-allowed disabled:opacity-60 sm:w-64"
                         />
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         {(["all", "pending", "processing", "completed", "cancelled"] as const).map((filter) => (
-                            <button type="button"
+                            <button
+                                type="button"
                                 key={filter}
+                                disabled
+                                title="Lọc trạng thái chưa khả dụng"
+                                aria-label={`${filterLabels[filter]} (bộ lọc chưa khả dụng)`}
+                                aria-pressed={filter === "all"}
                                 className={cn(
-                                    "px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200",
+                                    "min-h-11 rounded-lg px-3 py-2 text-xs font-medium transition-[background-color,color] duration-200 motion-reduce:transition-none disabled:cursor-not-allowed disabled:opacity-60",
                                     filter === "all"
                                         ? "bg-accent text-white"
-                                        : "bg-secondary text-muted-foreground hover:text-foreground"
+                                        : "bg-secondary text-muted-foreground"
                                 )}
                             >
                                 {filterLabels[filter]}
@@ -128,31 +139,50 @@ export function DealsSection() {
                         ))}
                     </div>
                 </div>
-                <button type="button" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
-                    <Filter className="w-4 h-4" />
+                <button
+                    type="button"
+                    disabled
+                    title="Bộ lọc nâng cao chưa khả dụng"
+                    aria-label="Thêm bộ lọc (chưa khả dụng)"
+                    className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-secondary px-3 py-2 text-sm text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto xl:shrink-0"
+                >
+                    <Filter aria-hidden="true" className="w-4 h-4" />
                     Thêm bộ lọc
-                    <ChevronDown className="w-3 h-3" />
+                    <ChevronDown aria-hidden="true" className="w-3 h-3" />
                 </button>
             </div>
 
             {/* Table */}
-            <div className="bg-card border border-border rounded-xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
+            <div className="min-w-0 animate-in overflow-hidden rounded-xl border border-border bg-card duration-500 fade-in slide-in-from-bottom-4 motion-reduce:animate-none">
+                <div tabIndex={0} aria-label="Bảng đơn hàng, cuộn ngang để xem thêm" className="overflow-x-auto overscroll-x-contain focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none">
+                    <table className="w-full min-w-[1050px]">
+                        <caption className="sr-only">Danh sách đơn hàng</caption>
                         <thead>
                             <tr className="border-b border-border bg-secondary/50">
                                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                                    <button type="button" className="flex items-center gap-1 hover:text-foreground transition-colors">
+                                    <button
+                                        type="button"
+                                        disabled
+                                        title="Sắp xếp theo mã đơn chưa khả dụng"
+                                        aria-label="Sắp xếp theo mã đơn hàng (chưa khả dụng)"
+                                        className="flex min-h-11 items-center gap-1 disabled:cursor-not-allowed disabled:opacity-60"
+                                    >
                                         Mã đơn hàng
-                                        <ArrowUpDown className="w-3 h-3" />
+                                        <ArrowUpDown aria-hidden="true" className="w-3 h-3" />
                                     </button>
                                 </th>
                                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Khách hàng</th>
                                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Bàn</th>
                                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                                    <button type="button" className="flex items-center gap-1 hover:text-foreground transition-colors">
+                                    <button
+                                        type="button"
+                                        disabled
+                                        title="Sắp xếp theo tổng tiền chưa khả dụng"
+                                        aria-label="Sắp xếp theo tổng tiền (chưa khả dụng)"
+                                        className="flex min-h-11 items-center gap-1 disabled:cursor-not-allowed disabled:opacity-60"
+                                    >
                                         Tổng tiền
-                                        <ArrowUpDown className="w-3 h-3" />
+                                        <ArrowUpDown aria-hidden="true" className="w-3 h-3" />
                                     </button>
                                 </th>
                                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Số món</th>
@@ -160,7 +190,7 @@ export function DealsSection() {
                                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Thanh toán</th>
                                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Nhân viên</th>
                                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Ngày tạo</th>
-                                <th className="w-12" aria-label="Thao tÃ¡c"></th>
+                                <th className="w-16" aria-label="Thao tác"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -174,7 +204,7 @@ export function DealsSection() {
                                 return (
                                     <tr
                                         key={order._id}
-                                        className="border-b border-border last:border-0 hover:bg-secondary/30 transition-colors duration-150 cursor-pointer animate-in fade-in slide-in-from-left-2"
+                                        className="animate-in border-b border-border transition-colors duration-150 fade-in slide-in-from-left-2 last:border-0 hover:bg-secondary/30 motion-reduce:animate-none motion-reduce:transition-none"
                                         style={{ animationDelay: `${index * 50}ms`, animationFillMode: "both" }}
                                     >
                                         <td className="py-4 px-4">
@@ -203,7 +233,7 @@ export function DealsSection() {
                                         </td>
                                         <td className="py-4 px-4">
                                             <span className="px-2 py-1 rounded-md bg-secondary text-xs font-medium text-foreground inline-flex items-center gap-1">
-                                                <Package className="w-3 h-3" />
+                                                <Package aria-hidden="true" className="w-3 h-3" />
                                                 {order.items.length}
                                             </span>
                                         </td>
@@ -212,13 +242,13 @@ export function DealsSection() {
                                                 "inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium",
                                                 orderStatus.color
                                             )}>
-                                                <OrderStatusIcon className="w-3 h-3" />
+                                                <OrderStatusIcon aria-hidden="true" className="w-3 h-3" />
                                                 {orderStatus.label}
                                             </div>
                                         </td>
                                         <td className="py-4 px-4">
                                             <div className={cn("inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium", paymentStatus.color)}>
-                                                <PaymentStatusIcon className="w-3 h-3" />
+                                                <PaymentStatusIcon aria-hidden="true" className="w-3 h-3" />
                                                 {paymentStatus.label}
                                             </div>
                                         </td>
@@ -229,8 +259,14 @@ export function DealsSection() {
                                             <span className="text-xs text-muted-foreground">{formatDate(order.createdAt)}</span>
                                         </td>
                                         <td className="py-4 px-4">
-                                            <button type="button" className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
-                                                <MoreHorizontal className="w-4 h-4" />
+                                            <button
+                                                type="button"
+                                                disabled
+                                                title="Thao tác đơn hàng chưa khả dụng"
+                                                aria-label={`Thao tác cho đơn hàng ${order.orderId} (chưa khả dụng)`}
+                                                className="flex size-11 items-center justify-center rounded-lg text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                                            >
+                                                <MoreHorizontal aria-hidden="true" className="w-4 h-4" />
                                             </button>
                                         </td>
                                     </tr>
@@ -241,18 +277,22 @@ export function DealsSection() {
                 </div>
 
                 {/* Pagination */}
-                <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-secondary/30">
-                    <span className="text-sm text-muted-foreground">
+                <div className="flex flex-col items-start justify-between gap-3 border-t border-border bg-secondary/30 px-4 py-3 sm:flex-row sm:items-center">
+                    <span className="text-sm text-muted-foreground tabular-nums">
                         Hiển thị 1-{sampleOrders.length} trên {sampleOrders.length} đơn hàng
                     </span>
                     <div className="flex items-center gap-2">
-                        <button type="button" className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed">
+                        <button type="button" disabled className="min-h-11 rounded-lg px-3 py-2 text-sm text-muted-foreground/50 disabled:cursor-not-allowed">
                             Trước
                         </button>
-                        <button type="button" className="px-3 py-1.5 rounded-lg text-sm bg-accent text-white font-medium">
+                        <span
+                            aria-current="page"
+                            aria-label="Trang 1, trang hiện tại"
+                            className="flex size-11 items-center justify-center rounded-lg bg-accent text-sm font-medium text-white tabular-nums"
+                        >
                             1
-                        </button>
-                        <button type="button" className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed">
+                        </span>
+                        <button type="button" disabled className="min-h-11 rounded-lg px-3 py-2 text-sm text-muted-foreground/50 disabled:cursor-not-allowed">
                             Sau
                         </button>
                     </div>

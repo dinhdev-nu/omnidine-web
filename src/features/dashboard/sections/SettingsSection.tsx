@@ -127,7 +127,7 @@ export function SettingsSection({ restaurantDetail }: SettingsSectionProps) {
     DELETE_RESTAURANT_CONFIRM_TEXT
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <SettingsSectionHeader />
       <SettingsTabs
         activeTab={activeTab}
@@ -137,33 +137,63 @@ export function SettingsSection({ restaurantDetail }: SettingsSectionProps) {
       />
 
       {activeTab === "profile" && (
-        <ProfileSettingsTab restaurantDetail={restaurantDetail} />
+        <div
+          id="settings-panel-profile"
+          role="tabpanel"
+          aria-labelledby="settings-tab-profile"
+          className="min-w-0"
+        >
+          <ProfileSettingsTab restaurantDetail={restaurantDetail} />
+        </div>
       )}
 
       {activeTab === "notifications" && (
-        <NotificationSettingsTab
-          restaurantId={restaurantId}
-          publishEnabled={publishEnabled}
-          onlineOrdersEnabled={onlineOrdersEnabled}
-          isPublishing={isPublishing}
-          isTogglingOnlineOrders={isTogglingOnlineOrders}
-          onPublishChange={handlePublishChange}
-          onOnlineOrdersChange={handleOnlineOrdersChange}
-        />
+        <div
+          id="settings-panel-notifications"
+          role="tabpanel"
+          aria-labelledby="settings-tab-notifications"
+          className="min-w-0"
+        >
+          <NotificationSettingsTab
+            restaurantId={restaurantId}
+            publishEnabled={publishEnabled}
+            onlineOrdersEnabled={onlineOrdersEnabled}
+            isPublishing={isPublishing}
+            isTogglingOnlineOrders={isTogglingOnlineOrders}
+            onPublishChange={handlePublishChange}
+            onOnlineOrdersChange={handleOnlineOrdersChange}
+          />
+        </div>
       )}
 
-      {activeTab === "integrations" && <IntegrationsSettingsTab />}
+      {activeTab === "integrations" && (
+        <div
+          id="settings-panel-integrations"
+          role="tabpanel"
+          aria-labelledby="settings-tab-integrations"
+          className="min-w-0"
+        >
+          <IntegrationsSettingsTab />
+        </div>
+      )}
 
       {activeTab === "security" && (
-        <SecuritySettingsTab
-          confirmText={DELETE_RESTAURANT_CONFIRM_TEXT}
-          deleteRestaurantConfirmText={deleteRestaurantConfirmText}
-          isDeleteRestaurantEnabled={isDeleteRestaurantEnabled}
-          onConfirmTextChange={(text) =>
-            dispatchUi({ type: "setDeleteRestaurantConfirmText", text })
-          }
-          onDeleteRestaurant={handleDeleteRestaurant}
-        />
+        <div
+          id="settings-panel-security"
+          role="tabpanel"
+          aria-labelledby="settings-tab-security"
+          className="min-w-0"
+        >
+          <SecuritySettingsTab
+            confirmText={DELETE_RESTAURANT_CONFIRM_TEXT}
+            deleteRestaurantConfirmText={deleteRestaurantConfirmText}
+            isDeleteRestaurantEnabled={isDeleteRestaurantEnabled}
+            onConfirmTextChange={(text) =>
+              dispatchUi({ type: "setDeleteRestaurantConfirmText", text })
+            }
+            onDeleteRestaurant={handleDeleteRestaurant}
+          />
+        </div>
       )}
     </div>
   )

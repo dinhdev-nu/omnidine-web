@@ -67,36 +67,41 @@ interface DealCardProps {
 const DealCard = memo(function DealCard({ deal, index }: DealCardProps) {
     return (
         <div
-            className="group bg-background border border-border rounded-lg p-4 cursor-grab active:cursor-grabbing hover:border-accent/50 transition-all duration-200 animate-in fade-in slide-in-from-bottom-2"
+            className="group min-w-0 animate-in rounded-lg border border-border bg-background p-4 transition-[border-color] duration-200 fade-in slide-in-from-bottom-2 hover:border-accent/50 motion-reduce:animate-none motion-reduce:transition-none"
             style={{ animationDelay: `${index * 50}ms`, animationFillMode: "both" }}
         >
-            <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-md bg-secondary flex items-center justify-center">
-                        <Building2 className="w-4 h-4 text-muted-foreground" />
+            <div className="mb-3 flex min-w-0 items-start justify-between gap-2">
+                <div className="flex min-w-0 items-center gap-2">
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-secondary">
+                        <Building2 aria-hidden="true" className="size-4 text-muted-foreground" />
                     </div>
-                    <span className="text-sm font-medium text-foreground truncate max-w-[120px]">{deal.company}</span>
+                    <span className="min-w-0 truncate text-sm font-medium text-foreground">{deal.company}</span>
                 </div>
-                <button type="button" className={cn(
-                    "w-6 h-6 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200",
-                    "opacity-0 group-hover:opacity-100"
-                )}>
-                    <MoreHorizontal className="w-4 h-4" />
+                <button
+                    type="button"
+                    disabled
+                    title="Thao tác giao dịch chưa khả dụng"
+                    className={cn(
+                        "flex size-11 shrink-0 items-center justify-center rounded-lg text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                    )}
+                    aria-label={`Thao tác cho ${deal.company} (chưa khả dụng)`}
+                >
+                    <MoreHorizontal aria-hidden="true" className="size-4" />
                 </button>
             </div>
 
             <div className="flex items-center gap-2 text-sm text-foreground font-semibold mb-3">
-                <DollarSign className="w-3.5 h-3.5 text-accent" />
-                ${deal.value.toLocaleString()}
+                <DollarSign aria-hidden="true" className="w-3.5 h-3.5 text-accent" />
+                <span className="tabular-nums">${deal.value.toLocaleString()}</span>
             </div>
 
             <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <div className="flex items-center gap-1">
-                    <User className="w-3 h-3" />
+                    <User aria-hidden="true" className="w-3 h-3" />
                     {deal.rep}
                 </div>
                 <div className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
+                    <Clock aria-hidden="true" className="w-3 h-3" />
                     {deal.daysInStage}d
                 </div>
             </div>
@@ -109,7 +114,12 @@ const DealCard = memo(function DealCard({ deal, index }: DealCardProps) {
                 </div>
                 <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
                     <div
-                        className="h-full bg-accent rounded-full transition-all duration-500"
+                        role="progressbar"
+                        aria-label={`Xác suất giao dịch ${deal.company}`}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-valuenow={deal.probability}
+                        className="h-full rounded-full bg-accent transition-[width] duration-500 motion-reduce:transition-none"
                         style={{ width: `${deal.probability}%` }}
                     />
                 </div>
@@ -120,35 +130,41 @@ const DealCard = memo(function DealCard({ deal, index }: DealCardProps) {
 
 export function PipelineSection() {
     return (
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
+            <div className="flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center">
+                <div className="min-w-0">
                     <p className="text-sm text-muted-foreground">Quản lý và theo dõi quy trình bán hàng của bạn</p>
                 </div>
-                <button type="button" className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent/90 transition-colors duration-200">
-                    <Plus className="w-4 h-4" />
+                <button
+                    type="button"
+                    disabled
+                    title="Thêm giao dịch chưa khả dụng"
+                    aria-label="Thêm giao dịch (chưa khả dụng)"
+                    className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                >
+                    <Plus aria-hidden="true" className="w-4 h-4" />
                     Thêm giao dịch
                 </button>
             </div>
 
             {/* Pipeline board */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
                 {initialStages.map((stage, stageIndex) => (
                     <div
                         key={stage.id}
-                        className="bg-card border border-border rounded-xl p-4 min-h-[500px] animate-in fade-in slide-in-from-bottom-4 duration-500"
+                        className="min-w-0 animate-in rounded-xl border border-border bg-card p-4 duration-500 fade-in slide-in-from-bottom-4 motion-reduce:animate-none md:min-h-[500px]"
                         style={{ animationDelay: `${stageIndex * 100}ms`, animationFillMode: "both" }}
                     >
                         {/* Stage header */}
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-2">
+                        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                            <div className="flex min-w-0 items-center gap-2">
                                 <h3 className="text-sm font-semibold text-foreground">{stage.name}</h3>
                                 <span className="px-2 py-0.5 bg-secondary rounded-md text-xs font-medium text-muted-foreground">
                                     {stage.deals.length}
                                 </span>
                             </div>
-                            <span className="text-xs font-medium text-muted-foreground">
+                            <span className="shrink-0 text-xs font-medium text-muted-foreground tabular-nums">
                                 ${(stage.total / 1000).toFixed(0)}k
                             </span>
                         </div>
@@ -161,8 +177,14 @@ export function PipelineSection() {
                         </div>
 
                         {/* Add deal to stage */}
-                        <button type="button" className="w-full mt-3 flex items-center justify-center gap-2 py-2 rounded-lg border border-dashed border-border text-sm text-muted-foreground hover:text-foreground hover:border-accent/50 hover:bg-secondary/50 transition-all duration-200">
-                            <Plus className="w-4 h-4" />
+                        <button
+                            type="button"
+                            disabled
+                            title={`Thêm giao dịch vào ${stage.name} chưa khả dụng`}
+                            aria-label={`Thêm giao dịch vào ${stage.name} (chưa khả dụng)`}
+                            className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border px-3 py-2 text-sm text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            <Plus aria-hidden="true" className="w-4 h-4" />
                             Thêm giao dịch
                         </button>
                     </div>

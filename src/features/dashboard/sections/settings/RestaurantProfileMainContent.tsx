@@ -11,19 +11,23 @@ export function RestaurantProfileMainContent() {
   const { isSubmitting, isUploadingAssets } = useCreateRestaurantMeta()
 
   return (
-    <form onSubmit={submitForm} className="space-y-6">
+    <form
+      onSubmit={submitForm}
+      aria-busy={isSubmitting || isUploadingAssets}
+      className="min-w-0 space-y-6"
+    >
       <RestaurantProfileRegistrationForm />
 
       <div className="flex justify-end">
         <Button
           type="submit"
-          className="bg-accent text-white hover:bg-accent/90"
+          className="w-full bg-accent text-white hover:bg-accent/90 sm:w-auto"
           disabled={isSubmitting || isUploadingAssets}
         >
           {isSubmitting ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Đang lưu...
+              <Loader2 aria-hidden="true" className="mr-2 h-4 w-4 animate-spin motion-reduce:animate-none" />
+              Đang lưu…
             </>
           ) : (
             "Lưu thông tin nhà hàng"

@@ -11,7 +11,7 @@ import { OperatingHoursSection } from "@/features/restaurant-onboarding/componen
 function FormIntroHeader() {
   return (
     <div>
-      <h2 className="text-xl font-semibold text-foreground">Hồ sơ nhà hàng</h2>
+      <h3 className="text-xl font-semibold text-foreground text-balance">Hồ sơ nhà hàng</h3>
       <p className="mt-1 text-sm text-muted-foreground">
         Cập nhật thông tin định danh, hình ảnh, liên hệ và giờ hoạt động của nhà
         hàng.
@@ -41,10 +41,10 @@ export function RestaurantProfileRegistrationForm() {
   } = useCreateRestaurantMeta()
 
   return (
-    <div className="animate-in space-y-6 duration-300 fade-in slide-in-from-bottom-2 [&_[data-slot=input-group]]:border-border [&_[data-slot=input-group]]:bg-background [&_[data-slot=input]]:border-border [&_[data-slot=input]]:bg-background [&_[data-slot=select-trigger]]:border-border [&_[data-slot=select-trigger]]:bg-background">
+    <div className="min-w-0 animate-in space-y-6 duration-300 fade-in slide-in-from-bottom-2 motion-reduce:animate-none [&_[data-slot=input-group]]:border-border [&_[data-slot=input-group]]:bg-background [&_[data-slot=input]]:border-border [&_[data-slot=input]]:bg-background [&_[data-slot=select-trigger]]:border-border [&_[data-slot=select-trigger]]:bg-background">
       <FormIntroHeader />
 
-      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-2">
+      <div className="grid min-w-0 grid-cols-1 items-start gap-6 xl:grid-cols-2">
         <BrandIdentitySection
           formData={formData}
           errors={errors}

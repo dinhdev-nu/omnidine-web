@@ -1,4 +1,4 @@
-import { memo, Suspense, type ElementType } from "react"
+import { memo, type ElementType } from "react"
 import { cn } from "@/lib/utils"
 import {
   FileText,
@@ -17,11 +17,11 @@ import {
   LineChart,
   Pie,
   PieChart,
-  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
-} from "@/features/dashboard/components/charts/lazy-recharts"
+} from "recharts"
+import { useReducedMotion } from "@/features/dashboard/components/charts/use-reduced-motion"
 
 interface ConversionDataPoint {
   month: string
@@ -147,7 +147,7 @@ const ReportCard = memo(function ReportCard({
 }: ReportCardProps) {
   return (
     <div
-      className="group animate-in cursor-pointer rounded-xl border border-border bg-card p-5 transition-all duration-300 fade-in slide-in-from-bottom-4 hover:border-accent/50"
+      className="group min-w-0 animate-in rounded-xl border border-border bg-card p-5 transition-[border-color] duration-300 fade-in slide-in-from-bottom-4 hover:border-accent/50 motion-reduce:animate-none motion-reduce:transition-none"
       style={{ animationDelay: `${index * 100}ms`, animationFillMode: "both" }}
     >
       <div
@@ -156,37 +156,42 @@ const ReportCard = memo(function ReportCard({
           color
         )}
       >
-        <Icon className="h-5 w-5" />
+        <Icon aria-hidden="true" className="h-5 w-5" />
       </div>
       <h3 className="mb-1 text-sm font-semibold text-foreground">{title}</h3>
       <p className="mb-4 text-xs text-muted-foreground">{description}</p>
       <button
         type="button"
-        className="flex items-center gap-1 text-xs font-medium text-accent transition-all duration-200 group-hover:gap-2"
+        disabled
+        title="Xem báo cáo chưa khả dụng"
+        aria-label={`Xem báo cáo ${title} (chưa khả dụng)`}
+        className="flex min-h-11 items-center gap-1 rounded-md text-xs font-medium text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60"
       >
         Xem báo cáo
-        <ChevronRight className="h-3 w-3" />
+        <ChevronRight aria-hidden="true" className="h-3 w-3" />
       </button>
     </div>
   )
 })
 
 export function ReportsSection() {
+  const shouldReduceMotion = useReducedMotion()
+
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       {/* Quick report cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {quickReportCards.map((card, index) => (
           <ReportCard key={card.title} {...card} index={index} />
         ))}
       </div>
 
       {/* Charts row */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid min-w-0 grid-cols-1 gap-6 xl:grid-cols-2">
         {/* Conversion rate trend */}
-        <div className="animate-in rounded-xl border border-border bg-card p-5 delay-200 duration-500 fade-in slide-in-from-bottom-4">
-          <div className="mb-6 flex items-center justify-between">
-            <div>
+        <section className="min-w-0 animate-in rounded-xl border border-border bg-card p-4 delay-200 duration-500 fade-in slide-in-from-bottom-4 motion-reduce:animate-none sm:p-5">
+          <div className="mb-4 flex flex-col items-start justify-between gap-3 sm:mb-6 sm:flex-row">
+            <div className="min-w-0">
               <h3 className="text-base font-semibold text-foreground">
                 Xu hướng tỉ lệ chuyển đổi
               </h3>
@@ -195,17 +200,17 @@ export function ReportsSection() {
               </p>
             </div>
             <div className="flex items-center gap-2 text-sm font-medium text-success">
-              <TrendingUp className="h-4 w-4" />
+              <TrendingUp aria-hidden="true" className="h-4 w-4" />
               +111% YoY
             </div>
           </div>
-          <div className="h-[250px]">
-            <Suspense fallback={<div className="h-full" />}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={conversionData}
-                  margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-                >
+          <div role="img" aria-label="Biểu đồ xu hướng tỉ lệ chuyển đổi theo tháng" className="h-[230px] min-w-0 sm:h-[250px]">
+              <LineChart
+                responsive
+                style={{ width: "100%", height: "100%" }}
+                data={conversionData}
+                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+              >
                   <CartesianGrid
                     strokeDasharray="3 3"
                     stroke="oklch(0.22 0.005 260)"
@@ -238,19 +243,18 @@ export function ReportsSection() {
                   <Line
                     type="monotone"
                     dataKey="rate"
+                    isAnimationActive={!shouldReduceMotion}
                     stroke="oklch(0.7 0.18 145)"
                     strokeWidth={2}
                     dot={false}
                     activeDot={{ r: 4, strokeWidth: 2 }}
                   />
-                </LineChart>
-              </ResponsiveContainer>
-            </Suspense>
+              </LineChart>
           </div>
-        </div>
+        </section>
 
         {/* Lead sources pie chart */}
-        <div className="animate-in rounded-xl border border-border bg-card p-5 delay-300 duration-500 fade-in slide-in-from-bottom-4">
+        <section className="min-w-0 animate-in rounded-xl border border-border bg-card p-4 delay-300 duration-500 fade-in slide-in-from-bottom-4 motion-reduce:animate-none sm:p-5">
           <div className="mb-6">
             <h3 className="text-base font-semibold text-foreground">
               Nguồn khách tiềm năng
@@ -259,13 +263,15 @@ export function ReportsSection() {
               Khách tiềm năng đến từ đâu
             </p>
           </div>
-          <div className="flex items-center gap-8">
-            <div className="h-[180px] w-[180px]">
-              <Suspense fallback={<div className="h-full" />}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
+          <div className="flex min-w-0 flex-col items-center gap-6 sm:flex-row sm:gap-8">
+            <div role="img" aria-label="Biểu đồ tỉ lệ nguồn khách hàng tiềm năng" className="size-[180px] shrink-0">
+                <PieChart
+                  responsive
+                  style={{ width: "100%", height: "100%" }}
+                >
                     <Pie
                       data={sourceData}
+                      isAnimationActive={!shouldReduceMotion}
                       cx="50%"
                       cy="50%"
                       innerRadius={50}
@@ -277,15 +283,13 @@ export function ReportsSection() {
                         <Cell key={entry.name} fill={entry.color} />
                       ))}
                     </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-              </Suspense>
+                </PieChart>
             </div>
-            <div className="flex-1 space-y-3">
+            <div className="w-full min-w-0 flex-1 space-y-3">
               {sourceData.map((source, index) => (
                 <div
                   key={source.name}
-                  className="flex animate-in items-center justify-between fade-in slide-in-from-right-2"
+                  className="flex animate-in items-center justify-between gap-3 fade-in slide-in-from-right-2 motion-reduce:animate-none"
                   style={{
                     animationDelay: `${(index + 5) * 100}ms`,
                     animationFillMode: "both",
@@ -293,6 +297,7 @@ export function ReportsSection() {
                 >
                   <div className="flex items-center gap-2">
                     <div
+                      aria-hidden="true"
                       className="h-3 w-3 rounded-full"
                       style={{ backgroundColor: source.color }}
                     />
@@ -300,20 +305,20 @@ export function ReportsSection() {
                       {source.name}
                     </span>
                   </div>
-                  <span className="text-sm font-semibold text-foreground">
+                  <span className="shrink-0 text-sm font-semibold text-foreground tabular-nums">
                     {source.value}%
                   </span>
                 </div>
               ))}
             </div>
           </div>
-        </div>
+        </section>
       </div>
 
       {/* Recent reports table */}
-      <div className="animate-in overflow-hidden rounded-xl border border-border bg-card delay-400 duration-500 fade-in slide-in-from-bottom-4">
-        <div className="flex items-center justify-between border-b border-border p-5">
-          <div>
+      <section className="min-w-0 animate-in overflow-hidden rounded-xl border border-border bg-card delay-400 duration-500 fade-in slide-in-from-bottom-4 motion-reduce:animate-none">
+        <div className="flex flex-col items-stretch justify-between gap-3 border-b border-border p-4 sm:flex-row sm:items-center sm:p-5">
+          <div className="min-w-0">
             <h3 className="text-base font-semibold text-foreground">
               Báo cáo gần đây
             </h3>
@@ -323,9 +328,12 @@ export function ReportsSection() {
           </div>
           <button
             type="button"
-            className="flex items-center gap-2 rounded-lg bg-secondary px-3 py-1.5 text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground"
+            disabled
+            title="Tạo báo cáo chưa khả dụng"
+            aria-label="Tạo báo cáo mới (chưa khả dụng)"
+            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-secondary px-3 py-2 text-sm text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
-            <FileText className="h-4 w-4" />
+            <FileText aria-hidden="true" className="h-4 w-4" />
             Tạo mới
           </button>
         </div>
@@ -333,21 +341,21 @@ export function ReportsSection() {
           {reports.map((report, index) => (
             <div
               key={report.id}
-              className="flex animate-in cursor-pointer items-center justify-between px-5 py-4 transition-colors duration-150 fade-in slide-in-from-left-2 hover:bg-secondary/30"
+              className="flex min-w-0 animate-in flex-col items-stretch justify-between gap-3 px-4 py-4 transition-colors duration-150 fade-in slide-in-from-left-2 hover:bg-secondary/30 motion-reduce:animate-none motion-reduce:transition-none sm:flex-row sm:items-center sm:px-5"
               style={{
                 animationDelay: `${(index + 6) * 50}ms`,
                 animationFillMode: "both",
               }}
             >
-              <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
-                  <FileText className="h-5 w-5 text-muted-foreground" />
+              <div className="flex min-w-0 items-center gap-4">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-secondary">
+                  <FileText aria-hidden="true" className="h-5 w-5 text-muted-foreground" />
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-foreground break-words">
                     {report.name}
                   </p>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     <span className="rounded bg-secondary px-1.5 py-0.5">
                       {report.type}
                     </span>
@@ -356,18 +364,21 @@ export function ReportsSection() {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 sm:shrink-0">
                 {report.status === "generating" ? (
-                  <div className="flex items-center gap-2 text-xs text-warning">
-                    <Clock className="h-4 w-4 animate-pulse" />
-                    Đang tạo...
-                  </div>
+                  <output aria-live="polite" className="flex min-h-11 items-center gap-2 text-xs text-warning">
+                    <Clock aria-hidden="true" className="h-4 w-4 animate-pulse motion-reduce:animate-none" />
+                    Đang tạo…
+                  </output>
                 ) : (
                   <button
                     type="button"
-                    className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-all duration-200 hover:bg-secondary hover:text-foreground"
+                    disabled
+                    title="Tải báo cáo chưa khả dụng"
+                    aria-label={`Tải báo cáo ${report.name} (chưa khả dụng)`}
+                    className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                   >
-                    <Download className="h-4 w-4" />
+                    <Download aria-hidden="true" className="h-4 w-4" />
                     Tải xuống
                   </button>
                 )}
@@ -375,7 +386,7 @@ export function ReportsSection() {
             </div>
           ))}
         </div>
-      </div>
+      </section>
     </div>
   )
 }
