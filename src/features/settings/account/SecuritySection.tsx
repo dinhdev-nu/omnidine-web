@@ -98,14 +98,16 @@ export function SecuritySection() {
   }
 
   return (
-    <div className="animate-in space-y-6 duration-300 fade-in slide-in-from-bottom-2">
+    <div className="animate-in space-y-6 duration-300 motion-reduce:animate-none fade-in slide-in-from-bottom-2">
       <PasswordSecurityCard
         state={securityState}
+        profileEmail={profile?.email ?? ""}
         dispatchSecurity={dispatchSecurity}
         onChangePassword={handleChangePassword}
       />
       <TwoFactorCard
         state={securityState}
+        profileEmail={profile?.email ?? ""}
         twoFactorEnabled={Boolean(profile?.two_factor_enabled)}
         dispatchSecurity={dispatchSecurity}
         onToggle2fa={handleToggle2fa}

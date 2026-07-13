@@ -12,7 +12,7 @@ export function ProfileSaveActions({ controller }: ProfileSectionViewProps) {
       >
         {isSavingProfile ? (
           <>
-            <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+            <RefreshCw className="mr-2 h-4 w-4 animate-spin motion-reduce:animate-none" />
             Đang lưu...
           </>
         ) : (
