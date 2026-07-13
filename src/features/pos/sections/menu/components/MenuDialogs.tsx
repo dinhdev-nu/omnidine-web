@@ -18,7 +18,7 @@ export function MenuDialogs({ controller }: MenuSectionViewProps) {
     handleImageFileChange,
     handleAddImageUrl,
     handleRemoveImageAt,
-    imagePreviewUrls,
+    imagePreviews,
     itemFormData,
     itemFormErrors,
     uiCategories,
@@ -75,7 +75,7 @@ export function MenuDialogs({ controller }: MenuSectionViewProps) {
         onAddImageUrl={handleAddImageUrl}
         onRemoveImageAt={handleRemoveImageAt}
         returnFocusRef={itemModalTriggerRef}
-        imagePreviewUrls={imagePreviewUrls}
+        imagePreviews={imagePreviews}
         item={itemFormData}
         errors={itemFormErrors}
         categories={uiCategories}

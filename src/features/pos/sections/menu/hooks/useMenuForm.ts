@@ -12,7 +12,10 @@ import {
 } from "@/services/menu"
 import { uploadSingleFile } from "@/services/uploads"
 import type { MenuItem } from "@/types/domain/menu"
-import type { MenuItemFormData } from "../components/MenuItemModal"
+import type {
+  MenuItemFormData,
+  MenuItemImagePreview,
+} from "../components/MenuItemModal"
 
 const DEFAULT_MENU_ITEM: MenuItemFormData = {
   name: "",
@@ -41,11 +44,22 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
     React.useState<MenuItem | null>(null)
   const [formData, setFormData] =
     React.useState<MenuItemFormData>(DEFAULT_MENU_ITEM)
+  const [imagePreviews, setImagePreviews] = React.useState<
+    MenuItemImagePreview[]
+  >([])
   const [formErrors, setFormErrors] = React.useState<
     Partial<Record<keyof MenuItemFormData, string>>
   >({})
   const uploadRequestIdRef = React.useRef(0)
+  const imagePreviewIdRef = React.useRef(0)
   const itemModalTriggerRef = React.useRef<HTMLElement | null>(null)
+
+  const createImagePreviews = React.useCallback((urls: string[]) => {
+    return urls.map((url) => ({
+      id: `menu-item-image-preview-${++imagePreviewIdRef.current}`,
+      url,
+    }))
+  }, [])
 
   const areImageListsEqual = React.useCallback((a: string[], b: string[]) => {
     return (
@@ -55,6 +69,7 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
 
   const resetForm = React.useCallback(() => {
     setFormData(DEFAULT_MENU_ITEM)
+    setImagePreviews([])
     setFormErrors({})
     setEditingItemId(null)
     setEditingItemDetail(null)
@@ -77,6 +92,7 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
 
         setEditingItemId(detail._id)
         setEditingItemDetail(detail)
+        setImagePreviews(createImagePreviews(imageUrls))
         setFormData({
           name: detail.name,
           description: detail.description || "",
@@ -94,7 +110,7 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
         setIsSubmitting(false)
       }
     },
-    [restaurantId]
+    [createImagePreviews, restaurantId]
   )
 
   const handleFieldChange = React.useCallback(
@@ -110,52 +126,67 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
     []
   )
 
-  const handleImageFileChange = React.useCallback((files: File[]) => {
-    if (!files.length) {
-      return
-    }
-
-    const requestId = uploadRequestIdRef.current + 1
-    uploadRequestIdRef.current = requestId
-    setIsUploadingImage(true)
-
-    void (async () => {
-      try {
-        if (uploadRequestIdRef.current !== requestId) return
-
-        const uploadedFiles = await Promise.all(
-          files.map((file) => uploadSingleFile(file))
-        )
-        if (uploadRequestIdRef.current === requestId) {
-          const uploadedUrls = uploadedFiles.map((uploaded) => uploaded.url)
-          setFormData((prev) => ({
-            ...prev,
-            imageUrls: [...prev.imageUrls, ...uploadedUrls],
-          }))
-          toast.success("Tải ảnh món ăn thành công")
-        }
-      } catch {
-        if (uploadRequestIdRef.current === requestId) {
-          toast.error("Không thể tải ảnh món ăn")
-        }
-      } finally {
-        if (uploadRequestIdRef.current === requestId) {
-          setIsUploadingImage(false)
-        }
+  const handleImageFileChange = React.useCallback(
+    (files: File[]) => {
+      if (!files.length) {
+        return
       }
-    })()
-  }, [])
 
-  const handleAddImageUrl = React.useCallback((url: string) => {
-    const normalized = url.trim()
-    if (!normalized) return
-    setFormData((prev) => ({
-      ...prev,
-      imageUrls: [...prev.imageUrls, normalized],
-    }))
-  }, [])
+      const requestId = uploadRequestIdRef.current + 1
+      uploadRequestIdRef.current = requestId
+      setIsUploadingImage(true)
+
+      void (async () => {
+        try {
+          if (uploadRequestIdRef.current !== requestId) return
+
+          const uploadedFiles = await Promise.all(
+            files.map((file) => uploadSingleFile(file))
+          )
+          if (uploadRequestIdRef.current === requestId) {
+            const uploadedUrls = uploadedFiles.map((uploaded) => uploaded.url)
+            setImagePreviews((prev) => [
+              ...prev,
+              ...createImagePreviews(uploadedUrls),
+            ])
+            setFormData((prev) => ({
+              ...prev,
+              imageUrls: [...prev.imageUrls, ...uploadedUrls],
+            }))
+            toast.success("Tải ảnh món ăn thành công")
+          }
+        } catch {
+          if (uploadRequestIdRef.current === requestId) {
+            toast.error("Không thể tải ảnh món ăn")
+          }
+        } finally {
+          if (uploadRequestIdRef.current === requestId) {
+            setIsUploadingImage(false)
+          }
+        }
+      })()
+    },
+    [createImagePreviews]
+  )
+
+  const handleAddImageUrl = React.useCallback(
+    (url: string) => {
+      const normalized = url.trim()
+      if (!normalized) return
+      setImagePreviews((prev) => [
+        ...prev,
+        ...createImagePreviews([normalized]),
+      ])
+      setFormData((prev) => ({
+        ...prev,
+        imageUrls: [...prev.imageUrls, normalized],
+      }))
+    },
+    [createImagePreviews]
+  )
 
   const handleRemoveImageAt = React.useCallback((index: number) => {
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index))
     setFormData((prev) => ({
       ...prev,
       imageUrls: prev.imageUrls.filter((_, i) => i !== index),
@@ -303,7 +334,7 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
     isUploadingImage,
     formData,
     formErrors,
-    imagePreviewUrls: formData.imageUrls,
+    imagePreviews,
     handleFieldChange,
     handleImageFileChange,
     handleAddImageUrl,

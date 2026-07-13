@@ -131,7 +131,7 @@ const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({
               </p>
             </div>
           ) : (
-            <div className="flex flex-col gap-3" role="list">
+            <ul className="flex flex-col gap-3">
               {categories.map((category, index) => {
                 const isMoveUpPending = isCategoryActionPending(
                   category._id,
@@ -155,9 +155,8 @@ const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({
                   isDeletePending
 
                 return (
-                  <div
+                  <li
                     key={category._id}
-                    role="listitem"
                     aria-busy={isAnyPending}
                     className="flex min-w-0 flex-col gap-3 rounded-lg border border-border bg-card p-3 sm:flex-row sm:items-center sm:justify-between"
                   >
@@ -296,10 +295,10 @@ const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({
                         )}
                       </Button>
                     </div>
-                  </div>
+                  </li>
                 )
               })}
-            </div>
+            </ul>
           )}
         </div>
 

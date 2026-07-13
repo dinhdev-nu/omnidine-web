@@ -70,16 +70,16 @@ export function MenuItemImageFields({
           </span>
           <label
             htmlFor="menu-item-images"
-            className="group flex min-h-48 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-border bg-muted transition-colors hover:border-primary hover:bg-primary/5 peer-focus-visible:border-ring peer-focus-visible:ring-2 peer-focus-visible:ring-ring/30 motion-reduce:transition-none"
+            className="group flex min-h-48 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-border bg-muted transition-colors peer-focus-visible:border-ring peer-focus-visible:ring-2 peer-focus-visible:ring-ring/30 hover:border-primary hover:bg-primary/5 motion-reduce:transition-none"
           >
             {imagePreviews.length > 0 ? (
               <div className="relative h-full w-full">
                 <Image
-                  src={imagePreviews[0]}
+                  src={imagePreviews[0].url}
                   alt="Ảnh xem trước của món ăn"
                   className="h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 motion-reduce:transition-none">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 motion-reduce:transition-none">
                   <div className="text-center text-white">
                     <Icon name="Upload" size={32} className="mx-auto mb-2" />
                     <p className="text-sm font-medium">Thêm ảnh</p>
@@ -99,22 +99,20 @@ export function MenuItemImageFields({
                 <p className="mb-1 text-sm font-medium">
                   Nhấn để chọn nhiều ảnh
                 </p>
-                <p className="text-xs">
-                  PNG, JPG, WEBP (tối đa 5 MB mỗi ảnh)
-                </p>
+                <p className="text-xs">PNG, JPG, WEBP (tối đa 5 MB mỗi ảnh)</p>
               </div>
             )}
           </label>
 
           {imagePreviews.length > 0 && (
             <div className="grid grid-cols-4 gap-2">
-              {imagePreviews.map((url, index) => (
+              {imagePreviews.map((preview, index) => (
                 <div
-                  key={`${url}-${index}`}
+                  key={preview.id}
                   className="relative h-16 overflow-hidden rounded border border-border"
                 >
                   <Image
-                    src={url}
+                    src={preview.url}
                     alt={`Ảnh món ăn ${index + 1}`}
                     className="h-full w-full object-cover"
                   />
@@ -165,7 +163,7 @@ export function MenuItemImageFields({
           <div className="flex h-40 w-full flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-border bg-muted">
             {imagePreviews.length > 0 ? (
               <Image
-                src={imagePreviews[0]}
+                src={imagePreviews[0].url}
                 alt="Ảnh xem trước của món ăn"
                 className="h-full w-full object-cover"
               />
@@ -179,13 +177,13 @@ export function MenuItemImageFields({
 
           {imagePreviews.length > 0 && (
             <div className="grid grid-cols-4 gap-2">
-              {imagePreviews.map((url, index) => (
+              {imagePreviews.map((preview, index) => (
                 <div
-                  key={`${url}-${index}`}
+                  key={preview.id}
                   className="relative h-16 overflow-hidden rounded border border-border"
                 >
                   <Image
-                    src={url}
+                    src={preview.url}
                     alt={`Ảnh món ăn ${index + 1}`}
                     className="h-full w-full object-cover"
                   />

@@ -3,7 +3,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog"
 import {
   DEFAULT_MENU_ITEM,
   EMPTY_CATEGORIES,
-  EMPTY_IMAGE_PREVIEW_URLS,
+  EMPTY_IMAGE_PREVIEWS,
   EMPTY_MENU_ITEM_ERRORS,
 } from "./menu-item-modal.constants"
 import { MenuItemDetailsFields } from "./MenuItemDetailsFields"
@@ -12,14 +12,17 @@ import { MenuItemModalFooter } from "./MenuItemModalFooter"
 import { MenuItemModalHeader } from "./MenuItemModalHeader"
 import type { MenuItemModalProps, UploadMethod } from "./menu-item-modal.types"
 
-export type { MenuItemFormData } from "./menu-item-modal.types"
+export type {
+  MenuItemFormData,
+  MenuItemImagePreview,
+} from "./menu-item-modal.types"
 
 const MenuItemModal: React.FC<MenuItemModalProps> = ({
   isOpen,
   isLoading = false,
   isEditing = false,
   item = null,
-  imagePreviewUrls = EMPTY_IMAGE_PREVIEW_URLS,
+  imagePreviews = EMPTY_IMAGE_PREVIEWS,
   categories = EMPTY_CATEGORIES,
   errors = EMPTY_MENU_ITEM_ERRORS,
   onClose,
@@ -45,8 +48,6 @@ const MenuItemModal: React.FC<MenuItemModalProps> = ({
     onImageFileChange(files)
     e.currentTarget.value = ""
   }
-
-  const imagePreviews = imagePreviewUrls
 
   return (
     <Dialog
@@ -82,10 +83,7 @@ const MenuItemModal: React.FC<MenuItemModalProps> = ({
             if (!isLoading) onSave(formData)
           }}
         >
-          <MenuItemModalHeader
-            isEditing={isEditing}
-            isLoading={isLoading}
-          />
+          <MenuItemModalHeader isEditing={isEditing} isLoading={isLoading} />
 
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -109,10 +107,7 @@ const MenuItemModal: React.FC<MenuItemModalProps> = ({
             </div>
           </div>
 
-          <MenuItemModalFooter
-            isLoading={isLoading}
-            isEditing={isEditing}
-          />
+          <MenuItemModalFooter isLoading={isLoading} isEditing={isEditing} />
         </form>
       </DialogContent>
     </Dialog>

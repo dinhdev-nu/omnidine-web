@@ -11,14 +11,19 @@ import Button from "../../../ui/Button"
 import Input from "../../../ui/Input"
 import TableQrDialog from "./TableQrDialog"
 
+export type TableControlAction =
+  | "update"
+  | "status"
+  | "toggle-active"
+  | "regenerate-qr"
+  | "delete"
+
+const EMPTY_PENDING_ACTIONS: ReadonlySet<TableControlAction> = new Set()
+
 interface TableControlPanelProps {
   selectedTable?: TableListItem | null
   displayMode?: "sidebar" | "dialog"
-  isSubmittingUpdate?: boolean
-  isSubmittingStatus?: boolean
-  isTogglingActive?: boolean
-  isRegeneratingQr?: boolean
-  isDeleting?: boolean
+  pendingActions?: ReadonlySet<TableControlAction>
   onTableStatusChange: (id: string, status: TableStatus) => void
   onUpdateTable: (id: string, form: UpdateTablePayload) => void
   onToggleTableActive: (id: string) => void
@@ -44,11 +49,7 @@ const STATUS_OPTIONS = [
 const TableControlPanel: React.FC<TableControlPanelProps> = ({
   selectedTable,
   displayMode = "sidebar",
-  isSubmittingUpdate = false,
-  isSubmittingStatus = false,
-  isTogglingActive = false,
-  isRegeneratingQr = false,
-  isDeleting = false,
+  pendingActions = EMPTY_PENDING_ACTIONS,
   onTableStatusChange,
   onUpdateTable,
   onToggleTableActive,
@@ -70,12 +71,12 @@ const TableControlPanel: React.FC<TableControlPanelProps> = ({
       ? `${window.location.origin}/public/tables/${selectedTable.qr_code}`
       : null)
 
-  const isBusy =
-    isSubmittingUpdate ||
-    isSubmittingStatus ||
-    isTogglingActive ||
-    isRegeneratingQr ||
-    isDeleting
+  const isSubmittingUpdate = pendingActions.has("update")
+  const isSubmittingStatus = pendingActions.has("status")
+  const isTogglingActive = pendingActions.has("toggle-active")
+  const isRegeneratingQr = pendingActions.has("regenerate-qr")
+  const isDeleting = pendingActions.has("delete")
+  const isBusy = pendingActions.size > 0
 
   const handleUpdateTable = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()

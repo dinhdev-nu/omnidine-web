@@ -111,7 +111,8 @@ export function useMenuSectionController() {
   const isTableView = viewMode === "table"
   const categoryManagerTriggerRef = React.useRef<HTMLElement | null>(null)
   const openCategoryManager = React.useCallback(() => {
-    categoryManagerTriggerRef.current = document.activeElement as HTMLElement | null
+    categoryManagerTriggerRef.current =
+      document.activeElement as HTMLElement | null
     dispatchMenuUi({ type: "setCategoryManagerOpen", isOpen: true })
   }, [])
 
@@ -155,7 +156,7 @@ export function useMenuSectionController() {
     isEditing: isEditingMenuItem,
     formData: itemFormData,
     formErrors: itemFormErrors,
-    imagePreviewUrls,
+    imagePreviews,
     handleFieldChange,
     handleImageFileChange,
     handleAddImageUrl,
@@ -297,7 +298,7 @@ export function useMenuSectionController() {
     isEditingMenuItem,
     itemFormData,
     itemFormErrors,
-    imagePreviewUrls,
+    imagePreviews,
     handleFieldChange,
     handleImageFileChange,
     handleAddImageUrl,

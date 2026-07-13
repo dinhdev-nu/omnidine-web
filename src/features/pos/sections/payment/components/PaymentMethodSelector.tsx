@@ -82,6 +82,7 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
   loadingMethod = '',
   enabledMethods,
 }) => {
+  const enabledMethodSet = enabledMethods ? new Set(enabledMethods) : null;
   const filteredMethods =
     availableMethods.length > 0
       ? PAYMENT_METHODS.filter((m) => availableMethods.includes(m.id))
@@ -96,7 +97,7 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
         {filteredMethods.map((method) => {
           const isMethodLoading = isLoading && loadingMethod === method.id;
           const isSelected = selectedMethod === method.id;
-          const isDisabled = Array.isArray(enabledMethods) && !enabledMethods.includes(method.id);
+          const isDisabled = enabledMethodSet !== null && !enabledMethodSet.has(method.id);
 
           return (
             <button

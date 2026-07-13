@@ -20,12 +20,17 @@ export interface Category {
   name: string
 }
 
+export interface MenuItemImagePreview {
+  id: string
+  url: string
+}
+
 export interface MenuItemModalProps {
   isOpen: boolean
   isLoading?: boolean
   isEditing?: boolean
   item?: MenuItemFormData | null
-  imagePreviewUrls?: string[]
+  imagePreviews?: MenuItemImagePreview[]
   categories?: Category[]
   errors?: Partial<Record<keyof MenuItemFormData, string>>
   onClose: () => void
@@ -60,7 +65,7 @@ export interface MenuItemImageFieldsProps {
   pendingImageUrl: string
   setPendingImageUrl: (url: string) => void
   handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void
-  imagePreviews: string[]
+  imagePreviews: MenuItemImagePreview[]
   onAddImageUrl: (url: string) => void
   onRemoveImageAt: (index: number) => void
 }

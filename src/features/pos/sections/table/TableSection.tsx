@@ -16,7 +16,9 @@ import Input from "../../ui/Input"
 import Select from "../../ui/Select"
 import QuickActionBar from "./components/QuickActionBar"
 import TableAddModal from "./components/TableAddModal"
-import TableControlPanel from "./components/TableControlPanel"
+import TableControlPanel, {
+  type TableControlAction,
+} from "./components/TableControlPanel"
 import TableLayout from "./components/TableLayout"
 import { useTableManagement } from "./hooks/useTableManagement"
 
@@ -242,6 +244,12 @@ const TableSection: React.FC = () => {
     onCapacityMaxChange: handleCapacityMaxFilterChange,
     onClear: handleClearFilters,
   }
+  const pendingControlActions = new Set<TableControlAction>()
+  if (isSubmittingUpdate) pendingControlActions.add("update")
+  if (isSubmittingStatus) pendingControlActions.add("status")
+  if (isTogglingActive) pendingControlActions.add("toggle-active")
+  if (isRegeneratingQr) pendingControlActions.add("regenerate-qr")
+  if (isDeletingTable) pendingControlActions.add("delete")
 
   return (
     <div className="relative h-full min-h-0 overflow-hidden">
@@ -367,11 +375,7 @@ const TableSection: React.FC = () => {
             <TableControlPanel
               key={selectedTable?._id ?? "none"}
               selectedTable={selectedTable}
-              isSubmittingUpdate={isSubmittingUpdate}
-              isSubmittingStatus={isSubmittingStatus}
-              isTogglingActive={isTogglingActive}
-              isRegeneratingQr={isRegeneratingQr}
-              isDeleting={isDeletingTable}
+              pendingActions={pendingControlActions}
               onTableStatusChange={handleTableStatusChange}
               onUpdateTable={handleUpdateTable}
               onToggleTableActive={handleToggleTableActive}
@@ -461,11 +465,7 @@ const TableSection: React.FC = () => {
               key={selectedTable?._id ?? "mobile-none"}
               selectedTable={selectedTable}
               displayMode="dialog"
-              isSubmittingUpdate={isSubmittingUpdate}
-              isSubmittingStatus={isSubmittingStatus}
-              isTogglingActive={isTogglingActive}
-              isRegeneratingQr={isRegeneratingQr}
-              isDeleting={isDeletingTable}
+              pendingActions={pendingControlActions}
               onTableStatusChange={handleTableStatusChange}
               onUpdateTable={handleUpdateTable}
               onToggleTableActive={handleToggleTableActive}

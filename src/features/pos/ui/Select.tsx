@@ -7,7 +7,7 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
   description?: React.ReactNode
   error?: React.ReactNode
   wrapperClassName?: string
-  options?: Array<{ value: string; label: string }>;
+  options?: Array<{ value: string; label: string }>
   placeholder?: string
   searchable?: boolean
 }
@@ -51,7 +51,8 @@ function Select({
           "transition-colors outline-none motion-reduce:transition-none",
           "focus:border-ring focus:ring-2 focus:ring-ring/20",
           "disabled:cursor-not-allowed disabled:opacity-50",
-          error && "border-destructive focus:border-destructive focus:ring-destructive/20",
+          error &&
+            "border-destructive focus:border-destructive focus:ring-destructive/20",
           className
         )}
         {...props}
@@ -62,14 +63,14 @@ function Select({
           </option>
         )}
         {options.length > 0
-          ? options.map((opt, idx) => (
-            <option key={`${opt.value}-${idx}`} value={opt.value}>
-              {opt.label}
-            </option>
-          ))
+          ? options.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))
           : children}
       </select>
-      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+      <div className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2">
         <Icon name="ChevronDown" size={16} className="text-muted-foreground" />
       </div>
     </div>
@@ -82,7 +83,10 @@ function Select({
   return (
     <div className={cn("space-y-2", wrapperClassName)}>
       {label && (
-        <label htmlFor={selectId} className="text-sm font-medium text-foreground">
+        <label
+          htmlFor={selectId}
+          className="text-sm font-medium text-foreground"
+        >
           {label}
           {required && <span className="ml-1 text-destructive">*</span>}
         </label>
@@ -105,4 +109,4 @@ function Select({
   )
 }
 
-export default Select;
+export default Select

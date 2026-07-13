@@ -1,6 +1,10 @@
-import type { Category, MenuItemFormData } from "./menu-item-modal.types"
+import type {
+  Category,
+  MenuItemFormData,
+  MenuItemImagePreview,
+} from "./menu-item-modal.types"
 
-export const EMPTY_IMAGE_PREVIEW_URLS: string[] = []
+export const EMPTY_IMAGE_PREVIEWS: MenuItemImagePreview[] = []
 
 export const EMPTY_CATEGORIES: Category[] = []
 
