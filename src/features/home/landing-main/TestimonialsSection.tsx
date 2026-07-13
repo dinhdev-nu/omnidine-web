@@ -1,13 +1,13 @@
 import React from "react"
 import { TESTIMONIALS } from "./landing-main.data"
 
+const getScrollBehavior = (): ScrollBehavior =>
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ? "auto"
+    : "smooth"
+
 export function TestimonialsSection() {
   const scrollRef = React.useRef<HTMLDivElement>(null)
-
-  const getScrollBehavior = (): ScrollBehavior =>
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
-      ? "auto"
-      : "smooth"
 
   const scrollLeft = () => {
     if (scrollRef.current) {
@@ -80,7 +80,7 @@ export function TestimonialsSection() {
           <div className="relative">
             <div
               ref={scrollRef}
-              className="no-scrollbar relative flex h-full w-full snap-x snap-mandatory gap-10 overflow-x-auto scroll-smooth motion-reduce:scroll-auto md:gap-0"
+              className="relative no-scrollbar flex h-full w-full snap-x snap-mandatory gap-10 overflow-x-auto scroll-smooth motion-reduce:scroll-auto md:gap-0"
               style={{ scrollSnapType: "x mandatory" }}
             >
               {TESTIMONIALS.map((testimonial) => (
