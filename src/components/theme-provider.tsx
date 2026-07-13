@@ -1,6 +1,10 @@
 import * as React from "react"
 
-type Theme = "dark" | "light" | "system"
+import {
+  ThemeProviderContext,
+  type Theme,
+} from "@/components/theme-context"
+
 type ResolvedTheme = "dark" | "light"
 
 type ThemeProviderProps = {
@@ -10,17 +14,8 @@ type ThemeProviderProps = {
   disableTransitionOnChange?: boolean
 }
 
-type ThemeProviderState = {
-  theme: Theme
-  setTheme: (theme: Theme) => void
-}
-
 const COLOR_SCHEME_QUERY = "(prefers-color-scheme: dark)"
 const THEME_VALUES: Theme[] = ["dark", "light", "system"]
-
-const ThemeProviderContext = React.createContext<
-  ThemeProviderState | undefined
->(undefined)
 
 function isTheme(value: string | null): value is Theme {
   if (value === null) {

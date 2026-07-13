@@ -1,5 +1,5 @@
 import React from "react"
-import type { LucideProps } from "lucide-react"
+import { HelpCircle, type LucideProps } from "lucide-react"
 import { getAppIcon } from "@/components/app-icon-registry"
 
 export interface AppIconProps extends Omit<LucideProps, "ref"> {
@@ -16,12 +16,7 @@ const AppIcon: React.FC<AppIconProps> = ({
   className = "",
   ...props
 }) => {
-  const IconComponent = getAppIcon(name)
-
-  if (!IconComponent) {
-    console.warn(`Icon "${name}" not found in app icon registry`)
-    return null
-  }
+  const IconComponent = getAppIcon(name) ?? HelpCircle
 
   return React.createElement(IconComponent, {
     size,

@@ -30,7 +30,7 @@ import { useAuthStore } from "@/stores/auth-store"
 import { useUserStore } from "@/stores/user-store"
 
 const OWNER_RESTAURANTS_PATH = "/settings/manage/restaurants"
-const MENU_ITEM_CLASS = "cursor-pointer gap-2 rounded-md px-2 py-2 font-medium"
+const MENU_ITEM_CLASS = "min-h-11 cursor-pointer gap-2 rounded-md px-2 py-2 font-medium"
 const MENU_LABEL_CLASS = "px-2 py-1 text-xs font-medium text-muted-foreground"
 
 function getInitials(fullName: string | undefined | null): string {
@@ -84,7 +84,7 @@ export function AccountMenu() {
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="flex size-9 items-center justify-center rounded-full bg-secondary text-foreground ring-1 ring-border/60 transition-[background-color,box-shadow,color] duration-200 hover:bg-secondary/80 hover:ring-border focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none data-[state=open]:bg-secondary data-[state=open]:ring-border"
+          className="flex size-11 touch-manipulation items-center justify-center rounded-full bg-secondary text-foreground ring-1 ring-border/60 transition-[background-color,box-shadow,color] duration-200 motion-reduce:transition-none hover:bg-secondary/80 hover:ring-border focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none data-[state=open]:bg-secondary data-[state=open]:ring-border"
           aria-label="Mở menu tài khoản"
         >
           <Avatar className="size-8">
