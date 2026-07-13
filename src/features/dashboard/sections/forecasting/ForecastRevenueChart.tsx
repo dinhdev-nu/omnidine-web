@@ -3,10 +3,11 @@ import {
   Area,
   AreaChart,
   CartesianGrid,
+  LazyChart,
   Tooltip,
   XAxis,
   YAxis,
-} from "recharts"
+} from "@/features/dashboard/components/charts/lazy-recharts"
 import { useReducedMotion } from "@/features/dashboard/components/charts/use-reduced-motion"
 import { forecastData } from "./forecasting.data"
 
@@ -38,6 +39,7 @@ export function ForecastRevenueChart() {
       </CardHeader>
       <CardContent className="px-4 sm:px-6">
         <div role="img" aria-label="Biểu đồ dự báo, doanh thu thực tế và chỉ tiêu theo tháng" className="h-[250px] min-w-0 sm:h-[300px]">
+          <LazyChart>
             <AreaChart
               responsive
               style={{ width: "100%", height: "100%" }}
@@ -131,6 +133,7 @@ export function ForecastRevenueChart() {
                   strokeWidth={2}
                 />
             </AreaChart>
+          </LazyChart>
         </div>
       </CardContent>
     </Card>

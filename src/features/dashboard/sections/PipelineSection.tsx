@@ -112,13 +112,18 @@ const DealCard = memo(function DealCard({ deal, index }: DealCardProps) {
                     <span className="text-muted-foreground">Xác suất</span>
                     <span className="text-foreground font-medium">{deal.probability}%</span>
                 </div>
-                <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                <meter
+                    className="sr-only"
+                    min={0}
+                    max={100}
+                    value={deal.probability}
+                    aria-label={`Xác suất giao dịch ${deal.company}`}
+                />
+                <div
+                    aria-hidden="true"
+                    className="h-1.5 bg-secondary rounded-full overflow-hidden"
+                >
                     <div
-                        role="progressbar"
-                        aria-label={`Xác suất giao dịch ${deal.company}`}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                        aria-valuenow={deal.probability}
                         className="h-full rounded-full bg-accent transition-[width] duration-500 motion-reduce:transition-none"
                         style={{ width: `${deal.probability}%` }}
                     />

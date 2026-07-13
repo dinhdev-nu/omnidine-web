@@ -3,11 +3,12 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  LazyChart,
   Legend,
   Tooltip,
   XAxis,
   YAxis,
-} from "recharts"
+} from "@/features/dashboard/components/charts/lazy-recharts"
 import { useReducedMotion } from "@/features/dashboard/components/charts/use-reduced-motion"
 import {
   quarterlyForecast,
@@ -29,6 +30,7 @@ export function ForecastAnalysisGrid() {
         </CardHeader>
         <CardContent className="px-4 sm:px-6">
           <div role="img" aria-label="Biểu đồ chi tiết dự báo theo quý" className="h-[280px] min-w-0 sm:h-[250px]">
+            <LazyChart>
               <BarChart
                 responsive
                 style={{ width: "100%", height: "100%" }}
@@ -91,6 +93,7 @@ export function ForecastAnalysisGrid() {
                     radius={[4, 4, 0, 0]}
                   />
               </BarChart>
+            </LazyChart>
           </div>
         </CardContent>
       </Card>
@@ -135,13 +138,18 @@ export function ForecastAnalysisGrid() {
                   {(scenario.revenue / 1000000000).toFixed(1)} tỷ
                 </p>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
+              <meter
+                className="sr-only"
+                min={0}
+                max={100}
+                value={scenario.probability}
+                aria-label={`Xác suất kịch bản ${scenario.name}`}
+              />
+              <div
+                aria-hidden="true"
+                className="h-2 w-full overflow-hidden rounded-full bg-secondary"
+              >
                 <div
-                  role="progressbar"
-                  aria-label={`Xác suất kịch bản ${scenario.name}`}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-valuenow={scenario.probability}
                   className="h-full rounded-full transition-[width] duration-1000 ease-out motion-reduce:transition-none"
                   style={{
                     width: `${scenario.probability}%`,

@@ -1,11 +1,12 @@
 import {
   Area,
-  CartesianGrid,
   AreaChart,
+  CartesianGrid,
+  LazyChart,
   Tooltip,
   XAxis,
   YAxis,
-} from "recharts"
+} from "./lazy-recharts"
 import { useReducedMotion } from "./use-reduced-motion"
 
 interface RevenueDataPoint {
@@ -60,6 +61,7 @@ export function RevenueChart() {
         aria-label="Biểu đồ doanh thu và mục tiêu theo tháng từ tháng 1 đến tháng 12"
         className="h-[240px] min-w-0 sm:h-[280px]"
       >
+        <LazyChart>
           <AreaChart
             responsive
             style={{ width: "100%", height: "100%" }}
@@ -149,6 +151,7 @@ export function RevenueChart() {
                 dot={false}
               />
           </AreaChart>
+        </LazyChart>
       </div>
     </section>
   )

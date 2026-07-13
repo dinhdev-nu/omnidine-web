@@ -107,7 +107,7 @@ export function DealsSection() {
                         <Search aria-hidden="true" className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                         <input
                             aria-label="Tìm đơn hàng"
-                            aria-description="Tính năng tìm kiếm đơn hàng chưa khả dụng"
+                            aria-describedby="order-search-description"
                             name="order-search"
                             type="search"
                             disabled
@@ -117,6 +117,9 @@ export function DealsSection() {
                             placeholder="Tìm đơn hàng…"
                             className="h-11 w-full rounded-lg border border-border bg-secondary pr-4 pl-9 text-sm text-foreground transition-[border-color,box-shadow] duration-200 placeholder:text-muted-foreground focus:border-accent focus:ring-2 focus:ring-ring/20 focus:outline-none motion-reduce:transition-none disabled:cursor-not-allowed disabled:opacity-60 sm:w-64"
                         />
+                        <span id="order-search-description" className="sr-only">
+                            Tính năng tìm kiếm đơn hàng chưa khả dụng
+                        </span>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                         {(["all", "pending", "processing", "completed", "cancelled"] as const).map((filter) => (

@@ -11,8 +11,8 @@ import {
   ChevronRight,
 } from "lucide-react"
 import {
-  Cell,
   CartesianGrid,
+  LazyChart,
   Line,
   LineChart,
   Pie,
@@ -20,7 +20,7 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from "recharts"
+} from "@/features/dashboard/components/charts/lazy-recharts"
 import { useReducedMotion } from "@/features/dashboard/components/charts/use-reduced-motion"
 
 interface ConversionDataPoint {
@@ -31,7 +31,7 @@ interface ConversionDataPoint {
 interface SourceDataItem {
   name: string
   value: number
-  color: string
+  fill: string
 }
 
 interface Report {
@@ -66,11 +66,11 @@ const conversionData: ConversionDataPoint[] = [
 ]
 
 const sourceData: SourceDataItem[] = [
-  { name: "Trực tiếp", value: 35, color: "oklch(0.7 0.18 220)" },
-  { name: "Giới thiệu", value: 25, color: "oklch(0.7 0.18 145)" },
-  { name: "Tự nhiên", value: 20, color: "oklch(0.75 0.18 55)" },
-  { name: "Quảng cáo", value: 15, color: "oklch(0.65 0.2 25)" },
-  { name: "Mạng XH", value: 5, color: "oklch(0.7 0.15 300)" },
+  { name: "Trực tiếp", value: 35, fill: "oklch(0.7 0.18 220)" },
+  { name: "Giới thiệu", value: 25, fill: "oklch(0.7 0.18 145)" },
+  { name: "Tự nhiên", value: 20, fill: "oklch(0.75 0.18 55)" },
+  { name: "Quảng cáo", value: 15, fill: "oklch(0.65 0.2 25)" },
+  { name: "Mạng XH", value: 5, fill: "oklch(0.7 0.15 300)" },
 ]
 
 const reports: Report[] = [
@@ -205,6 +205,7 @@ export function ReportsSection() {
             </div>
           </div>
           <div role="img" aria-label="Biểu đồ xu hướng tỉ lệ chuyển đổi theo tháng" className="h-[230px] min-w-0 sm:h-[250px]">
+            <LazyChart>
               <LineChart
                 responsive
                 style={{ width: "100%", height: "100%" }}
@@ -250,6 +251,7 @@ export function ReportsSection() {
                     activeDot={{ r: 4, strokeWidth: 2 }}
                   />
               </LineChart>
+            </LazyChart>
           </div>
         </section>
 
@@ -265,6 +267,7 @@ export function ReportsSection() {
           </div>
           <div className="flex min-w-0 flex-col items-center gap-6 sm:flex-row sm:gap-8">
             <div role="img" aria-label="Biểu đồ tỉ lệ nguồn khách hàng tiềm năng" className="size-[180px] shrink-0">
+              <LazyChart>
                 <PieChart
                   responsive
                   style={{ width: "100%", height: "100%" }}
@@ -278,12 +281,9 @@ export function ReportsSection() {
                       outerRadius={80}
                       paddingAngle={2}
                       dataKey="value"
-                    >
-                      {sourceData.map((entry) => (
-                        <Cell key={entry.name} fill={entry.color} />
-                      ))}
-                    </Pie>
+                    />
                 </PieChart>
+              </LazyChart>
             </div>
             <div className="w-full min-w-0 flex-1 space-y-3">
               {sourceData.map((source, index) => (
@@ -299,7 +299,7 @@ export function ReportsSection() {
                     <div
                       aria-hidden="true"
                       className="h-3 w-3 rounded-full"
-                      style={{ backgroundColor: source.color }}
+                      style={{ backgroundColor: source.fill }}
                     />
                     <span className="text-sm text-foreground">
                       {source.name}

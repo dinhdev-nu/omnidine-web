@@ -324,13 +324,18 @@ export function CustomersSection() {
                                     )}
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <div className="w-24 h-2 bg-secondary rounded-full overflow-hidden">
+                                    <meter
+                                        className="sr-only"
+                                        min={0}
+                                        max={100}
+                                        value={customer.healthScore}
+                                        aria-label={`Điểm sức khỏe của ${customer.name}`}
+                                    />
+                                    <div
+                                        aria-hidden="true"
+                                        className="w-24 h-2 bg-secondary rounded-full overflow-hidden"
+                                    >
                                         <div
-                                            role="progressbar"
-                                            aria-label={`Điểm sức khỏe của ${customer.name}`}
-                                            aria-valuemin={0}
-                                            aria-valuemax={100}
-                                            aria-valuenow={customer.healthScore}
                                             className="h-full rounded-full transition-[width] duration-1000 ease-out motion-reduce:transition-none"
                                             style={{
                                                 width: `${customer.healthScore}%`,

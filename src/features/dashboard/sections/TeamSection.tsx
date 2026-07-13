@@ -11,12 +11,13 @@ import {
 } from "lucide-react"
 import {
   Bar,
-  CartesianGrid,
   BarChart,
+  CartesianGrid,
+  LazyChart,
   Tooltip,
   XAxis,
   YAxis,
-} from "recharts"
+} from "@/features/dashboard/components/charts/lazy-recharts"
 import { useReducedMotion } from "@/features/dashboard/components/charts/use-reduced-motion"
 
 interface TeamMember {
@@ -189,13 +190,18 @@ const TeamMemberCard = memo(function TeamMemberCard({
             {quotaPercentage.toFixed(0)}%
           </span>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-secondary">
+        <meter
+          className="sr-only"
+          min={0}
+          max={100}
+          value={Math.min(quotaPercentage, 100)}
+          aria-label={`Mức đạt chỉ tiêu của ${member.name}`}
+        />
+        <div
+          aria-hidden="true"
+          className="h-2 overflow-hidden rounded-full bg-secondary"
+        >
           <div
-            role="progressbar"
-            aria-label={`Mức đạt chỉ tiêu của ${member.name}`}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={Math.min(Math.round(quotaPercentage), 100)}
             className={cn(
               "h-full rounded-full transition-[width] duration-700 motion-reduce:transition-none",
               isAboveQuota ? "bg-success" : "bg-accent"
@@ -312,6 +318,7 @@ export function TeamSection() {
           </div>
         </div>
         <div role="img" aria-label="Biểu đồ doanh thu và chỉ tiêu của từng thành viên" className="h-[230px] min-w-0 sm:h-[250px]">
+          <LazyChart>
             <BarChart
               responsive
               style={{ width: "100%", height: "100%" }}
@@ -360,6 +367,7 @@ export function TeamSection() {
                   radius={[4, 4, 0, 0]}
                 />
             </BarChart>
+          </LazyChart>
         </div>
       </section>
 

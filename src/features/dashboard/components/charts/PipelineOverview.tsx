@@ -30,13 +30,18 @@ export function PipelineOverview() {
                                 <span className="text-sm font-semibold text-foreground">{stage.value}%</span>
                             </div>
                         </div>
-                        <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                        <meter
+                            className="sr-only"
+                            min={0}
+                            max={100}
+                            value={stage.value}
+                            aria-label={`Tỷ lệ giai đoạn ${stage.name}`}
+                        />
+                        <div
+                            aria-hidden="true"
+                            className="h-2 bg-secondary rounded-full overflow-hidden"
+                        >
                             <div
-                                role="progressbar"
-                                aria-label={`Tỷ lệ giai đoạn ${stage.name}`}
-                                aria-valuemin={0}
-                                aria-valuemax={100}
-                                aria-valuenow={stage.value}
                                 className={`h-full ${stage.color} rounded-full`}
                                 style={{ width: `${stage.value}%` }}
                             />
