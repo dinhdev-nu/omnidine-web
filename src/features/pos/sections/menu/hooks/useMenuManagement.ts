@@ -179,7 +179,7 @@ export function useMenuManagement(restaurantId: string) {
   const categoryMap = React.useMemo(() => {
     const map: Record<string, string> = {}
     for (const cat of categories) {
-      map[cat._id] = cat.name
+      map[cat.id] = cat.name
     }
     return map
   }, [categories])
@@ -250,13 +250,13 @@ export function useMenuManagement(restaurantId: string) {
       direction === "up" ? "reorder-up" : "reorder-down"
     if (isItemActionPending(itemId, action)) return false
 
-    const current = items.find((item) => item._id === itemId)
+    const current = items.find((item) => item.id === itemId)
     if (!current) return false
 
     const group = items
       .filter((item) => item.category_id === current.category_id)
       .toSorted((a, b) => a.sort_order - b.sort_order)
-    const currentIndex = group.findIndex((item) => item._id === itemId)
+    const currentIndex = group.findIndex((item) => item.id === itemId)
     if (currentIndex < 0) return false
 
     const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1
@@ -271,7 +271,7 @@ export function useMenuManagement(restaurantId: string) {
     setActionPending("item", action, itemId, true)
     try {
       await reorderMenuItems(restaurantId, current.category_id, {
-        order: reordered.map((item) => item._id),
+        order: reordered.map((item) => item.id),
       })
       await fetchMenuData(true)
       return true
@@ -292,7 +292,7 @@ export function useMenuManagement(restaurantId: string) {
     if (isCategoryActionPending(categoryId, action)) return false
 
     const ordered = categories.toSorted((a, b) => a.sort_order - b.sort_order)
-    const currentIndex = ordered.findIndex((cat) => cat._id === categoryId)
+    const currentIndex = ordered.findIndex((cat) => cat.id === categoryId)
     if (currentIndex < 0) return false
 
     const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1
@@ -307,7 +307,7 @@ export function useMenuManagement(restaurantId: string) {
     setActionPending("category", action, categoryId, true)
     try {
       await reorderMenuCategories(restaurantId, {
-        order: reordered.map((cat) => cat._id),
+        order: reordered.map((cat) => cat.id),
       })
       await fetchMenuData(true)
       return true

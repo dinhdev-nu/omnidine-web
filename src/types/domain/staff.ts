@@ -32,7 +32,7 @@ export interface StaffSummary {
 }
 
 export interface StaffDetail {
-  _id: string
+  id: string
   restaurant_id: string
   user_id: string
   employee_code: string
@@ -77,8 +77,6 @@ export interface CreateStaffResponseData {
   id: string
   employee_code: string
   full_name: string
-  email: string | null
-  phone: string | null
   position: StaffPosition
   hire_date: string
   status: StaffStatus

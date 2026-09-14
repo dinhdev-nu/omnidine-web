@@ -45,7 +45,7 @@ function isUserProfile(value: unknown): value is UserProfile {
   if (!isRecord(value) || !isUiPreferences(value.preferences)) return false
 
   return (
-    typeof value._id === "string" &&
+    typeof value.id === "string" &&
     typeof value.email === "string" &&
     isNullableString(value.phone) &&
     typeof value.full_name === "string" &&

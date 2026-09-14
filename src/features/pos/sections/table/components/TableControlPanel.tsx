@@ -82,7 +82,7 @@ const TableControlPanel: React.FC<TableControlPanelProps> = ({
     event.preventDefault()
     if (!selectedTable || !editForm.table_number.trim() || isBusy) return
 
-    onUpdateTable(selectedTable._id, {
+    onUpdateTable(selectedTable.id, {
       table_number: editForm.table_number.trim(),
       capacity: editForm.capacity,
       name: editForm.name,
@@ -138,7 +138,7 @@ const TableControlPanel: React.FC<TableControlPanelProps> = ({
                     }
                     size="sm"
                     onClick={() =>
-                      onTableStatusChange(selectedTable._id, status)
+                      onTableStatusChange(selectedTable.id, status)
                     }
                     disabled={
                       selectedTable.is_active === false ||
@@ -256,7 +256,7 @@ const TableControlPanel: React.FC<TableControlPanelProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => onToggleTableActive(selectedTable._id)}
+                onClick={() => onToggleTableActive(selectedTable.id)}
                 disabled={isBusy}
                 iconName={
                   selectedTable.is_active === false ? "Power" : "PowerOff"
@@ -275,7 +275,7 @@ const TableControlPanel: React.FC<TableControlPanelProps> = ({
                 size="sm"
                 onClick={(event) => {
                   openQrDialog(event.currentTarget)
-                  onRegenerateTableQr(selectedTable._id)
+                  onRegenerateTableQr(selectedTable.id)
                 }}
                 disabled={isBusy}
                 iconName={isRegeneratingQr ? "Loader2" : "QrCode"}
@@ -315,7 +315,7 @@ const TableControlPanel: React.FC<TableControlPanelProps> = ({
                 fullWidth
                 iconName={isDeleting ? "Loader2" : "Trash2"}
                 iconPosition="left"
-                onClick={() => onDeleteTable(selectedTable._id)}
+                onClick={() => onDeleteTable(selectedTable.id)}
                 disabled={
                   selectedTable.status === "occupied" || isBusy
                 }

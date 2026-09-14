@@ -62,7 +62,7 @@ const MenuGrid = ({ menuItems, onAddToCart }: MenuGridProps) => {
 
         return (
           <div
-            key={item._id}
+            key={item.id}
             className={`overflow-hidden rounded-lg border border-border bg-card transition-smooth hover-scale ${isUnavailable ? "opacity-60" : ""}`}
           >
             <div className="relative">

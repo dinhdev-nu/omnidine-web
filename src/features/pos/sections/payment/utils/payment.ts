@@ -15,7 +15,7 @@ export const mapOrderItemsToSummaryItems = (order?: Order | null): SummaryItem[]
   if (!order) return [];
 
   return order.items.map((item) => ({
-    itemId: item._id ?? item.menu_item_id,
+    itemId: item.id ?? item.menu_item_id,
     name: item.item_name,
     quantity: item.quantity,
     price: item.unit_price,

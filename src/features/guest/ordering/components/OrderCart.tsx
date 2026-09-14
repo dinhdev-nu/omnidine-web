@@ -130,7 +130,7 @@ const OrderCart = ({
 
             <div className="flex flex-col gap-3">
                 {cartItems.map((item) => (
-                    <div key={item._id} className="rounded-lg border border-border bg-muted/30 p-3">
+                    <div key={item.id} className="rounded-lg border border-border bg-muted/30 p-3">
                         <div className="mb-2 flex flex-col gap-2">
                             <div className="min-w-0 flex-1">
                                 <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
@@ -143,7 +143,7 @@ const OrderCart = ({
                                     variant="outline"
                                     size="icon"
                                     aria-label={`Giảm số lượng ${item.name}`}
-                                    onClick={() => onUpdateQuantity(item._id, item.quantity - 1)}
+                                    onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
                                     disabled={item.quantity <= 1}
                                     className="touch-target h-9 w-9 sm:h-8 sm:w-8"
                                 >
@@ -154,7 +154,7 @@ const OrderCart = ({
                                     variant="outline"
                                     size="icon"
                                     aria-label={`Tăng số lượng ${item.name}`}
-                                    onClick={() => onUpdateQuantity(item._id, item.quantity + 1)}
+                                    onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
                                     className="touch-target h-9 w-9 sm:h-8 sm:w-8"
                                 >
                                     <Icon name="Plus" size={16} className="sm:h-3.5 sm:w-3.5" />
@@ -163,7 +163,7 @@ const OrderCart = ({
                                     variant="ghost"
                                     size="icon"
                                     aria-label={`Xóa ${item.name} khỏi giỏ hàng`}
-                                    onClick={() => onRemoveItem(item._id)}
+                                    onClick={() => onRemoveItem(item.id)}
                                     className="touch-target ml-1 h-9 w-9 text-destructive hover:text-destructive sm:h-8 sm:w-8"
                                 >
                                     <Icon name="X" size={16} className="sm:h-3.5 sm:w-3.5" />
@@ -174,11 +174,11 @@ const OrderCart = ({
                         <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
                             <Input
                                 type="text"
-                                name={`item-note-${item._id}`}
+                                name={`item-note-${item.id}`}
                                 aria-label={`Ghi chú cho ${item.name}`}
                                 placeholder="Ghi chú cho món này..."
                                 value={item.note ?? ""}
-                                onChange={(event) => onUpdateNote(item._id, event.target.value)}
+                                onChange={(event) => onUpdateNote(item.id, event.target.value)}
                                 className="text-xs"
                             />
                             <span className="text-right font-semibold text-primary">{formatPrice(item.price * item.quantity)}</span>

@@ -6,7 +6,7 @@ export type OrderSource = 'pos' | 'online' | 'qr' | 'app' | 'phone';
 export type OrderItemStatus = 'pending' | 'preparing' | 'ready' | 'served' | 'cancelled';
 
 export interface OrderItem {
-  _id?: string;
+  id?: string;
   menu_item_id: string;
   item_name: string;
   quantity: number;
@@ -19,8 +19,7 @@ export interface OrderItem {
 }
 
 export interface Order {
-  id?: string;
-  _id: string;
+  id: string;
   order_number: string;
   restaurant_id: string;
   table_id?: string | null;
@@ -81,7 +80,6 @@ export interface ListOrdersQuery {
 
 export interface OrderListItem {
   id: string;
-  _id: string;
   order_number: string;
   order_type: OrderType;
   source: OrderSource;

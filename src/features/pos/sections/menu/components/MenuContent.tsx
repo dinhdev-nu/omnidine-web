@@ -41,7 +41,7 @@ export function MenuContent({ controller }: MenuSectionViewProps) {
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {items.map((item) => (
         <MenuItemCard
-          key={item._id}
+          key={item.id}
           item={item}
           categoryName={categoryMap[item.category_id] ?? "Không rõ"}
           onEdit={openEditItem}

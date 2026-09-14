@@ -66,15 +66,15 @@ export function ListRestaurantsSection() {
         {!isLoading &&
           restaurants.map((restaurant, index) => (
             <RestaurantCard
-              key={restaurant._id}
+              key={restaurant.id}
               restaurant={restaurant}
               index={index}
               onOpenPos={(slug) => navigate(`/pos/${slug}`)}
               onOpenDashboard={(targetRestaurant) =>
-                navigate(`/dashboard/${targetRestaurant._id}`, {
+                navigate(`/dashboard/${targetRestaurant.id}`, {
                   state: {
                     restaurant: {
-                      _id: targetRestaurant._id,
+                      id: targetRestaurant.id,
                       name: targetRestaurant.name,
                       logo_url: targetRestaurant.logo_url,
                     },

@@ -59,7 +59,7 @@ export function useMainPosMenuData({
 
   const uiCategories = useMemo(() => {
     const mapped = activeCategories.map((category) => ({
-      id: category._id,
+      id: category.id,
       name: category.name,
       description: category.description,
       itemCount: category.item_count,
@@ -98,7 +98,7 @@ export function useMainPosMenuData({
     })
 
     return sortedItems.map((item) => ({
-      _id: item._id,
+      id: item.id,
       name: item.name,
       price: item.base_price,
       image: item.images?.[0]?.url,

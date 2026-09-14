@@ -349,7 +349,7 @@ export default function PublicHeaderSearchContent({
 
             return (
               <Link
-                key={restaurant._id}
+                key={restaurant.id}
                 to={`/public/restaurants/${restaurant.slug}`}
                 onClick={() => onSelectRestaurant(restaurant)}
                 className="flex min-h-16 w-full touch-manipulation items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none motion-reduce:transition-none"

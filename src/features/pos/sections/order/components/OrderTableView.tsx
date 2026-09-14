@@ -78,12 +78,12 @@ function OrderDesktopTable({ controller }: OrderTableViewProps) {
         <tbody>
           {orders.map((order) => (
             <OrderTableDesktopRow
-              key={order._id}
+              key={order.id}
               order={order}
-              detailOrder={detailOrders[order._id]}
-              isLoadingDetail={loadingDetailOrders[order._id]}
-              highlighted={highlightedOrderId === order._id}
-              expanded={expandedRows.has(order._id)}
+              detailOrder={detailOrders[order.id]}
+              isLoadingDetail={loadingDetailOrders[order.id]}
+              highlighted={highlightedOrderId === order.id}
+              expanded={expandedRows.has(order.id)}
               onToggleExpand={handleToggleExpand}
               onPaymentClick={handleOrderClick}
               onUpdateStatusClick={handleUpdateStatusClick}
@@ -118,12 +118,12 @@ function OrderMobileCards({ controller }: OrderTableViewProps) {
     <div className="space-y-3 p-3 sm:p-4 lg:hidden">
       {orders.map((order) => (
         <OrderTableMobileCard
-          key={order._id}
+          key={order.id}
           order={order}
-          detailOrder={detailOrders[order._id]}
-          isLoadingDetail={loadingDetailOrders[order._id]}
-          highlighted={highlightedOrderId === order._id}
-          expanded={expandedRows.has(order._id)}
+          detailOrder={detailOrders[order.id]}
+          isLoadingDetail={loadingDetailOrders[order.id]}
+          highlighted={highlightedOrderId === order.id}
+          expanded={expandedRows.has(order.id)}
           onToggleExpand={handleToggleExpand}
           onPaymentClick={handleOrderClick}
           onUpdateStatusClick={handleUpdateStatusClick}

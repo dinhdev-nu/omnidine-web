@@ -33,7 +33,7 @@ export function SettingsSection({ restaurantDetail }: SettingsSectionProps) {
     isTogglingOnlineOrders,
     restaurantStatusOverrides,
   } = uiState
-  const restaurantId = restaurantDetail?._id
+  const restaurantId = restaurantDetail?.id
   const restaurantStatusOverride = restaurantId
     ? restaurantStatusOverrides[restaurantId]
     : undefined

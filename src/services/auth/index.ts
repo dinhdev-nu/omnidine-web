@@ -33,12 +33,12 @@ export interface VerifyResetOtpResponse {
 export interface SessionInfo {
   session_id: string
   device_info: {
-    browser: string
-    os: string
-    device: string
-    user_agent: string
-  }
-  ip_address: string
+    browser: string | null
+    os: string | null
+    device: string | null
+    user_agent: string | null
+  } | null
+  ip_address: string | null
   created_at: string
   expires_at: string
   is_current: boolean

@@ -20,7 +20,7 @@ export interface OrderingCategory {
 }
 
 export interface OrderingMenuItem {
-  _id: string
+  id: string
   name: string
   price: number
   category: string
@@ -48,7 +48,7 @@ export type OrderStatus = "pending" | "processing" | "completed" | "cancelled"
 export type PaymentStatus = "unpaid" | "paid" | "refunded"
 
 export interface CustomerOrder {
-  _id: string
+  id: string
   orderNumber?: string
   table: string
   staff?: string

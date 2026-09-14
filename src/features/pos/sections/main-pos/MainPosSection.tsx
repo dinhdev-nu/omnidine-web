@@ -20,13 +20,13 @@ import type {
 
 function MainPosSection() {
   const { data: posData } = usePosContext()
-  const restaurantId = posData?.restaurant._id
+  const restaurantId = posData?.restaurant.id
   const staff = posData?.current_staff ?? null
   const normalizedRestaurantId = restaurantId ?? ""
 
   const [state, dispatch] = useReducer(
     mainPosReducer,
-    staff?._id ?? null,
+    staff?.id ?? null,
     createInitialMainPosState
   )
 
@@ -100,7 +100,7 @@ function MainPosSection() {
   const tableOptions = useMemo(() => {
     const tables = availableTablesData?.data ?? []
     return tables.flatMap((table) => {
-      const tableId = table._id || table.id
+      const tableId = table.id
       if (!tableId) return []
       return [
         {
@@ -113,7 +113,7 @@ function MainPosSection() {
 
   const staffOptions = useMemo(() => {
     if (!staff) return []
-    return [{ value: staff._id, label: staff.full_name }]
+    return [{ value: staff.id, label: staff.full_name }]
   }, [staff])
 
   const {

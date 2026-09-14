@@ -95,7 +95,7 @@ function mapRestaurantToPost(
   ].filter((tag): tag is string => Boolean(tag))
 
   return {
-    id: restaurant._id,
+    id: restaurant.id,
     type,
     restaurant: {
       slug: restaurant.slug,
@@ -131,7 +131,7 @@ function mapRestaurantToNearby(
   districtCode: number | null
 ) {
   return {
-    id: restaurant._id,
+    id: restaurant.id,
     slug: restaurant.slug,
     name: restaurant.name,
     image:

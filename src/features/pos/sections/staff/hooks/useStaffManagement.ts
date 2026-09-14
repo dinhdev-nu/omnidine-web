@@ -11,7 +11,7 @@ import type { StaffPosition, StaffStatus, StaffDetail, StaffSummary } from '@/ty
 
 function mapDetailToSummary(detail: StaffDetail): StaffSummary {
     return {
-        id: detail._id,
+        id: detail.id,
         employee_code: detail.employee_code,
         full_name: detail.full_name,
         phone: detail.phone,

@@ -35,7 +35,7 @@ const DraggableTable: React.FC<DraggableTableProps> = ({
   onTableClick,
 }) => {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
-    useDraggable({ id: table._id })
+    useDraggable({ id: table.id })
 
   const visualStatus: TableStatus =
     table.is_active === false ? "inactive" : table.status

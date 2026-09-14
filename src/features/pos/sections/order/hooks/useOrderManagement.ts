@@ -49,7 +49,7 @@ function adaptOrderListItemToOrder(item: OrderListItem): Order {
   const customerName = item.customer_name?.trim();
 
   return {
-    _id: item._id,
+    id: item.id,
     order_number: item.order_number,
     created_at: item.created_at,
     updated_at: item.created_at,
@@ -156,7 +156,7 @@ const DEFAULT_PAGINATION = { page: 1, limit: 50, total: 0, total_pages: 0 };
 
 export function useOrderManagement(): UseOrderManagementReturn {
   const posData = useRequiredPosData();
-  const restaurantId = posData.restaurant._id;
+  const restaurantId = posData.restaurant.id;
 
   // State: Orders
   const [orders, setOrders] = useState<Order[]>([]);
@@ -268,7 +268,7 @@ export function useOrderManagement(): UseOrderManagementReturn {
     async (order: Order) => {
       try {
         setIsLoadingDetail(true);
-        const apiOrder = await loadOrderDetail(order._id);
+        const apiOrder = await loadOrderDetail(order.id);
         setSelectedOrder(apiOrder);
       } catch {
         // Error already toasted
@@ -287,7 +287,7 @@ export function useOrderManagement(): UseOrderManagementReturn {
   const handleUpdateOrderStatus = useCallback(
     async (order: Order, status: AllowedOrderStatusUpdate) => {
       try {
-        await updateOrderStatus(restaurantId, order._id, { status });
+        await updateOrderStatus(restaurantId, order.id, { status });
         toast.success(`Đã cập nhật đơn ${order.order_number} sang trạng thái mới`);
         void fetchOrders(pagination.page);
       } catch (error) {
@@ -300,7 +300,7 @@ export function useOrderManagement(): UseOrderManagementReturn {
   const handleUpdateOrderItemStatus = useCallback(
     async (order: Order, itemId: string, status: AllowedOrderItemStatusUpdate) => {
       try {
-        await updateOrderItemStatus(restaurantId, order._id, itemId, { status });
+        await updateOrderItemStatus(restaurantId, order.id, itemId, { status });
         toast.success('Đã cập nhật trạng thái món');
       } catch (error) {
         toast.error(toOrderEndpointError('update-item-status', error).message);
@@ -313,7 +313,7 @@ export function useOrderManagement(): UseOrderManagementReturn {
   const handleCancelOrderItem = useCallback(
     async (order: Order, itemId: string, reason?: string) => {
       try {
-        await cancelOrderItem(restaurantId, order._id, itemId, { cancel_reason: reason });
+        await cancelOrderItem(restaurantId, order.id, itemId, { cancel_reason: reason });
         toast.success('Đã hủy món trong đơn');
       } catch (error) {
         toast.error(toOrderEndpointError('cancel-item', error).message);
@@ -326,7 +326,7 @@ export function useOrderManagement(): UseOrderManagementReturn {
   const handleUpdateOrderDiscount = useCallback(
     async (order: Order, type: OrderDiscountType, value: number, discountRef?: string) => {
       try {
-        await updateOrderDiscount(restaurantId, order._id, {
+        await updateOrderDiscount(restaurantId, order.id, {
           discount_type: type,
           discount_value: value,
           discount_ref: discountRef?.trim() || undefined,
@@ -352,7 +352,7 @@ export function useOrderManagement(): UseOrderManagementReturn {
     async (order: Order, reason?: string) => {
       try {
         setIsLoadingDetail(true);
-        await cancelOrder(restaurantId, order._id, { cancel_reason: reason ?? '' });
+        await cancelOrder(restaurantId, order.id, { cancel_reason: reason ?? '' });
         toast.success(`Đã hủy đơn ${order.order_number}`);
         // Refresh list
         void fetchOrders(pagination.page);

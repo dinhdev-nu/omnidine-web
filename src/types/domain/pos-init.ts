@@ -6,7 +6,7 @@ export interface PosUser {
 }
 
 export interface PosStaff {
-  _id: string;
+  id: string;
   employee_code: string;
   full_name: string;
   phone: string | null;
@@ -24,7 +24,7 @@ export interface PosStaff {
 }
 
 export interface PosRestaurant {
-  _id: string;
+  id: string;
   name: string;
   slug: string;
   logo_url?: string | null;

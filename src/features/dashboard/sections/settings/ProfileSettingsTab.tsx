@@ -11,9 +11,9 @@ export function ProfileSettingsTab({
 }: ProfileSettingsTabProps) {
   return (
     <CreateRestaurantProvider
-      key={restaurantDetail?._id ?? "restaurant-profile"}
+      key={restaurantDetail?.id ?? "restaurant-profile"}
       isEditing={true}
-      restaurantId={restaurantDetail?._id}
+      restaurantId={restaurantDetail?.id}
       initialFormData={getRestaurantInitialFormData(restaurantDetail)}
       initialImagePreviews={getRestaurantInitialImagePreviews(restaurantDetail)}
     >

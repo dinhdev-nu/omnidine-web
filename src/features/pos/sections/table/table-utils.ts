@@ -6,9 +6,6 @@ export const clamp = (value: number, min: number, max: number) => {
   return value
 }
 
-const normalizeTableId = (table: { id?: string; _id?: string }) =>
-  table.id ?? table._id ?? ""
-
 export const getDefaultPosition = (index: number) => {
   const column = index % 4
   const row = Math.floor(index / 4)
@@ -18,24 +15,10 @@ export const getDefaultPosition = (index: number) => {
   }
 }
 
-export const toTableFromListItem = (
-  item: TableListItem
-): TableListItem | null => {
-  const id = normalizeTableId(item)
-  if (!id) return null
-
-  return {
-    ...item,
-    _id: id,
-  }
-}
-
 export const toTableFromRecord = (item: TableRecord): TableListItem | null => {
-  const id = normalizeTableId(item)
-  if (!id) return null
+  if (!item.id) return null
 
   return {
-    _id: id,
     id: item.id,
     table_number: item.table_number,
     name: item.name,

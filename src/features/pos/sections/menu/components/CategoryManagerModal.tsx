@@ -50,11 +50,11 @@ const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({
 }) => {
   const hasPendingAction = categories.some(
     (category) =>
-      checkingToggleCategoryId === category._id ||
-      isCategoryActionPending(category._id, "toggle-active") ||
-      isCategoryActionPending(category._id, "reorder-up") ||
-      isCategoryActionPending(category._id, "reorder-down") ||
-      isCategoryActionPending(category._id, "delete")
+      checkingToggleCategoryId === category.id ||
+      isCategoryActionPending(category.id, "toggle-active") ||
+      isCategoryActionPending(category.id, "reorder-up") ||
+      isCategoryActionPending(category.id, "reorder-down") ||
+      isCategoryActionPending(category.id, "delete")
   )
 
   return (
@@ -134,18 +134,18 @@ const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({
             <ul className="flex flex-col gap-3">
               {categories.map((category, index) => {
                 const isMoveUpPending = isCategoryActionPending(
-                  category._id,
+                  category.id,
                   "reorder-up"
                 )
                 const isMoveDownPending = isCategoryActionPending(
-                  category._id,
+                  category.id,
                   "reorder-down"
                 )
                 const isTogglePending =
-                  isCategoryActionPending(category._id, "toggle-active") ||
-                  checkingToggleCategoryId === category._id
+                  isCategoryActionPending(category.id, "toggle-active") ||
+                  checkingToggleCategoryId === category.id
                 const isDeletePending = isCategoryActionPending(
-                  category._id,
+                  category.id,
                   "delete"
                 )
                 const isAnyPending =
@@ -156,7 +156,7 @@ const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({
 
                 return (
                   <li
-                    key={category._id}
+                    key={category.id}
                     aria-busy={isAnyPending}
                     className="flex min-w-0 flex-col gap-3 rounded-lg border border-border bg-card p-3 sm:flex-row sm:items-center sm:justify-between"
                   >
@@ -206,7 +206,7 @@ const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => onMove(category._id, "up")}
+                        onClick={() => onMove(category.id, "up")}
                         disabled={index === 0 || isAnyPending}
                         aria-label={`Đưa danh mục ${category.name} lên`}
                         title="Đưa lên"
@@ -221,7 +221,7 @@ const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => onMove(category._id, "down")}
+                        onClick={() => onMove(category.id, "down")}
                         disabled={
                           index === categories.length - 1 || isAnyPending
                         }
@@ -254,7 +254,7 @@ const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({
                         variant="ghost"
                         size="icon"
                         onClick={() =>
-                          onToggleActive(category._id, category.is_active)
+                          onToggleActive(category.id, category.is_active)
                         }
                         disabled={isAnyPending}
                         aria-label={
@@ -282,7 +282,7 @@ const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => onDelete(category._id)}
+                        onClick={() => onDelete(category.id)}
                         disabled={isAnyPending}
                         aria-label={`Xóa danh mục ${category.name}`}
                         title="Xóa"

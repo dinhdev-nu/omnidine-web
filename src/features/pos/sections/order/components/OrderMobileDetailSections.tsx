@@ -111,10 +111,10 @@ export function MobileOrderItems({
       <div className="space-y-1.5">
         {items.map((item, index) => {
           const isCancelled = item.status === "cancelled"
-          const triggerKey = item._id ?? String(index)
+          const triggerKey = item.id ?? String(index)
           return (
             <div
-              key={item._id ?? index}
+              key={item.id ?? index}
               className={`rounded bg-white p-2 dark:bg-muted/30 ${isCancelled ? "opacity-60" : ""}`}
             >
               <div className="flex min-w-0 items-start justify-between gap-2">
@@ -156,7 +156,7 @@ export function MobileOrderItems({
                           onClick={() =>
                             onUpdateOrderItemStatus?.(
                               order,
-                              item._id || "",
+                              item.id || "",
                               "preparing"
                             )
                           }
@@ -167,7 +167,7 @@ export function MobileOrderItems({
                           onClick={() =>
                             onUpdateOrderItemStatus?.(
                               order,
-                              item._id || "",
+                              item.id || "",
                               "ready"
                             )
                           }
@@ -178,7 +178,7 @@ export function MobileOrderItems({
                           onClick={() =>
                             onUpdateOrderItemStatus?.(
                               order,
-                              item._id || "",
+                              item.id || "",
                               "served"
                             )
                           }
@@ -191,7 +191,7 @@ export function MobileOrderItems({
                           onClick={() =>
                             onCancelOrderItemClick?.(
                               order,
-                              item._id || "",
+                              item.id || "",
                               actionsTriggerRefs.current.get(triggerKey)
                             )
                           }

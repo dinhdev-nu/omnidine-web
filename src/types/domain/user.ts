@@ -1,6 +1,6 @@
 
 export interface UserProfile {
-  _id: string
+  id: string
   email: string
   phone: string | null
   full_name: string
@@ -24,8 +24,6 @@ export interface UserProfile {
   }
   created_at: string
   updated_at: string
-  is_email_verified?: boolean
-  is_phone_verified?: boolean
 }
 
 export interface UpdateProfilePayload {

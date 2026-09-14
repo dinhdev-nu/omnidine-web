@@ -372,29 +372,29 @@ export function useOrderTableController({
 
   const handleToggleExpand = useCallback(
     (order: Order) => {
-      const isExpanding = !expandedRows.has(order._id)
+      const isExpanding = !expandedRows.has(order.id)
 
-      dispatchTable({ type: "toggleExpanded", orderId: order._id })
+      dispatchTable({ type: "toggleExpanded", orderId: order.id })
 
       if (
         !isExpanding ||
-        detailOrders[order._id] ||
-        loadingDetailOrders[order._id]
+        detailOrders[order.id] ||
+        loadingDetailOrders[order.id]
       ) {
         return
       }
 
       dispatchTable({
         type: "setLoadingDetail",
-        orderId: order._id,
+        orderId: order.id,
         isLoading: true,
       })
       void (async () => {
         try {
-          const detailOrder = await onLoadOrderDetail(order._id)
+          const detailOrder = await onLoadOrderDetail(order.id)
           dispatchTable({
             type: "setDetailOrder",
-            orderId: order._id,
+            orderId: order.id,
             order: detailOrder,
           })
         } catch {
@@ -402,7 +402,7 @@ export function useOrderTableController({
         } finally {
           dispatchTable({
             type: "setLoadingDetail",
-            orderId: order._id,
+            orderId: order.id,
             isLoading: false,
           })
         }
@@ -420,10 +420,10 @@ export function useOrderTableController({
       if (!onUpdateOrderItemStatus) return
       try {
         await onUpdateOrderItemStatus(order, itemId, status)
-        const detailOrder = await onLoadOrderDetail(order._id)
+        const detailOrder = await onLoadOrderDetail(order.id)
         dispatchTable({
           type: "setDetailOrder",
-          orderId: order._id,
+          orderId: order.id,
           order: detailOrder,
         })
       } catch {
@@ -435,7 +435,7 @@ export function useOrderTableController({
 
   const handleEditDiscountClick = useCallback(
     (order: Order) => {
-      const detail = detailOrders[order._id] || order
+      const detail = detailOrders[order.id] || order
       dispatchTable({
         type: "requestDiscount",
         order,
@@ -471,10 +471,10 @@ export function useOrderTableController({
           discountValue,
           discountRef
         )
-        const detailOrder = await onLoadOrderDetail(selectedOrderToDiscount._id)
+        const detailOrder = await onLoadOrderDetail(selectedOrderToDiscount.id)
         dispatchTable({
           type: "setDetailOrder",
-          orderId: selectedOrderToDiscount._id,
+          orderId: selectedOrderToDiscount.id,
           order: detailOrder,
         })
       } catch {
@@ -504,11 +504,11 @@ export function useOrderTableController({
           cancelItemReason
         )
         const detailOrder = await onLoadOrderDetail(
-          selectedItemToCancel.order._id
+          selectedItemToCancel.order.id
         )
         dispatchTable({
           type: "setDetailOrder",
-          orderId: selectedItemToCancel.order._id,
+          orderId: selectedItemToCancel.order.id,
           order: detailOrder,
         })
       } catch {

@@ -12,7 +12,7 @@ interface ReceiptItem {
 }
 
 export interface PaymentData {
-  _id?: string;
+  id?: string;
   createdAt?: string;
   method?: string;
   paidAmount?: number;
@@ -21,7 +21,7 @@ export interface PaymentData {
 }
 
 export interface OrderData {
-  _id?: string;
+  id?: string;
   customerName?: string;
   tableNumber?: string;
   table?: string;
@@ -114,11 +114,11 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
           </div>
           <div className="flex min-w-0 justify-between gap-3">
             <span className="text-muted-foreground">Mã GD:</span>
-            <span>{paymentData._id ?? 'N/A'}</span>
+            <span>{paymentData.id ?? 'N/A'}</span>
           </div>
           <div className="flex min-w-0 justify-between gap-3">
             <span className="text-muted-foreground">Đơn hàng:</span>
-            <span>{orderData._id ?? 'N/A'}</span>
+            <span>{orderData.id ?? 'N/A'}</span>
           </div>
           {tableDisplay && (
             <div className="flex min-w-0 justify-between gap-3">

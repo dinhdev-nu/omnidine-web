@@ -21,7 +21,7 @@ export interface RestaurantSettings {
 }
 
 export interface Restaurant {
-  _id: string
+  id: string
   owner_id: string
   name: string
   slug: string
@@ -59,7 +59,7 @@ export type RestaurantStaffDetail = Omit<Restaurant, "tax_rate" | "service_charg
 export type PublicRestaurantDetail = Omit<Restaurant, "owner_id" | "settings">
 
 export interface OwnerRestaurantListItem {
-  _id: string
+  id: string
   name: string
   slug: string
   email: string | null
@@ -75,7 +75,7 @@ export interface OwnerRestaurantListItem {
 }
 
 export interface PublicRestaurantSearchItem {
-  _id: string
+  id: string
   name: string
   slug: string
   description: string | null

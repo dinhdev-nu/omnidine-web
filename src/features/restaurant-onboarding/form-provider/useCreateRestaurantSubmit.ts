@@ -95,7 +95,7 @@ export function useCreateRestaurantSubmit({
       navigate("/restaurants", {
         replace: true,
         state: {
-          createdRestaurantId: createdRestaurant._id,
+          createdRestaurantId: createdRestaurant.id,
         },
       })
     } catch (error) {

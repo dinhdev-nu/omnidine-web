@@ -20,7 +20,7 @@ import AppImage from "@/components/AppImage"
 import { cn } from "@/lib/utils"
 
 type SidebarRestaurant = {
-  _id: string
+  id: string
   name: string
   logo_url?: string | null
 }

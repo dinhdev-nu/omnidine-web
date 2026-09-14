@@ -92,7 +92,7 @@ function menuUiReducer(state: MenuUiState, action: MenuUiAction): MenuUiState {
 
 export function useMenuSectionController() {
   const posData = useRequiredPosData()
-  const restaurantId = posData.restaurant._id
+  const restaurantId = posData.restaurant.id
   const [menuUi, dispatchMenuUi] = React.useReducer(
     menuUiReducer,
     menuUiInitialState
@@ -194,7 +194,7 @@ export function useMenuSectionController() {
   const uiCategories = React.useMemo(
     () =>
       categories.map((cat) => ({
-        id: cat._id,
+        id: cat.id,
         name: cat.name,
         imageUrl: cat.image_url,
       })),
@@ -205,7 +205,7 @@ export function useMenuSectionController() {
     () =>
       categories.reduce(
         (acc, cat) => {
-          acc[cat._id] = cat.item_count || 0
+          acc[cat.id] = cat.item_count || 0
           return acc
         },
         {} as Record<string, number>
@@ -215,7 +215,7 @@ export function useMenuSectionController() {
 
   const requestToggleCategory = React.useCallback(
     async (categoryId: string, isActive: boolean) => {
-      const category = categories.find((cat) => cat._id === categoryId)
+      const category = categories.find((cat) => cat.id === categoryId)
       if (!category) return
 
       if (!isActive) {

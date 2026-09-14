@@ -23,7 +23,6 @@ import { INITIAL_TABLES, INITIAL_TABLE_POSITIONS } from "../constants"
 import {
   clamp,
   getDefaultPosition,
-  toTableFromListItem,
   toTableFromRecord,
 } from "../table-utils"
 
@@ -45,7 +44,7 @@ const parseCapacityFilter = (value: string): number | undefined => {
 
 export const useTableManagement = () => {
   const posData = useRequiredPosData()
-  const restaurantId = posData.restaurant._id
+  const restaurantId = posData.restaurant.id
 
   const [tables, setTables] = useState<TableListItem[]>(INITIAL_TABLES)
   const [tablePositions, setTablePositions] = useState<
@@ -121,13 +120,11 @@ export const useTableManagement = () => {
       try {
         const response = await listTables(restaurantId, listQuery)
         if (alive) {
-          const mapped = response.data
-            .map((item) => toTableFromListItem(item))
-            .filter((item): item is TableListItem => item !== null)
+          const mapped = response.data.filter((item) => Boolean(item.id))
 
           setTables((prev) =>
             mapped.map((table) => {
-              const previous = prev.find((item) => item._id === table._id)
+              const previous = prev.find((item) => item.id === table.id)
               if (!previous) {
                 return table
               }
@@ -144,21 +141,21 @@ export const useTableManagement = () => {
           )
           setSelectedTableId((prev) => {
             if (!prev) return null
-            const stillExists = mapped.some((table) => table._id === prev)
+            const stillExists = mapped.some((table) => table.id === prev)
             return stillExists ? prev : null
           })
           setTablePositions((prev) => {
             const next: Record<string, TablePosition> = {}
             mapped.forEach((table, index) => {
-              next[table._id] = prev[table._id] ?? getDefaultPosition(index)
+              next[table.id] = prev[table.id] ?? getDefaultPosition(index)
             })
             return next
           })
           setTableOccupancyById((prev) => {
             const next: Record<string, number> = {}
             mapped.forEach((table) => {
-              const current = prev[table._id] ?? 0
-              next[table._id] =
+              const current = prev[table.id] ?? 0
+              next[table.id] =
                 table.status === "occupied"
                   ? clamp(current || 1, 1, table.capacity)
                   : 0
@@ -186,12 +183,12 @@ export const useTableManagement = () => {
   }, [restaurantId, listQuery, listRequestVersion])
 
   const selectedTable = useMemo(
-    () => tables.find((table) => table._id === selectedTableId) ?? null,
+    () => tables.find((table) => table.id === selectedTableId) ?? null,
     [tables, selectedTableId]
   )
 
   const selectedTableCurrentOccupancy = selectedTable
-    ? (tableOccupancyById[selectedTable._id] ?? 0)
+    ? (tableOccupancyById[selectedTable.id] ?? 0)
     : 0
 
   useEffect(() => {
@@ -204,7 +201,7 @@ export const useTableManagement = () => {
         if (alive) {
           setTables((prev) =>
             prev.map((table) => {
-              if (table._id !== selectedTableId) return table
+              if (table.id !== selectedTableId) return table
 
               const nextHasQr =
                 "has_qr" in detail ? detail.has_qr : Boolean(detail.qr_code)
@@ -265,13 +262,13 @@ export const useTableManagement = () => {
   }, [tables])
 
   const syncTableSelection = useCallback((table: TableListItem | null) => {
-    setSelectedTableId(table?._id ?? null)
+    setSelectedTableId(table?.id ?? null)
   }, [])
 
   const updateTableById = useCallback(
     (id: string, updater: (table: TableListItem) => TableListItem) => {
       setTables((prev) =>
-        prev.map((table) => (table._id === id ? updater(table) : table))
+        prev.map((table) => (table.id === id ? updater(table) : table))
       )
     },
     []
@@ -285,7 +282,7 @@ export const useTableManagement = () => {
     async (id: string, status: TableStatus) => {
       if (isSubmittingStatus) return false
 
-      const target = tablesRef.current.find((table) => table._id === id)
+      const target = tablesRef.current.find((table) => table.id === id)
       if (!target) return false
       if (target.status === status) return true
       if (target.is_active === false) {
@@ -351,11 +348,11 @@ export const useTableManagement = () => {
           setTables((prev) => [...prev, mapped])
           setTablePositions((prev) => ({
             ...prev,
-            [mapped._id]: { x: fallbackX, y: fallbackY },
+            [mapped.id]: { x: fallbackX, y: fallbackY },
           }))
           setTableOccupancyById((prev) => ({
             ...prev,
-            [mapped._id]: mapped.status === "occupied" ? 1 : 0,
+            [mapped.id]: mapped.status === "occupied" ? 1 : 0,
           }))
 
           syncTableSelection(mapped)
@@ -390,7 +387,7 @@ export const useTableManagement = () => {
 
           setTables((prev) =>
             prev.map((table) => {
-              if (table._id !== id) return table
+              if (table.id !== id) return table
               return {
                 ...table,
                 table_number: response.table.table_number,
@@ -436,7 +433,7 @@ export const useTableManagement = () => {
           const result = await toggleTableActive(restaurantId, id)
           setTables((prev) =>
             prev.map((table) => {
-              if (table._id !== id) return table
+              if (table.id !== id) return table
               const nextStatus = result.is_active
                 ? table.status === "inactive"
                   ? "available"
@@ -477,7 +474,7 @@ export const useTableManagement = () => {
           const result = await regenerateTableQrCode(restaurantId, id)
           setTables((prev) =>
             prev.map((table) => {
-              if (table._id !== id) return table
+              if (table.id !== id) return table
               return {
                 ...table,
                 has_qr: true,
@@ -506,7 +503,7 @@ export const useTableManagement = () => {
       void (async () => {
         try {
           const result = await deleteTable(restaurantId, id)
-          setTables((prev) => prev.filter((table) => table._id !== id))
+          setTables((prev) => prev.filter((table) => table.id !== id))
           setTablePositions((prev) => {
             const next = { ...prev }
             delete next[id]
@@ -555,7 +552,7 @@ export const useTableManagement = () => {
           const testY = startY + currentRow * gridHeight
 
           const occupied = Object.entries(next).some(([tableId, pos]) => {
-            if (tableId === table._id) return false
+            if (tableId === table.id) return false
             return (
               Math.abs(pos.x - testX) < gridWidth * 0.8 &&
               Math.abs(pos.y - testY) < gridHeight * 0.8
@@ -563,7 +560,7 @@ export const useTableManagement = () => {
           })
 
           if (!occupied) {
-            next[table._id] = { x: testX, y: testY }
+            next[table.id] = { x: testX, y: testY }
             found = true
           }
 

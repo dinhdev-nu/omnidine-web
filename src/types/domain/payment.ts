@@ -11,8 +11,7 @@ export type PaymentMethod =
 export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded' | 'partially_refunded';
 
 export interface Payment {
-  id?: string;
-  _id?: string;
+  id: string;
   payment_number: string;
   order_id: string;
   restaurant_id: string;
@@ -68,10 +67,11 @@ export interface CreatePaymentResponse {
   processed_by?: string | null;
   processed_at?: string | null;
   expires_at?: string | null;
-  order_payment_status?: string;
+  order_payment_status: string | null;
   payment_url?: string | null;
   qr_code_url?: string | null;
   created_at?: string;
+  idempotent: boolean;
 }
 
 export interface ListPaymentsSummary {

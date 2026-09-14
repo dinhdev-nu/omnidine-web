@@ -29,7 +29,7 @@ function OrderTableDetailItemRow({
   onCancelOrderItemClick,
 }: OrderTableDetailItemRowProps) {
   const isCancelled = item.status === "cancelled"
-  const itemId = item._id || ""
+  const itemId = item.id || ""
   const actionsTriggerRef = useRef<HTMLButtonElement>(null)
 
   return (
@@ -225,7 +225,7 @@ export function OrderDesktopDetailMain({
         <div className="max-h-[200px] divide-y divide-border overflow-y-auto">
           {detailOrder.items?.map((item) => (
             <OrderTableDetailItemRow
-              key={item._id ?? `${item.menu_item_id}-${item.created_at}`}
+              key={item.id ?? `${item.menu_item_id}-${item.created_at}`}
               order={order}
               item={item}
               isActionable={isActionable}

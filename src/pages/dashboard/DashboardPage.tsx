@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button"
 
 type DashboardRestaurantState = {
   restaurant?: {
-    _id: string
+    id: string
     name: string
     logo_url?: string | null
   }
@@ -122,7 +122,7 @@ export default function Dashboard() {
     stateRestaurant ??
     (restaurantDetail
       ? {
-          _id: restaurantDetail._id,
+          id: restaurantDetail.id,
           name: restaurantDetail.name,
           logo_url: restaurantDetail.logo_url,
         }

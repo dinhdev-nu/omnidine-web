@@ -12,7 +12,7 @@ const currencyFormatter = new Intl.NumberFormat("vi-VN", {
 })
 
 interface MenuItem {
-  _id: string
+  id: string
   name: string
   price: number
   image?: string
@@ -151,7 +151,7 @@ const MenuGrid = ({
 
         return (
           <article
-            key={item._id}
+            key={item.id}
             className={`min-w-0 overflow-hidden rounded-lg border border-border bg-card transition-[opacity,transform,box-shadow] duration-150 motion-reduce:transition-none ${
               isUnavailable ? "opacity-60" : "hover-scale"
             }`}

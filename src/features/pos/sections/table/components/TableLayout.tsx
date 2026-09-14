@@ -54,9 +54,9 @@ const TableLayout: React.FC<TableLayoutProps> = ({
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, delta } = event
     if (delta.x !== 0 || delta.y !== 0) {
-      const table = tables.find((item) => item._id === String(active.id))
+      const table = tables.find((item) => item.id === String(active.id))
       if (table) {
-        const currentPosition = tablePositions[table._id] ?? { x: 0, y: 0 }
+        const currentPosition = tablePositions[table.id] ?? { x: 0, y: 0 }
         onTableMove(String(active.id), {
           x: Math.round(currentPosition.x + delta.x / scale),
           y: Math.round(currentPosition.y + delta.y / scale),
@@ -78,7 +78,7 @@ const TableLayout: React.FC<TableLayoutProps> = ({
   const handleZoomReset = () => setScale(1)
 
   const activeTable = activeId
-    ? tables.find((table) => table._id === activeId)
+    ? tables.find((table) => table.id === activeId)
     : null
 
   const showBlockingState = tables.length === 0
@@ -155,14 +155,14 @@ const TableLayout: React.FC<TableLayoutProps> = ({
           >
             {tables.map((table) => (
               <DraggableTable
-                key={table._id}
+                key={table.id}
                 table={table}
-                position={tablePositions[table._id] ?? { x: 0, y: 0 }}
+                position={tablePositions[table.id] ?? { x: 0, y: 0 }}
                 currentOccupancy={
-                  currentOccupancyByTableId[table._id] ?? 0
+                  currentOccupancyByTableId[table.id] ?? 0
                 }
-                isSelected={selectedTable?._id === table._id}
-                isActive={activeId === table._id}
+                isSelected={selectedTable?.id === table.id}
+                isActive={activeId === table.id}
                 onTableClick={onTableClick}
               />
             ))}
@@ -264,7 +264,7 @@ const TableLayout: React.FC<TableLayoutProps> = ({
               <TableCard
                 table={activeTable}
                 currentOccupancy={
-                  currentOccupancyByTableId[activeTable._id] ?? 0
+                  currentOccupancyByTableId[activeTable.id] ?? 0
                 }
                 isDragging
               />

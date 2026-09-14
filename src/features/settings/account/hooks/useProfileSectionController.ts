@@ -99,7 +99,7 @@ export function useProfileSectionController() {
   const baseDateOfBirth = profile?.date_of_birth?.slice(0, 10) || ""
   const baseTheme = preferences?.theme ?? "light"
   const baseLanguage = preferences?.language ?? "vi"
-  const userCode = profile?._id ?? ""
+  const userCode = profile?.id ?? ""
 
   const resolvedFirstName = firstName ?? profileNameParts.firstName
   const resolvedLastName = lastName ?? profileNameParts.lastName

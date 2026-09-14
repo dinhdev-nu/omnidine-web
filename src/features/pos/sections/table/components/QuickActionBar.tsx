@@ -57,7 +57,7 @@ const QuickActionBar: React.FC<QuickActionBarProps> = ({
   }
 
   const getActions = (): QuickAction[] => {
-    const id = selectedTable._id
+    const id = selectedTable.id
     switch (selectedTable.status) {
       case "available":
         return [

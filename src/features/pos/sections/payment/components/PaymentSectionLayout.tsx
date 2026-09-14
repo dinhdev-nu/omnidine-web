@@ -245,7 +245,7 @@ function PaymentStepContent({ controller }: PaymentSectionViewProps) {
         <PaymentSuccess
           paymentData={paymentResult}
           orderData={{
-            _id: orderData._id,
+            id: orderData.id,
             customerName: orderData.customer_name ?? undefined,
             tableNumber: orderData.table_id ?? undefined,
             items: orderItems,
@@ -319,7 +319,7 @@ export function PaymentSectionLayout({ controller }: PaymentSectionViewProps) {
           </div>
           <div className="hidden items-center gap-2 text-xs whitespace-nowrap text-muted-foreground lg:flex">
             <span>Đơn hàng: {orderData?.order_number ?? resolvedOrderId}</span>
-            <span>({orderData?._id ?? resolvedOrderId})</span>
+            <span>({orderData?.id ?? resolvedOrderId})</span>
             <span>•</span>
             <span>Bàn: {tableNumber ?? "N/A"}</span>
             <span>•</span>

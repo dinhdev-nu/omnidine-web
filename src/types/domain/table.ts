@@ -1,8 +1,9 @@
+import type { PublicRestaurantDetail } from './restaurant';
+
 export type TableStatus = 'available' | 'occupied' | 'reserved' | 'cleaning' | 'inactive';
 
 export interface TableIdentity {
-  _id: string;
-  id?: string;
+  id: string;
 }
 
 export interface TablePosition {
@@ -102,10 +103,10 @@ export type UpdateTableStatusResponse =
   | { unchanged: true }
   | {
       unchanged: false;
-      table: Pick<TableRecord, 'restaurant_id' | 'table_number' | 'status' | 'updated_at'>;
+      table: Pick<TableRecord, 'id' | 'restaurant_id' | 'table_number' | 'status' | 'updated_at'>;
     };
 
-export interface ToggleTableActiveResponse {
+export interface ToggleTableActiveResponse extends TableIdentity {
   restaurant_id: string;
   table_number: string;
   is_active: boolean;
@@ -115,7 +116,6 @@ export interface ToggleTableActiveResponse {
 export interface RegenerateTableQrResponse {
   table_id: string;
   qr_code: string;
-  qr_url: string;
   updated_at: string;
 }
 
@@ -128,12 +128,7 @@ export interface TableListResponse {
   total: number;
 }
 
-export interface PublicTableRestaurantSummary {
-  id?: string;
-  name: string;
-  slug: string;
-  logo_url: string | null;
-}
+export type PublicTableRestaurantSummary = Omit<PublicRestaurantDetail, 'created_at' | 'updated_at'>;
 
 export interface PublicTableScanResponse {
   table_id: string;

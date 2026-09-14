@@ -87,10 +87,10 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
       itemModalTriggerRef.current = document.activeElement as HTMLElement | null
       setIsSubmitting(true)
       try {
-        const detail = await getMenuItemDetail(restaurantId, item._id)
+        const detail = await getMenuItemDetail(restaurantId, item.id)
         const imageUrls = detail.images?.map((img) => img.url) ?? []
 
-        setEditingItemId(detail._id)
+        setEditingItemId(detail.id)
         setEditingItemDetail(detail)
         setImagePreviews(createImagePreviews(imageUrls))
         setFormData({
@@ -304,7 +304,7 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
 
         await Promise.all(
           normalizedImageUrls.map((url) =>
-            addMenuItemImage(restaurantId, created._id, {
+            addMenuItemImage(restaurantId, created.id, {
               url,
               alt: formData.name.trim(),
             })

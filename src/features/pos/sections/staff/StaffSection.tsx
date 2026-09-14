@@ -81,7 +81,7 @@ function staffUiReducer(
 
 const StaffSection: React.FC = () => {
   const posData = useRequiredPosData()
-  const restaurantId = posData.restaurant._id
+  const restaurantId = posData.restaurant.id
   const [staffUi, dispatchStaffUi] = React.useReducer(
     staffUiReducer,
     staffUiInitialState
@@ -165,7 +165,7 @@ const StaffSection: React.FC = () => {
       const requestId = detailRequestIdRef.current + 1
       detailRequestIdRef.current = requestId
       const fallbackDetail: StaffDetail = {
-        _id: staff.id,
+        id: staff.id,
         restaurant_id: restaurantId,
         user_id: staff.user_id,
         employee_code: staff.employee_code,

@@ -224,7 +224,7 @@ const TableSection: React.FC = () => {
   }
 
   const requestTableDeletion = (id: string) => {
-    const table = tables.find((item) => item._id === id)
+    const table = tables.find((item) => item.id === id)
     if (table) {
       deleteTableButtonRef.current = document.activeElement as HTMLElement | null
       setTablePendingDeletion(table)
@@ -373,7 +373,7 @@ const TableSection: React.FC = () => {
 
           <div className="hidden h-full lg:block">
             <TableControlPanel
-              key={selectedTable?._id ?? "none"}
+              key={selectedTable?.id ?? "none"}
               selectedTable={selectedTable}
               pendingActions={pendingControlActions}
               onTableStatusChange={handleTableStatusChange}
@@ -409,7 +409,7 @@ const TableSection: React.FC = () => {
         onClose={() => setTablePendingDeletion(null)}
         onConfirm={() => {
           if (tablePendingDeletion) {
-            handleDeleteTable(tablePendingDeletion._id)
+            handleDeleteTable(tablePendingDeletion.id)
             setTablePendingDeletion(null)
           }
         }}
@@ -462,7 +462,7 @@ const TableSection: React.FC = () => {
 
           <div className="min-h-0 overflow-y-auto">
             <TableControlPanel
-              key={selectedTable?._id ?? "mobile-none"}
+              key={selectedTable?.id ?? "mobile-none"}
               selectedTable={selectedTable}
               displayMode="dialog"
               pendingActions={pendingControlActions}

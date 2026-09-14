@@ -49,7 +49,7 @@ const OrderSection: React.FC = () => {
     }, [navigate, slug]);
 
     const handleGoToPayment = useCallback((order: Order) => {
-        navigate(`${POS_BASE_PATH}/${slug}/payments/${order._id}`);
+        navigate(`${POS_BASE_PATH}/${slug}/payments/${order.id}`);
     }, [navigate, slug]);
 
     return (

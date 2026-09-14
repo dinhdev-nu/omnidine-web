@@ -96,7 +96,7 @@ const MenuTable: React.FC<MenuTableProps> = ({
       <div className="flex flex-col gap-4 md:hidden" aria-label="Danh sách món ăn">
         {items.map((item) => (
           <MenuItemCard
-            key={item._id}
+            key={item.id}
             item={item}
             categoryName={categoryMap[item.category_id] ?? "Không rõ"}
             onEdit={onEdit}
@@ -148,22 +148,22 @@ const MenuTable: React.FC<MenuTableProps> = ({
             <tbody>
               {items.map((item) => {
                 const isMoveUpPending = isItemActionPending(
-                  item._id,
+                  item.id,
                   "reorder-up"
                 )
                 const isMoveDownPending = isItemActionPending(
-                  item._id,
+                  item.id,
                   "reorder-down"
                 )
                 const isToggleFeaturedPending = isItemActionPending(
-                  item._id,
+                  item.id,
                   "toggle-featured"
                 )
                 const isToggleAvailabilityPending = isItemActionPending(
-                  item._id,
+                  item.id,
                   "toggle-availability"
                 )
-                const isDeletePending = isItemActionPending(item._id, "delete")
+                const isDeletePending = isItemActionPending(item.id, "delete")
                 const isAnyPending =
                   isMoveUpPending ||
                   isMoveDownPending ||
@@ -173,7 +173,7 @@ const MenuTable: React.FC<MenuTableProps> = ({
 
                 return (
                   <tr
-                    key={item._id}
+                    key={item.id}
                     className="border-b border-border transition-colors hover:bg-muted/30 motion-reduce:transition-none"
                     aria-busy={isAnyPending}
                   >
@@ -238,7 +238,7 @@ const MenuTable: React.FC<MenuTableProps> = ({
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => onMoveItem(item._id, "up")}
+                          onClick={() => onMoveItem(item.id, "up")}
                           disabled={isAnyPending}
                           aria-label={`Đưa món ${item.name} lên`}
                           title="Đưa lên"
@@ -253,7 +253,7 @@ const MenuTable: React.FC<MenuTableProps> = ({
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => onMoveItem(item._id, "down")}
+                          onClick={() => onMoveItem(item.id, "down")}
                           disabled={isAnyPending}
                           aria-label={`Đưa món ${item.name} xuống`}
                           title="Đưa xuống"
@@ -269,7 +269,7 @@ const MenuTable: React.FC<MenuTableProps> = ({
                           variant="ghost"
                           size="icon"
                           onClick={() =>
-                            onToggleFeatured(item._id, item.is_featured)
+                            onToggleFeatured(item.id, item.is_featured)
                           }
                           disabled={isAnyPending}
                           aria-label={
@@ -298,7 +298,7 @@ const MenuTable: React.FC<MenuTableProps> = ({
                           variant="ghost"
                           size="icon"
                           onClick={() =>
-                            onToggleAvailability(item._id, item.is_available)
+                            onToggleAvailability(item.id, item.is_available)
                           }
                           disabled={isAnyPending}
                           aria-label={
@@ -335,7 +335,7 @@ const MenuTable: React.FC<MenuTableProps> = ({
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => onDelete(item._id)}
+                          onClick={() => onDelete(item.id)}
                           className="text-error hover:text-error"
                           disabled={isAnyPending}
                           aria-label={`Xóa món ${item.name}`}

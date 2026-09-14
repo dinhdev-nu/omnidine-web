@@ -42,17 +42,17 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
   onMoveItem,
   isItemActionPending,
 }) => {
-  const isMoveUpPending = isItemActionPending(item._id, "reorder-up")
-  const isMoveDownPending = isItemActionPending(item._id, "reorder-down")
+  const isMoveUpPending = isItemActionPending(item.id, "reorder-up")
+  const isMoveDownPending = isItemActionPending(item.id, "reorder-down")
   const isToggleFeaturedPending = isItemActionPending(
-    item._id,
+    item.id,
     "toggle-featured"
   )
   const isToggleAvailabilityPending = isItemActionPending(
-    item._id,
+    item.id,
     "toggle-availability"
   )
-  const isDeletePending = isItemActionPending(item._id, "delete")
+  const isDeletePending = isItemActionPending(item.id, "delete")
   const isAnyPending =
     isMoveUpPending ||
     isMoveDownPending ||
@@ -91,7 +91,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => onMoveItem(item._id, "up")}
+            onClick={() => onMoveItem(item.id, "up")}
             className="justify-self-center"
             disabled={isAnyPending}
             aria-label={`Đưa món ${item.name} lên`}
@@ -106,7 +106,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => onMoveItem(item._id, "down")}
+            onClick={() => onMoveItem(item.id, "down")}
             className="justify-self-center"
             disabled={isAnyPending}
             aria-label={`Đưa món ${item.name} xuống`}
@@ -121,7 +121,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => onToggleFeatured(item._id, item.is_featured)}
+            onClick={() => onToggleFeatured(item.id, item.is_featured)}
             className="justify-self-center"
             disabled={isAnyPending}
             aria-label={
@@ -155,7 +155,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => onDelete(item._id)}
+            onClick={() => onDelete(item.id)}
             className="justify-self-center text-error hover:text-error"
             disabled={isAnyPending}
             aria-label={`Xóa món ${item.name}`}
@@ -213,7 +213,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
             variant={item.is_available ? "outline" : "default"}
             size="sm"
             fullWidth
-            onClick={() => onToggleAvailability(item._id, item.is_available)}
+            onClick={() => onToggleAvailability(item.id, item.is_available)}
             iconName={
               isToggleAvailabilityPending
                 ? undefined

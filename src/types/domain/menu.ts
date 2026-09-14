@@ -1,4 +1,4 @@
-import type { OperatingHours } from './restaurant';
+import type { PublicRestaurantDetail } from './restaurant';
 
 export interface MenuImage {
     url: string;
@@ -6,7 +6,7 @@ export interface MenuImage {
 }
 
 export interface MenuCategory {
-    _id: string;
+    id: string;
     restaurant_id: string;
     name: string;
     description: string | null;
@@ -22,7 +22,7 @@ export interface MenuCategoryWithCount extends MenuCategory {
 }
 
 export interface MenuItem {
-    _id: string;
+    id: string;
     restaurant_id: string;
     category_id: string;
     name: string;
@@ -113,13 +113,15 @@ export interface AddMenuItemImagePayload {
 // ----------------------------------------------------------------------
 
 export interface PublicMenuItem {
-    _id: string;
+    id: string;
     name: string;
     description: string | null;
     base_price: number;
     images: MenuImage[];
     is_featured: boolean;
     sort_order: number;
+    created_at: string;
+    updated_at: string;
 }
 
 export interface PublicMenuCategory {
@@ -130,37 +132,7 @@ export interface PublicMenuCategory {
     items: PublicMenuItem[];
 }
 
-export interface PublicMenuRestaurant {
-    _id: string;
-    name: string;
-    description: string | null;
-    cuisine_type: string | null;
-    price_range: number;
-    logo_url: string | null;
-    cover_image_url: string | null;
-    gallery_urls: string[];
-    address: string;
-    city: string;
-    district: string | null;
-    ward: string | null;
-    latitude: number;
-    longitude: number;
-    location: {
-        type: string;
-        coordinates: [number, number];
-    };
-    phone: string | null;
-    email: string | null;
-    website: string | null;
-    operating_hours: OperatingHours;
-    timezone: string;
-    currency: string;
-    tax_rate: number;
-    service_charge_rate: number;
-    is_published: boolean;
-    accepts_online_orders: boolean;
-    deleted_at: string | null;
-}
+export type PublicMenuRestaurant = Omit<PublicRestaurantDetail, 'created_at' | 'updated_at'>;
 
 export interface PublicMenuResponse {
     restaurant: PublicMenuRestaurant;
@@ -168,14 +140,14 @@ export interface PublicMenuResponse {
 }
 
 export interface PublicMenuSearchItem {
-    _id: string;
+    id: string;
     name: string;
     description: string | null;
     base_price: number;
     is_featured: boolean;
     images: MenuImage[];
     category: {
-        _id: string;
+        id: string;
         name: string;
     };
     score: number;

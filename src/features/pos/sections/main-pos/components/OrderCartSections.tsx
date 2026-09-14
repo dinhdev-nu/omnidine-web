@@ -174,7 +174,7 @@ export function CartItemsList({
   return (
     <div className="flex flex-col gap-3">
       {cartItems.map((item) => (
-        <article key={item._id} className="min-w-0 rounded-lg border border-border bg-muted/30 p-3">
+        <article key={item.id} className="min-w-0 rounded-lg border border-border bg-muted/30 p-3">
           <div className="flex flex-col gap-2 min-[390px]:flex-row min-[390px]:items-start min-[390px]:justify-between">
             <div className="min-w-0">
               <h3 className="break-words text-sm font-medium text-foreground">
@@ -189,7 +189,7 @@ export function CartItemsList({
                 variant="outline"
                 size="icon"
                 aria-label={`Giảm số lượng ${item.name}`}
-                onClick={() => onUpdateQuantity(item._id, item.quantity - 1)}
+                onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
                 disabled={item.quantity <= 1}
               >
                 <Icon name="Minus" size={16} aria-hidden="true" />
@@ -201,7 +201,7 @@ export function CartItemsList({
                 variant="outline"
                 size="icon"
                 aria-label={`Tăng số lượng ${item.name}`}
-                onClick={() => onUpdateQuantity(item._id, item.quantity + 1)}
+                onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
               >
                 <Icon name="Plus" size={16} aria-hidden="true" />
               </Button>
@@ -209,7 +209,7 @@ export function CartItemsList({
                 variant="ghost"
                 size="icon"
                 aria-label={`Xóa ${item.name} khỏi giỏ hàng`}
-                onClick={() => onRemoveItem(item._id)}
+                onClick={() => onRemoveItem(item.id)}
                 className="text-error hover:text-error"
               >
                 <Icon name="X" size={16} aria-hidden="true" />
@@ -220,13 +220,13 @@ export function CartItemsList({
           <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
             <Input
               type="text"
-              name={`pos-item-note-${item._id}`}
+              name={`pos-item-note-${item.id}`}
               aria-label={`Ghi chú cho ${item.name}`}
               autoComplete="off"
               placeholder="Ghi chú cho món này…"
               value={item.note ?? ""}
               onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                onUpdateNote(item._id, event.target.value)
+                onUpdateNote(item.id, event.target.value)
               }
               className="text-xs"
             />

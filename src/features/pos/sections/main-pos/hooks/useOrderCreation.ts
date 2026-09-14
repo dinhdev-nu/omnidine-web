@@ -16,7 +16,7 @@ interface OrderCreationInput {
   customerPhone: string;
   orderNotes: string;
   cartItems: Array<{
-    _id: string;
+    id: string;
     name: string;
     price: number;
     quantity: number;
@@ -54,7 +54,7 @@ export const useOrderCreation = ({ restaurantId, onOrderCreated }: UseOrderCreat
         customer_phone: input.customerPhone.trim() || undefined,
         notes: input.orderNotes.trim() || undefined,
         items: input.cartItems.map((item) => ({
-          menu_item_id: item._id,
+          menu_item_id: item.id,
           quantity: item.quantity,
           notes: item.note?.trim() ? item.note.trim() : undefined,
         })),

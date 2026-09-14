@@ -56,7 +56,7 @@ export function usePaymentSectionController(orderId?: string | null) {
   const [renderedAt] = useState(() => new Date().toLocaleString("vi-VN"))
 
   const resolvedOrderId = orderId?.trim() ?? ""
-  const restaurantId = restaurant._id
+  const restaurantId = restaurant.id
   const [storedFlow, setStoredFlow] = useState<PaymentFlowState>(() =>
     createPaymentFlowState(resolvedOrderId)
   )
@@ -149,7 +149,7 @@ export function usePaymentSectionController(orderId?: string | null) {
     if (!orderData) return
     updateFlow({
       paymentResult: {
-        _id: idempotencyKey,
+        id: idempotencyKey,
         createdAt: new Date().toISOString(),
         method,
         paidAmount,

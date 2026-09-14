@@ -7,10 +7,10 @@ export function useIdempotencyKey(
   orderData: Order | null
 ): string {
   return useMemo(() => {
-    if (!restaurantId || !orderData?._id) {
+    if (!restaurantId || !orderData?.id) {
       return ""
     }
 
     return generateIdempotencyKey()
-  }, [restaurantId, orderData?._id])
+  }, [restaurantId, orderData?.id])
 }

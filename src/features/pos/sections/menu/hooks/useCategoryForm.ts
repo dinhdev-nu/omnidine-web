@@ -48,7 +48,7 @@ export function useCategoryForm(restaurantId: string, onSuccess: () => void) {
 
     const openEditCategory = (category: MenuCategoryWithCount) => {
         categoryModalTriggerRef.current = document.activeElement as HTMLElement | null;
-        setEditingCategoryId(category._id);
+        setEditingCategoryId(category.id);
         setCategoryNameValue(category.name);
         setCategoryDescription(category.description || '');
         setCategoryImageUrl(category.image_url || '');

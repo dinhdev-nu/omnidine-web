@@ -28,25 +28,15 @@ export const usePOSStore = create<POSState>()(
     }),
     {
       name: POS_STORAGE_KEY,
-      version: 2,
+      version: 3,
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         menuCategories: state.menuCategories,
         menuItems: state.menuItems,
         staffs: state.staffs,
       }),
-      migrate: (persistedState) => {
-        if (!persistedState || typeof persistedState !== 'object') {
-          return { menuCategories: [], menuItems: [], staffs: [] };
-        }
-
-        const state = persistedState as Record<string, unknown>;
-        return {
-          menuCategories: Array.isArray(state.menuCategories) ? state.menuCategories : [],
-          menuItems: Array.isArray(state.menuItems) ? state.menuItems : [],
-          staffs: Array.isArray(state.staffs) ? state.staffs : [],
-        };
-      },
+      // Reload cached API data when the response contract changes.
+      migrate: () => ({ menuCategories: [], menuItems: [], staffs: [] }),
     }
   )
 );

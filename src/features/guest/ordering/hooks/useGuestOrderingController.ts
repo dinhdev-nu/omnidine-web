@@ -99,14 +99,14 @@ function guestOrderingReducer(
       return { ...state, showClearCartDialog: false }
     case "addCartItem": {
       const existingItem = state.cartItems.find(
-        (cartItem) => cartItem._id === action.item._id
+        (cartItem) => cartItem.id === action.item.id
       )
 
       if (existingItem) {
         return {
           ...state,
           cartItems: state.cartItems.map((cartItem) =>
-            cartItem._id === action.item._id
+            cartItem.id === action.item.id
               ? { ...cartItem, quantity: cartItem.quantity + 1 }
               : cartItem
           ),
@@ -126,7 +126,7 @@ function guestOrderingReducer(
         return {
           ...state,
           cartItems: state.cartItems.filter(
-            (item) => item._id !== action.itemId
+            (item) => item.id !== action.itemId
           ),
         }
       }
@@ -134,7 +134,7 @@ function guestOrderingReducer(
       return {
         ...state,
         cartItems: state.cartItems.map((item) =>
-          item._id === action.itemId
+          item.id === action.itemId
             ? { ...item, quantity: action.quantity }
             : item
         ),
@@ -142,13 +142,13 @@ function guestOrderingReducer(
     case "removeCartItem":
       return {
         ...state,
-        cartItems: state.cartItems.filter((item) => item._id !== action.itemId),
+        cartItems: state.cartItems.filter((item) => item.id !== action.itemId),
       }
     case "updateCartNote":
       return {
         ...state,
         cartItems: state.cartItems.map((item) =>
-          item._id === action.itemId ? { ...item, note: action.note } : item
+          item.id === action.itemId ? { ...item, note: action.note } : item
         ),
       }
     case "clearCart":
@@ -249,7 +249,7 @@ export function useGuestOrderingController({
     { enabled: !!resolvedSlug }
   )
 
-  const restaurantId = menuData?.restaurant?._id ?? null
+  const restaurantId = menuData?.restaurant?.id ?? null
 
   const isOperational =
     (menuData?.restaurant?.is_published ?? false) &&
@@ -330,7 +330,7 @@ export function useGuestOrderingController({
   const categories = useMemo(() => {
     if (!menuData?.categories) return []
     return menuData.categories.map((cat) => ({
-      id: cat.name, // or _id if they had one, but public category doesn't expose _id. Using name.
+      id: cat.name, // Public categories do not expose an ID.
       name: cat.name,
       imageUrl: cat.image_url,
       description: cat.description,
@@ -344,7 +344,7 @@ export function useGuestOrderingController({
     menuData.categories.forEach((cat) => {
       cat.items.forEach((item) => {
         allItems.push({
-          _id: item._id,
+          id: item.id,
           name: item.name,
           description: item.description || "",
           price: item.base_price,
@@ -370,7 +370,7 @@ export function useGuestOrderingController({
     return (availableTablesData?.data ?? []).reduce<
       Array<{ value: string; label: string }>
     >((options, table) => {
-      const value = table._id || table.id || ""
+      const value = table.id
       if (!value) {
         return options
       }
@@ -443,7 +443,7 @@ export function useGuestOrderingController({
       return searchData.data.map(
         (item) =>
           ({
-            _id: item._id,
+            id: item.id,
             name: item.name,
             description: item.description || "",
             price: item.base_price,
@@ -477,7 +477,7 @@ export function useGuestOrderingController({
       return
     }
 
-    const existingItem = cartItems.find((cartItem) => cartItem._id === item._id)
+    const existingItem = cartItems.find((cartItem) => cartItem.id === item.id)
     if (existingItem) {
       toast.success(`${item.name} x${existingItem.quantity + 1}`)
     } else {
@@ -565,7 +565,7 @@ export function useGuestOrderingController({
       customer_phone: resolvedCustomerContact || user?.phone || null,
       notes: resolvedNotes || null,
       items: cartItems.map((item) => ({
-        menu_item_id: item._id,
+        menu_item_id: item.id,
         quantity: item.quantity,
         notes: item.note ?? null,
       })),
