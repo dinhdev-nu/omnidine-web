@@ -18,14 +18,14 @@ const performers: Performer[] = [
 
 export function TopPerformers() {
     return (
-        <div className="bg-card border border-border rounded-xl p-5 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
-            <div className="flex items-center justify-between mb-5">
-                <div>
+        <section className="min-w-0 animate-in rounded-xl border border-border bg-card p-4 duration-500 fade-in slide-in-from-bottom-4 motion-reduce:animate-none sm:p-5 delay-300">
+            <div className="mb-5 flex items-start justify-between gap-3">
+                <div className="min-w-0">
                     <h3 className="text-base font-semibold text-foreground">Nhân viên xuất sắc</h3>
                     <p className="text-sm text-muted-foreground mt-0.5">Dẫn đầu tháng này</p>
                 </div>
                 <div className="flex items-center gap-1 text-warning">
-                    <Trophy className="w-5 h-5" />
+                    <Trophy aria-hidden="true" className="w-5 h-5" />
                 </div>
             </div>
 
@@ -33,12 +33,12 @@ export function TopPerformers() {
                 {performers.map((person, index) => (
                     <div
                         key={person.name}
-                        className="group flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-all duration-200 cursor-pointer animate-in fade-in slide-in-from-right-2"
+                        className="group flex min-w-0 animate-in flex-col items-start gap-3 rounded-lg p-3 transition-colors duration-200 fade-in slide-in-from-right-2 hover:bg-secondary/50 motion-reduce:animate-none motion-reduce:transition-none sm:flex-row sm:items-center sm:justify-between"
                         style={{ animationDelay: `${(index + 4) * 100}ms`, animationFillMode: "both" }}
                     >
-                        <div className="flex items-center gap-3">
-                            <div className="relative">
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent/80 to-chart-1 flex items-center justify-center text-sm font-semibold text-white">
+                        <div className="flex min-w-0 items-center gap-3">
+                            <div className="relative shrink-0">
+                                <div aria-hidden="true" className="w-10 h-10 rounded-full bg-gradient-to-br from-accent/80 to-chart-1 flex items-center justify-center text-sm font-semibold text-white">
                                     {person.name.split(" ").map((n) => n[0]).join("")}
                                 </div>
                                 {person.rank <= 3 && (
@@ -47,22 +47,22 @@ export function TopPerformers() {
                                     </div>
                                 )}
                             </div>
-                            <div>
-                                <p className="text-sm font-medium text-foreground">{person.name}</p>
+                            <div className="min-w-0">
+                                <p className="text-sm font-medium text-foreground break-words">{person.name}</p>
                                 <p className="text-xs text-muted-foreground">{person.deals} giao dịch chốt</p>
                             </div>
                         </div>
 
-                        <div className="text-right">
+                        <div className="w-full text-left tabular-nums sm:w-auto sm:shrink-0 sm:text-right">
                             <p className="text-sm font-semibold text-foreground">{person.revenue}</p>
                             <div className="flex items-center justify-end gap-1 text-xs text-success">
-                                <TrendingUp className="w-3 h-3" />
+                                <TrendingUp aria-hidden="true" className="w-3 h-3" />
                                 {person.change}
                             </div>
                         </div>
                     </div>
                 ))}
             </div>
-        </div>
+        </section>
     );
 }

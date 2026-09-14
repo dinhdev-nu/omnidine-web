@@ -1,80 +1,88 @@
-import React, { useState } from 'react';
-import Icon from '@/components/AppIcon';
-import Input from '../../../ui/Input';
-import Button from '../../../ui/Button';
+import React, { useState } from "react"
 
-const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
+import Icon from "@/components/AppIcon"
+
+import Button from "../../../ui/Button"
+import Input from "../../../ui/Input"
+
+const currencyFormatter = new Intl.NumberFormat("vi-VN", {
+  style: "currency",
+  currency: "VND",
+})
 
 interface CashPaymentFormProps {
-  totalAmount?: number;
-  /** Pre-computed change amount from parent */
-  change?: number;
-  /** Error message (e.g. "Số tiền nhận không đủ") */
-  amountError?: string;
-  /** Quick-select preset amounts */
-  quickAmounts?: number[];
-  onAmountChange: (rawDigits: string) => void;
-  onPaymentComplete: () => void;
-  onCancel: () => void;
+  totalAmount?: number
+  change?: number
+  amountError?: string
+  quickAmounts?: number[]
+  isProcessing?: boolean
+  onAmountChange: (rawDigits: string) => void
+  onPaymentComplete: () => void
+  onCancel: () => void
 }
 
-const EMPTY_QUICK_AMOUNTS: number[] = [];
+const EMPTY_QUICK_AMOUNTS: number[] = []
 
-const formatCurrency = (amount: number): string =>
-  currencyFormatter.format(amount);
+const formatCurrency = (amount: number): string => currencyFormatter.format(amount)
 
 const CashPaymentForm: React.FC<CashPaymentFormProps> = ({
   totalAmount = 0,
   change = 0,
-  amountError = '',
+  amountError = "",
   quickAmounts = EMPTY_QUICK_AMOUNTS,
+  isProcessing = false,
   onAmountChange,
   onPaymentComplete,
   onCancel,
 }) => {
-  const [displayValue, setDisplayValue] = useState('');
+  const [displayValue, setDisplayValue] = useState("")
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const digits = e.target.value.replace(/\D/g, '');
-    setDisplayValue(digits ? formatCurrency(Number(digits)) : '');
-    onAmountChange(digits);
-  };
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = event.target.value.replace(/\D/g, "")
+    setDisplayValue(digits ? formatCurrency(Number(digits)) : "")
+    onAmountChange(digits)
+  }
 
   const handleQuickAmount = (amount: number) => {
-    setDisplayValue(formatCurrency(amount));
-    onAmountChange(amount.toString());
-  };
+    setDisplayValue(formatCurrency(amount))
+    onAmountChange(amount.toString())
+  }
 
-  const isInsufficient = !!amountError;
+  const isInsufficient = Boolean(amountError)
 
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h3 className="text-xl font-semibold text-foreground mb-2">Thanh toán tiền mặt</h3>
-        <p className="text-2xl font-bold text-primary">{formatCurrency(totalAmount)}</p>
+        <h2 className="mb-2 text-xl font-semibold text-foreground">
+          Thanh toán tiền mặt
+        </h2>
+        <p className="text-2xl font-bold text-primary tabular-nums">
+          {formatCurrency(totalAmount)}
+        </p>
       </div>
 
-      {/* Amount Input */}
       <div className="space-y-4">
         <Input
           label="Số tiền khách đưa"
+          name="cash-tendered"
           type="text"
+          inputMode="numeric"
+          autoComplete="off"
           value={displayValue}
           onChange={handleChange}
-          placeholder="Nhập số tiền..."
+          placeholder="Nhập số tiền…"
           error={amountError}
-          className="text-lg text-center"
+          className="text-center text-lg tabular-nums"
         />
 
-        {/* Quick Amount Buttons */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 gap-2 min-[390px]:grid-cols-2 md:grid-cols-3">
           {quickAmounts.slice(0, 6).map((amount) => (
             <Button
               key={amount}
               variant="outline"
               size="sm"
               onClick={() => handleQuickAmount(amount)}
-              className="hover-scale"
+              className="w-full hover-scale tabular-nums"
             >
               {formatCurrency(amount)}
             </Button>
@@ -82,53 +90,69 @@ const CashPaymentForm: React.FC<CashPaymentFormProps> = ({
         </div>
       </div>
 
-      {/* Change Display */}
-      {change > 0 && (
-        <div className="p-4 bg-success/10 border border-success/20 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Icon name="ArrowLeftRight" size={20} className="text-success" />
+      {change > 0 ? (
+        <div className="rounded-lg border border-success/20 bg-success/10 p-4">
+          <div className="flex min-w-0 items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-2">
+              <Icon
+                name="ArrowLeftRight"
+                size={20}
+                aria-hidden="true"
+                className="shrink-0 text-success"
+              />
               <span className="font-medium text-success">Tiền thối:</span>
             </div>
-            <span className="text-xl font-bold text-success">{formatCurrency(change)}</span>
+            <span className="shrink-0 text-xl font-bold text-success tabular-nums">
+              {formatCurrency(change)}
+            </span>
           </div>
         </div>
-      )}
+      ) : null}
 
-      {/* Payment Summary */}
-      <div className="p-4 bg-muted/30 rounded-lg space-y-2">
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Tổng tiền:</span>
-          <span className="font-medium text-foreground">{formatCurrency(totalAmount)}</span>
+      <dl className="space-y-2 rounded-lg bg-muted/30 p-4">
+        <div className="flex min-w-0 justify-between gap-3 text-sm">
+          <dt className="text-muted-foreground">Tổng tiền:</dt>
+          <dd className="shrink-0 font-medium text-foreground tabular-nums">
+            {formatCurrency(totalAmount)}
+          </dd>
         </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Tiền nhận:</span>
-          <span className="font-medium text-foreground">{displayValue || '0 ₫'}</span>
+        <div className="flex min-w-0 justify-between gap-3 text-sm">
+          <dt className="text-muted-foreground">Tiền nhận:</dt>
+          <dd className="shrink-0 font-medium text-foreground tabular-nums">
+            {displayValue || "0 ₫"}
+          </dd>
         </div>
-        <div className="flex justify-between text-sm pt-2 border-t border-border">
-          <span className="text-muted-foreground">Tiền thối:</span>
-          <span className="font-medium text-success">{formatCurrency(change)}</span>
+        <div className="flex min-w-0 justify-between gap-3 border-t border-border pt-2 text-sm">
+          <dt className="text-muted-foreground">Tiền thối:</dt>
+          <dd className="shrink-0 font-medium text-success tabular-nums">
+            {formatCurrency(change)}
+          </dd>
         </div>
-      </div>
+      </dl>
 
-      {/* Action Buttons */}
-      <div className="flex space-x-3">
-        <Button variant="outline" onClick={onCancel} className="flex-1">
+      <div className="flex flex-col-reverse gap-3 min-[390px]:flex-row">
+        <Button
+          variant="outline"
+          onClick={onCancel}
+          disabled={isProcessing}
+          className="w-full min-[390px]:flex-1"
+        >
           Hủy
         </Button>
         <Button
           variant="success"
           onClick={onPaymentComplete}
-          disabled={isInsufficient || !displayValue}
-          className="flex-1"
-          iconName="Check"
+          disabled={isInsufficient || !displayValue || isProcessing}
+          aria-busy={isProcessing}
+          className="w-full min-[390px]:flex-1"
+          iconName={isProcessing ? "Loader2" : "Check"}
           iconPosition="left"
         >
-          Hoàn tất thanh toán
+          {isProcessing ? "Đang xử lý…" : "Hoàn tất thanh toán"}
         </Button>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default CashPaymentForm;
+export default CashPaymentForm

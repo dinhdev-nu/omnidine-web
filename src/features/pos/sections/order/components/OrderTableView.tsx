@@ -32,37 +32,45 @@ function OrderDesktopTable({ controller }: OrderTableViewProps) {
     handleEditDiscountClick,
   } = controller
   return (
-    <div className="hidden overflow-x-auto lg:block">
-      <table className="w-full">
+    <div
+      tabIndex={0}
+      role="region"
+      aria-label="Bảng lịch sử đơn hàng, cuộn ngang để xem thêm cột"
+      className="hidden overflow-x-auto overscroll-x-contain focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none lg:block"
+    >
+      <table className="min-w-[60rem] w-full">
+        <caption className="sr-only">
+          Lịch sử đơn hàng, trạng thái thanh toán và các thao tác
+        </caption>
         <thead className="border-b border-border bg-muted/50">
           <tr>
-            <th className="p-4 text-left font-medium text-muted-foreground">
-              <div className="flex items-center space-x-2">
+            <th scope="col" className="p-4 text-left font-medium text-muted-foreground">
+              <div className="flex items-center gap-2">
                 <span>Số đơn</span>
               </div>
             </th>
-            <th className="p-4 text-left font-medium text-muted-foreground">
+            <th scope="col" className="p-4 text-left font-medium text-muted-foreground">
               <span>Ngày tạo</span>
             </th>
-            <th className="p-4 text-left font-medium text-muted-foreground">
+            <th scope="col" className="p-4 text-left font-medium text-muted-foreground">
               Loại đơn
             </th>
-            <th className="p-4 text-left font-medium text-muted-foreground">
+            <th scope="col" className="p-4 text-left font-medium text-muted-foreground">
               Khách hàng
             </th>
-            <th className="p-4 text-left font-medium text-muted-foreground">
+            <th scope="col" className="p-4 text-left font-medium text-muted-foreground">
               Tổng tiền
             </th>
-            <th className="p-4 text-left font-medium text-muted-foreground">
+            <th scope="col" className="p-4 text-left font-medium text-muted-foreground">
               Nguồn đơn
             </th>
-            <th className="p-4 text-left font-medium text-muted-foreground">
+            <th scope="col" className="p-4 text-left font-medium text-muted-foreground">
               Trạng thái
             </th>
-            <th className="p-4 text-left font-medium text-muted-foreground">
+            <th scope="col" className="p-4 text-left font-medium text-muted-foreground">
               TT Thanh toán
             </th>
-            <th className="p-4 text-left font-medium text-muted-foreground">
+            <th scope="col" className="p-4 text-left font-medium text-muted-foreground">
               Thao tác
             </th>
           </tr>
@@ -107,7 +115,7 @@ function OrderMobileCards({ controller }: OrderTableViewProps) {
     handleEditDiscountClick,
   } = controller
   return (
-    <div className="space-y-4 p-4 lg:hidden">
+    <div className="space-y-3 p-3 sm:p-4 lg:hidden">
       {orders.map((order) => (
         <OrderTableMobileCard
           key={order._id}
@@ -151,6 +159,7 @@ function OrderTableDialogs({ controller }: OrderTableViewProps) {
     discountRef,
     showCancelItemDialog,
     selectedItemToCancelRef,
+    cancelItemReturnFocusRef,
     handleConfirmCancelItem,
     isCancellingItem,
     cancelItemReason,
@@ -178,7 +187,8 @@ function OrderTableDialogs({ controller }: OrderTableViewProps) {
           </label>
           <select
             id="order-next-status"
-            className="h-9 w-full rounded border border-border bg-background px-2 text-sm"
+            name="order-next-status"
+            className="h-11 w-full rounded border border-border bg-background px-3 text-sm focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
             value={nextStatus}
             onChange={(e) =>
               dispatchTable({
@@ -219,8 +229,10 @@ function OrderTableDialogs({ controller }: OrderTableViewProps) {
           </label>
           <textarea
             id="order-cancel-reason"
-            className="min-h-[80px] w-full rounded border border-border p-2 text-sm"
-            placeholder="Nhập lý do hủy để lưu lại (ví dụ: Khách đổi ý)"
+            name="order-cancel-reason"
+            autoComplete="off"
+            className="min-h-24 w-full rounded border border-border p-3 text-sm focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
+            placeholder="Nhập lý do hủy để lưu lại…"
             value={cancelReason}
             onChange={(e) =>
               dispatchTable({
@@ -254,7 +266,8 @@ function OrderTableDialogs({ controller }: OrderTableViewProps) {
             </label>
             <select
               id="order-discount-type"
-              className="h-9 w-full rounded border border-border bg-background px-2 text-sm"
+            name="order-discount-type"
+            className="h-11 w-full rounded border border-border bg-background px-3 text-sm focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
               value={discountType}
               onChange={(e) =>
                 dispatchTable({
@@ -275,9 +288,11 @@ function OrderTableDialogs({ controller }: OrderTableViewProps) {
               Giá trị
             </label>
             <input
-              id="order-discount-value"
-              type="number"
-              className="h-9 w-full rounded border border-border bg-background px-2 text-sm"
+            id="order-discount-value"
+            type="number"
+            name="order-discount-value"
+            inputMode="decimal"
+            className="h-11 w-full rounded border border-border bg-background px-3 text-sm focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
               value={discountValue}
               onChange={(e) =>
                 dispatchTable({
@@ -295,10 +310,12 @@ function OrderTableDialogs({ controller }: OrderTableViewProps) {
               Mã giảm giá / chương trình
             </label>
             <input
-              id="order-discount-reference"
-              type="text"
-              className="h-9 w-full rounded border border-border bg-background px-2 text-sm"
-              placeholder="Nhập mã voucher hoặc tên chương trình"
+            id="order-discount-reference"
+            type="text"
+            name="order-discount-reference"
+            autoComplete="off"
+            className="h-11 w-full rounded border border-border bg-background px-3 text-sm focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
+            placeholder="Nhập mã voucher hoặc tên chương trình…"
               value={discountRef}
               onChange={(e) =>
                 dispatchTable({
@@ -325,6 +342,7 @@ function OrderTableDialogs({ controller }: OrderTableViewProps) {
         variant="danger"
         icon="Trash"
         isLoading={isCancellingItem}
+        returnFocusRef={cancelItemReturnFocusRef}
       >
         <div className="mt-3">
           <label
@@ -335,8 +353,10 @@ function OrderTableDialogs({ controller }: OrderTableViewProps) {
           </label>
           <textarea
             id="order-item-cancel-reason"
-            className="min-h-[80px] w-full rounded border border-border p-2 text-sm"
-            placeholder="Nhập lý do hủy món..."
+            name="order-item-cancel-reason"
+            autoComplete="off"
+            className="min-h-24 w-full rounded border border-border p-3 text-sm focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
+            placeholder="Nhập lý do hủy món…"
             value={cancelItemReason}
             onChange={(e) =>
               dispatchTable({
@@ -353,7 +373,7 @@ function OrderTableDialogs({ controller }: OrderTableViewProps) {
 
 export function OrderTableView({ controller }: OrderTableViewProps) {
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card">
+    <div className="min-w-0 overflow-hidden rounded-lg border border-border bg-card">
       <OrderDesktopTable controller={controller} />
       <OrderMobileCards controller={controller} />
       <OrderTableDialogs controller={controller} />

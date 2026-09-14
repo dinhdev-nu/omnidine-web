@@ -33,8 +33,8 @@ export function DangerZoneCard({
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <div className="flex items-center justify-between rounded-lg border border-border bg-secondary/30 p-4">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col items-stretch justify-between gap-3 rounded-lg border border-border bg-secondary/30 p-4 sm:flex-row sm:items-center">
+          <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary">
               <Download className="h-4 w-4 text-muted-foreground" />
             </div>
@@ -47,7 +47,7 @@ export function DangerZoneCard({
               </p>
             </div>
           </div>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="self-end sm:self-auto" disabled title="Xuất dữ liệu chưa khả dụng">
             Xuất
           </Button>
         </div>
@@ -78,6 +78,7 @@ export function DangerZoneCard({
             <InputGroup>
               <InputGroupInput
                 id="deleteConfirm"
+                disabled
                 value={deleteConfirm}
                 onChange={(event) =>
                   dispatchSecurity({
@@ -92,7 +93,8 @@ export function DangerZoneCard({
             <Button
               variant="destructive"
               size="sm"
-              disabled={deleteConfirm !== "DELETE"}
+              disabled
+              title="Xóa tài khoản chưa khả dụng"
               className="w-full sm:w-auto"
             >
               <Trash2 className="mr-2 h-4 w-4" />

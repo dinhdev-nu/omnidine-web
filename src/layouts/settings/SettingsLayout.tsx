@@ -38,7 +38,13 @@ export function SettingsLayout() {
     }, [accessToken, fetchProfile])
 
     return (
-        <div className={`settings-page${isDark ? " dark" : ""} flex min-h-screen flex-col bg-background`}>
+        <div className={`settings-page${isDark ? " dark" : ""} flex min-h-dvh flex-col bg-background pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]`}>
+            <a
+                href="#settings-main"
+                className="fixed -top-16 left-4 z-50 flex min-h-11 touch-manipulation items-center rounded-md bg-background px-4 text-sm font-medium text-foreground shadow-lg transition-[top] motion-reduce:transition-none focus:top-4 focus:outline-none focus:ring-3 focus:ring-ring/50"
+            >
+                Bỏ qua đến nội dung chính
+            </a>
             <SettingsHeader isDark={isDark} onToggle={() => setIsDark((value) => !value)} />
 
             <div className="mx-auto flex-1 w-full max-w-[1360px] px-4 py-6 sm:px-6 lg:px-8">
@@ -47,7 +53,7 @@ export function SettingsLayout() {
                         <SettingsSidebar items={ACCOUNT_NAV_ITEMS} />
                     </aside>
 
-                    <main className="mx-auto w-full max-w-5xl lg:max-w-none">
+                    <main id="settings-main" tabIndex={-1} className="mx-auto w-full max-w-5xl outline-none lg:max-w-none">
                         <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-border bg-card px-4 py-4 sm:px-6">
                             <div className="flex flex-col gap-1">
                                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
@@ -62,7 +68,7 @@ export function SettingsLayout() {
                             </div>
                         </div>
 
-                        <div className="rounded-2xl border border-border bg-card/40 p-5 sm:p-6">
+                        <div className="rounded-2xl border border-border bg-card/40 p-3 min-[375px]:p-4 sm:p-6">
                             <Outlet />
                         </div>
                     </main>

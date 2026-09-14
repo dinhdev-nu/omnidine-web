@@ -19,11 +19,12 @@ function LayoutFooter({ onOpenPreview, onCancel }: { onOpenPreview: () => void; 
 
     const filledCount = REQUIRED_FIELDS.filter((field) => isFieldFilled(formData, field)).length;
 
-    // For showcase, we allow click even if not 100% complete, but in real app we'd check `progress === 100`
-    const isComplete = filledCount > 0;
+    const hasStarted = REQUIRED_FIELDS.some(
+        (field) => field !== 'operating_hours' && isFieldFilled(formData, field)
+    );
 
     return (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-lg backdrop-blur sm:px-8">
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 px-[calc(1rem+env(safe-area-inset-left))] py-3 pr-[calc(1rem+env(safe-area-inset-right))] pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-lg backdrop-blur sm:px-8">
             <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center justify-between gap-4 sm:justify-start">
                     <Button
@@ -42,7 +43,7 @@ function LayoutFooter({ onOpenPreview, onCancel }: { onOpenPreview: () => void; 
                 <Button
                     type="button"
                     onClick={onOpenPreview}
-                    disabled={!isComplete}
+                    disabled={!hasStarted}
                     className="w-full bg-foreground px-8 font-bold text-background hover:bg-foreground/90 sm:w-auto"
                 >
                     <Eye data-icon="inline-start" />
@@ -100,14 +101,20 @@ export function RestaurantOnboardingLayout() {
     };
 
     return (
-        <div className="flex min-h-dvh w-full flex-col bg-background font-sans">
+        <div className="flex min-h-dvh w-full flex-col bg-background pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] font-sans">
+            <a
+                href="#create-restaurant-form"
+                className="fixed -top-16 left-4 z-50 flex min-h-11 touch-manipulation items-center rounded-md bg-background px-4 text-sm font-medium text-foreground shadow-lg transition-[top] motion-reduce:transition-none focus:top-4 focus:outline-none focus:ring-3 focus:ring-ring/50"
+            >
+                Bỏ qua đến biểu mẫu đăng ký
+            </a>
             <SettingsHeader isDark={isDark} onToggle={() => setIsDark((value) => !value)} />
 
             <main className="min-h-0 flex-1 w-full overflow-y-auto scrollbar-hide custom-scrollbar">
                 <div className="flex min-h-full">
                     <div className="hidden sm:block flex-1 border-r border-border" />
-                    <div className="w-full max-w-3xl px-4 pt-6 pb-28 sm:px-8 sm:pb-24">
-                        <form id="create-restaurant-form" onSubmit={handleSubmit}>
+                    <div className="w-full max-w-3xl px-4 pt-6 pb-40 sm:px-8 sm:pb-24">
+                        <form id="create-restaurant-form" tabIndex={-1} className="outline-none" onSubmit={handleSubmit}>
                             <RegistrationForm />
                         </form>
                     </div>

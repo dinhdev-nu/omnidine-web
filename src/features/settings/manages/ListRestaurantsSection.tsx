@@ -33,7 +33,6 @@ export function ListRestaurantsSection() {
         dispatch({ type: "loadStarted" })
 
         const response = await getOwnerRestaurants({ page: 1, limit: 10 })
-        console.log("Đã tải danh sách nhà hàng:", response)
         if (!isActive) return
 
         dispatch({ type: "loadSucceeded", restaurants: response.data })
@@ -57,7 +56,7 @@ export function ListRestaurantsSection() {
   return (
     <div>
       {error && (
-        <div className="mb-4 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+        <div role="alert" className="mb-4 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       )}

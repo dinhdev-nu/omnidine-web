@@ -69,11 +69,17 @@ export interface UseSignInReturn {
 }
 
 const handleGoogleLogin = () => {
-  window.location.href = `${import.meta.env.VITE_API_URL}/auths/oauth/google`
+  const apiUrl = import.meta.env.VITE_API_URL
+  if (!apiUrl) {
+    toast.error("Đăng nhập Google chưa khả dụng trong môi trường này")
+    return
+  }
+
+  window.location.href = `${apiUrl}/auths/oauth/google`
 }
 
 const handleAppleLogin = () => {
-  // TODO: implement Apple OAuth
+  toast.info("Đăng nhập Apple chưa được hỗ trợ")
 }
 
 export function useSignIn(): UseSignInReturn {

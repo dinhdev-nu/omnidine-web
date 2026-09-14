@@ -5,6 +5,7 @@ import type { SearchFilters } from "./public-header-search-types"
 export type PublicHeaderSearchProps = {
   isOpen: boolean
   onOpenChange: (isOpen: boolean) => void
+  returnFocusRef: RefObject<HTMLButtonElement | null>
 }
 
 export type SearchContentProps = {
@@ -34,8 +35,10 @@ export type DesktopSearchProps = SearchContentProps & {
 
 export type MobileSearchProps = SearchContentProps & {
   isOpen: boolean
+  returnFocusRef: RefObject<HTMLButtonElement | null>
   searchAreaRef: RefObject<HTMLDivElement | null>
   searchInputRef: RefObject<HTMLInputElement | null>
+  onClose: () => void
   onOpen: () => void
   onQueryChange: (query: string) => void
 }

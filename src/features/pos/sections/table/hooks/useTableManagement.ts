@@ -60,9 +60,14 @@ export const useTableManagement = () => {
 
   const [isSubmittingAdd, setIsSubmittingAdd] = useState(false)
   const [isSubmittingUpdate, setIsSubmittingUpdate] = useState(false)
+  const [isSubmittingStatus, setIsSubmittingStatus] = useState(false)
   const [isTogglingActive, setIsTogglingActive] = useState(false)
   const [isRegeneratingQr, setIsRegeneratingQr] = useState(false)
+  const [deletingTableId, setDeletingTableId] = useState<string | null>(null)
+  const deletingTableIdRef = useRef<string | null>(null)
   const [isLoadingTables, setIsLoadingTables] = useState(false)
+  const [tableListError, setTableListError] = useState<string | null>(null)
+  const [listRequestVersion, setListRequestVersion] = useState(0)
 
   const [statusFilter, setStatusFilter] = useState<TableStatusFilter>("all")
   const [activeFilter, setActiveFilter] = useState<TableActiveFilter>("all")
@@ -112,6 +117,7 @@ export const useTableManagement = () => {
     let alive = true
     const fetchTables = async () => {
       setIsLoadingTables(true)
+      setTableListError(null)
       try {
         const response = await listTables(restaurantId, listQuery)
         if (alive) {
@@ -161,9 +167,11 @@ export const useTableManagement = () => {
           })
         }
       } catch (error) {
-        toast.error(
-          `${toTableEndpointError("list", error).message}. Đang hiển thị dữ liệu mẫu.`
-        )
+        const message = toTableEndpointError("list", error).message
+        if (alive) {
+          setTableListError(message)
+        }
+        toast.error(message)
       } finally {
         if (alive) {
           setIsLoadingTables(false)
@@ -175,7 +183,7 @@ export const useTableManagement = () => {
     return () => {
       alive = false
     }
-  }, [restaurantId, listQuery])
+  }, [restaurantId, listQuery, listRequestVersion])
 
   const selectedTable = useMemo(
     () => tables.find((table) => table._id === selectedTableId) ?? null,
@@ -275,6 +283,8 @@ export const useTableManagement = () => {
 
   const submitStatusChange = useCallback(
     async (id: string, status: TableStatus) => {
+      if (isSubmittingStatus) return false
+
       const target = tablesRef.current.find((table) => table._id === id)
       if (!target) return false
       if (target.status === status) return true
@@ -283,6 +293,7 @@ export const useTableManagement = () => {
         return false
       }
 
+      setIsSubmittingStatus(true)
       try {
         await updateTableStatus(restaurantId, id, { status })
 
@@ -300,9 +311,11 @@ export const useTableManagement = () => {
       } catch (error) {
         toast.error(toTableEndpointError("update-status", error).message)
         return false
+      } finally {
+        setIsSubmittingStatus(false)
       }
     },
-    [restaurantId, updateTableById]
+    [isSubmittingStatus, restaurantId, updateTableById]
   )
 
   const handleTableStatusChange = useCallback(
@@ -486,6 +499,10 @@ export const useTableManagement = () => {
 
   const handleDeleteTable = useCallback(
     (id: string) => {
+      if (deletingTableIdRef.current) return
+
+      deletingTableIdRef.current = id
+      setDeletingTableId(id)
       void (async () => {
         try {
           const result = await deleteTable(restaurantId, id)
@@ -507,6 +524,9 @@ export const useTableManagement = () => {
           toast.success(result.message || "Đã xóa bàn")
         } catch (error) {
           toast.error(toTableEndpointError("delete", error).message)
+        } finally {
+          deletingTableIdRef.current = null
+          setDeletingTableId(null)
         }
       })()
     },
@@ -593,11 +613,17 @@ export const useTableManagement = () => {
     setCapacityMaxFilter("")
   }, [])
 
+  const retryTableList = useCallback(() => {
+    setListRequestVersion((current) => current + 1)
+  }, [])
+
   const hasActiveFilters =
     statusFilter !== "all" ||
     activeFilter !== "all" ||
     capacityMinFilter !== "" ||
     capacityMaxFilter !== ""
+
+  const isDeletingTable = deletingTableId !== null
 
   return {
     tables,
@@ -610,9 +636,12 @@ export const useTableManagement = () => {
     setShowAddModal,
     isSubmittingAdd,
     isSubmittingUpdate,
+    isSubmittingStatus,
     isTogglingActive,
     isRegeneratingQr,
+    isDeletingTable,
     isLoadingTables,
+    tableListError,
     statusFilter,
     activeFilter,
     capacityMinFilter,
@@ -623,6 +652,7 @@ export const useTableManagement = () => {
     handleCapacityMinFilterChange,
     handleCapacityMaxFilterChange,
     handleClearFilters,
+    retryTableList,
     handleAutoArrange,
     handleTableMove,
     syncTableSelection,

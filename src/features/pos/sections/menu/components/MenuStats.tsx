@@ -23,8 +23,11 @@ const MenuStats: React.FC<MenuStatsProps> = ({ stats }) => {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <div className="group relative overflow-hidden rounded-lg border border-blue-500/20 bg-white dark:bg-card backdrop-blur-sm transition-all duration-300 hover:shadow-md hover:scale-[1.01]">
+    <section
+      className="grid grid-cols-1 gap-3 sm:grid-cols-2"
+      aria-label="Thống kê thực đơn"
+    >
+      <div className="group relative overflow-hidden rounded-lg border border-blue-500/20 bg-white backdrop-blur-sm transition-[box-shadow,transform] duration-300 hover:scale-[1.01] hover:shadow-md motion-reduce:transition-none motion-reduce:hover:scale-100 dark:bg-card">
         <div className="relative p-3">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent ring-1 ring-inset border-blue-500/20">
@@ -40,7 +43,7 @@ const MenuStats: React.FC<MenuStatsProps> = ({ stats }) => {
         </div>
       </div>
 
-      <div className="relative overflow-hidden rounded-lg border border-cyan-500/20 bg-white dark:bg-card backdrop-blur-sm">
+      <div className="relative overflow-hidden rounded-lg border border-cyan-500/20 bg-white backdrop-blur-sm dark:bg-card">
         <div className="relative p-3">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 rounded-lg bg-cyan-100 dark:bg-cyan-500/10 ring-1 ring-inset ring-cyan-200 dark:ring-cyan-500/20">
@@ -55,7 +58,10 @@ const MenuStats: React.FC<MenuStatsProps> = ({ stats }) => {
                 key={status.label}
                 className="inline-flex items-center gap-1.5 rounded-md bg-gray-50 dark:bg-muted/50 px-2 py-1"
               >
-                <span className={`w-1.5 h-1.5 rounded-full ${status.dotColor}`} />
+                <span
+                  className={`size-1.5 rounded-full ${status.dotColor}`}
+                  aria-hidden="true"
+                />
                 <span className="text-[11px] text-gray-600 dark:text-muted-foreground">{status.label}</span>
                 <span className="text-sm font-semibold text-gray-900 dark:text-foreground">
                   {formatNumber(status.value)}
@@ -65,7 +71,7 @@ const MenuStats: React.FC<MenuStatsProps> = ({ stats }) => {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

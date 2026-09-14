@@ -28,18 +28,19 @@ export function OrderMobileHeader({
   | "onCancelOrder"
 >) {
   return (
-    <div
-      className={`space-y-3 rounded-lg border border-border p-4 ${highlighted ? "animate-pulse border-primary bg-primary/10" : ""}`}
+    <article
+      className={`space-y-3 rounded-lg border border-border p-3 sm:p-4 ${highlighted ? "animate-pulse border-primary bg-primary/10 motion-reduce:animate-none" : ""}`}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex flex-wrap items-center gap-2 space-x-2">
+      <div className="flex min-w-0 flex-col gap-3 min-[390px]:flex-row min-[390px]:items-center min-[390px]:justify-between">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
           <Button
             variant="ghost"
             size="icon"
+            aria-label={`${expanded ? "Thu gọn" : "Mở"} chi tiết đơn ${order.order_number}`}
+            aria-expanded={expanded}
             onClick={() => onToggleExpand(order)}
-            className="h-8 w-8"
           >
-            <Icon name={expanded ? "ChevronDown" : "ChevronRight"} size={16} />
+            <Icon name={expanded ? "ChevronDown" : "ChevronRight"} size={16} aria-hidden="true" />
           </Button>
           <span className="font-mono text-sm font-medium">
             #{order.order_number}
@@ -50,16 +51,15 @@ export function OrderMobileHeader({
           <TableOrderStatusBadge status={order.status} />
           <TablePaymentStatusBadge status={order.payment_status} />
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex shrink-0 items-center gap-1">
           {order.payment_status === "unpaid" && (
             <Button
               variant="ghost"
               size="icon"
               onClick={() => onPaymentClick(order)}
-              className="h-8 w-8"
-              title="Thanh toán"
+              aria-label={`Thanh toán đơn ${order.order_number}`}
             >
-              <Icon name="CreditCard" size={16} />
+              <Icon name="CreditCard" size={16} aria-hidden="true" />
             </Button>
           )}
           {order.status !== "cancelled" &&
@@ -69,10 +69,9 @@ export function OrderMobileHeader({
                 variant="ghost"
                 size="icon"
                 onClick={() => onUpdateStatusClick(order)}
-                className="h-8 w-8"
-                title="Cập nhật trạng thái"
+                aria-label={`Cập nhật trạng thái đơn ${order.order_number}`}
               >
-                <Icon name="GitBranch" size={16} />
+                <Icon name="GitBranch" size={16} aria-hidden="true" />
               </Button>
             )}
           {order.status !== "cancelled" && order.status !== "completed" && (
@@ -80,41 +79,41 @@ export function OrderMobileHeader({
               variant="ghost"
               size="icon"
               onClick={() => onCancelOrder(order)}
-              className="h-8 w-8"
+              aria-label={`Hủy đơn ${order.order_number}`}
             >
-              <Icon name="Trash" size={16} />
+              <Icon name="Trash" size={16} aria-hidden="true" />
             </Button>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 text-sm">
-        <div>
+      <div className="grid grid-cols-1 gap-3 text-sm min-[390px]:grid-cols-2">
+        <div className="min-w-0">
           <span className="text-muted-foreground">Ngày tạo:</span>
           <p className="font-medium text-foreground">
             {formatDateTime(order.created_at)}
           </p>
         </div>
-        <div>
+        <div className="min-w-0">
           <span className="text-muted-foreground">Loại đơn:</span>
           <p className="font-medium text-foreground">
             {getOrderTypeLabel(order.order_type)}
           </p>
         </div>
-        <div>
+        <div className="min-w-0">
           <span className="text-muted-foreground">Tổng tiền:</span>
           <p className="font-semibold text-foreground">
             {formatCurrency(order.total_amount)}
           </p>
           <p className="text-xs text-muted-foreground">{order.currency}</p>
         </div>
-        <div>
+        <div className="min-w-0">
           <span className="text-muted-foreground">Nguồn đơn:</span>
           <p className="font-medium text-foreground">
             {getOrderSourceLabel(order.source)}
           </p>
         </div>
       </div>
-    </div>
+    </article>
   )
 }

@@ -7,6 +7,15 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Generated test and audit artifacts
+/.playwright-cli/
+/playwright-report/
+/blob-report/
+/test-results/
+/output/
+/coverage/
+/lint-errors*.json
+
 node_modules
 dist
 dist-ssr
@@ -32,3 +41,4 @@ skills-lock.json
 .env
 
 /docs/*
+!/docs/responsive-coverage-matrix.md

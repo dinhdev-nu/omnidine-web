@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import {
     useCreateRestaurantActions,
     useCreateRestaurantMeta,
@@ -92,7 +93,7 @@ function PreviewPanel({ formData, logoPreview }: PreviewPanelProps) {
     const phoneText = formData.phone ? `+84 ${formData.phone}` : '—';
 
     return (
-        <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden border-b border-border/80 bg-card/40 md:border-r md:border-b-0">
+        <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden border-b border-border/80 bg-card/40 sm:border-r sm:border-b-0">
             <div className="p-6 sm:p-8 flex flex-col h-full z-10 min-h-0 gap-5">
                 <div className="rounded-2xl border border-border/80 bg-card px-5 py-4 ring-1 ring-foreground/5 sm:px-6 sm:py-5">
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
@@ -108,9 +109,9 @@ function PreviewPanel({ formData, logoPreview }: PreviewPanelProps) {
                         </div>
 
                         <div className="min-w-0 flex-1 space-y-2">
-                            <h3 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight line-clamp-2">
+                            <h2 className="break-words text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
                                 {formData.name || 'Chưa nhập tên nhà hàng'}
-                            </h3>
+                            </h2>
                             <div className="flex flex-wrap items-center gap-2">
                                 {formData.cuisine_type && <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 shadow-none">{formData.cuisine_type}</Badge>}
                                 {formData.city && <Badge variant="outline" className="border-border/80 text-foreground">{formData.city}</Badge>}
@@ -128,7 +129,7 @@ function PreviewPanel({ formData, logoPreview }: PreviewPanelProps) {
                         {formData.description && (
                             <div className="space-y-2 rounded-2xl border border-border/80 bg-card p-4 sm:px-5 sm:py-4">
                                 <span className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Giới thiệu ngắn</span>
-                                <p className="text-sm text-foreground leading-relaxed break-words line-clamp-5">{formData.description}</p>
+                                <p className="break-words text-sm leading-relaxed text-foreground">{formData.description}</p>
                             </div>
                         )}
 
@@ -264,12 +265,12 @@ function CommitmentPanel({ onBack, onSubmit, isSubmitting, isUploadingAssets }: 
                     >
                         {isSubmitting ? (
                             <>
-                                <Loader2 className="size-4 mr-2 animate-spin" />
+                                <Loader2 className="size-4 mr-2 animate-spin motion-reduce:animate-none" />
                                 Đang tạo hồ sơ...
                             </>
                         ) : isUploadingAssets ? (
                             <>
-                                <Loader2 className="size-4 mr-2 animate-spin" />
+                                <Loader2 className="size-4 mr-2 animate-spin motion-reduce:animate-none" />
                                 Đang tải ảnh...
                             </>
                         ) : (
@@ -288,11 +289,21 @@ export function PrivacyDialog({ open, onOpenChange }: PrivacyDialogProps) {
     const { formData } = useCreateRestaurantState();
     const { logoPreview, isSubmitting, isUploadingAssets } = useCreateRestaurantMeta();
     const { submit } = useCreateRestaurantActions();
+    const returnFocusRef = useRef<HTMLElement | null>(null);
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-5xl md:max-w-5xl lg:max-w-5xl w-[92vw] p-0 overflow-hidden overscroll-contain gap-0 border-border bg-card shadow-2xl">
-                <div className="flex flex-col md:grid md:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] h-[88dvh] min-h-0">
+            <DialogContent
+                className="w-[92vw] gap-0 overflow-hidden overscroll-contain border-border bg-card p-0 shadow-2xl sm:max-w-5xl md:max-w-5xl lg:max-w-5xl"
+                onOpenAutoFocus={() => {
+                    returnFocusRef.current = document.activeElement as HTMLElement | null;
+                }}
+                onCloseAutoFocus={(event) => {
+                    event.preventDefault();
+                    returnFocusRef.current?.focus();
+                }}
+            >
+                <div className="flex h-[88dvh] min-h-0 flex-col sm:grid sm:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
                     <PreviewPanel formData={formData} logoPreview={logoPreview} />
 
                     <CommitmentPanel

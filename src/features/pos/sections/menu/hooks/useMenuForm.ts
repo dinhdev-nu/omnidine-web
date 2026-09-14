@@ -12,7 +12,10 @@ import {
 } from "@/services/menu"
 import { uploadSingleFile } from "@/services/uploads"
 import type { MenuItem } from "@/types/domain/menu"
-import type { MenuItemFormData } from "../components/MenuItemModal"
+import type {
+  MenuItemFormData,
+  MenuItemImagePreview,
+} from "../components/MenuItemModal"
 
 const DEFAULT_MENU_ITEM: MenuItemFormData = {
   name: "",
@@ -41,7 +44,22 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
     React.useState<MenuItem | null>(null)
   const [formData, setFormData] =
     React.useState<MenuItemFormData>(DEFAULT_MENU_ITEM)
+  const [imagePreviews, setImagePreviews] = React.useState<
+    MenuItemImagePreview[]
+  >([])
+  const [formErrors, setFormErrors] = React.useState<
+    Partial<Record<keyof MenuItemFormData, string>>
+  >({})
   const uploadRequestIdRef = React.useRef(0)
+  const imagePreviewIdRef = React.useRef(0)
+  const itemModalTriggerRef = React.useRef<HTMLElement | null>(null)
+
+  const createImagePreviews = React.useCallback((urls: string[]) => {
+    return urls.map((url) => ({
+      id: `menu-item-image-preview-${++imagePreviewIdRef.current}`,
+      url,
+    }))
+  }, [])
 
   const areImageListsEqual = React.useCallback((a: string[], b: string[]) => {
     return (
@@ -51,18 +69,22 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
 
   const resetForm = React.useCallback(() => {
     setFormData(DEFAULT_MENU_ITEM)
+    setImagePreviews([])
+    setFormErrors({})
     setEditingItemId(null)
     setEditingItemDetail(null)
     setIsUploadingImage(false)
   }, [])
 
   const openAddItem = React.useCallback(() => {
+    itemModalTriggerRef.current = document.activeElement as HTMLElement | null
     resetForm()
     setShowItemModal(true)
   }, [resetForm])
 
   const openEditItem = React.useCallback(
     async (item: MenuItem) => {
+      itemModalTriggerRef.current = document.activeElement as HTMLElement | null
       setIsSubmitting(true)
       try {
         const detail = await getMenuItemDetail(restaurantId, item._id)
@@ -70,6 +92,7 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
 
         setEditingItemId(detail._id)
         setEditingItemDetail(detail)
+        setImagePreviews(createImagePreviews(imageUrls))
         setFormData({
           name: detail.name,
           description: detail.description || "",
@@ -87,62 +110,83 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
         setIsSubmitting(false)
       }
     },
-    [restaurantId]
+    [createImagePreviews, restaurantId]
   )
 
   const handleFieldChange = React.useCallback(
     (field: keyof MenuItemFormData, value: string) => {
       setFormData((prev) => ({ ...prev, [field]: value }))
+      setFormErrors((prev) => {
+        if (!prev[field]) return prev
+        const next = { ...prev }
+        delete next[field]
+        return next
+      })
     },
     []
   )
 
-  const handleImageFileChange = React.useCallback((files: File[]) => {
-    if (!files.length) {
-      return
-    }
-
-    const requestId = uploadRequestIdRef.current + 1
-    uploadRequestIdRef.current = requestId
-    setIsUploadingImage(true)
-
-    void (async () => {
-      try {
-        if (uploadRequestIdRef.current !== requestId) return
-
-        const uploadedFiles = await Promise.all(
-          files.map((file) => uploadSingleFile(file))
-        )
-        if (uploadRequestIdRef.current === requestId) {
-          const uploadedUrls = uploadedFiles.map((uploaded) => uploaded.url)
-          setFormData((prev) => ({
-            ...prev,
-            imageUrls: [...prev.imageUrls, ...uploadedUrls],
-          }))
-          toast.success("Tải ảnh món ăn thành công")
-        }
-      } catch {
-        if (uploadRequestIdRef.current === requestId) {
-          toast.error("Không thể tải ảnh món ăn")
-        }
-      } finally {
-        if (uploadRequestIdRef.current === requestId) {
-          setIsUploadingImage(false)
-        }
+  const handleImageFileChange = React.useCallback(
+    (files: File[]) => {
+      if (!files.length) {
+        return
       }
-    })()
-  }, [])
 
-  const handleAddImageUrl = React.useCallback((url: string) => {
-    const normalized = url.trim()
-    if (!normalized) return
-    setFormData((prev) => ({
-      ...prev,
-      imageUrls: [...prev.imageUrls, normalized],
-    }))
-  }, [])
+      const requestId = uploadRequestIdRef.current + 1
+      uploadRequestIdRef.current = requestId
+      setIsUploadingImage(true)
+
+      void (async () => {
+        try {
+          if (uploadRequestIdRef.current !== requestId) return
+
+          const uploadedFiles = await Promise.all(
+            files.map((file) => uploadSingleFile(file))
+          )
+          if (uploadRequestIdRef.current === requestId) {
+            const uploadedUrls = uploadedFiles.map((uploaded) => uploaded.url)
+            setImagePreviews((prev) => [
+              ...prev,
+              ...createImagePreviews(uploadedUrls),
+            ])
+            setFormData((prev) => ({
+              ...prev,
+              imageUrls: [...prev.imageUrls, ...uploadedUrls],
+            }))
+            toast.success("Tải ảnh món ăn thành công")
+          }
+        } catch {
+          if (uploadRequestIdRef.current === requestId) {
+            toast.error("Không thể tải ảnh món ăn")
+          }
+        } finally {
+          if (uploadRequestIdRef.current === requestId) {
+            setIsUploadingImage(false)
+          }
+        }
+      })()
+    },
+    [createImagePreviews]
+  )
+
+  const handleAddImageUrl = React.useCallback(
+    (url: string) => {
+      const normalized = url.trim()
+      if (!normalized) return
+      setImagePreviews((prev) => [
+        ...prev,
+        ...createImagePreviews([normalized]),
+      ])
+      setFormData((prev) => ({
+        ...prev,
+        imageUrls: [...prev.imageUrls, normalized],
+      }))
+    },
+    [createImagePreviews]
+  )
 
   const handleRemoveImageAt = React.useCallback((index: number) => {
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index))
     setFormData((prev) => ({
       ...prev,
       imageUrls: prev.imageUrls.filter((_, i) => i !== index),
@@ -150,23 +194,43 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
   }, [])
 
   const handleSubmit = async () => {
-    if (!formData.name || !formData.price || !formData.category) {
-      toast.error("Vui lòng nhập đầy đủ Tên, Giá và Chọn danh mục")
-      return
+    const nextErrors: Partial<Record<keyof MenuItemFormData, string>> = {}
+    const normalizedName = formData.name.trim()
+    const normalizedPrice = formData.price.trim()
+    const parsedPrice = Number(normalizedPrice)
+
+    if (!normalizedName) {
+      nextErrors.name = "Vui lòng nhập tên món ăn"
+    }
+    if (!normalizedPrice) {
+      nextErrors.price = "Vui lòng nhập giá món ăn"
+    } else if (!Number.isFinite(parsedPrice) || parsedPrice < 0) {
+      nextErrors.price = "Giá phải là số lớn hơn hoặc bằng 0"
+    }
+    if (!formData.category) {
+      nextErrors.category = "Vui lòng chọn danh mục"
     }
 
     const normalizedSortOrder = formData.sortOrder.trim()
     if (normalizedSortOrder) {
       const parsed = Number(normalizedSortOrder)
       if (!Number.isInteger(parsed) || parsed < 0) {
-        toast.error("Thứ tự hiển thị phải là số nguyên >= 0")
-        return
+        nextErrors.sortOrder =
+          "Thứ tự hiển thị phải là số nguyên lớn hơn hoặc bằng 0"
       }
     }
 
+    if (Object.keys(nextErrors).length > 0) {
+      setFormErrors(nextErrors)
+      toast.error("Vui lòng kiểm tra lại thông tin món ăn")
+      return
+    }
+
+    setFormErrors({})
+
     setIsSubmitting(true)
     try {
-      const price = parseFloat(formData.price) || 0
+      const price = parsedPrice
       const is_available = formData.status === "available"
       const is_featured = formData.featured === "featured"
       const normalizedImageUrls = formData.imageUrls.flatMap((url) => {
@@ -269,7 +333,8 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
     isEditing: Boolean(editingItemId),
     isUploadingImage,
     formData,
-    imagePreviewUrls: formData.imageUrls,
+    formErrors,
+    imagePreviews,
     handleFieldChange,
     handleImageFileChange,
     handleAddImageUrl,
@@ -278,5 +343,6 @@ export function useMenuForm(restaurantId: string, onSuccess: () => void) {
     openAddItem,
     openEditItem,
     resetForm,
+    itemModalTriggerRef,
   }
 }

@@ -45,13 +45,14 @@ export function OrderDesktopDetailSidebar({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-5 w-5 shrink-0 text-muted-foreground hover:text-foreground"
+                    className="shrink-0 text-muted-foreground hover:text-foreground"
+                    aria-label={`Chỉnh sửa giảm giá đơn ${order.order_number}`}
                     onClick={(e) => {
                       e.stopPropagation()
                       onEditDiscountClick?.(order)
                     }}
                   >
-                    <Icon name="Edit2" size={12} />
+                    <Icon name="Edit2" size={12} aria-hidden="true" />
                   </Button>
                 )}
               </div>

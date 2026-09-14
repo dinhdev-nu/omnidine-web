@@ -93,12 +93,12 @@ export function useSlugAvailability({
           setSlugCheckStatus("taken")
           setErrors((prev) => ({
             ...prev,
-            slug: "Slug Ä‘Ã£ Ä‘Æ°á»£c sá»­ dá»¥ng, vui lÃ²ng chá»n slug khÃ¡c",
+            slug: "Slug đã được sử dụng, vui lòng chọn slug khác",
           }))
         }
       } catch (error) {
         if (slugCheckRequestIdRef.current === requestId) {
-          const appError = toAppError(error, "KhÃ´ng thá»ƒ kiá»ƒm tra slug lÃºc nÃ y")
+          const appError = toAppError(error, "Không thể kiểm tra slug lúc này")
           const message = getSlugCheckErrorMessage(appError)
 
           setSlugCheckStatus(
@@ -139,7 +139,7 @@ export function useSlugAvailability({
           setSlugCheckStatus("taken")
           setErrors((prev) => ({
             ...prev,
-            slug: "Slug Ä‘Ã£ Ä‘Æ°á»£c sá»­ dá»¥ng, vui lÃ²ng chá»n slug khÃ¡c",
+            slug: "Slug đã được sử dụng, vui lòng chọn slug khác",
           }))
           return false
         }
@@ -162,11 +162,11 @@ export function useSlugAvailability({
         setSlugCheckStatus("taken")
         setErrors((prev) => ({
           ...prev,
-          slug: "Slug Ä‘Ã£ Ä‘Æ°á»£c sá»­ dá»¥ng, vui lÃ²ng chá»n slug khÃ¡c",
+          slug: "Slug đã được sử dụng, vui lòng chọn slug khác",
         }))
         return false
       } catch (error) {
-        const appError = toAppError(error, "KhÃ´ng thá»ƒ kiá»ƒm tra slug lÃºc nÃ y")
+        const appError = toAppError(error, "Không thể kiểm tra slug lúc này")
         const message = getSlugCheckErrorMessage(appError)
 
         setSlugCheckStatus(

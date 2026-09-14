@@ -68,20 +68,20 @@ const CardPaymentForm: React.FC<CardPaymentFormProps> = ({
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h3 className="mb-2 text-xl font-semibold text-foreground">
+        <h2 className="mb-2 text-xl font-semibold text-foreground">
           Thanh toán thẻ tín dụng/ghi nợ
-        </h3>
-        <p className="text-2xl font-bold text-primary">
+        </h2>
+        <p className="text-2xl font-bold text-primary tabular-nums">
           {formatCurrency(totalAmount)}
         </p>
       </div>
 
       {/* Supported Cards */}
-      <div className="flex justify-center space-x-4 rounded-lg bg-muted/30 p-4">
-        <span className="mr-2 text-sm text-muted-foreground">Hỗ trợ:</span>
+      <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 rounded-lg bg-muted/30 p-4">
+        <span className="text-sm text-muted-foreground">Hỗ trợ:</span>
         {CARD_TYPES.map((card) => (
-          <div key={card.name} className="flex items-center space-x-1">
-            <Icon name={card.icon} size={20} className={card.color} />
+          <div key={card.name} className="flex items-center gap-1">
+            <Icon name={card.icon} size={20} aria-hidden="true" className={card.color} />
             <span className="text-sm font-medium text-foreground">
               {card.name}
             </span>
@@ -93,7 +93,11 @@ const CardPaymentForm: React.FC<CardPaymentFormProps> = ({
       <div className="space-y-4">
         <Input
           label="Số thẻ"
+          name="card-number"
           type="text"
+          inputMode="numeric"
+          autoComplete="cc-number"
+          spellCheck={false}
           value={cardNumber}
           onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
           placeholder="1234 5678 9012 3456"
@@ -101,10 +105,14 @@ const CardPaymentForm: React.FC<CardPaymentFormProps> = ({
           error={errors.cardNumber}
         />
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 min-[390px]:grid-cols-2">
           <Input
             label="Ngày hết hạn"
+            name="card-expiry"
             type="text"
+            inputMode="numeric"
+            autoComplete="cc-exp"
+            spellCheck={false}
             value={expiryDate}
             onChange={(e) => setExpiryDate(formatExpiryDate(e.target.value))}
             placeholder="MM/YY"
@@ -113,7 +121,11 @@ const CardPaymentForm: React.FC<CardPaymentFormProps> = ({
           />
           <Input
             label="Mã CVV"
+            name="card-cvv"
             type="text"
+            inputMode="numeric"
+            autoComplete="cc-csc"
+            spellCheck={false}
             value={cvv}
             onChange={(e) =>
               setCvv(e.target.value.replace(/\D/g, "").substring(0, 4))
@@ -126,7 +138,9 @@ const CardPaymentForm: React.FC<CardPaymentFormProps> = ({
 
         <Input
           label="Tên chủ thẻ"
+          name="cardholder-name"
           type="text"
+          autoComplete="cc-name"
           value={cardholderName}
           onChange={(e) => setCardholderName(e.target.value.toUpperCase())}
           placeholder="NGUYEN VAN A"
@@ -136,8 +150,8 @@ const CardPaymentForm: React.FC<CardPaymentFormProps> = ({
 
       {/* Security Notice */}
       <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
-        <div className="flex items-center space-x-2">
-          <Icon name="Shield" size={16} className="text-blue-600" />
+        <div className="flex items-center gap-2">
+          <Icon name="Shield" size={16} aria-hidden="true" className="shrink-0 text-blue-600" />
           <span className="text-sm text-blue-800">
             Thông tin thẻ được mã hóa và bảo mật tuyệt đối
           </span>
@@ -147,12 +161,12 @@ const CardPaymentForm: React.FC<CardPaymentFormProps> = ({
       {/* Processing State */}
       {isProcessing && (
         <div className="rounded-lg border border-primary/20 bg-primary/10 p-4">
-          <div className="flex items-center justify-center space-x-3">
-            <div className="animate-spin">
-              <Icon name="Loader2" size={20} className="text-primary" />
+          <div className="flex items-center justify-center gap-3">
+            <div className="animate-spin motion-reduce:animate-none">
+              <Icon name="Loader2" size={20} aria-hidden="true" className="text-primary" />
             </div>
             <span className="font-medium text-primary">
-              Đang xử lý thanh toán...
+              Đang xử lý thanh toán…
             </span>
           </div>
           <p className="mt-2 text-center text-sm text-muted-foreground">
@@ -162,12 +176,12 @@ const CardPaymentForm: React.FC<CardPaymentFormProps> = ({
       )}
 
       {/* Action Buttons */}
-      <div className="flex space-x-3">
+      <div className="flex flex-col-reverse gap-3 min-[390px]:flex-row">
         <Button
           variant="outline"
           onClick={onCancel}
           disabled={isProcessing}
-          className="flex-1"
+          className="w-full min-[390px]:flex-1"
         >
           Hủy
         </Button>
@@ -177,11 +191,11 @@ const CardPaymentForm: React.FC<CardPaymentFormProps> = ({
             onPaymentSubmit({ cardNumber, expiryDate, cvv, cardholderName })
           }
           disabled={isProcessing}
-          className="flex-1"
+          className="w-full min-[390px]:flex-1"
           iconName={isProcessing ? "Loader2" : "CreditCard"}
           iconPosition="left"
         >
-          {isProcessing ? "Đang xử lý..." : "Thanh toán"}
+          {isProcessing ? "Đang xử lý…" : "Thanh toán"}
         </Button>
       </div>
     </div>

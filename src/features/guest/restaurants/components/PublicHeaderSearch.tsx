@@ -1,8 +1,6 @@
-import { useEffect, useEffectEvent, useReducer, useRef } from "react"
-import { useNavigate } from "react-router-dom"
+import { useEffect, useEffectEvent, useReducer, useRef, useState } from "react"
 import { searchPublicRestaurants } from "@/services/restaurants"
 import { toAppError } from "@/services/core/error"
-import type { PublicRestaurantSearchItem } from "@/types/domain/restaurant"
 import { DesktopPublicHeaderSearch } from "./DesktopPublicHeaderSearch"
 import { MobilePublicHeaderSearch } from "./MobilePublicHeaderSearch"
 import {
@@ -17,11 +15,13 @@ import {
 import type { SearchFilters } from "./public-header-search-types"
 import type { PublicHeaderSearchProps } from "./public-header-search.view-types"
 
+const DESKTOP_SEARCH_MEDIA_QUERY = "(min-width: 1024px)"
+
 export default function PublicHeaderSearch({
   isOpen,
   onOpenChange,
+  returnFocusRef,
 }: PublicHeaderSearchProps) {
-  const navigate = useNavigate()
   const desktopSearchInputRef = useRef<HTMLInputElement | null>(null)
   const mobileSearchInputRef = useRef<HTMLInputElement | null>(null)
   const desktopSearchAreaRef = useRef<HTMLDivElement | null>(null)
@@ -29,6 +29,12 @@ export default function PublicHeaderSearch({
   const isSelectOpenRef = useRef(false)
   const searchTimeoutRef = useRef<number | null>(null)
   const locationRequestIdRef = useRef(0)
+  const [isDesktopViewport, setIsDesktopViewport] = useState(() => {
+    return (
+      typeof window !== "undefined" &&
+      window.matchMedia(DESKTOP_SEARCH_MEDIA_QUERY).matches
+    )
+  })
   const [searchState, dispatchSearch] = useReducer(
     publicHeaderSearchReducer,
     publicHeaderSearchInitialState
@@ -41,20 +47,29 @@ export default function PublicHeaderSearch({
     isLocating,
     searchFilters,
   } = searchState
-  const closeSearch = useEffectEvent(() => {
+  const handleCloseSearch = () => {
     dispatchSearch({ type: "closeReset" })
     onOpenChange(false)
-  })
+  }
+  const closeSearchEffect = useEffectEvent(handleCloseSearch)
 
   useEffect(() => {
-    if (!isOpen) return
+    const mediaQuery = window.matchMedia(DESKTOP_SEARCH_MEDIA_QUERY)
+    const handleViewportChange = (event: MediaQueryListEvent) => {
+      setIsDesktopViewport(event.matches)
+    }
 
-    const activeInput =
-      window.innerWidth >= 1024
-        ? desktopSearchInputRef.current
-        : mobileSearchInputRef.current
-    activeInput?.focus()
-  }, [isOpen])
+    mediaQuery.addEventListener("change", handleViewportChange)
+
+    return () => {
+      mediaQuery.removeEventListener("change", handleViewportChange)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!isOpen || !isDesktopViewport) return
+    desktopSearchInputRef.current?.focus()
+  }, [isDesktopViewport, isOpen])
 
   useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {
@@ -81,7 +96,7 @@ export default function PublicHeaderSearch({
       )
         return
 
-      closeSearch()
+      closeSearchEffect()
     }
 
     document.addEventListener("pointerdown", handlePointerDown, true)
@@ -141,8 +156,6 @@ export default function PublicHeaderSearch({
               : searchFilters.sort,
         })
 
-        console.log("Search results:", response)
-
         dispatchSearch({ type: "searchSucceeded", results: response.data })
       } catch (caughtError) {
         const appError = toAppError(
@@ -161,10 +174,9 @@ export default function PublicHeaderSearch({
     }
   }, [isOpen, searchFilters, searchQuery])
 
-  const handleRestaurantSelect = (restaurant: PublicRestaurantSearchItem) => {
+  const handleRestaurantSelect = () => {
     onOpenChange(false)
     dispatchSearch({ type: "restaurantSelected" })
-    navigate(`/public/restaurants/${restaurant.slug}`)
   }
 
   const handleOpenSearch = () => {
@@ -236,7 +248,7 @@ export default function PublicHeaderSearch({
   return (
     <>
       <DesktopPublicHeaderSearch
-        isOpen={isOpen}
+        isOpen={isDesktopViewport && isOpen}
         searchAreaRef={desktopSearchAreaRef}
         searchInputRef={desktopSearchInputRef}
         searchQuery={searchQuery}
@@ -255,7 +267,8 @@ export default function PublicHeaderSearch({
       />
 
       <MobilePublicHeaderSearch
-        isOpen={isOpen}
+        isOpen={!isDesktopViewport && isOpen}
+        returnFocusRef={returnFocusRef}
         searchAreaRef={mobileSearchAreaRef}
         searchInputRef={mobileSearchInputRef}
         searchQuery={searchQuery}
@@ -264,6 +277,7 @@ export default function PublicHeaderSearch({
         searchError={searchError}
         searchResults={searchResults}
         isLocating={isLocating}
+        onClose={handleCloseSearch}
         onOpen={handleOpenSearch}
         onQueryChange={handleQueryChange}
         onSelectRestaurant={handleRestaurantSelect}

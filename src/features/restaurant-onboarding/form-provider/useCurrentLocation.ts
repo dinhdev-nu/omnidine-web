@@ -15,7 +15,7 @@ export function useCurrentLocation({
   return useCallback(
     (showErrorToast = true) => {
       if (!navigator.geolocation) {
-        const message = "Thiáº¿t bá»‹ khÃ´ng há»— trá»£ láº¥y vá»‹ trÃ­ tá»± Ä‘á»™ng"
+        const message = "Thiết bị không hỗ trợ lấy vị trí tự động"
         setLocationError(message)
         if (showErrorToast) {
           toast.error(message)
@@ -39,16 +39,16 @@ export function useCurrentLocation({
           setIsLocating(false)
         },
         (error) => {
-          let message = "KhÃ´ng thá»ƒ láº¥y vá»‹ trÃ­ hiá»‡n táº¡i"
+          let message = "Không thể lấy vị trí hiện tại"
           if (error.code === error.PERMISSION_DENIED) {
             message =
-              'Báº¡n Ä‘Ã£ tá»« chá»‘i quyá»n vá»‹ trÃ­. HÃ£y báº¥m "Láº¥y láº¡i vá»‹ trÃ­" Ä‘á»ƒ thá»­ láº¡i'
+              'Bạn đã từ chối quyền vị trí. Hãy bấm "Lấy lại vị trí" để thử lại'
           }
           if (error.code === error.POSITION_UNAVAILABLE) {
-            message = "KhÃ´ng xÃ¡c Ä‘á»‹nh Ä‘Æ°á»£c vá»‹ trÃ­ hiá»‡n táº¡i"
+            message = "Không xác định được vị trí hiện tại"
           }
           if (error.code === error.TIMEOUT) {
-            message = "YÃªu cáº§u láº¥y vá»‹ trÃ­ bá»‹ quÃ¡ thá»i gian"
+            message = "Yêu cầu lấy vị trí bị quá thời gian"
           }
 
           setLocationError(message)

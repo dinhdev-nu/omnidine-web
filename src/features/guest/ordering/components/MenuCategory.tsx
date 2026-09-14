@@ -22,7 +22,7 @@ const MenuCategory = ({
   onCategoryChange,
 }: MenuCategoryProps) => {
   return (
-    <div className="flex space-x-2 mb-4 overflow-x-auto pb-2 scrollbar-hide">
+    <div className="scrollbar-hide mb-4 flex gap-2 overflow-x-auto pb-2 [@media(max-height:500px)]:mb-0 [@media(max-height:500px)]:pb-1">
       {categories?.map((category) => {
         const hasImage = Boolean(category?.imageUrl);
         const isActive = activeCategory === category?.id;
@@ -32,8 +32,9 @@ const MenuCategory = ({
             key={category?.id}
             variant={isActive ? 'default' : 'outline'}
             size="sm"
+            aria-pressed={isActive}
             onClick={() => onCategoryChange(category?.id)}
-            className={`w-[200px] h-auto py-2.5 px-3 hover-scale flex-shrink-0 relative overflow-hidden ${hasImage ? 'border-white/30' : ''} ${!hasImage && isActive ? '!bg-primary !text-primary-foreground !border-primary' : ''} ${!hasImage && !isActive ? '!text-foreground' : ''}`}
+            className={`hover-scale relative h-auto w-[200px] flex-shrink-0 overflow-hidden px-3 py-2.5 [@media(max-height:500px)]:py-2 ${hasImage ? 'border-white/30' : ''} ${!hasImage && isActive ? '!bg-primary !text-primary-foreground !border-primary' : ''} ${!hasImage && !isActive ? '!text-foreground' : ''}`}
             style={hasImage ? {
               backgroundImage: `url(${category.imageUrl})`,
               backgroundSize: 'cover',
@@ -62,7 +63,7 @@ const MenuCategory = ({
               </div>
 
               {category?.description && (
-                <p className={`text-[11px] line-clamp-1 break-words ${hasImage ? 'text-white/90' : isActive ? 'text-primary-foreground/85' : 'text-muted-foreground'}`}>
+                <p className={`line-clamp-1 break-words text-[11px] [@media(max-height:500px)]:hidden ${hasImage ? 'text-white/90' : isActive ? 'text-primary-foreground/85' : 'text-muted-foreground'}`}>
                   {category?.description}
                 </p>
               )}

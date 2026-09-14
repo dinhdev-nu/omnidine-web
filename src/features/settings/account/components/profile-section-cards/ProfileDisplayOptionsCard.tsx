@@ -29,7 +29,7 @@ export function ProfileDisplayOptionsCard({
         <CardDescription>Tùy chỉnh cách dữ liệu được hiển thị</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Palette className="h-5 w-5 text-muted-foreground" />
             <div>
@@ -40,6 +40,7 @@ export function ProfileDisplayOptionsCard({
             </div>
           </div>
           <Switch
+            aria-label="Chế độ tối"
             checked={resolvedTheme === "dark"}
             onCheckedChange={(checked) =>
               setDraftField("theme", checked ? "dark" : "light")
@@ -47,7 +48,7 @@ export function ProfileDisplayOptionsCard({
           />
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
           <div className="flex items-center gap-3">
             <Globe className="h-5 w-5 text-muted-foreground" />
             <div>
@@ -63,7 +64,7 @@ export function ProfileDisplayOptionsCard({
               setDraftField("language", value as "en" | "vi")
             }
           >
-            <SelectTrigger className="w-[120px]">
+            <SelectTrigger aria-label="Ngôn ngữ" className="w-full sm:w-[140px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent
@@ -76,7 +77,7 @@ export function ProfileDisplayOptionsCard({
           </Select>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Database className="h-5 w-5 text-muted-foreground" />
             <div>
@@ -86,7 +87,7 @@ export function ProfileDisplayOptionsCard({
               </p>
             </div>
           </div>
-          <Switch />
+          <Switch aria-label="Chế độ gọn" />
         </div>
       </CardContent>
     </Card>

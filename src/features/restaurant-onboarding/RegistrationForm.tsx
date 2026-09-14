@@ -11,9 +11,9 @@ import { OperatingHoursSection } from "./components/registration-form/OperatingH
 function FormIntroHeader() {
   return (
     <div>
-      <h2 className="text-xl font-semibold text-foreground">
+      <h1 className="text-xl font-semibold text-foreground">
         Đăng ký nhà hàng
-      </h2>
+      </h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Mang hương vị của bạn đến với thế giới. Điền thông tin bên dưới để thiết
         lập trang định danh chuyên nghiệp.
@@ -43,7 +43,7 @@ export function RegistrationForm() {
   } = useCreateRestaurantMeta()
 
   return (
-    <div className="animate-in space-y-6 duration-300 fade-in slide-in-from-bottom-2">
+    <div className="animate-in space-y-6 duration-300 motion-reduce:animate-none fade-in slide-in-from-bottom-2">
       <FormIntroHeader />
 
       <BrandIdentitySection

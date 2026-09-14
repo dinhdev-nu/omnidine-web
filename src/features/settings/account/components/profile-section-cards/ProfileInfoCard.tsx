@@ -60,7 +60,7 @@ export function ProfileInfoCard({ controller }: ProfileSectionViewProps) {
   return (
     <Card className="border-border bg-card">
       <CardHeader>
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-col items-start justify-between gap-3 sm:flex-row">
           <div>
             <CardTitle className="text-base font-medium">
               Thông tin cá nhân
@@ -87,7 +87,7 @@ export function ProfileInfoCard({ controller }: ProfileSectionViewProps) {
       </CardHeader>
 
       <CardContent className="space-y-6">
-        <div className="flex items-center gap-6">
+        <div className="flex items-start gap-4 sm:items-center sm:gap-6">
           <Avatar className="h-20 w-20">
             <AvatarFallback className="bg-primary text-2xl font-semibold text-primary-foreground">
               {getInitials(profile?.full_name)}
@@ -107,7 +107,7 @@ export function ProfileInfoCard({ controller }: ProfileSectionViewProps) {
                 </Badge>
               )}
             </div>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" disabled title="Tải ảnh đại diện chưa khả dụng">
               Đổi ảnh đại diện
             </Button>
             <p className="text-xs text-muted-foreground">
@@ -170,12 +170,14 @@ export function ProfileInfoCard({ controller }: ProfileSectionViewProps) {
                 id="email"
                 type="email"
                 value={profile?.email ?? ""}
+                readOnly
                 className="cursor-default"
               />
               <InputGroupAddon align="inline-end">
                 <InputGroupButton
                   size="icon-sm"
                   variant="ghost"
+                  aria-label="Sao chép địa chỉ email"
                   onClick={() => {
                     void navigator.clipboard.writeText(profile?.email ?? "")
                     toast.success("Đã sao chép")
@@ -207,6 +209,7 @@ export function ProfileInfoCard({ controller }: ProfileSectionViewProps) {
               <InputGroupInput
                 id="phone"
                 value={profile?.phone ?? ""}
+                readOnly
                 placeholder="Chưa thiết lập"
                 className="cursor-default"
               />
@@ -221,7 +224,7 @@ export function ProfileInfoCard({ controller }: ProfileSectionViewProps) {
                   id="dateOfBirth"
                   variant="outline"
                   className={cn(
-                    "h-9 w-full justify-start bg-background text-left font-normal",
+                    "h-11 w-full justify-start bg-background text-left font-normal",
                     !resolvedDateOfBirth && "text-muted-foreground"
                   )}
                 >

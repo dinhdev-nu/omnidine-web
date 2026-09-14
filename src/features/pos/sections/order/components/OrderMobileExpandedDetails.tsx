@@ -22,13 +22,13 @@ export function OrderMobileExpandedDetails({
   onEditDiscountClick,
 }: OrderMobileExpandedDetailsProps) {
   return (
-    <div className="space-y-4 rounded-b-lg border border-t-0 border-border bg-muted/20 p-4">
+    <div className="space-y-4 rounded-b-lg border border-t-0 border-border bg-muted/20 p-3 sm:p-4">
       {isLoadingDetail ? (
         <div className="flex items-center justify-center py-8">
-          <div className="flex items-center space-x-2 text-muted-foreground">
-            <Icon name="Loader2" size={16} className="animate-spin" />
-            <span className="text-sm">Đang tải...</span>
-          </div>
+          <output aria-live="polite" className="flex items-center gap-2 text-muted-foreground">
+            <Icon name="Loader2" size={16} aria-hidden="true" className="animate-spin motion-reduce:animate-none" />
+            <span className="text-sm">Đang tải…</span>
+          </output>
         </div>
       ) : detailOrder ? (
         <>

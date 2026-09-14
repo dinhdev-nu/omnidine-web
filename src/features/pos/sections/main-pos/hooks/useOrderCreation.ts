@@ -60,8 +60,6 @@ export const useOrderCreation = ({ restaurantId, onOrderCreated }: UseOrderCreat
         })),
       };
 
-      console.log('Creating order with payload:', payload);
-
       try {
         setIsCreatingOrder(true);
         const created = await createPosOrder(restaurantId!, payload);

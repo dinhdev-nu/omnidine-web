@@ -50,6 +50,7 @@ export function OperatingHoursSection({
 
                 <div className="flex min-w-[130px] items-center gap-2">
                   <Switch
+                    aria-label={`Đóng cửa ${day.full}`}
                     checked={hours.closed}
                     onCheckedChange={(checked) =>
                       changeOperatingClosed(dayId, checked)
@@ -60,7 +61,7 @@ export function OperatingHoursSection({
                   </span>
                 </div>
 
-                <div className="flex flex-1 items-center gap-3">
+                <div className="grid flex-1 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:gap-3">
                   <InputGroup>
                     <InputGroupAddon align="inline-start">
                       <InputGroupText>
@@ -68,6 +69,7 @@ export function OperatingHoursSection({
                       </InputGroupText>
                     </InputGroupAddon>
                     <InputGroupInput
+                      aria-label={`Giờ mở cửa ${day.full}`}
                       type="time"
                       value={hours.open}
                       onChange={(event) =>
@@ -86,6 +88,7 @@ export function OperatingHoursSection({
                       </InputGroupText>
                     </InputGroupAddon>
                     <InputGroupInput
+                      aria-label={`Giờ đóng cửa ${day.full}`}
                       type="time"
                       value={hours.close}
                       onChange={(event) =>

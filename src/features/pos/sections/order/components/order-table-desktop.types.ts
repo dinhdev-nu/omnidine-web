@@ -15,7 +15,11 @@ export interface OrderTableDesktopRowProps {
     itemId: string,
     status: AllowedOrderItemStatusUpdate
   ) => void
-  onCancelOrderItemClick?: (order: Order, itemId: string) => void
+  onCancelOrderItemClick?: (
+    order: Order,
+    itemId: string,
+    returnFocusElement?: HTMLElement | null
+  ) => void
   onEditDiscountClick?: (order: Order) => void
 }
 
@@ -30,7 +34,7 @@ export type OrderTableDetailItemRowProps = {
     itemId: string,
     status: AllowedOrderItemStatusUpdate
   ) => void
-  onCancelOrderItemClick?: (order: Order, itemId: string) => void
+  onCancelOrderItemClick?: OrderTableDesktopRowProps["onCancelOrderItemClick"]
 }
 
 export interface OrderDesktopDetailProps {

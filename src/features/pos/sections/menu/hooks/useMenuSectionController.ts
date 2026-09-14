@@ -93,7 +93,6 @@ function menuUiReducer(state: MenuUiState, action: MenuUiAction): MenuUiState {
 export function useMenuSectionController() {
   const posData = useRequiredPosData()
   const restaurantId = posData.restaurant._id
-  console.log("MenuSection rendered with restaurantId:", restaurantId)
   const [menuUi, dispatchMenuUi] = React.useReducer(
     menuUiReducer,
     menuUiInitialState
@@ -110,10 +109,17 @@ export function useMenuSectionController() {
     checkingToggleCategoryId,
   } = menuUi
   const isTableView = viewMode === "table"
+  const categoryManagerTriggerRef = React.useRef<HTMLElement | null>(null)
+  const openCategoryManager = React.useCallback(() => {
+    categoryManagerTriggerRef.current =
+      document.activeElement as HTMLElement | null
+    dispatchMenuUi({ type: "setCategoryManagerOpen", isOpen: true })
+  }, [])
 
   // Management hooks
   const {
     isLoadingData,
+    loadError,
     categories,
     items,
     page,
@@ -129,6 +135,7 @@ export function useMenuSectionController() {
     menuStats,
     categoryMap,
     refetch,
+    retry,
     isItemActionPending,
     isCategoryActionPending,
     handleToggleAvailability,
@@ -148,7 +155,8 @@ export function useMenuSectionController() {
     isUploadingImage: isUploadingMenuImage,
     isEditing: isEditingMenuItem,
     formData: itemFormData,
-    imagePreviewUrls,
+    formErrors: itemFormErrors,
+    imagePreviews,
     handleFieldChange,
     handleImageFileChange,
     handleAddImageUrl,
@@ -157,6 +165,7 @@ export function useMenuSectionController() {
     openAddItem,
     openEditItem,
     resetForm: resetMenuForm,
+    itemModalTriggerRef,
   } = useMenuForm(restaurantId, refetch)
 
   const {
@@ -174,8 +183,11 @@ export function useMenuSectionController() {
     setCategoryImageUrl,
     categorySortOrder,
     setCategorySortOrder,
+    categoryNameError,
+    categorySortOrderError,
     handleSubmitCategory,
     resetForm: resetCategoryForm,
+    categoryModalTriggerRef,
   } = useCategoryForm(restaurantId, refetch)
 
   // Category filter formatting properties that child expects
@@ -215,6 +227,9 @@ export function useMenuSectionController() {
       try {
         const hasActiveItems =
           await checkCategoryHasActiveItemsInCategory(categoryId)
+        if (hasActiveItems === null) {
+          return
+        }
         if (hasActiveItems) {
           dispatchMenuUi({
             type: "requestToggleCategory",
@@ -239,6 +254,7 @@ export function useMenuSectionController() {
 
   return {
     isLoadingData,
+    loadError,
     categories,
     items,
     page,
@@ -253,6 +269,8 @@ export function useMenuSectionController() {
     handleFeaturedChange,
     menuStats,
     categoryMap,
+    refetch,
+    retry,
     isItemActionPending,
     isCategoryActionPending,
     handleToggleAvailability,
@@ -279,7 +297,8 @@ export function useMenuSectionController() {
     isUploadingMenuImage,
     isEditingMenuItem,
     itemFormData,
-    imagePreviewUrls,
+    itemFormErrors,
+    imagePreviews,
     handleFieldChange,
     handleImageFileChange,
     handleAddImageUrl,
@@ -288,6 +307,7 @@ export function useMenuSectionController() {
     openAddItem,
     openEditItem,
     resetMenuForm,
+    itemModalTriggerRef,
     showCategoryModal,
     setShowCategoryModal,
     isSubmittingCategory,
@@ -302,11 +322,16 @@ export function useMenuSectionController() {
     setCategoryImageUrl,
     categorySortOrder,
     setCategorySortOrder,
+    categoryNameError,
+    categorySortOrderError,
     handleSubmitCategory,
     resetCategoryForm,
+    categoryModalTriggerRef,
     uiCategories,
     uiItemCounts,
     requestToggleCategory,
+    openCategoryManager,
+    categoryManagerTriggerRef,
   }
 }
 

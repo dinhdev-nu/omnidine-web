@@ -1,6 +1,8 @@
 import { BadgeCheck, Flame, MapPin, Search, Star } from "lucide-react"
+import { Link } from "react-router-dom"
 
 import AppImage from "@/components/AppImage"
+import { Spinner } from "@/components/ui/spinner"
 import { GuestRestaurantsLayout } from "@/layouts/guest/GuestRestaurantsLayout"
 
 import AttentionModal from "./AttentionModal"
@@ -36,8 +38,6 @@ export function GuestRestaurantsView({
     nearbyRestaurants,
     openAttentionModal,
     openCreatePage,
-    openPublicRestaurant,
-    openRestaurantsPage,
     profile,
     remainingPostsCount,
     restaurantsError,
@@ -53,70 +53,80 @@ export function GuestRestaurantsView({
         showCreateFab={showFAB}
         onOpenAttentionModal={openAttentionModal}
       >
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-          <aside className="hidden lg:col-span-3 lg:block">
-            <div className="sticky top-24 space-y-6">
+        <h1 className="sr-only">Khám phá nhà hàng</h1>
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
+          <aside className="hidden xl:col-span-3 xl:block">
+            <div className="sticky top-[calc(5.5rem+env(safe-area-inset-top))] flex flex-col gap-6">
               <div className="rounded-2xl border border-border bg-card p-5">
                 <div className="mb-4 flex items-center justify-between">
-                  <h3 className="flex items-center space-x-2 font-semibold text-foreground">
-                    <MapPin className="h-5 w-5 text-red-500" />
+                  <h3 className="flex items-center gap-2 font-semibold text-foreground">
+                    <MapPin
+                      aria-hidden="true"
+                      className="size-5 text-red-500"
+                    />
                     <span>Gần bạn</span>
                   </h3>
                   <button
                     type="button"
-                    className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    disabled
+                    title="Danh sách đầy đủ chưa khả dụng"
+                    className="min-h-11 touch-manipulation rounded-md px-2 text-xs font-medium text-muted-foreground opacity-50 disabled:cursor-not-allowed"
                   >
                     Xem tất cả
                   </button>
                 </div>
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                   {isRestaurantsLoading && nearbyRestaurants.length === 0 && (
-                    <div className="space-y-3">
-                      <div className="h-16 animate-pulse rounded-xl bg-muted/40" />
-                      <div className="h-16 animate-pulse rounded-xl bg-muted/40" />
-                      <div className="h-16 animate-pulse rounded-xl bg-muted/40" />
+                    <div className="flex flex-col gap-3">
+                      <div className="h-16 animate-pulse rounded-xl bg-muted/40 motion-reduce:animate-none" />
+                      <div className="h-16 animate-pulse rounded-xl bg-muted/40 motion-reduce:animate-none" />
+                      <div className="h-16 animate-pulse rounded-xl bg-muted/40 motion-reduce:animate-none" />
                     </div>
                   )}
                   {!isRestaurantsLoading &&
                     nearbyRestaurants.map((restaurant) => (
                       <div
                         key={restaurant.id}
-                        className="flex items-center space-x-3 rounded-xl p-2 transition-colors hover:bg-secondary"
+                        className="flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-secondary motion-reduce:transition-none"
                       >
-                        <button
-                          type="button"
-                          onClick={() => openPublicRestaurant(restaurant.slug)}
-                          className="relative shrink-0"
+                        <Link
+                          to={`/public/restaurants/${restaurant.slug}`}
+                          className="relative shrink-0 rounded-xl focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:outline-none"
                           aria-label={`Mở chi tiết ${restaurant.name}`}
                         >
                           <AppImage
                             src={restaurant.image}
                             alt={restaurant.name}
-                            className="h-12 w-12 rounded-xl object-cover"
+                            width={48}
+                            height={48}
+                            className="size-12 rounded-xl object-cover"
                             loading="lazy"
                           />
                           {restaurant.verified && (
                             <div className="absolute -right-1 -bottom-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600">
-                              <BadgeCheck className="h-2.5 w-2.5 text-white" />
+                              <BadgeCheck
+                                aria-hidden="true"
+                                className="size-2.5 text-white"
+                              />
                             </div>
                           )}
-                        </button>
+                        </Link>
                         <div className="min-w-0 flex-1">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              openPublicRestaurant(restaurant.slug)
-                            }
-                            className="block w-full text-left"
+                          <Link
+                            to={`/public/restaurants/${restaurant.slug}`}
+                            className="-my-2.5 flex min-h-11 w-full touch-manipulation items-center rounded-sm py-2.5 text-left focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none"
                             aria-label={`Mở chi tiết ${restaurant.name}`}
                           >
                             <p className="truncate text-sm font-medium text-foreground">
                               {restaurant.name}
                             </p>
-                          </button>
-                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                          </Link>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <span className="flex items-center">
-                              <Star className="mr-0.5 h-3 w-3 fill-yellow-500 text-yellow-500" />
+                              <Star
+                                aria-hidden="true"
+                                className="mr-0.5 size-3 fill-yellow-500 text-yellow-500"
+                              />
                               {restaurant.rating}
                             </span>
                             <span>•</span>
@@ -141,25 +151,30 @@ export function GuestRestaurantsView({
                   Quản lý và phát triển nhà hàng của bạn với công cụ chuyên
                   nghiệp!
                 </p>
-                <button
-                  type="button"
-                  onClick={openRestaurantsPage}
-                  className="w-full rounded-2xl bg-primary py-2.5 text-sm font-medium text-primary-foreground transition-colors duration-200 hover:bg-primary/90"
+                <Link
+                  to="/restaurants"
+                  className="flex min-h-11 w-full touch-manipulation items-center justify-center rounded-2xl bg-primary py-2.5 text-sm font-medium text-primary-foreground transition-colors duration-200 hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none motion-reduce:transition-none"
                 >
                   Khám phá ngay
-                </button>
+                </Link>
               </div>
             </div>
           </aside>
 
-          <main className="lg:col-span-6">
+          <section
+            aria-label="Bảng tin nhà hàng"
+            className="mx-auto w-full max-w-3xl min-w-0 xl:col-span-6 xl:max-w-none"
+          >
             <FilterTabs
               activeFilter={activeFilter}
               onFilterChange={handleFilterChange}
             />
 
             {restaurantsError && (
-              <div className="mb-4 space-y-2 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+              <div
+                role="alert"
+                className="mb-4 flex flex-col gap-2 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+              >
                 <div className="font-medium">{restaurantsError}</div>
                 {restaurantsErrorMeta &&
                   (restaurantsErrorMeta.status ||
@@ -177,7 +192,19 @@ export function GuestRestaurantsView({
               </div>
             )}
 
-            <div className="space-y-6">
+            {isRestaurantsLoading &&
+              displayedPosts.length === 0 &&
+              !restaurantsError && (
+                <output
+                  aria-label="Đang tải nhà hàng"
+                  className="flex min-h-72 flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-card text-sm text-muted-foreground"
+                >
+                  <Spinner className="size-5" />
+                  <span>Đang tải nhà hàng…</span>
+                </output>
+              )}
+
+            <div className="flex flex-col gap-4 sm:gap-6">
               {displayedPosts.map((post) => (
                 <PostCard
                   key={post.id}
@@ -192,13 +219,16 @@ export function GuestRestaurantsView({
               displayedPosts.length === 0 &&
               !restaurantsError && (
                 <div className="py-20 text-center">
-                  <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-secondary">
-                    <Search className="h-12 w-12 text-muted-foreground" />
+                  <div className="mx-auto mb-4 flex size-24 items-center justify-center rounded-full bg-secondary">
+                    <Search
+                      aria-hidden="true"
+                      className="size-12 text-muted-foreground"
+                    />
                   </div>
                   <h3 className="mb-2 text-xl font-semibold text-foreground">
                     Không có nhà hàng
                   </h3>
-                  <p className="text-muted-foreground">
+                  <p className="text-pretty text-muted-foreground">
                     Chưa tìm thấy nhà hàng nào phù hợp với bộ lọc hiện tại
                   </p>
                 </div>
@@ -210,12 +240,13 @@ export function GuestRestaurantsView({
                   type="button"
                   onClick={handleLoadMore}
                   disabled={isLoadingMore}
-                  className="rounded-2xl bg-primary px-8 py-3 text-sm font-medium text-primary-foreground transition-colors duration-200 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="min-h-11 touch-manipulation rounded-2xl bg-primary px-8 py-3 text-sm font-medium text-primary-foreground transition-colors duration-200 hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none motion-reduce:transition-none disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isLoadingMore ? (
-                    <span className="flex items-center space-x-2">
+                    <span className="flex items-center gap-2">
                       <svg
-                        className="h-4 w-4 animate-spin"
+                        aria-hidden="true"
+                        className="size-4 animate-spin motion-reduce:animate-none"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
@@ -234,7 +265,7 @@ export function GuestRestaurantsView({
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         />
                       </svg>
-                      <span>Đang tải...</span>
+                      <span>Đang tải…</span>
                     </span>
                   ) : (
                     `Xem thêm bài viết (${remainingPostsCount} còn lại)`
@@ -250,21 +281,26 @@ export function GuestRestaurantsView({
                 </p>
               </div>
             )}
-          </main>
+          </section>
 
-          <aside className="hidden lg:col-span-3 lg:block">
-            <div className="sticky top-24 space-y-6">
+          <aside className="hidden xl:col-span-3 xl:block">
+            <div className="sticky top-[calc(5.5rem+env(safe-area-inset-top))] flex flex-col gap-6">
               <div className="rounded-2xl border border-border bg-card p-5">
-                <h3 className="mb-4 flex items-center space-x-2 font-semibold text-foreground">
-                  <Flame className="h-5 w-5 text-orange-500" />
+                <h3 className="mb-4 flex items-center gap-2 font-semibold text-foreground">
+                  <Flame
+                    aria-hidden="true"
+                    className="size-5 text-orange-500"
+                  />
                   <span>Đang hot</span>
                 </h3>
-                <div className="space-y-1">
+                <div className="flex flex-col gap-1">
                   {TRENDING_TOPICS.map((item) => (
                     <button
                       type="button"
                       key={item.tag}
-                      className="w-full rounded-xl p-2 text-left transition-colors hover:bg-secondary"
+                      disabled
+                      title="Bộ lọc chủ đề chưa khả dụng"
+                      className="min-h-11 w-full touch-manipulation rounded-xl p-2 text-left opacity-50 disabled:cursor-not-allowed"
                     >
                       <p className="text-sm font-semibold text-foreground">
                         {item.tag}

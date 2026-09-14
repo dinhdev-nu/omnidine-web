@@ -1,5 +1,11 @@
 import { useState } from "react"
-import { AnimatePresence, LazyMotion, domAnimation, m } from "framer-motion"
+import {
+  AnimatePresence,
+  LazyMotion,
+  domAnimation,
+  m,
+  useReducedMotion,
+} from "framer-motion"
 import { X } from "lucide-react"
 import { Navigate, useLocation, useNavigate } from "react-router-dom"
 import { SignUpSteps } from "./SignUpSteps"
@@ -57,6 +63,7 @@ export function AuthCard({ mode }: AuthCardProps) {
   const { pathname } = useLocation()
   const signUpHook = useSignUp()
   const signInHook = useSignIn()
+  const shouldReduceMotion = useReducedMotion()
   const [tabDir, setTabDir] = useState(1)
   const activeTab: "signup" | "signin" = isSignUpMode(mode)
     ? "signup"
@@ -126,7 +133,7 @@ export function AuthCard({ mode }: AuthCardProps) {
   return (
     <div className="mx-auto w-full max-w-md">
       <Card className="border-border bg-card">
-        <CardContent className="p-6 sm:p-8">
+        <CardContent className="p-3 min-[375px]:p-6 sm:p-8">
           <Tabs value={activeTab} onValueChange={switchTab}>
             <div className="mb-6 flex items-center justify-between gap-3">
               <TabsList className="h-11 flex-1 gap-1 border border-border bg-secondary p-1">
@@ -163,10 +170,13 @@ export function AuthCard({ mode }: AuthCardProps) {
                   key={activeTab}
                   custom={tabDir}
                   variants={tabSlideVariants}
-                  initial="enter"
+                  initial={shouldReduceMotion ? false : "enter"}
                   animate="center"
                   exit="exit"
-                  transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
+                  transition={{
+                    duration: shouldReduceMotion ? 0 : 0.28,
+                    ease: [0.32, 0.72, 0, 1],
+                  }}
                 >
                   {activeTab === "signup" ? (
                     <SignUpSteps hook={signUpHook} />
@@ -192,6 +202,7 @@ export function AuthCard({ mode }: AuthCardProps) {
             <Button
               type="button"
               variant="outline"
+              aria-label="Tiếp tục với Google"
               onClick={signInHook.handleGoogleLogin}
               className="h-11 gap-2"
             >
@@ -205,6 +216,7 @@ export function AuthCard({ mode }: AuthCardProps) {
             <Button
               type="button"
               variant="outline"
+              aria-label="Tiếp tục với Apple"
               onClick={signInHook.handleAppleLogin}
               className="h-11 gap-2"
             >

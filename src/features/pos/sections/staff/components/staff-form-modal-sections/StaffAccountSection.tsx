@@ -13,15 +13,21 @@ export function StaffAccountSection({
   onFieldChange,
 }: StaffFormSectionProps) {
   return (
-    <div className="space-y-4 rounded-lg border border-border p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="flex items-center gap-2 text-base font-semibold text-foreground">
-            <Icon name="Link" size={18} />
-            <span>LiÃªn káº¿t tÃ i khoáº£n</span>
+    <section
+      aria-labelledby="staff-account-section-title"
+      className="flex flex-col gap-4 rounded-lg border border-border p-4"
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h3
+            id="staff-account-section-title"
+            className="flex items-center gap-2 text-base font-semibold text-foreground"
+          >
+            <Icon name="Link" size={18} aria-hidden="true" />
+            <span>Liên kết tài khoản</span>
           </h3>
           <p className="mt-1 text-xs text-muted-foreground">
-            Cáº­p nháº­t qua API: link-account
+            Liên kết hồ sơ này với một tài khoản người dùng hiện có.
           </p>
         </div>
         <SectionSaveButton
@@ -33,14 +39,18 @@ export function StaffAccountSection({
       </div>
 
       <Input
-        label="User ID liÃªn káº¿t"
+        name="linked_user_id"
+        label="User ID liên kết"
         type="text"
-        placeholder="Nháº­p user_id"
+        placeholder="Nhập user_id"
+        autoComplete="off"
+        spellCheck={false}
         value={formData.user_id}
         onChange={(e) => onFieldChange("user_id", e.target.value)}
         error={errors.user_id}
         required
+        disabled={isLoading}
       />
-    </div>
+    </section>
   )
 }

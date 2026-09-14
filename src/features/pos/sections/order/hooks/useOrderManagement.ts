@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import {
   listOrders,
@@ -87,6 +87,7 @@ interface UseOrderManagementReturn {
   selectedOrder: Order | null;
   filters: UIFilters;
   isLoadingOrders: boolean;
+  ordersError: string | null;
   isLoadingDetail: boolean;
   isLoadingMore: boolean;
   hasMore: boolean;
@@ -161,12 +162,18 @@ export function useOrderManagement(): UseOrderManagementReturn {
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [filters, setFilters] = useState<UIFilters>(DEFAULT_FILTERS);
+  const filtersRef = useRef<UIFilters>(DEFAULT_FILTERS);
   const [pagination, setPagination] = useState(DEFAULT_PAGINATION);
 
   // State: Loading
-  const [isLoadingOrders, setIsLoadingOrders] = useState(false);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(true);
+  const [ordersError, setOrdersError] = useState<string | null>(null);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
 
   /**
    * Fetch orders list with filters
@@ -176,12 +183,13 @@ export function useOrderManagement(): UseOrderManagementReturn {
       try {
         setIsLoadingOrders(!append);
         setIsLoadingMore(append);
+        if (!append) setOrdersError(null);
         // Convert UI filters to API query
-        const filtersToUse = overrideFilters || filters;
+        const filtersToUse = overrideFilters || filtersRef.current;
         const query = convertUIFiltersToQuery({
           ...filtersToUse,
           page,
-          limit: pagination.limit,
+          limit: filtersToUse.limit || DEFAULT_FILTERS.limit,
         });
 
         const response = await listOrders(restaurantId, query);
@@ -204,13 +212,15 @@ export function useOrderManagement(): UseOrderManagementReturn {
         }
 
       } catch (error) {
-        toast.error(toOrderEndpointError('list', error).message);
+        const message = toOrderEndpointError('list', error).message;
+        setOrdersError(message);
+        toast.error(message);
       } finally {
         setIsLoadingOrders(false);
         setIsLoadingMore(false);
       }
     },
-    [restaurantId, pagination.limit, filters]
+    [restaurantId]
   );
 
   /**
@@ -361,7 +371,7 @@ export function useOrderManagement(): UseOrderManagementReturn {
   }, [fetchOrders]);
 
   const handleRefresh = useCallback(async () => {
-    void fetchOrders(pagination.page);
+    await fetchOrders(pagination.page);
   }, [pagination.page, fetchOrders]);
 
   // Computed
@@ -380,6 +390,7 @@ export function useOrderManagement(): UseOrderManagementReturn {
     selectedOrder,
     filters,
     isLoadingOrders,
+    ordersError,
     isLoadingDetail,
     isLoadingMore,
     hasMore,

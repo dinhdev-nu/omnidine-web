@@ -69,9 +69,11 @@ function notificationReducer(
 }
 
 const FreqSelect = ({
+  label,
   value,
   onChange,
 }: {
+  label: string
   value: NotifFreq
   onChange: (value: NotifFreq) => void
 }) => (
@@ -79,7 +81,7 @@ const FreqSelect = ({
     value={value}
     onValueChange={(newValue) => onChange(newValue as NotifFreq)}
   >
-    <SelectTrigger className="h-8 w-[130px] text-xs">
+    <SelectTrigger aria-label={label} className="w-full text-xs sm:w-[160px]">
       <SelectValue />
     </SelectTrigger>
     <SelectContent>
@@ -132,7 +134,7 @@ export function NotificationSection() {
   }
 
   return (
-    <div className="animate-in space-y-6 duration-300 fade-in slide-in-from-bottom-2">
+    <div className="animate-in space-y-6 duration-300 motion-reduce:animate-none fade-in slide-in-from-bottom-2">
       <Card className="border-border bg-card">
         <CardHeader>
           <CardTitle className="text-base font-medium">
@@ -144,8 +146,8 @@ export function NotificationSection() {
         </CardHeader>
 
         <CardContent className="space-y-1">
-          <div className="flex items-center justify-between border-b border-border py-4">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col items-stretch justify-between gap-3 border-b border-border py-4 sm:flex-row sm:items-center">
+            <div className="flex min-w-0 items-center gap-3">
               <Mail className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="font-medium text-foreground">Thông báo email</p>
@@ -158,9 +160,10 @@ export function NotificationSection() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center justify-end gap-3">
               {resolvedNotifEmail && (
                 <FreqSelect
+                  label="Tần suất thông báo email"
                   value={notifEmailFreq}
                   onChange={(freq) =>
                     dispatchNotification({ type: "setEmailFreq", freq })
@@ -168,6 +171,7 @@ export function NotificationSection() {
                 />
               )}
               <Switch
+                aria-label="Bật thông báo email"
                 checked={resolvedNotifEmail}
                 onCheckedChange={(enabled) =>
                   dispatchNotification({ type: "setEmailEnabled", enabled })
@@ -176,8 +180,8 @@ export function NotificationSection() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between border-b border-border py-4">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col items-stretch justify-between gap-3 border-b border-border py-4 sm:flex-row sm:items-center">
+            <div className="flex min-w-0 items-center gap-3">
               <Smartphone className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="font-medium text-foreground">Thông báo SMS</p>
@@ -190,9 +194,10 @@ export function NotificationSection() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center justify-end gap-3">
               {resolvedNotifPhone && (
                 <FreqSelect
+                  label="Tần suất thông báo SMS"
                   value={notifPhoneFreq}
                   onChange={(freq) =>
                     dispatchNotification({ type: "setPhoneFreq", freq })
@@ -200,6 +205,7 @@ export function NotificationSection() {
                 />
               )}
               <Switch
+                aria-label="Bật thông báo SMS"
                 checked={resolvedNotifPhone}
                 onCheckedChange={(enabled) =>
                   dispatchNotification({ type: "setPhoneEnabled", enabled })
@@ -209,8 +215,8 @@ export function NotificationSection() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between py-4">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col items-stretch justify-between gap-3 py-4 sm:flex-row sm:items-center">
+            <div className="flex min-w-0 items-center gap-3">
               <Bell className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="font-medium text-foreground">Thông báo đẩy</p>
@@ -220,9 +226,10 @@ export function NotificationSection() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center justify-end gap-3">
               {resolvedNotifPush && (
                 <FreqSelect
+                  label="Tần suất thông báo đẩy"
                   value={notifPushFreq}
                   onChange={(freq) =>
                     dispatchNotification({ type: "setPushFreq", freq })
@@ -230,6 +237,7 @@ export function NotificationSection() {
                 />
               )}
               <Switch
+                aria-label="Bật thông báo đẩy"
                 checked={resolvedNotifPush}
                 onCheckedChange={(enabled) =>
                   dispatchNotification({ type: "setPushEnabled", enabled })
@@ -244,7 +252,7 @@ export function NotificationSection() {
         <Button onClick={handleSaveNotifications} disabled={isSavingProfile}>
           {isSavingProfile ? (
             <>
-              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin motion-reduce:animate-none" />
               Đang lưu...
             </>
           ) : (

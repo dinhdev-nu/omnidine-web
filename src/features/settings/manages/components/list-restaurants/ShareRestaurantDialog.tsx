@@ -1,3 +1,4 @@
+import { useRef } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -28,12 +29,24 @@ export function ShareRestaurantDialog({
   onShareModeChange: (mode: "public" | "pos") => void
   onClose: () => void
 }) {
+  const returnFocusRef = useRef<HTMLElement | null>(null)
+
   return (
     <Dialog
       open={Boolean(shareTarget)}
       onOpenChange={(isOpen) => !isOpen && onClose()}
     >
-      <DialogContent className="sm:max-w-md" showCloseButton={false}>
+      <DialogContent
+        className="sm:max-w-md"
+        showCloseButton={false}
+        onOpenAutoFocus={() => {
+          returnFocusRef.current = document.activeElement as HTMLElement | null
+        }}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault()
+          returnFocusRef.current?.focus()
+        }}
+      >
         <DialogHeader>
           <DialogTitle className="text-base font-semibold">
             Chia sẻ nhà hàng
@@ -68,7 +81,7 @@ export function ShareRestaurantDialog({
 
           <div className="overflow-hidden rounded-xl border border-border bg-card shadow-xs">
             <div
-              className="flex w-[200%] transition-transform duration-300 ease-out"
+              className="flex w-[200%] transition-transform duration-300 ease-out motion-reduce:transition-none"
               style={{
                 transform:
                   shareMode === "public"
@@ -83,7 +96,7 @@ export function ShareRestaurantDialog({
                 <div className="mb-3 flex justify-center rounded-lg border border-border bg-background p-3">
                   <QRCodeSVG value={sharePublicUrl} size={140} includeMargin />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 min-[375px]:flex-row">
                   <Input
                     value={sharePublicUrl}
                     readOnly
@@ -105,7 +118,7 @@ export function ShareRestaurantDialog({
                 <div className="mb-3 flex justify-center rounded-lg border border-border bg-background p-3">
                   <QRCodeSVG value={sharePosUrl} size={140} includeMargin />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 min-[375px]:flex-row">
                   <Input
                     value={sharePosUrl}
                     readOnly

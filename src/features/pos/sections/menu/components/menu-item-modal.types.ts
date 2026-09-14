@@ -20,12 +20,17 @@ export interface Category {
   name: string
 }
 
+export interface MenuItemImagePreview {
+  id: string
+  url: string
+}
+
 export interface MenuItemModalProps {
   isOpen: boolean
   isLoading?: boolean
   isEditing?: boolean
   item?: MenuItemFormData | null
-  imagePreviewUrls?: string[]
+  imagePreviews?: MenuItemImagePreview[]
   categories?: Category[]
   errors?: Partial<Record<keyof MenuItemFormData, string>>
   onClose: () => void
@@ -34,6 +39,7 @@ export interface MenuItemModalProps {
   onImageFileChange: (files: File[]) => void
   onAddImageUrl: (url: string) => void
   onRemoveImageAt: (index: number) => void
+  returnFocusRef?: React.RefObject<HTMLElement | null>
 }
 
 export type UploadMethod = "upload" | "url"
@@ -42,7 +48,7 @@ export type CategoryOption = { value: string; label: string }
 
 export interface MenuItemModalHeaderProps {
   isEditing: boolean
-  onClose: () => void
+  isLoading: boolean
 }
 
 export interface MenuItemDetailsFieldsProps {
@@ -59,7 +65,7 @@ export interface MenuItemImageFieldsProps {
   pendingImageUrl: string
   setPendingImageUrl: (url: string) => void
   handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void
-  imagePreviews: string[]
+  imagePreviews: MenuItemImagePreview[]
   onAddImageUrl: (url: string) => void
   onRemoveImageAt: (index: number) => void
 }
@@ -67,7 +73,4 @@ export interface MenuItemImageFieldsProps {
 export interface MenuItemModalFooterProps {
   isLoading: boolean
   isEditing: boolean
-  formData: MenuItemFormData
-  onClose: () => void
-  onSave: (data: MenuItemFormData) => void
 }

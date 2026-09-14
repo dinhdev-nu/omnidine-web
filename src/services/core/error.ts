@@ -19,7 +19,6 @@ export function toAppError(error: unknown, fallbackMessage = "Something went wro
     appError = { message: fallbackMessage }
   }
 
-  console.error("[AppError]", appError.errorCode ?? "", appError.message, error)
   return appError
 }
 

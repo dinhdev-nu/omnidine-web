@@ -19,8 +19,8 @@ export function NotificationSettingsTab({
   onOnlineOrdersChange,
 }: NotificationSettingsTabProps) {
   return (
-    <Card className="border-border bg-card">
-      <CardHeader>
+    <Card className="min-w-0 border-border bg-card">
+      <CardHeader className="px-4 sm:px-6">
         <CardTitle className="text-base font-medium">
           Trạng thái hoạt động
         </CardTitle>
@@ -28,13 +28,14 @@ export function NotificationSettingsTab({
           Điều khiển trạng thái xuất bản và nhận đơn online của nhà hàng
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 sm:px-6">
         <div className="space-y-4">
-          <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-secondary/20 p-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <p className="font-medium text-foreground">Xuất bản nhà hàng</p>
+          <div className="flex flex-col items-stretch justify-between gap-4 rounded-lg border border-border bg-secondary/20 p-4 sm:flex-row sm:items-center">
+            <div className="min-w-0 space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <label htmlFor="restaurant-publish-switch" className="font-medium text-foreground">Xuất bản nhà hàng</label>
                 <Badge
+                  aria-live="polite"
                   className={
                     publishEnabled
                       ? "border-emerald-500/20 bg-emerald-500/15 text-emerald-600"
@@ -44,22 +45,26 @@ export function NotificationSettingsTab({
                   {publishEnabled ? "Đang hiển thị" : "Đang ẩn"}
                 </Badge>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p id="restaurant-publish-description" className="text-sm text-muted-foreground text-pretty">
                 Bật để nhà hàng xuất hiện trên các trang công khai.
               </p>
             </div>
             <Switch
+              id="restaurant-publish-switch"
+              aria-describedby="restaurant-publish-description"
+              aria-busy={isPublishing}
               checked={publishEnabled}
               onCheckedChange={onPublishChange}
               disabled={!restaurantId || isPublishing}
             />
           </div>
 
-          <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-secondary/20 p-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <p className="font-medium text-foreground">Nhận đơn online</p>
+          <div className="flex flex-col items-stretch justify-between gap-4 rounded-lg border border-border bg-secondary/20 p-4 sm:flex-row sm:items-center">
+            <div className="min-w-0 space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <label htmlFor="online-orders-switch" className="font-medium text-foreground">Nhận đơn online</label>
                 <Badge
+                  aria-live="polite"
                   className={
                     onlineOrdersEnabled
                       ? "border-emerald-500/20 bg-emerald-500/15 text-emerald-600"
@@ -69,11 +74,14 @@ export function NotificationSettingsTab({
                   {onlineOrdersEnabled ? "Đang bật" : "Đang tắt"}
                 </Badge>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p id="online-orders-description" className="text-sm text-muted-foreground text-pretty">
                 Cho phép khách đặt món trực tuyến cho nhà hàng này.
               </p>
             </div>
             <Switch
+              id="online-orders-switch"
+              aria-describedby="online-orders-description"
+              aria-busy={isTogglingOnlineOrders}
               checked={onlineOrdersEnabled}
               onCheckedChange={onOnlineOrdersChange}
               disabled={!restaurantId || isTogglingOnlineOrders}

@@ -14,11 +14,11 @@ export function GuestOrderingLayout({
   mobileCartButton,
 }: GuestOrderingLayoutProps) {
   return (
-    <div className="pos min-h-screen bg-background">
+    <div className="pos min-h-dvh bg-background">
       {header}
 
-      <main className="ease-smooth pt-16 transition-all duration-300 md:pt-16">
-        <div className="flex h-[calc(100vh-4rem)] flex-col md:h-[calc(100vh-4rem)] lg:flex-row">
+      <main className="pt-[calc(4rem+env(safe-area-inset-top))] transition-[padding] duration-300 motion-reduce:transition-none">
+        <div className="flex h-[calc(100dvh-4rem-env(safe-area-inset-top))] flex-col lg:flex-row">
           {menuPanel}
           {cartPanel}
         </div>

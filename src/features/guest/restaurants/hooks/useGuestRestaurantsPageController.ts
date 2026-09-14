@@ -422,8 +422,8 @@ export function useGuestRestaurantsPageController() {
   const handleLogout = useCallback(async () => {
     try {
       await logoutApi()
-    } catch (error) {
-      console.error("Logout error:", error)
+    } catch {
+      // Local session cleanup still completes when the remote logout endpoint is unavailable.
     } finally {
       clearAuth()
       clearUser()

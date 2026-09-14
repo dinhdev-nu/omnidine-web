@@ -2,6 +2,15 @@ import React from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { toast } from 'sonner';
 import Icon from '@/components/AppIcon';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import Button from './Button';
 
 interface QrDialogProps {
@@ -14,6 +23,7 @@ interface QrDialogProps {
     copyUrlLabel?: string;
     closeLabel?: string;
     qrSize?: number;
+    returnFocusRef?: React.RefObject<HTMLButtonElement | null>;
 }
 
 const QrDialog: React.FC<QrDialogProps> = ({
@@ -26,9 +36,8 @@ const QrDialog: React.FC<QrDialogProps> = ({
     copyUrlLabel = 'Sao chép link',
     closeLabel = 'Đóng',
     qrSize = 196,
+    returnFocusRef,
 }) => {
-    if (!open) return null;
-
     const hasQrUrl = Boolean(qrUrl);
 
     const handleCopyUrl = async () => {
@@ -46,57 +55,65 @@ const QrDialog: React.FC<QrDialogProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-[1300] flex items-center justify-center p-4">
-            <button
-                type="button"
-                aria-label="ÄÃ³ng QR dialog"
-                className="absolute inset-0 cursor-default"
-                onClick={onClose}
-            />
-            <div className="relative bg-card rounded-lg shadow-modal max-w-sm w-full max-h-[82vh] overflow-y-auto">
-                <div className="p-4 border-b border-border flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <Icon name="QrCode" size={24} className="text-primary shrink-0" />
-                        <div>
-                            <h3 className="text-lg font-semibold text-foreground">{title}</h3>
-                            {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+        <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
+            <DialogContent
+                showCloseButton={false}
+                className="max-h-[calc(100dvh-1rem)] max-w-[calc(100%-1rem)] gap-0 overflow-hidden p-0 sm:max-w-sm"
+                onCloseAutoFocus={(event) => {
+                    event.preventDefault();
+                    returnFocusRef?.current?.focus();
+                }}
+            >
+                <DialogHeader className="relative border-b border-border p-4 pr-16">
+                    <div className="flex min-w-0 items-start gap-3">
+                        <Icon name="QrCode" size={24} className="mt-0.5 shrink-0 text-primary" aria-hidden="true" />
+                        <div className="min-w-0">
+                            <DialogTitle className="break-words text-lg font-semibold">{title}</DialogTitle>
+                            <DialogDescription className="mt-1 break-words leading-relaxed">
+                                {subtitle ?? 'Quét mã QR để sử dụng liên kết này'}
+                            </DialogDescription>
                         </div>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={onClose} className="hover-scale" aria-label="Dong QR dialog">
-                        <Icon name="X" size={20} />
-                    </Button>
-                </div>
+                    <DialogClose asChild>
+                        <Button variant="ghost" size="icon" className="absolute right-2 top-2" aria-label="Đóng hộp thoại mã QR">
+                            <Icon name="X" size={20} aria-hidden="true" />
+                        </Button>
+                    </DialogClose>
+                </DialogHeader>
 
-                <div className="p-5 flex flex-col items-center">
-                    <div className="bg-white p-3 rounded-lg">
+                <div className="flex min-h-0 flex-col items-center gap-3 overflow-y-auto p-4 sm:p-5">
+                    <div className="flex w-full max-w-56 items-center justify-center rounded-lg bg-white p-3">
                         {hasQrUrl ? (
-                            <QRCodeSVG value={qrUrl!} size={qrSize} level="H" includeMargin />
+                            <div role="img" aria-label={`Mã QR cho ${title}`}>
+                                <QRCodeSVG value={qrUrl!} size={qrSize} level="H" includeMargin className="h-auto max-w-full" aria-hidden="true" />
+                            </div>
                         ) : (
-                            <p className="text-xs text-muted-foreground text-center">{emptyMessage}</p>
+                            <p role="status" className="text-center text-xs text-muted-foreground">{emptyMessage}</p>
                         )}
                     </div>
 
-                    <p className="text-sm text-muted-foreground mt-3 text-center">{subtitle ?? 'Quét mã QR để sử dụng liên kết này'}</p>
-                    <div className="mt-3 p-2.5 bg-muted/50 rounded-lg w-full">
-                        <p className="text-xs text-muted-foreground text-center break-all">{qrUrl ?? 'Chưa có'}</p>
+                    <div className="w-full min-w-0 rounded-lg bg-muted/50 p-3">
+                        <p className="break-all text-center text-xs text-muted-foreground">{qrUrl ?? 'Chưa có'}</p>
                     </div>
                 </div>
 
-                <div className="p-4 border-t border-border flex items-center justify-between gap-2">
+                <DialogFooter className="m-0 rounded-none px-4 py-4">
+                    <DialogClose asChild>
+                        <Button variant="outline" className="w-full sm:w-auto">{closeLabel}</Button>
+                    </DialogClose>
                     <Button
-                        variant="outline"
-                        size="sm"
+                        variant="default"
                         iconName="Copy"
                         iconPosition="left"
                         onClick={handleCopyUrl}
                         disabled={!hasQrUrl}
+                        className="w-full sm:w-auto"
                     >
                         {copyUrlLabel}
                     </Button>
-                    <Button variant="default" size="sm" onClick={onClose}>{closeLabel}</Button>
-                </div>
-            </div>
-        </div>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 };
 

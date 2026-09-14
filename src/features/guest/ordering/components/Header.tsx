@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { resolveUserAvatar } from "@/lib/avatar"
 import { logout as logoutApi } from "@/services/auth"
@@ -87,9 +87,22 @@ const Header = ({
     navigate(path)
   }
 
+  useEffect(() => {
+    if (!showUserMenu && !showNotifications) return
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return
+      setShowUserMenu(false)
+      setShowNotifications(false)
+    }
+
+    window.addEventListener("keydown", handleEscape)
+    return () => window.removeEventListener("keydown", handleEscape)
+  }, [showNotifications, showUserMenu])
+
   return (
-    <header className="fixed top-0 right-0 left-0 z-[1100] h-16 border-b border-border bg-background/80 backdrop-blur-sm">
-      <div className="mx-auto flex h-full max-w-[1920px] items-center justify-between px-2 sm:px-4 lg:px-8 xl:px-16">
+    <header className="fixed inset-x-0 top-0 z-[1100] h-[calc(4rem+env(safe-area-inset-top))] border-b border-border bg-background/80 pt-[env(safe-area-inset-top)] backdrop-blur-sm">
+      <div className="mx-auto flex h-16 max-w-[1920px] items-center justify-between pr-[calc(0.5rem+env(safe-area-inset-right))] pl-[calc(0.5rem+env(safe-area-inset-left))] sm:pr-[calc(1rem+env(safe-area-inset-right))] sm:pl-[calc(1rem+env(safe-area-inset-left))] lg:pr-[calc(2rem+env(safe-area-inset-right))] lg:pl-[calc(2rem+env(safe-area-inset-left))] xl:pr-[calc(4rem+env(safe-area-inset-right))] xl:pl-[calc(4rem+env(safe-area-inset-left))]">
         <RestaurantBrandButton
           displayStoreName={displayStoreName}
           restaurantLogo={restaurantLogo}
@@ -99,7 +112,7 @@ const Header = ({
         />
 
         {/* Right Section - Status, Notifications, User */}
-        <div className="flex items-center space-x-1 sm:space-x-3">
+        <div className="flex items-center gap-1 sm:gap-3">
           <HeaderClock />
           <OperationalStatusButton isOperational={isOperational} />
 

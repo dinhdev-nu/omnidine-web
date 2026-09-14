@@ -1,289 +1,412 @@
-import { memo, useState, useEffect } from 'react';
-import Icon from '@/components/AppIcon';
-import Button from '@/features/pos/ui/Button';
-import QrDialog from '@/features/pos/ui/QrDialog';
-import type { PosRestaurant } from '@/types/domain/pos-init';
+import { memo, useEffect, useRef, useState, type Ref } from "react"
+import { Popover as PopoverPrimitive } from "radix-ui"
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+import Icon from "@/components/AppIcon"
+import Button from "@/features/pos/ui/Button"
+import QrDialog from "@/features/pos/ui/QrDialog"
+import type { PosRestaurant } from "@/types/domain/pos-init"
 
-type NotificationType = 'info' | 'warning' | 'success' | 'error';
+type NotificationType = "info" | "warning" | "success" | "error"
 
 export interface Notification {
-  id: string;
-  type: NotificationType;
-  message: string;
-  createdAt: Date | string;
+  id: string
+  type: NotificationType
+  message: string
+  createdAt: Date | string
 }
 
 export interface HeaderProps {
-  storeName?: string;
-  restaurant?: PosRestaurant;
-  notifications?: Notification[];
-  isOperational?: boolean;
-  onToggleOperational?: () => void;
-  onToggleSidebar?: () => void;
-  getRelativeTime?: (date: Date | string) => string;
+  storeName?: string
+  restaurant?: PosRestaurant
+  notifications?: Notification[]
+  isOperational?: boolean
+  onToggleOperational?: () => void
+  onToggleSidebar?: () => void
+  menuButtonRef?: Ref<HTMLButtonElement>
+  getRelativeTime?: (date: Date | string) => string
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+const NOTIFICATION_ICON: Record<NotificationType, string> = {
+  warning: "AlertTriangle",
+  success: "CheckCircle",
+  error: "XCircle",
+  info: "Info",
+}
 
-const NOTIF_ICON: Record<NotificationType, string> = {
-  warning: 'AlertTriangle',
-  success: 'CheckCircle',
-  error: 'XCircle',
-  info: 'Info',
-};
+const NOTIFICATION_COLOR: Record<NotificationType, string> = {
+  warning: "text-warning",
+  success: "text-success",
+  error: "text-error",
+  info: "text-primary",
+}
 
-const NOTIF_COLOR: Record<NotificationType, string> = {
-  warning: 'text-warning',
-  success: 'text-success',
-  error: 'text-error',
-  info: 'text-primary',
-};
+const TIME_FORMATTER = new Intl.DateTimeFormat("vi-VN", {
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+})
 
-const formatTime = (d: Date) =>
-  d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-const formatDate = (d: Date) => {
-  const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-  return `${days[d.getDay()]}, ${d.toLocaleDateString('vi-VN', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-  })}`;
-};
-
-// ─── Component Phụ ─────────────────────────────────────────────────────────────
+const DATE_FORMATTER = new Intl.DateTimeFormat("vi-VN", {
+  weekday: "short",
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+})
 
 const Clock = memo(() => {
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState(() => new Date())
 
   useEffect(() => {
-    const t = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(t);
-  }, []);
+    const timer = window.setInterval(() => setCurrentTime(new Date()), 1_000)
+    return () => window.clearInterval(timer)
+  }, [])
 
   return (
-    <div className="hidden xl:flex items-center space-x-2 px-4 py-2">
-      <Icon name="Clock" size={16} className="text-primary" />
+    <div className="hidden items-center gap-2 px-3 py-2 2xl:flex">
+      <Icon
+        name="Clock"
+        size={16}
+        className="text-primary"
+        aria-hidden="true"
+      />
       <div className="flex flex-col">
-        <span className="text-sm font-semibold text-foreground font-mono tracking-wider">
-          {formatTime(currentTime)}
+        <time
+          dateTime={currentTime.toISOString()}
+          className="font-mono text-sm font-semibold tracking-wider text-foreground tabular-nums"
+        >
+          {TIME_FORMATTER.format(currentTime)}
+        </time>
+        <span className="text-xs text-muted-foreground">
+          {DATE_FORMATTER.format(currentTime)}
         </span>
-        <span className="text-xs text-muted-foreground">{formatDate(currentTime)}</span>
       </div>
     </div>
-  );
-});
+  )
+})
 
-Clock.displayName = 'Clock';
+Clock.displayName = "Clock"
 
-// ─── Header ───────────────────────────────────────────────────────────────────
-// memo: chỉ re-render khi props thực sự thay đổi.
+const Header = memo<HeaderProps>(
+  ({
+    storeName = "POS Manager",
+    restaurant,
+    notifications = [],
+    isOperational = true,
+    onToggleOperational,
+    onToggleSidebar,
+    menuButtonRef,
+    getRelativeTime,
+  }) => {
+    const [showNotifications, setShowNotifications] = useState(false)
+    const [showQrDialog, setShowQrDialog] = useState(false)
+    const qrTriggerRef = useRef<HTMLButtonElement>(null)
 
-const Header = memo<HeaderProps>(({
-  storeName = 'POS Manager',
-  restaurant,
-  notifications = [],
-  isOperational = true,
-  onToggleOperational,
-  onToggleSidebar,
-  getRelativeTime,
-}) => {
-  const [showNotifications, setShowNotif] = useState(false);
-  const [showQRDialog, setShowQRDialog] = useState(false);
+    const displayName = restaurant?.name ?? storeName
+    const logoSrc = restaurant?.logo_url ?? "/assets/images/restaurant_logo.png"
+    const orderUrl = restaurant
+      ? `${window.location.origin}/public/restaurants/${restaurant.slug}`
+      : ""
+    const unreadCount = notifications.length
+    const notificationLabel = unreadCount
+      ? `Thông báo, ${unreadCount} thông báo mới`
+      : "Thông báo, không có thông báo mới"
 
-  const displayName = restaurant?.name ?? storeName;
-  const logoSrc = restaurant?.logo_url ?? '/assets/images/restaurant_logo.png';
-  const orderUrl = restaurant
-    ? `${window.location.origin}/public/restaurants/${restaurant.slug}`
-    : '';
-  const unreadCount = notifications.length;
-
-  const closeNotifications = () => setShowNotif(false);
-
-  return (
-    <header className="sticky top-0 left-0 right-0 h-14 sm:h-16 bg-surface border-b border-border z-1100">
-      <div className="flex items-center justify-between h-full px-2 sm:px-4">
-
-        {/* ── Left ──────────────────────────────────────────────────────── */}
-        <div className="flex items-center space-x-2 sm:space-x-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onToggleSidebar}
-            className="lg:hidden touch-target"
-          >
-            <Icon name="Menu" size={20} />
-          </Button>
-
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            {restaurant ? (
-              <img src={logoSrc} alt={displayName} className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
-            ) : (
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
-                <Icon name="Store" size={20} color="white" />
-              </div>
-            )}
-            <div className="hidden sm:block">
-              <h1 className="text-base sm:text-lg font-semibold text-foreground truncate max-w-[120px] sm:max-w-[200px] lg:max-w-none">
-                {displayName}
-              </h1>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Center (POS desktop) ──────────────────────────────────────── */}
-        <div className="hidden md:flex items-center space-x-2">
-          <Button variant="outline" size="sm" iconName="Search" iconPosition="left" className="hover-scale">
-            Tìm kiếm
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            iconName="QrCode"
-            iconPosition="left"
-            className="hover-scale"
-            onClick={() => setShowQRDialog(true)}
-          >
-            QR nhà hàng
-          </Button>
-          <Button variant="default" size="sm" iconName="Receipt" iconPosition="left" className="hover-scale">
-            Tạo hóa đơn
-          </Button>
-        </div>
-
-        {/* ── Right ─────────────────────────────────────────────────────── */}
-        <div className="flex items-center space-x-1 sm:space-x-3">
-          {/* Clock */}
-          <Clock />
-
-          {/* Operational toggle (POS desktop) */}
-          <div className="hidden lg:flex items-center space-x-2">
-            <span className="text-sm text-muted-foreground hidden xl:inline">Trạng thái:</span>
+    return (
+      <header className="relative z-[1100] shrink-0 border-b border-border bg-surface pt-[env(safe-area-inset-top)]">
+        <div className="flex h-14 min-w-0 items-center justify-between gap-2 px-2 sm:h-16 sm:px-4">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-4">
             <Button
-              variant={isOperational ? 'success' : 'secondary'}
-              size="sm"
-              onClick={onToggleOperational}
-              iconName={isOperational ? 'Play' : 'Pause'}
-              iconPosition="left"
-              className="hover-scale"
-            >
-              <span className="hidden xl:inline">{isOperational ? 'Đang mở cửa' : 'Đang đóng cửa'}</span>
-              <span className="xl:hidden">{isOperational ? 'Mở' : 'Đóng'}</span>
-            </Button>
-          </div>
-
-          {/* Notifications */}
-          <div className="relative">
-            <Button
+              ref={menuButtonRef}
               variant="ghost"
               size="icon"
-              onClick={() => setShowNotif((v) => !v)}
-              className="relative hover-scale touch-target"
+              onClick={onToggleSidebar}
+              className="shrink-0 lg:hidden"
+              aria-label="Mở menu điều hướng"
+              aria-controls="pos-mobile-navigation"
             >
-              <Icon name="Bell" size={20} />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-error text-error-foreground text-xs rounded-full flex items-center justify-center">
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
+              <Icon name="Menu" size={20} aria-hidden="true" />
             </Button>
 
-            {showNotifications && (
-              <div className="absolute right-0 top-full mt-2 w-80 bg-popover border border-border rounded-lg shadow-modal z-1150 max-h-96 overflow-y-auto">
-                <div className="p-3 border-b border-border">
-                  <h3 className="text-sm font-semibold text-foreground">Thông báo</h3>
-                </div>
-                {notifications.length === 0 ? (
-                  <p className="p-4 text-center text-sm text-muted-foreground">Không có thông báo mới</p>
-                ) : (
-                  <div className="divide-y divide-border">
-                    {notifications.map((n) => (
-                      <div key={n.id} className="p-3 flex items-start space-x-3 hover:bg-muted/50 transition-colors">
-                        <Icon name={NOTIF_ICON[n.type]} size={16} className={`mt-0.5 flex-shrink-0 ${NOTIF_COLOR[n.type]}`} />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-foreground">{n.message}</p>
-                          {getRelativeTime && (
-                            <p className="text-xs text-muted-foreground mt-1">{getRelativeTime(n.createdAt)}</p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+            <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+              {restaurant ? (
+                <img
+                  src={logoSrc}
+                  alt={displayName}
+                  width={32}
+                  height={32}
+                  className="size-8 shrink-0 rounded-lg object-cover"
+                />
+              ) : (
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary">
+                  <Icon
+                    name="Store"
+                    size={20}
+                    color="white"
+                    aria-hidden="true"
+                  />
+                </span>
+              )}
+              <p className="hidden max-w-48 truncate text-base font-semibold text-foreground sm:block lg:max-w-52 lg:text-lg xl:max-w-64">
+                {displayName}
+              </p>
+            </div>
           </div>
 
-          {/* Restaurant badge */}
-          <div className="relative">
+          <div className="hidden shrink-0 items-center gap-2 lg:flex">
+            <Button
+              variant="outline"
+              size="sm"
+              iconName="Search"
+              iconPosition="left"
+              className="hover-scale"
+              disabled
+              title="Tìm kiếm toàn cục chưa khả dụng"
+            >
+              Tìm kiếm
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              iconName="QrCode"
+              iconPosition="left"
+              className="hover-scale"
+              onClick={(event) => {
+                qrTriggerRef.current = event.currentTarget
+                setShowQrDialog(true)
+              }}
+            >
+              QR nhà hàng
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              iconName="Receipt"
+              iconPosition="left"
+              className="hover-scale"
+              disabled
+              title="Tạo hóa đơn nhanh chưa khả dụng; hãy tạo đơn trong màn hình bán hàng"
+            >
+              Tạo hóa đơn
+            </Button>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+            <Clock />
+
+            <div className="hidden items-center gap-2 lg:flex">
+              <span className="hidden text-sm text-muted-foreground 2xl:inline">
+                Trạng thái:
+              </span>
+              <Button
+                variant={isOperational ? "success" : "secondary"}
+                size="sm"
+                onClick={onToggleOperational}
+                iconName={isOperational ? "Play" : "Pause"}
+                iconPosition="left"
+                className="hover-scale"
+                aria-label={
+                  isOperational ? "Chuyển sang đóng cửa" : "Chuyển sang mở cửa"
+                }
+                aria-pressed={isOperational}
+              >
+                <span className="hidden 2xl:inline">
+                  {isOperational ? "Đang mở cửa" : "Đang đóng cửa"}
+                </span>
+                <span className="2xl:hidden">
+                  {isOperational ? "Mở" : "Đóng"}
+                </span>
+              </Button>
+            </div>
+
+            <PopoverPrimitive.Root
+              open={showNotifications}
+              onOpenChange={setShowNotifications}
+            >
+              <PopoverPrimitive.Trigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative shrink-0 hover-scale"
+                  aria-label={notificationLabel}
+                >
+                  <Icon name="Bell" size={20} aria-hidden="true" />
+                  {unreadCount > 0 && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-error text-xs text-error-foreground tabular-nums"
+                    >
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                </Button>
+              </PopoverPrimitive.Trigger>
+
+              <PopoverPrimitive.Portal>
+                <PopoverPrimitive.Content
+                  align="end"
+                  sideOffset={8}
+                  collisionPadding={8}
+                  aria-labelledby="pos-notifications-title"
+                  className="z-[1250] max-h-[min(24rem,calc(100dvh-1rem-env(safe-area-inset-top)-env(safe-area-inset-bottom)))] w-[min(20rem,calc(100vw-1rem-env(safe-area-inset-left)-env(safe-area-inset-right)))] overflow-y-auto overscroll-contain rounded-lg border border-border bg-popover text-popover-foreground shadow-modal duration-150 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 motion-reduce:animate-none"
+                >
+                  <div className="flex min-h-11 items-center justify-between border-b border-border py-1 pr-1 pl-3">
+                    <h2
+                      id="pos-notifications-title"
+                      className="text-sm font-semibold text-foreground"
+                    >
+                      Thông báo
+                    </h2>
+                    <PopoverPrimitive.Close asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Đóng thông báo"
+                      >
+                        <Icon name="X" size={18} aria-hidden="true" />
+                      </Button>
+                    </PopoverPrimitive.Close>
+                  </div>
+
+                  {notifications.length === 0 ? (
+                    <p className="p-4 text-center text-sm text-muted-foreground">
+                      Không có thông báo mới
+                    </p>
+                  ) : (
+                    <ul className="divide-y divide-border">
+                      {notifications.map((notification) => (
+                        <li
+                          key={notification.id}
+                          className="flex items-start gap-3 p-3 transition-colors hover:bg-muted/50 motion-reduce:transition-none"
+                        >
+                          <Icon
+                            name={NOTIFICATION_ICON[notification.type]}
+                            size={16}
+                            aria-hidden="true"
+                            className={`mt-0.5 shrink-0 ${NOTIFICATION_COLOR[notification.type]}`}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="break-words text-sm text-foreground">
+                              {notification.message}
+                            </p>
+                            {getRelativeTime && (
+                              <p className="mt-1 text-xs text-muted-foreground">
+                                {getRelativeTime(notification.createdAt)}
+                              </p>
+                            )}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </PopoverPrimitive.Content>
+              </PopoverPrimitive.Portal>
+            </PopoverPrimitive.Root>
+
             {restaurant ? (
-              <div className="flex items-center space-x-2">
-                <img src={logoSrc} alt={displayName} className="w-8 h-8 rounded-full object-cover border border-border/30" />
-                <div className="text-left hidden md:block">
-                  <p className="text-sm font-semibold text-foreground">{displayName}</p>
+              <div className="flex min-w-0 items-center gap-2">
+                <img
+                  src={logoSrc}
+                  alt=""
+                  width={32}
+                  height={32}
+                  className="size-8 shrink-0 rounded-full border border-border/30 object-cover"
+                />
+                <div className="hidden min-w-0 text-left xl:block">
+                  <p className="max-w-36 truncate text-sm font-semibold text-foreground 2xl:max-w-48">
+                    {displayName}
+                  </p>
                   <p className="text-xs text-muted-foreground">POS</p>
                 </div>
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                  <Icon name="Store" size={16} color="white" />
-                </div>
-                <div className="text-left hidden md:block">
-                  <p className="text-sm font-semibold text-foreground">{displayName}</p>
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary">
+                  <Icon
+                    name="Store"
+                    size={16}
+                    color="white"
+                    aria-hidden="true"
+                  />
+                </span>
+                <div className="hidden min-w-0 text-left xl:block">
+                  <p className="max-w-36 truncate text-sm font-semibold text-foreground 2xl:max-w-48">
+                    {displayName}
+                  </p>
                   <p className="text-xs text-muted-foreground">POS</p>
                 </div>
               </div>
             )}
           </div>
         </div>
-      </div>
 
-      {/* ── Mobile quick actions ──────────────────────────────────────────── */}
-      <div className="md:hidden px-2 sm:px-4 py-2 border-t border-border bg-muted/30">
-        <div className="flex items-center gap-1 sm:gap-2">
-          <Button variant="outline" size="sm" iconName="Search" className="flex-1 touch-target text-xs sm:text-sm">
-            <span className="hidden xs:inline">Tìm</span>
-          </Button>
-          <Button variant="outline" size="sm" iconName="QrCode" className="flex-1 touch-target text-xs sm:text-sm" onClick={() => setShowQRDialog(true)}>
-            <span className="hidden xs:inline">QR</span>
-          </Button>
-          <Button variant="default" size="sm" iconName="Receipt" className="flex-1 touch-target text-xs sm:text-sm">
-            <span className="hidden xs:inline">Hóa đơn</span>
-          </Button>
-          <Button
-            variant={isOperational ? 'success' : 'secondary'}
-            size="sm"
-            iconName={isOperational ? 'Play' : 'Pause'}
-            onClick={onToggleOperational}
-            className="touch-target"
-          >
-            <span className="hidden sm:inline">{isOperational ? 'Mở' : 'Đóng'}</span>
-          </Button>
+        <div className="border-t border-border bg-muted/30 px-2 py-2 sm:px-4 lg:hidden">
+          <div className="flex min-w-0 items-center gap-1 sm:gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              iconName="Search"
+              className="min-w-0 flex-1 px-2 text-xs sm:text-sm"
+              aria-label="Tìm kiếm"
+              disabled
+              title="Tìm kiếm toàn cục chưa khả dụng"
+            >
+              <span className="hidden min-[360px]:inline">Tìm</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              iconName="QrCode"
+              className="min-w-0 flex-1 px-2 text-xs sm:text-sm"
+              onClick={(event) => {
+                qrTriggerRef.current = event.currentTarget
+                setShowQrDialog(true)
+              }}
+              aria-label="Mở mã QR nhà hàng"
+            >
+              <span className="hidden min-[360px]:inline">QR</span>
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              iconName="Receipt"
+              className="min-w-0 flex-1 px-2 text-xs sm:text-sm"
+              aria-label="Tạo hóa đơn"
+              disabled
+              title="Tạo hóa đơn nhanh chưa khả dụng; hãy tạo đơn trong màn hình bán hàng"
+            >
+              <span className="hidden min-[360px]:inline">Hóa đơn</span>
+            </Button>
+            <Button
+              variant={isOperational ? "success" : "secondary"}
+              size="sm"
+              iconName={isOperational ? "Play" : "Pause"}
+              onClick={onToggleOperational}
+              className="min-w-11 shrink-0 px-2"
+              aria-label={
+                isOperational ? "Chuyển sang đóng cửa" : "Chuyển sang mở cửa"
+              }
+              aria-pressed={isOperational}
+            >
+              <span className="hidden sm:inline">
+                {isOperational ? "Mở" : "Đóng"}
+              </span>
+            </Button>
+          </div>
         </div>
-      </div>
 
-      <QrDialog
-        open={showQRDialog && Boolean(restaurant)}
-        onClose={() => setShowQRDialog(false)}
-        title="QR Code Đặt Món"
-        subtitle={displayName}
-        qrUrl={orderUrl}
-      />
-
-      {/* Click-outside overlay */}
-      {showNotifications && (
-        <button
-          type="button"
-          aria-label="ÄÃ³ng thÃ´ng bÃ¡o"
-          className="fixed inset-0 z-1000 cursor-default"
-          onClick={closeNotifications}
+        <QrDialog
+          open={showQrDialog && Boolean(restaurant)}
+          onClose={() => setShowQrDialog(false)}
+          title="QR Code Đặt Món"
+          subtitle={displayName}
+          qrUrl={orderUrl}
+          returnFocusRef={qrTriggerRef}
         />
-      )}
-    </header>
-  );
-});
+      </header>
+    )
+  }
+)
 
-Header.displayName = 'Header';
+Header.displayName = "Header"
 
-export default Header;
+export default Header

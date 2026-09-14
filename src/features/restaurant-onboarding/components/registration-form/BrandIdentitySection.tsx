@@ -111,13 +111,22 @@ export function BrandIdentitySection({
                   className="pointer-events-none"
                 >
                   {slugCheckStatus === "checking" && (
-                    <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                    <>
+                      <Loader2 aria-hidden="true" className="size-4 animate-spin text-muted-foreground motion-reduce:animate-none" />
+                      <span className="sr-only" role="status">Đang kiểm tra slug</span>
+                    </>
                   )}
                   {slugCheckStatus === "available" && (
-                    <CheckCircle2 className="size-4 text-emerald-600" />
+                    <>
+                      <CheckCircle2 aria-hidden="true" className="size-4 text-emerald-600" />
+                      <span className="sr-only" role="status">Slug khả dụng</span>
+                    </>
                   )}
                   {slugCheckStatus === "taken" && (
-                    <CircleX className="size-4 text-destructive" />
+                    <>
+                      <CircleX aria-hidden="true" className="size-4 text-destructive" />
+                      <span className="sr-only" role="status">Slug đã được sử dụng</span>
+                    </>
                   )}
                 </InputGroupAddon>
               )}
@@ -189,7 +198,7 @@ export function BrandIdentitySection({
                   }
                   aria-pressed={formData.price_range === priceRange}
                   className={cn(
-                    "inline-flex h-8 flex-1 items-center justify-center rounded-lg border text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none",
+                    "inline-flex h-11 flex-1 touch-manipulation items-center justify-center rounded-lg border text-sm font-bold transition-[background-color,border-color,color,box-shadow] motion-reduce:transition-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none",
                     formData.price_range === priceRange
                       ? "border-primary bg-primary text-primary-foreground shadow-sm"
                       : "border-border bg-background text-muted-foreground hover:bg-secondary"

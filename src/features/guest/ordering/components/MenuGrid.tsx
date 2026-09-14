@@ -1,5 +1,3 @@
-import { useNavigate } from "react-router-dom"
-
 import AppImage from "@/components/AppImage"
 import Icon from "@/components/AppIcon"
 import Button from "@/features/pos/ui/Button"
@@ -32,8 +30,6 @@ const getStockStatusText = (stock: number): string => {
 }
 
 const MenuGrid = ({ menuItems, onAddToCart }: MenuGridProps) => {
-  const navigate = useNavigate()
-
   if (menuItems.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center px-4 py-16">
@@ -42,17 +38,9 @@ const MenuGrid = ({ menuItems, onAddToCart }: MenuGridProps) => {
         </div>
         <h3 className="mb-2 text-xl font-semibold text-foreground">Không có món nào</h3>
         <p className="mb-6 max-w-md text-center text-sm text-muted-foreground">
-          Danh mục này hiện chưa có món ăn. Vui lòng chọn danh mục khác hoặc thêm món mới.
+          Danh mục này hiện chưa có món ăn. Vui lòng chọn danh mục khác hoặc tải lại trang.
         </p>
-        <div className="flex space-x-3">
-          <Button
-            variant="outline"
-            iconName="Plus"
-            iconPosition="left"
-            onClick={() => navigate("/menu-management")}
-          >
-            Thêm món mới
-          </Button>
+        <div className="flex flex-wrap justify-center gap-3">
           <Button
             variant="default"
             iconName="RefreshCw"
@@ -67,7 +55,7 @@ const MenuGrid = ({ menuItems, onAddToCart }: MenuGridProps) => {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 min-[375px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
       {menuItems.map((item) => {
         const stock = item.stock_quantity ?? 0
         const isUnavailable = stock === 0 || item.status === "unavailable"
@@ -82,6 +70,9 @@ const MenuGrid = ({ menuItems, onAddToCart }: MenuGridProps) => {
                 <AppImage
                   src={item.image ?? "/assets/images/placeholder.png"}
                   alt={item.name}
+                  width={320}
+                  height={192}
+                  loading="lazy"
                   className="h-full w-full object-cover"
                 />
               </div>
@@ -97,16 +88,17 @@ const MenuGrid = ({ menuItems, onAddToCart }: MenuGridProps) => {
               <div className="mb-2 h-5">
                 {item.description && <p className="line-clamp-1 text-xs text-muted-foreground">{item.description}</p>}
               </div>
-              <div className="mt-auto flex items-center justify-between">
-                <span className="font-semibold text-primary">{formatPrice(item.price)}</span>
+              <div className="mt-auto flex items-center justify-between gap-2">
+                <span className="min-w-0 text-sm font-semibold text-primary">{formatPrice(item.price)}</span>
                 <Button
                   variant="default"
                   size="sm"
+                  aria-label={`Thêm ${item.name} vào giỏ hàng`}
                   onClick={() => onAddToCart(item)}
                   disabled={isUnavailable}
-                  className="hover-scale"
+                  className="hover-scale min-h-11 min-w-11 flex-shrink-0"
                 >
-                  <Icon name="Plus" size={16} className="md:mr-1.5" />
+                  <Icon aria-hidden="true" name="Plus" size={16} className="md:mr-1.5" />
                   <span className="hidden md:inline">Thêm</span>
                 </Button>
               </div>

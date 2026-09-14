@@ -6,19 +6,23 @@ export function MenuPageHeader({ controller }: MenuSectionViewProps) {
   const { isTableView, dispatchMenuUi, openAddItem, menuStats } = controller
   return (
     <div className="mb-6">
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">
+      <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold text-pretty text-foreground">
             Quản lý thực đơn
           </h1>
-          <p className="text-muted-foreground">
+          <p className="mt-1 text-sm text-pretty text-muted-foreground sm:text-base">
             Quản lý món ăn, giá cả và tình trạng kho hàng
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 flex-col gap-3 min-[430px]:flex-row sm:shrink-0">
           {/* View mode toggle */}
-          <div className="flex items-center rounded-lg bg-muted p-1">
+          <div
+            className="flex min-w-0 items-center rounded-lg bg-muted p-1"
+            role="group"
+            aria-label="Kiểu hiển thị thực đơn"
+          >
             <Button
               variant={isTableView ? "default" : "ghost"}
               size="sm"
@@ -26,7 +30,8 @@ export function MenuPageHeader({ controller }: MenuSectionViewProps) {
                 dispatchMenuUi({ type: "setViewMode", viewMode: "table" })
               }
               iconName="Table"
-              className="px-3"
+              className="min-w-0 flex-1 px-3 min-[430px]:flex-none"
+              aria-pressed={isTableView}
             >
               Bảng
             </Button>
@@ -37,7 +42,8 @@ export function MenuPageHeader({ controller }: MenuSectionViewProps) {
                 dispatchMenuUi({ type: "setViewMode", viewMode: "grid" })
               }
               iconName="Grid3X3"
-              className="px-3"
+              className="min-w-0 flex-1 px-3 min-[430px]:flex-none"
+              aria-pressed={!isTableView}
             >
               Lưới
             </Button>
@@ -48,7 +54,7 @@ export function MenuPageHeader({ controller }: MenuSectionViewProps) {
             onClick={openAddItem}
             iconName="Plus"
             iconPosition="left"
-            className="hover-scale"
+            className="w-full min-[430px]:w-auto"
           >
             Thêm món mới
           </Button>

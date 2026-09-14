@@ -1,4 +1,4 @@
-import { type ChangeEvent } from "react"
+import { type ChangeEvent, useId } from "react"
 
 import Icon from "@/components/AppIcon"
 
@@ -18,17 +18,18 @@ const formatPrice = (price: number): string => currencyFormatter.format(price)
 
 export function EmptyOrderCart() {
   return (
-    <div className="flex h-64 flex-col items-center justify-center text-center">
+    <div className="flex min-h-64 flex-col items-center justify-center p-4 text-center">
       <Icon
         name="ShoppingCart"
         size={48}
+        aria-hidden="true"
         className="mb-4 text-muted-foreground"
       />
       <h3 className="mb-2 text-lg font-medium text-muted-foreground">
         Giỏ hàng trống
       </h3>
-      <p className="text-sm text-muted-foreground">
-        Thêm món ăn từ thực đơn để bắt đầu đơn hàng
+      <p className="max-w-xs text-sm text-muted-foreground text-pretty">
+        Thêm món ăn từ thực đơn để bắt đầu đơn hàng.
       </p>
     </div>
   )
@@ -46,17 +47,14 @@ export function OrderCartHeader({
   onClearCart,
 }: OrderCartHeaderProps) {
   return (
-    <div className="flex items-center justify-between">
-      <div>
-        <h2 className="text-lg font-semibold text-foreground">
+    <div className="flex min-w-0 items-center justify-between gap-3">
+      <div className="min-w-0">
+        <p className="text-lg font-semibold text-foreground">
           Đơn hàng ({itemCount} món)
-        </h2>
+        </p>
         {orderNumber ? (
           <p className="text-xs text-muted-foreground">
-            Mã:{" "}
-            <span className="font-mono font-medium text-foreground">
-              {orderNumber}
-            </span>
+            Mã: <span className="font-mono font-medium text-foreground">{orderNumber}</span>
           </p>
         ) : null}
       </div>
@@ -64,8 +62,9 @@ export function OrderCartHeader({
         variant="ghost"
         size="sm"
         iconName="Trash2"
+        iconPosition="left"
         onClick={onClearCart}
-        className="text-error hover:text-error"
+        className="shrink-0 text-error hover:text-error"
       >
         Xóa tất cả
       </Button>
@@ -81,6 +80,8 @@ interface OrderContextFieldsProps {
   selectedTable: string | null
   onTableChange?: (value: string) => void
   tableOptions: TableOption[]
+  isLoadingTables: boolean
+  tablesError: unknown | null
 }
 
 export function OrderContextFields({
@@ -91,59 +92,69 @@ export function OrderContextFields({
   selectedTable,
   onTableChange,
   tableOptions,
+  isLoadingTables,
+  tablesError,
 }: OrderContextFieldsProps) {
+  const phoneOrderSourceId = useId()
+  const tableError = tablesError ? "Không thể tải danh sách bàn." : undefined
+  const tableDescription = isLoadingTables
+    ? "Đang tải danh sách bàn…"
+    : !tablesError && tableOptions.length === 0
+      ? "Không có bàn trống."
+      : undefined
+
   return (
-    <>
-      {onOrderSourceChange && (
-        <div className="flex items-start space-x-4">
-          <div className="flex-1">
-            <p className="text-sm font-medium text-foreground">Loại đơn</p>
-            <Select
-              value={selectedOrderType}
-              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                onOrderTypeChange?.(e.target.value)
+    <div className="flex flex-col gap-3">
+      {onOrderSourceChange ? (
+        <div className="grid grid-cols-1 gap-3 min-[390px]:grid-cols-[minmax(0,1fr)_auto] min-[390px]:items-end">
+          <Select
+            label="Loại đơn"
+            name="pos-order-type"
+            value={selectedOrderType}
+            onChange={(event: ChangeEvent<HTMLSelectElement>) =>
+              onOrderTypeChange?.(event.target.value)
+            }
+            placeholder="Chọn loại đơn"
+            options={[
+              { value: "dine_in", label: "Tại chỗ" },
+              { value: "takeaway", label: "Mang về" },
+              { value: "delivery", label: "Giao hàng" },
+            ]}
+          />
+
+          <div className="flex min-h-11 items-center justify-between gap-3 rounded-lg border border-border px-3 min-[390px]:w-40">
+            <label htmlFor={phoneOrderSourceId} className="text-sm text-muted-foreground">
+              Khách gọi điện
+            </label>
+            <Switch
+              id={phoneOrderSourceId}
+              aria-label="Nguồn đơn là khách gọi điện"
+              checked={selectedOrderSource === "phone"}
+              onCheckedChange={(checked: boolean) =>
+                onOrderSourceChange(checked ? "phone" : "pos")
               }
-              options={[
-                { value: "", label: "Chọn loại đơn" },
-                { value: "dine_in", label: "Tại chỗ" },
-                { value: "takeaway", label: "Mang về" },
-                { value: "delivery", label: "Giao hàng" },
-              ]}
+              size="default"
             />
           </div>
-
-          <div className="w-36 flex-shrink-0">
-            <p className="text-sm font-medium text-foreground">Nguồn đơn</p>
-            <div className="mt-1 flex items-center justify-between">
-              <p className="mr-2 text-xs text-muted-foreground">
-                Khách gọi điện
-              </p>
-              <Switch
-                checked={selectedOrderSource === "phone"}
-                onCheckedChange={(checked: boolean) =>
-                  onOrderSourceChange?.(checked ? "phone" : "pos")
-                }
-                size="default"
-              />
-            </div>
-          </div>
         </div>
-      )}
+      ) : null}
 
-      {selectedOrderType === "dine_in" && onTableChange && (
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-foreground">Chọn bàn</p>
-          <Select
-            value={selectedTable ?? ""}
-            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-              onTableChange(e.target.value)
-            }
-            placeholder="-- Chọn bàn --"
-            options={tableOptions}
-          />
-        </div>
-      )}
-    </>
+      {selectedOrderType === "dine_in" && onTableChange ? (
+        <Select
+          label="Chọn bàn"
+          name="pos-order-table"
+          value={selectedTable ?? ""}
+          onChange={(event: ChangeEvent<HTMLSelectElement>) =>
+            onTableChange(event.target.value)
+          }
+          placeholder="Chọn bàn"
+          options={tableOptions}
+          disabled={isLoadingTables || Boolean(tablesError)}
+          error={tableError}
+          description={tableDescription}
+        />
+      ) : null}
+    </div>
   )
 }
 
@@ -161,68 +172,69 @@ export function CartItemsList({
   onUpdateNote,
 }: CartItemsListProps) {
   return (
-    <div className="space-y-3">
-      {cartItems?.map((item) => (
-        <div
-          key={item?._id}
-          className="rounded-lg border border-border bg-muted/30 p-3"
-        >
-          <div className="mb-2 flex items-start justify-between">
-            <div className="flex-1">
-              <h4 className="text-sm font-medium text-foreground">
-                {item?.name}
-              </h4>
-              <p className="text-xs text-muted-foreground">
-                {formatPrice(item?.price)} x {item?.quantity}
+    <div className="flex flex-col gap-3">
+      {cartItems.map((item) => (
+        <article key={item._id} className="min-w-0 rounded-lg border border-border bg-muted/30 p-3">
+          <div className="flex flex-col gap-2 min-[390px]:flex-row min-[390px]:items-start min-[390px]:justify-between">
+            <div className="min-w-0">
+              <h3 className="break-words text-sm font-medium text-foreground">
+                {item.name}
+              </h3>
+              <p className="text-xs text-muted-foreground tabular-nums">
+                {formatPrice(item.price)} × {item.quantity}
               </p>
             </div>
-            <div className="flex items-center space-x-1">
+            <div className="flex shrink-0 items-center gap-1">
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => onUpdateQuantity(item?._id, item?.quantity - 1)}
-                disabled={item?.quantity <= 1}
-                className="touch-target h-9 w-9 sm:h-8 sm:w-8"
+                aria-label={`Giảm số lượng ${item.name}`}
+                onClick={() => onUpdateQuantity(item._id, item.quantity - 1)}
+                disabled={item.quantity <= 1}
               >
-                <Icon name="Minus" size={16} className="sm:h-3.5 sm:w-3.5" />
+                <Icon name="Minus" size={16} aria-hidden="true" />
               </Button>
-              <span className="w-10 text-center text-sm font-medium sm:w-8">
-                {item?.quantity}
+              <span className="min-w-10 text-center text-sm font-medium tabular-nums">
+                {item.quantity}
               </span>
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => onUpdateQuantity(item?._id, item?.quantity + 1)}
-                className="touch-target h-9 w-9 sm:h-8 sm:w-8"
+                aria-label={`Tăng số lượng ${item.name}`}
+                onClick={() => onUpdateQuantity(item._id, item.quantity + 1)}
               >
-                <Icon name="Plus" size={16} className="sm:h-3.5 sm:w-3.5" />
+                <Icon name="Plus" size={16} aria-hidden="true" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => onRemoveItem(item?._id)}
-                className="text-error hover:text-error touch-target ml-1 h-9 w-9 sm:h-8 sm:w-8"
+                aria-label={`Xóa ${item.name} khỏi giỏ hàng`}
+                onClick={() => onRemoveItem(item._id)}
+                className="text-error hover:text-error"
               >
-                <Icon name="X" size={16} className="sm:h-3.5 sm:w-3.5" />
+                <Icon name="X" size={16} aria-hidden="true" />
               </Button>
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
             <Input
               type="text"
-              placeholder="Ghi chú cho món này..."
-              value={item?.note ?? ""}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                onUpdateNote(item?._id, e.target.value)
+              name={`pos-item-note-${item._id}`}
+              aria-label={`Ghi chú cho ${item.name}`}
+              autoComplete="off"
+              placeholder="Ghi chú cho món này…"
+              value={item.note ?? ""}
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                onUpdateNote(item._id, event.target.value)
               }
               className="text-xs"
             />
-            <span className="ml-2 font-semibold text-primary">
-              {formatPrice(item?.price * item?.quantity)}
+            <span className="shrink-0 text-right font-semibold text-primary tabular-nums sm:text-left">
+              {formatPrice(item.price * item.quantity)}
             </span>
           </div>
-        </div>
+        </article>
       ))}
     </div>
   )
@@ -246,42 +258,49 @@ export function CustomerInfoFields({
   onOrderNotesChange,
 }: CustomerInfoFieldsProps) {
   return (
-    <div className="space-y-2">
-      {onCustomerNameChange && (
+    <div className="flex flex-col gap-3">
+      {onCustomerNameChange ? (
         <Input
           label="Tên khách hàng"
+          name="pos-customer-name"
           type="text"
-          placeholder="Nhập tên khách"
+          autoComplete="name"
+          placeholder="Nhập tên khách…"
           value={customerName}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            onCustomerNameChange(e.target.value)
+          onChange={(event: ChangeEvent<HTMLInputElement>) =>
+            onCustomerNameChange(event.target.value)
           }
         />
-      )}
+      ) : null}
 
-      {onCustomerPhoneChange && (
+      {onCustomerPhoneChange ? (
         <Input
           label="Số điện thoại"
+          name="pos-customer-phone"
           type="tel"
-          placeholder="Nhập số điện thoại"
+          inputMode="tel"
+          autoComplete="tel"
+          placeholder="Nhập số điện thoại…"
           value={customerPhone}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            onCustomerPhoneChange(e.target.value)
+          onChange={(event: ChangeEvent<HTMLInputElement>) =>
+            onCustomerPhoneChange(event.target.value)
           }
         />
-      )}
+      ) : null}
 
-      {onOrderNotesChange && (
+      {onOrderNotesChange ? (
         <Input
           label="Ghi chú đơn hàng"
+          name="pos-order-notes"
           type="text"
-          placeholder="Nhập ghi chú đơn hàng"
+          autoComplete="off"
+          placeholder="Nhập ghi chú đơn hàng…"
           value={orderNotes}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            onOrderNotesChange(e.target.value)
+          onChange={(event: ChangeEvent<HTMLInputElement>) =>
+            onOrderNotesChange(event.target.value)
           }
         />
-      )}
+      ) : null}
     </div>
   )
 }
@@ -312,68 +331,68 @@ export function OrderSummary({
   hideDiscount,
 }: OrderSummaryProps) {
   return (
-    <div className="space-y-3 border-t border-border pt-4">
-      {!hideDiscount && (
-        <div className="space-y-2 rounded-lg bg-muted/20 p-3">
+    <div className="flex flex-col gap-3 border-t border-border pt-4">
+      {!hideDiscount ? (
+        <div className="flex flex-col gap-2 rounded-lg bg-muted/20 p-3">
           <p className="text-sm font-medium text-foreground">Giảm giá</p>
-          <div className="flex space-x-2">
-            <div className="flex-1">
-              <Input
-                type="number"
-                placeholder="Nhập giảm giá"
-                value={discountValue || ""}
-                min="0"
-                max={discountType === "percent" ? 100 : subtotal}
-                readOnly
-              />
-            </div>
+          <div className="flex flex-col gap-2 min-[390px]:flex-row">
+            <Input
+              type="number"
+              name="pos-discount"
+              aria-label="Giảm giá"
+              autoComplete="off"
+              placeholder="Nhập giảm giá…"
+              value={discountValue || ""}
+              min="0"
+              max={discountType === "percent" ? 100 : subtotal}
+              readOnly
+            />
             <Select
+              aria-label="Loại giảm giá"
               value={discountType}
               onChange={() => {}}
               options={[
                 { value: "percent", label: "%" },
                 { value: "amount", label: "VNĐ" },
               ]}
-              className="w-24"
+              className="min-[390px]:w-24"
             />
           </div>
-          {discountValue > 0 && (
+          {discountValue > 0 ? (
             <p className="flex items-center text-xs text-success">
-              <Icon name="Tag" size={12} className="mr-1" />
+              <Icon name="Tag" size={12} aria-hidden="true" className="mr-1" />
               Tiết kiệm: {formatPrice(discount)}
             </p>
-          )}
+          ) : null}
         </div>
-      )}
+      ) : null}
 
-      <div className="space-y-2">
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Tạm tính:</span>
-          <span className="text-foreground">{formatPrice(subtotal)}</span>
+      <dl className="flex flex-col gap-2">
+        <div className="flex min-w-0 justify-between gap-3 text-sm">
+          <dt className="text-muted-foreground">Tạm tính:</dt>
+          <dd className="shrink-0 text-foreground tabular-nums">{formatPrice(subtotal)}</dd>
         </div>
-        {discountValue > 0 && (
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Giảm giá:</span>
-            <span className="text-success">-{formatPrice(discount)}</span>
+        {discountValue > 0 ? (
+          <div className="flex min-w-0 justify-between gap-3 text-sm">
+            <dt className="text-muted-foreground">Giảm giá:</dt>
+            <dd className="shrink-0 text-success tabular-nums">-{formatPrice(discount)}</dd>
           </div>
-        )}
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">
-            VAT ({(taxRate * 100).toFixed(0)}%):
-          </span>
-          <span className="text-foreground">{formatPrice(tax)}</span>
+        ) : null}
+        <div className="flex min-w-0 justify-between gap-3 text-sm">
+          <dt className="text-muted-foreground">VAT ({(taxRate * 100).toFixed(0)}%):</dt>
+          <dd className="shrink-0 text-foreground tabular-nums">{formatPrice(tax)}</dd>
         </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">
+        <div className="flex min-w-0 justify-between gap-3 text-sm">
+          <dt className="text-muted-foreground">
             Phí phục vụ ({(serviceChargeRate * 100).toFixed(0)}%):
-          </span>
-          <span className="text-foreground">{formatPrice(serviceCharge)}</span>
+          </dt>
+          <dd className="shrink-0 text-foreground tabular-nums">{formatPrice(serviceCharge)}</dd>
         </div>
-        <div className="flex justify-between border-t border-border pt-2 text-lg font-semibold">
-          <span className="text-foreground">Tổng cộng:</span>
-          <span className="text-primary">{formatPrice(finalTotal)}</span>
+        <div className="flex min-w-0 justify-between gap-3 border-t border-border pt-2 text-lg font-semibold">
+          <dt className="text-foreground">Tổng cộng:</dt>
+          <dd className="shrink-0 text-primary tabular-nums">{formatPrice(finalTotal)}</dd>
         </div>
-      </div>
+      </dl>
     </div>
   )
 }

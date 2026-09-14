@@ -32,6 +32,7 @@ export interface StaffFormModalProps {
   formData: StaffFormData
   errors?: Partial<Record<keyof StaffFormData, string>>
   isLoading?: boolean
+  isInitializing?: boolean
   onClose: () => void
   onFieldChange: (
     field: keyof StaffFormData,
@@ -41,6 +42,7 @@ export interface StaffFormModalProps {
     section?: StaffSubmitSection,
     payload?: { avatarUrl?: string }
   ) => void
+  returnFocusRef?: React.RefObject<HTMLElement | null>
 }
 
 export interface StaffFormSectionProps {

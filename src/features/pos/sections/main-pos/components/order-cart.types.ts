@@ -44,6 +44,8 @@ export interface OrderCartProps {
   selectedStaff?: string | null
   onStaffChange?: (value: string) => void
   tableOptions?: TableOption[]
+  isLoadingTables?: boolean
+  tablesError?: unknown | null
   staffOptions?: StaffOption[]
   /** When true, hide discount UI (used by MainPos new-order flow) */
   hideDiscount?: boolean

@@ -3,27 +3,34 @@ import type { MenuSectionViewProps } from "./menu-section-content.types"
 
 export function MenuPagination({ controller }: MenuSectionViewProps) {
   const { page, setPage, pagination } = controller
+  const totalPages = Math.max(pagination.total_pages || 1, 1)
+
   return (
-    <div className="mt-6 flex items-center justify-end gap-2">
+    <nav
+      className="mt-6 flex flex-wrap items-center justify-center gap-2 sm:justify-end"
+      aria-label="Phân trang thực đơn"
+    >
       <Button
         variant="outline"
         size="sm"
         disabled={page <= 1}
-        onClick={() => setPage((p) => p - 1)}
+        onClick={() => setPage((currentPage) => currentPage - 1)}
+        aria-label="Đến trang trước"
       >
-        TrÆ°á»›c
+        Trước
       </Button>
-      <span className="text-sm text-muted-foreground">
-        Trang {pagination.page}/{Math.max(pagination.total_pages || 1, 1)}
+      <span className="min-w-20 text-center text-sm text-muted-foreground">
+        Trang <span aria-current="page">{pagination.page}</span>/{totalPages}
       </span>
       <Button
         variant="outline"
         size="sm"
-        disabled={pagination.page >= Math.max(pagination.total_pages || 1, 1)}
-        onClick={() => setPage((p) => p + 1)}
+        disabled={pagination.page >= totalPages}
+        onClick={() => setPage((currentPage) => currentPage + 1)}
+        aria-label="Đến trang sau"
       >
         Sau
       </Button>
-    </div>
+    </nav>
   )
 }

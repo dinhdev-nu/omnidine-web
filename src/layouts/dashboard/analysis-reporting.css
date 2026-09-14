@@ -127,7 +127,12 @@
 .analysis-reporting .dashboard-sidebar-title,
 .analysis-reporting .dashboard-sidebar-nav-item,
 .analysis-reporting .dashboard-sidebar-collapse-button {
-  transition: all 300ms ease-in-out;
+  transition: background-color 300ms ease-in-out,
+              color 300ms ease-in-out,
+              border-color 300ms ease-in-out,
+              opacity 300ms ease-in-out,
+              transform 300ms ease-in-out,
+              max-width 300ms ease-in-out;
 }
 
 /* Light theme variant */
@@ -381,12 +386,6 @@
   }
 }
 
-@media (max-width: 480px) {
-  .analysis-reporting header .relative.flex.items-center {
-    display: none;
-  }
-}
-
 /* Overflow protection */
 .analysis-reporting main {
   overflow-x: hidden;
@@ -395,4 +394,19 @@
 
 .analysis-reporting [class*="grid-cols"] {
   min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .analysis-reporting {
+    scroll-behavior: auto;
+  }
+
+  .analysis-reporting *,
+  .analysis-reporting *::before,
+  .analysis-reporting *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

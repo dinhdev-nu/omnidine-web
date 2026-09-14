@@ -218,7 +218,7 @@ function PricingCardFooter({ children }: { children: ReactNode }) {
 function DefaultPlanCta({ href }: { href: string }) {
   return (
     <a
-      className="z-10 inline-flex h-9 w-full shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-5 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:h-10 md:text-base dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
+      className="z-10 inline-flex h-11 w-full shrink-0 items-center justify-center gap-1 rounded-full border border-[--border] bg-[--surface-secondary] px-5 text-sm font-normal text-[--text-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-tertiary] focus-visible:ring-2 md:text-base dark:border-[--dark-border] dark:bg-[--dark-surface-secondary] dark:text-[--dark-text-primary] dark:hover:bg-[--dark-surface-tertiary]"
       href={href}
     >
       Bắt đầu ngay
@@ -229,7 +229,7 @@ function DefaultPlanCta({ href }: { href: string }) {
 function AccentPlanCta({ href }: { href: string }) {
   return (
     <a
-      className="z-10 inline-flex h-9 w-full shrink-0 items-center justify-center gap-1 rounded-full border-[--accent-600] bg-[--accent-500] px-5 text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:h-10 md:text-base"
+      className="z-10 inline-flex h-11 w-full shrink-0 items-center justify-center gap-1 rounded-full border-[--accent-600] bg-[--accent-500] px-5 text-sm font-normal text-[--text-on-accent-primary] ring-[--control] outline-hidden outline-0 hover:bg-[--accent-600] focus-visible:ring-2 md:text-base"
       href={href}
     >
       Đăng ký dùng thử
@@ -336,7 +336,7 @@ export default function LandingSection() {
   return (
     <>
       <section
-        className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px] xl:max-w-screen-xl"
+        className="relative container mx-auto flex scroll-mt-20 flex-col items-center gap-10 px-6 py-14 md:py-[72px] xl:max-w-screen-xl"
         id="pricing"
       >
         <SectionHeading
@@ -358,7 +358,7 @@ export default function LandingSection() {
 
       <section
         id="support"
-        className="relative container mx-auto flex flex-col items-center gap-10 px-6 py-14 md:py-[72px]"
+        className="relative container mx-auto flex scroll-mt-20 flex-col items-center gap-10 px-6 py-14 md:py-[72px]"
       >
         <SectionHeading
           badge="Câu hỏi thường gặp"

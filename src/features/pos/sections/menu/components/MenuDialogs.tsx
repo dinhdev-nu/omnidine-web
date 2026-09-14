@@ -12,13 +12,15 @@ export function MenuDialogs({ controller }: MenuSectionViewProps) {
     isEditingMenuItem,
     setShowItemModal,
     resetMenuForm,
+    itemModalTriggerRef,
     handleSubmitMenu,
     handleFieldChange,
     handleImageFileChange,
     handleAddImageUrl,
     handleRemoveImageAt,
-    imagePreviewUrls,
+    imagePreviews,
     itemFormData,
+    itemFormErrors,
     uiCategories,
     showDeleteDialog,
     dispatchMenuUi,
@@ -45,8 +47,12 @@ export function MenuDialogs({ controller }: MenuSectionViewProps) {
     categoryDescription,
     categoryImageUrl,
     categorySortOrder,
+    categoryNameError,
+    categorySortOrderError,
     setShowCategoryModal,
     resetCategoryForm,
+    categoryModalTriggerRef,
+    categoryManagerTriggerRef,
     handleSubmitCategory,
     setCategoryName,
     setCategoryDescription,
@@ -68,8 +74,10 @@ export function MenuDialogs({ controller }: MenuSectionViewProps) {
         onImageFileChange={handleImageFileChange}
         onAddImageUrl={handleAddImageUrl}
         onRemoveImageAt={handleRemoveImageAt}
-        imagePreviewUrls={imagePreviewUrls}
+        returnFocusRef={itemModalTriggerRef}
+        imagePreviews={imagePreviews}
         item={itemFormData}
+        errors={itemFormErrors}
         categories={uiCategories}
       />
 
@@ -162,6 +170,7 @@ export function MenuDialogs({ controller }: MenuSectionViewProps) {
         }
         onEdit={(category) => {
           openEditCategory(category)
+          categoryModalTriggerRef.current = categoryManagerTriggerRef.current
           dispatchMenuUi({
             type: "setCategoryManagerOpen",
             isOpen: false,
@@ -177,6 +186,7 @@ export function MenuDialogs({ controller }: MenuSectionViewProps) {
         onMove={handleReorderCategory}
         checkingToggleCategoryId={checkingToggleCategoryId}
         isCategoryActionPending={isCategoryActionPending}
+        returnFocusRef={categoryManagerTriggerRef}
       />
 
       <CategoryFormModal
@@ -187,6 +197,8 @@ export function MenuDialogs({ controller }: MenuSectionViewProps) {
         categoryDescription={categoryDescription}
         categoryImageUrl={categoryImageUrl}
         categorySortOrder={categorySortOrder}
+        categoryNameError={categoryNameError}
+        categorySortOrderError={categorySortOrderError}
         onClose={() => {
           setShowCategoryModal(false)
           resetCategoryForm()
@@ -196,6 +208,7 @@ export function MenuDialogs({ controller }: MenuSectionViewProps) {
         onCategoryDescriptionChange={setCategoryDescription}
         onCategoryImageUrlChange={setCategoryImageUrl}
         onCategorySortOrderChange={setCategorySortOrder}
+        returnFocusRef={categoryModalTriggerRef}
       />
     </>
   )

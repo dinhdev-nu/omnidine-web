@@ -71,10 +71,10 @@ const OrderCart = ({
     }
 
     return (
-        <div className="space-y-4">
-            <div className="space-y-3">
+        <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-foreground">Đơn hàng ({cartItems.length} món)</h2>
+                    <h3 className="text-lg font-semibold text-foreground">Đơn hàng ({cartItems.length} món)</h3>
                     <Button
                         variant="ghost"
                         size="sm"
@@ -89,6 +89,7 @@ const OrderCart = ({
                 <div className="grid gap-3">
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <Select
+                            name="order-type"
                             label="Loại đơn hàng"
                             value={orderType}
                             onChange={(event: ChangeEvent<HTMLSelectElement>) => {
@@ -104,15 +105,16 @@ const OrderCart = ({
                         />
 
                         <div>
-                            <p className="text-sm font-medium text-foreground mb-1">Nguồn đơn</p>
-                            <div className="rounded-lg border border-border bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
-                                <span className="font-medium text-foreground"></span> {sourceLabel === "qr" ? "QR" : "App"}
+                            <p className="mb-1 text-sm font-medium text-foreground">Nguồn đơn</p>
+                            <div className="flex min-h-11 items-center rounded-lg border border-border bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
+                                <span className="font-medium text-foreground">{sourceLabel === "qr" ? "QR" : "App"}</span>
                             </div>
                         </div>
                     </div>
 
                     {onTableChange && (
                         <Select
+                            name="table-id"
                             label="Chọn bàn"
                             value={selectedTableId ?? ""}
                             onChange={(event: ChangeEvent<HTMLSelectElement>) => onTableChange(event.target.value)}
@@ -126,20 +128,21 @@ const OrderCart = ({
                 </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
                 {cartItems.map((item) => (
                     <div key={item._id} className="rounded-lg border border-border bg-muted/30 p-3">
-                        <div className="mb-2 flex items-start justify-between">
-                            <div className="flex-1">
+                        <div className="mb-2 flex flex-col gap-2">
+                            <div className="min-w-0 flex-1">
                                 <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
                                 <p className="text-xs text-muted-foreground">
                                     {formatPrice(item.price)} x {item.quantity}
                                 </p>
                             </div>
-                            <div className="flex items-center space-x-1">
+                            <div className="flex flex-wrap items-center justify-end gap-1">
                                 <Button
                                     variant="outline"
                                     size="icon"
+                                    aria-label={`Giảm số lượng ${item.name}`}
                                     onClick={() => onUpdateQuantity(item._id, item.quantity - 1)}
                                     disabled={item.quantity <= 1}
                                     className="touch-target h-9 w-9 sm:h-8 sm:w-8"
@@ -150,6 +153,7 @@ const OrderCart = ({
                                 <Button
                                     variant="outline"
                                     size="icon"
+                                    aria-label={`Tăng số lượng ${item.name}`}
                                     onClick={() => onUpdateQuantity(item._id, item.quantity + 1)}
                                     className="touch-target h-9 w-9 sm:h-8 sm:w-8"
                                 >
@@ -158,40 +162,50 @@ const OrderCart = ({
                                 <Button
                                     variant="ghost"
                                     size="icon"
+                                    aria-label={`Xóa ${item.name} khỏi giỏ hàng`}
                                     onClick={() => onRemoveItem(item._id)}
-                                    className="touch-target ml-1 h-9 w-9 text-error hover:text-error sm:h-8 sm:w-8"
+                                    className="touch-target ml-1 h-9 w-9 text-destructive hover:text-destructive sm:h-8 sm:w-8"
                                 >
                                     <Icon name="X" size={16} className="sm:h-3.5 sm:w-3.5" />
                                 </Button>
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between">
+                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
                             <Input
                                 type="text"
+                                name={`item-note-${item._id}`}
+                                aria-label={`Ghi chú cho ${item.name}`}
                                 placeholder="Ghi chú cho món này..."
                                 value={item.note ?? ""}
                                 onChange={(event) => onUpdateNote(item._id, event.target.value)}
                                 className="text-xs"
                             />
-                            <span className="ml-2 font-semibold text-primary">{formatPrice(item.price * item.quantity)}</span>
+                            <span className="text-right font-semibold text-primary">{formatPrice(item.price * item.quantity)}</span>
                         </div>
                     </div>
                 ))}
             </div>
 
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
                 <p className="text-sm font-medium text-foreground">Thông tin khách hàng</p>
 
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                     <Input
                         type="text"
+                        name="customer-name"
+                        aria-label="Tên khách hàng"
+                        autoComplete="name"
                         placeholder="Nhập tên khách hàng..."
                         value={customerName}
                         onChange={(event) => onCustomerNameChange?.(event.target.value)}
                     />
                     <Input
-                        type="text"
+                        type="tel"
+                        name="customer-phone"
+                        aria-label="Số điện thoại"
+                        autoComplete="tel"
+                        inputMode="tel"
                         placeholder="Nhập số điện thoại..."
                         value={customerContact}
                         onChange={(event) => onCustomerContactChange?.(event.target.value)}
@@ -199,6 +213,8 @@ const OrderCart = ({
                 </div>
 
                 <Textarea
+                    name="order-notes"
+                    aria-label="Ghi chú cho toàn bộ đơn hàng"
                     value={orderNotes}
                     onChange={(event) => onOrderNotesChange?.(event.target.value)}
                     placeholder="Ghi chú cho toàn bộ đơn hàng..."

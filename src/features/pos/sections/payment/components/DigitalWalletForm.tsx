@@ -142,33 +142,33 @@ const DigitalWalletForm: React.FC<DigitalWalletFormProps> = ({
   };
 
   return (
-    <div className="space-y-4 p-4">
+    <div className="space-y-4 p-3 sm:p-4">
       {/* Header */}
-      <div className="text-center space-y-2">
-        <div className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg ${currentWallet.bgColor} ${currentWallet.borderColor} border`}>
-          <Icon name={currentWallet.icon} size={18} className={currentWallet.color} />
-          <h3 className="text-base font-semibold text-foreground">{currentWallet.name}</h3>
+      <div className="space-y-2 text-center">
+        <div className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 ${currentWallet.bgColor} ${currentWallet.borderColor}`}>
+          <Icon name={currentWallet.icon} size={18} aria-hidden="true" className={currentWallet.color} />
+          <h2 className="text-base font-semibold text-foreground">{currentWallet.name}</h2>
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-2.5">
-          <p className="text-xs text-muted-foreground mb-0.5">Số tiền thanh toán</p>
-          <p className="text-xl font-bold text-primary">{formatCurrency(totalAmount)}</p>
+        <div className="rounded-lg border border-gray-200 bg-white p-2.5">
+          <p className="mb-0.5 text-xs text-muted-foreground">Số tiền thanh toán</p>
+          <p className="text-xl font-bold text-primary tabular-nums">{formatCurrency(totalAmount)}</p>
         </div>
       </div>
 
       {/* QR Code Display */}
       <div className="flex justify-center">
-        <div className="relative p-4 bg-white border border-gray-200 rounded-lg">
+        <div className="relative rounded-lg border border-gray-200 bg-white p-4">
           {qrCodeUrl ? (
-            <div className="w-48 h-48 relative">
+            <div className="relative size-48 max-w-full">
               {/* Loading overlay */}
               {isImageLoading && !isImageLoaded && (
-                <div className="absolute inset-0 bg-gray-50 border border-dashed border-gray-300 rounded-lg flex items-center justify-center z-10">
-                  <div className="text-center space-y-1.5">
-                    <Icon name="Loader" size={32} className="text-primary mx-auto animate-spin" />
+                <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50">
+                  <div role="status" aria-live="polite" className="space-y-1.5 text-center">
+                    <Icon name="Loader" size={32} aria-hidden="true" className="mx-auto animate-spin text-primary motion-reduce:animate-none" />
                     <div>
                       <p className="text-xs font-medium text-gray-700">Đang tải mã QR...</p>
                       {retryCount > 0 && (
-                        <p className="text-xs text-gray-500 mt-1">
+                          <p className="mt-1 text-xs text-gray-500">
                           Thử lại {retryCount}/{MAX_RETRIES}
                         </p>
                       )}
@@ -181,35 +181,39 @@ const DigitalWalletForm: React.FC<DigitalWalletFormProps> = ({
               <img
                 key={`${qrCodeUrl}:${retryCount}`}
                 src={`${qrCodeUrl}${qrCodeUrl.includes('?') ? '&' : '?'}t=${retryCount}`}
-                alt="QR Code Payment"
-                className={`w-full h-full object-contain rounded-lg transition-opacity duration-300 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                alt={`Mã QR thanh toán ${currentWallet.name}`}
+                width={192}
+                height={192}
+                className={`size-full rounded-lg object-contain transition-opacity duration-300 motion-reduce:transition-none ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
                 onLoad={handleImageLoad}
                 onError={handleImageError}
               />
 
               {/* Error state */}
               {!isImageLoading && !isImageLoaded && (
-                <div className="absolute inset-0 bg-red-50 border border-dashed border-red-300 rounded-lg flex items-center justify-center">
-                  <div className="text-center space-y-1.5">
-                    <Icon name="AlertCircle" size={32} className="text-red-500 mx-auto" />
+                <div className="absolute inset-0 flex items-center justify-center rounded-lg border border-dashed border-red-300 bg-red-50">
+                  <div className="space-y-1.5 text-center">
+                    <Icon name="AlertCircle" size={32} aria-hidden="true" className="mx-auto text-red-500" />
                     <div>
                       <p className="text-xs font-medium text-red-700">Không thể tải mã QR</p>
-                      <button type="button"
+                      <Button
+                        variant="error"
+                        size="sm"
                         onClick={handleManualRetry}
-                        className="mt-2 px-3 py-1.5 bg-red-500 text-white text-xs font-medium rounded hover:bg-red-600 transition-colors"
+                        className="mt-2"
                       >
                         Thử lại
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
               )}
             </div>
           ) : (
-            <div className="w-48 h-48 bg-gray-50 border border-dashed border-gray-300 rounded-lg flex items-center justify-center">
-              <div className="text-center space-y-1.5">
-                <Icon name="Loader" size={36} className="text-gray-400 mx-auto animate-spin" />
-                <p className="text-xs font-medium text-gray-600">Đang tạo mã QR...</p>
+            <div className="flex size-48 max-w-full items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50">
+              <div role="status" aria-live="polite" className="space-y-1.5 text-center">
+                <Icon name="Loader" size={36} aria-hidden="true" className="mx-auto animate-spin text-gray-400 motion-reduce:animate-none" />
+                <p className="text-xs font-medium text-gray-600">Đang tạo mã QR…</p>
               </div>
             </div>
           )}
@@ -217,9 +221,9 @@ const DigitalWalletForm: React.FC<DigitalWalletFormProps> = ({
       </div>
 
       {/* Instructions */}
-      <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-lg">
-        <div className="flex items-start space-x-2">
-          <Icon name="Info" size={16} className="text-blue-600 flex-shrink-0 mt-0.5" />
+      <div className="rounded-lg border border-blue-200 bg-blue-50 p-2.5">
+        <div className="flex items-start gap-2">
+          <Icon name="Info" size={16} aria-hidden="true" className="mt-0.5 shrink-0 text-blue-600" />
           <p className="text-xs text-blue-900">
             {currentWallet.instructions}. Sau khi thanh toán, nhấn <strong>"Xác nhận"</strong> bên dưới
           </p>
@@ -227,25 +231,25 @@ const DigitalWalletForm: React.FC<DigitalWalletFormProps> = ({
       </div>
 
       {/* Payment Details */}
-      <div className="p-2.5 bg-gray-50 border border-gray-200 rounded-lg">
+      <div className="rounded-lg border border-gray-200 bg-gray-50 p-2.5">
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-1.5">
-              <Icon name="Wallet" size={14} className="text-gray-600" />
+          <div className="flex min-w-0 items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-1.5">
+              <Icon name="Wallet" size={14} aria-hidden="true" className="shrink-0 text-gray-600" />
               <span className="text-xs text-muted-foreground">Phương thức</span>
             </div>
             <span className="text-xs font-semibold text-foreground">{currentWallet.name}</span>
           </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-1.5">
-              <Icon name="DollarSign" size={14} className="text-gray-600" />
+          <div className="flex min-w-0 items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-1.5">
+              <Icon name="DollarSign" size={14} aria-hidden="true" className="shrink-0 text-gray-600" />
               <span className="text-xs text-muted-foreground">Số tiền</span>
             </div>
             <span className="text-xs font-semibold text-foreground">{formatCurrency(totalAmount)}</span>
           </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-1.5">
-              <Icon name="Clock" size={14} className="text-gray-600" />
+          <div className="flex min-w-0 items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-1.5">
+              <Icon name="Clock" size={14} aria-hidden="true" className="shrink-0 text-gray-600" />
               <span className="text-xs text-muted-foreground">Thời gian</span>
             </div>
             <span className="text-xs font-medium text-foreground">
@@ -256,19 +260,19 @@ const DigitalWalletForm: React.FC<DigitalWalletFormProps> = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex space-x-2 pt-1">
-        <Button variant="outline" onClick={onCancel} className="flex-1" disabled={isConfirming}>
+      <div className="flex flex-col-reverse gap-2 pt-1 min-[390px]:flex-row">
+        <Button variant="outline" onClick={onCancel} className="w-full min-[390px]:flex-1" disabled={isConfirming}>
           Hủy
         </Button>
         <Button
           variant="default"
           onClick={onPaymentComplete}
-          className="flex-1"
+          className="w-full min-[390px]:flex-1"
           iconName={isConfirming ? 'Loader' : 'CheckCircle'}
           iconPosition="left"
           disabled={!isImageLoaded || isConfirming}
         >
-          {isConfirming ? 'Đang xử lý...' : isImageLoaded ? 'Xác nhận thanh toán' : 'Đang tải QR...'}
+          {isConfirming ? 'Đang xử lý…' : isImageLoaded ? 'Xác nhận thanh toán' : 'Đang tải QR…'}
         </Button>
       </div>
     </div>

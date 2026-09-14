@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react"
+
 import Icon from "@/components/AppIcon"
 import ConfirmationDialog from "@/components/ui/confirmation-dialog"
 import { GuestOrderingLayout } from "@/layouts/guest/GuestOrderingLayout"
@@ -48,12 +50,18 @@ function GuestOrderingMenuPanel({ controller }: GuestOrderingViewProps) {
         showMobileCart ? "hidden lg:flex" : "flex",
       ].join(" ")}
     >
-      <div className="border-b border-border p-4">
-        <h1 className="mb-4 text-xl font-semibold text-foreground">Thực đơn</h1>
+      <div className="border-b border-border p-4 [@media(max-height:500px)]:p-2">
+        <h1 className="mb-4 text-xl font-semibold text-foreground [@media(max-height:500px)]:mb-2 [@media(max-height:500px)]:text-lg">
+          Thực đơn
+        </h1>
 
-        <div className="relative mb-4">
+        <div className="relative mb-4 [@media(max-height:500px)]:mb-2">
           <Input
-            type="text"
+            type="search"
+            name="menu-search"
+            aria-label="Tìm món ăn"
+            autoComplete="off"
+            spellCheck={false}
             placeholder="Tìm món theo tên..."
             value={searchQuery}
             onChange={(event) =>
@@ -71,7 +79,9 @@ function GuestOrderingMenuPanel({ controller }: GuestOrderingViewProps) {
           />
         </div>
 
-        <h2 className="mb-3 text-lg font-semibold text-foreground">Danh mục</h2>
+        <h2 className="mb-3 text-lg font-semibold text-foreground [@media(max-height:500px)]:mb-2 [@media(max-height:500px)]:text-base">
+          Danh mục
+        </h2>
         <MenuCategory
           categories={[
             { id: "all", name: "Tất cả", itemCount: menuItems.length },
@@ -84,7 +94,7 @@ function GuestOrderingMenuPanel({ controller }: GuestOrderingViewProps) {
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:pb-4">
         <MenuGrid menuItems={displayedItems} onAddToCart={handleAddToCart} />
       </div>
     </div>
@@ -114,6 +124,19 @@ function GuestOrderingCartPanel({ controller }: GuestOrderingViewProps) {
     isOperational,
     handleCreateOrder,
   } = controller
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const wasMobileCartOpenRef = useRef(false)
+
+  useEffect(() => {
+    if (showMobileCart) {
+      closeButtonRef.current?.focus()
+    } else if (wasMobileCartOpenRef.current) {
+      document.getElementById("mobile-cart-trigger")?.focus()
+    }
+
+    wasMobileCartOpenRef.current = showMobileCart
+  }, [showMobileCart])
+
   return (
     <div
       className={`bg-surface w-full border-l border-border lg:w-96 ${showMobileCart ? "flex" : "hidden lg:flex"} flex-col overflow-hidden`}
@@ -121,8 +144,10 @@ function GuestOrderingCartPanel({ controller }: GuestOrderingViewProps) {
       <div className="flex flex-shrink-0 items-center justify-between border-b border-border p-4">
         <h2 className="text-lg font-semibold text-foreground">Đơn hàng</h2>
         <Button
+          ref={closeButtonRef}
           variant="ghost"
           size="icon"
+          aria-label="Đóng giỏ hàng"
           onClick={() => dispatchOrdering({ type: "closeMobileCart" })}
           className="lg:hidden"
         >
@@ -164,7 +189,7 @@ function GuestOrderingCartPanel({ controller }: GuestOrderingViewProps) {
       </div>
 
       {cartItems.length > 0 && (
-        <div className="bg-surface flex-shrink-0 space-y-2 border-t border-border p-4">
+        <div className="bg-surface flex flex-shrink-0 flex-col gap-2 border-t border-border p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
           <Button
             variant="default"
             size="default"
@@ -173,7 +198,7 @@ function GuestOrderingCartPanel({ controller }: GuestOrderingViewProps) {
             iconPosition="left"
             onClick={handleCreateOrder}
             disabled={isCreatingOrder || !isOperational}
-            className={`hover-scale touch-target ${isCreatingOrder ? "animate-pulse" : ""}`}
+            className={`hover-scale touch-target ${isCreatingOrder ? "animate-pulse motion-reduce:animate-none" : ""}`}
           >
             {isCreatingOrder ? "Đang tạo đơn..." : "Tạo đơn hàng"}
           </Button>
@@ -184,12 +209,17 @@ function GuestOrderingCartPanel({ controller }: GuestOrderingViewProps) {
 }
 
 function GuestOrderingMobileCartButton({ controller }: GuestOrderingViewProps) {
-  const { dispatchOrdering, totalItems, cartItems } = controller
+  const { dispatchOrdering, totalItems, cartItems, showMobileCart } = controller
+
+  if (showMobileCart) return null
+
   return (
-    <div className="fixed right-4 bottom-4 z-1000 lg:hidden">
+    <div className="fixed right-[calc(1rem+env(safe-area-inset-right))] bottom-[calc(1rem+env(safe-area-inset-bottom))] z-[1000] lg:hidden">
       <Button
+        id="mobile-cart-trigger"
         variant="default"
         size="lg"
+        aria-label={`Mở giỏ hàng, ${totalItems} món`}
         onClick={() => dispatchOrdering({ type: "openMobileCart" })}
         className="shadow-modal hover-scale relative rounded-full"
       >

@@ -29,7 +29,7 @@ export function AuditLogCard() {
             return (
               <div
                 key={event.id}
-                className="flex animate-in items-center gap-3 border-b border-border py-2.5 fade-in slide-in-from-left-2 last:border-0"
+                className="flex animate-in items-start gap-3 border-b border-border py-2.5 motion-reduce:animate-none fade-in slide-in-from-left-2 last:border-0 sm:items-center"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <div
@@ -49,7 +49,7 @@ export function AuditLogCard() {
                     {event.ip} {event.detail && `· ${event.detail}`}
                   </p>
                 </div>
-                <span className="flex-shrink-0 text-xs text-muted-foreground">
+                <span className="flex-shrink-0 text-right text-xs text-muted-foreground">
                   {new Date(event.at).toLocaleDateString("vi-VN")}
                 </span>
               </div>

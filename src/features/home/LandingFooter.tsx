@@ -51,7 +51,7 @@ const SOCIAL_LINKS: SocialLink[] = [
 function FooterTextLink({ link }: { link: FooterNavLink }) {
   return (
     <a
-      className="shrink-0 gap-1 rounded-full px-2 font-light font-normal tracking-tight text-[--text-tertiary] ring-[--control] outline-hidden outline-0 hover:text-[--text-primary] focus-visible:ring-2 dark:text-[--dark-text-secondary] dark:hover:text-[--dark-text-primary]"
+      className="inline-flex min-h-11 shrink-0 items-center gap-1 rounded-full px-2 font-light tracking-tight text-[--text-tertiary] ring-[--control] outline-hidden outline-0 hover:text-[--text-primary] focus-visible:ring-2 dark:text-[--dark-text-secondary] dark:hover:text-[--dark-text-primary]"
       href={link.href}
       target={link.target}
     >
@@ -64,7 +64,8 @@ function SocialIconLink({ link }: { link: SocialLink }) {
   return (
     <li className="shrink-0 sm:first:ml-auto">
       <a
-        className="block aspect-square shrink-0 gap-1 rounded-full p-0.5 font-normal ring-[--control] outline-hidden outline-0 hover:brightness-75 focus-visible:ring-2 dark:brightness-50 dark:hover:brightness-75"
+        aria-label={link.alt}
+        className="flex size-11 shrink-0 items-center justify-center rounded-full font-normal ring-[--control] outline-hidden outline-0 hover:brightness-75 focus-visible:ring-2 dark:brightness-50 dark:hover:brightness-75"
         href={link.href}
         target="_blank"
       >
@@ -83,13 +84,20 @@ function SocialIconLink({ link }: { link: SocialLink }) {
   )
 }
 
-function ThemeLightButton() {
+type ThemeButtonProps = {
+  selected: boolean
+  onSelect: () => void
+}
+
+function ThemeLightButton({ selected, onSelect }: ThemeButtonProps) {
   return (
     <button
       type="button"
-      aria-label="light theme"
-      className="!flex !size-6 shrink-0 items-center justify-center gap-1 rounded-full !p-[3px] font-normal text-[--text-secondary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-secondary] hover:text-[--text-primary] focus-visible:ring-2 data-[selected='true']:bg-[--surface-tertiary] data-[selected='true']:text-[--text-primary] dark:text-[--dark-text-secondary] dark:hover:bg-[--dark-surface-secondary] dark:hover:text-[--dark-text-primary] dark:data-[selected='true']:bg-[--dark-surface-tertiary] dark:data-[selected='true']:text-[--dark-text-primary]"
-      data-selected="false"
+      aria-label="Giao diện sáng"
+      aria-pressed={selected}
+      onClick={onSelect}
+      className="flex size-11 shrink-0 items-center justify-center rounded-full font-normal text-[--text-secondary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-secondary] hover:text-[--text-primary] focus-visible:ring-2 data-[selected='true']:bg-[--surface-tertiary] data-[selected='true']:text-[--text-primary] dark:text-[--dark-text-secondary] dark:hover:bg-[--dark-surface-secondary] dark:hover:text-[--dark-text-primary] dark:data-[selected='true']:bg-[--dark-surface-tertiary] dark:data-[selected='true']:text-[--dark-text-primary]"
+      data-selected={selected}
     >
       <svg
         fill="none"
@@ -109,13 +117,15 @@ function ThemeLightButton() {
   )
 }
 
-function ThemeSystemButton() {
+function ThemeSystemButton({ selected, onSelect }: ThemeButtonProps) {
   return (
     <button
       type="button"
-      aria-label="system theme"
-      className="!flex !size-6 shrink-0 items-center justify-center gap-1 rounded-full !p-[3px] font-normal text-[--text-secondary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-secondary] hover:text-[--text-primary] focus-visible:ring-2 data-[selected='true']:bg-[--surface-tertiary] data-[selected='true']:text-[--text-primary] dark:text-[--dark-text-secondary] dark:hover:bg-[--dark-surface-secondary] dark:hover:text-[--dark-text-primary] dark:data-[selected='true']:bg-[--dark-surface-tertiary] dark:data-[selected='true']:text-[--dark-text-primary]"
-      data-selected="true"
+      aria-label="Giao diện theo hệ thống"
+      aria-pressed={selected}
+      onClick={onSelect}
+      className="flex size-11 shrink-0 items-center justify-center rounded-full font-normal text-[--text-secondary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-secondary] hover:text-[--text-primary] focus-visible:ring-2 data-[selected='true']:bg-[--surface-tertiary] data-[selected='true']:text-[--text-primary] dark:text-[--dark-text-secondary] dark:hover:bg-[--dark-surface-secondary] dark:hover:text-[--dark-text-primary] dark:data-[selected='true']:bg-[--dark-surface-tertiary] dark:data-[selected='true']:text-[--dark-text-primary]"
+      data-selected={selected}
     >
       <svg
         fill="none"
@@ -135,13 +145,15 @@ function ThemeSystemButton() {
   )
 }
 
-function ThemeDarkButton() {
+function ThemeDarkButton({ selected, onSelect }: ThemeButtonProps) {
   return (
     <button
       type="button"
-      aria-label="dark theme"
-      className="!flex !size-6 shrink-0 items-center justify-center gap-1 rounded-full !p-[3px] font-normal text-[--text-secondary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-secondary] hover:text-[--text-primary] focus-visible:ring-2 data-[selected='true']:bg-[--surface-tertiary] data-[selected='true']:text-[--text-primary] dark:text-[--dark-text-secondary] dark:hover:bg-[--dark-surface-secondary] dark:hover:text-[--dark-text-primary] dark:data-[selected='true']:bg-[--dark-surface-tertiary] dark:data-[selected='true']:text-[--dark-text-primary]"
-      data-selected="false"
+      aria-label="Giao diện tối"
+      aria-pressed={selected}
+      onClick={onSelect}
+      className="flex size-11 shrink-0 items-center justify-center rounded-full font-normal text-[--text-secondary] ring-[--control] outline-hidden outline-0 hover:bg-[--surface-secondary] hover:text-[--text-primary] focus-visible:ring-2 data-[selected='true']:bg-[--surface-tertiary] data-[selected='true']:text-[--text-primary] dark:text-[--dark-text-secondary] dark:hover:bg-[--dark-surface-secondary] dark:hover:text-[--dark-text-primary] dark:data-[selected='true']:bg-[--dark-surface-tertiary] dark:data-[selected='true']:text-[--dark-text-primary]"
+      data-selected={selected}
     >
       <svg
         fill="none"
@@ -162,6 +174,8 @@ function ThemeDarkButton() {
 }
 
 export default function LandingFooter() {
+  const { theme, setTheme } = useTheme()
+
   return (
     <>
       <footer
@@ -172,46 +186,20 @@ export default function LandingFooter() {
           className="container mx-auto grid grid-cols-2 grid-rows-[auto_auto_auto] place-items-start items-center gap-y-7 px-6 sm:grid-cols-[1fr_auto_1fr] sm:grid-rows-2 sm:gap-x-3 sm:gap-y-16"
           data-sf-nesting-track-id="1.68.1"
         >
-          <svg
-            aria-label="Homepage"
-            className="lucide lucide-link"
-            data-sf-nesting-track-id="1.68.1.1"
-            fill="none"
-            height={24}
+          <a
+            aria-label="Trang chủ OmniDine"
             href="/"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            viewBox="0 0 24 24"
-            width={24}
-            xmlns="http://www.w3.org/2000/svg"
+            className="inline-flex min-h-11 items-center rounded-full ring-[--control] outline-hidden outline-0 focus-visible:ring-2"
           >
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-          </svg>
-          <img
-            alt="Logo"
-            className="hidden h-6 w-auto max-w-[200px] object-contain dark:block"
-            data-nimg={1}
-            data-sf-nesting-track-id="1.68.1.1.3"
-            decoding="async"
-            height={20}
-            src="data:,"
-            style={{ color: "transparent", aspectRatio: "101/20" }}
-            width={101}
-          />
-          <img
-            alt="logo"
-            className="h-6 w-auto max-w-[200px] object-contain dark:hidden"
-            data-nimg={1}
-            data-sf-nesting-track-id="1.68.1.1.4"
-            decoding="async"
-            height={20}
-            src="data:,"
-            style={{ color: "transparent", aspectRatio: "101/20" }}
-            width={101}
-          />
+            <img
+              alt="OmniDine"
+              className="h-6 w-auto max-w-[200px] object-contain dark:invert"
+              decoding="async"
+              height={20}
+              src="/assets/home/brand-logo.png"
+              width={121}
+            />
+          </a>
           <nav className="col-start-1 row-start-2 flex flex-col gap-x-2 gap-y-3 self-center sm:col-span-1 sm:col-start-2 sm:row-start-1 sm:flex-row sm:items-center sm:place-self-center md:gap-x-4 lg:gap-x-8">
             {FOOTER_LINKS.map((link) => (
               <FooterTextLink key={link.label} link={link} />
@@ -222,9 +210,18 @@ export default function LandingFooter() {
               Giao Diện
             </p>
             <div className="flex gap-0.5 rounded-full border border-[--border] bg-[--surface-primary] p-1 text-center dark:border-[--dark-border] dark:bg-[--dark-surface-primary]">
-              <ThemeLightButton />
-              <ThemeSystemButton />
-              <ThemeDarkButton />
+              <ThemeLightButton
+                selected={theme === "light"}
+                onSelect={() => setTheme("light")}
+              />
+              <ThemeSystemButton
+                selected={theme === "system"}
+                onSelect={() => setTheme("system")}
+              />
+              <ThemeDarkButton
+                selected={theme === "dark"}
+                onSelect={() => setTheme("dark")}
+              />
             </div>
             <p />
           </div>
@@ -242,3 +239,4 @@ export default function LandingFooter() {
     </>
   )
 }
+import { useTheme } from "@/components/theme-context"

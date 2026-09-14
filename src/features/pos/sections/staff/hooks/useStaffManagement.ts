@@ -34,9 +34,21 @@ export function useStaffManagement(restaurantId: string) {
     const [limit] = React.useState(20);
     const [total, setTotal] = React.useState(0);
     const [staffData, setStaffData] = React.useState<StaffSummary[]>([]);
+    const [listError, setListError] = React.useState<string | null>(null);
+    const [pendingStaffIds, setPendingStaffIds] = React.useState<Set<string>>(() => new Set());
+    const pendingStaffIdsRef = React.useRef<Set<string>>(new Set());
+
+    const setStaffPending = React.useCallback((staffId: string, isPending: boolean) => {
+        const next = new Set(pendingStaffIdsRef.current);
+        if (isPending) next.add(staffId);
+        else next.delete(staffId);
+        pendingStaffIdsRef.current = next;
+        setPendingStaffIds(next);
+    }, []);
 
     const fetchStaffData = React.useCallback(async (silent = false) => {
         if (!silent) setIsLoadingData(true);
+        if (!silent) setListError(null);
         try {
             const result = await listRestaurantStaff(restaurantId, {
                 page,
@@ -48,12 +60,17 @@ export function useStaffManagement(restaurantId: string) {
             setStaffData(result.data);
             setStaffs(result.data);
             setTotal(result.pagination.total);
+            setListError(null);
         } catch (error) {
-            setStaffData([]);
-            setStaffs([]);
-            setTotal(0);
             const normalized = toStaffEndpointError('list', error);
-            console.warn('[StaffManagement] list API failed:', normalized.errorCode, normalized.message);
+            if (silent) {
+                toast.error(normalized.message);
+            } else {
+                setStaffData([]);
+                setStaffs([]);
+                setTotal(0);
+                setListError(normalized.message);
+            }
         } finally {
             if (!silent) setIsLoadingData(false);
         }
@@ -76,6 +93,9 @@ export function useStaffManagement(restaurantId: string) {
     }, [staffData, total]);
 
     const toggleStatus = async (staff: StaffSummary): Promise<void> => {
+        if (pendingStaffIdsRef.current.has(staff.id)) return;
+
+        setStaffPending(staff.id, true);
         try {
             const nextStatus: StaffStatus = staff.status === 'active' ? 'inactive' : 'active';
             await updateRestaurantStaffStatus(restaurantId, staff.id, { status: nextStatus });
@@ -83,18 +103,23 @@ export function useStaffManagement(restaurantId: string) {
             await fetchStaffData(true);
         } catch (error) {
             toast.error(toStaffEndpointError('update-status', error).message);
-            throw error;
+        } finally {
+            setStaffPending(staff.id, false);
         }
     };
 
     const deleteStaff = async (staffId: string): Promise<void> => {
+        if (pendingStaffIdsRef.current.has(staffId)) return;
+
+        setStaffPending(staffId, true);
         try {
             await deleteRestaurantStaff(restaurantId, staffId);
             toast.success('Đã xóa nhân viên');
             await fetchStaffData(true);
         } catch (error) {
             toast.error(toStaffEndpointError('delete', error).message);
-            throw error;
+        } finally {
+            setStaffPending(staffId, false);
         }
     };
 
@@ -108,11 +133,15 @@ export function useStaffManagement(restaurantId: string) {
         setPage(1);
     };
 
-    const refetch = () => fetchStaffData(true);
+    const refetch = React.useCallback(() => fetchStaffData(true), [fetchStaffData]);
+    const retry = React.useCallback(() => fetchStaffData(false), [fetchStaffData]);
 
     return {
         staffData,
         isLoadingData,
+        listError,
+        retry,
+        pendingStaffIds,
         total,
         page,
         setPage,

@@ -92,13 +92,13 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
   const totalAmount = paymentData.orderAmount ?? orderData.total ?? 0;
 
   return (
-    <div className="space-y-4">
+    <div className="min-w-0 space-y-4">
       {/* Receipt Container */}
-      <div className="bg-white dark:bg-surface border border-border rounded-lg overflow-hidden font-mono text-sm">
+      <div className="min-w-0 overflow-hidden rounded-lg border border-border bg-white font-mono text-sm dark:bg-surface">
         {/* Receipt Header */}
         <div className="text-center py-4 border-b border-dashed border-border">
-          <div className="flex items-center justify-center gap-2 text-success mb-1">
-            <Icon name="CheckCircle" size={20} />
+          <div className="mb-1 flex items-center justify-center gap-2 text-success">
+            <Icon name="CheckCircle" size={20} aria-hidden="true" />
             <span className="font-bold text-base">THANH TOÁN THÀNH CÔNG</span>
           </div>
           <p className="text-muted-foreground text-xs">
@@ -108,20 +108,20 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
 
         {/* Order Info */}
         <div className="px-4 py-3 border-b border-dashed border-border text-xs">
-          <div className="flex justify-between">
+          <div className="flex min-w-0 justify-between gap-3">
             <span className="text-muted-foreground">Khách hàng:</span>
-            <span>{customerDisplay}</span>
+            <span className="min-w-0 break-words text-right">{customerDisplay}</span>
           </div>
-          <div className="flex justify-between">
+          <div className="flex min-w-0 justify-between gap-3">
             <span className="text-muted-foreground">Mã GD:</span>
             <span>{paymentData._id ?? 'N/A'}</span>
           </div>
-          <div className="flex justify-between">
+          <div className="flex min-w-0 justify-between gap-3">
             <span className="text-muted-foreground">Đơn hàng:</span>
             <span>{orderData._id ?? 'N/A'}</span>
           </div>
           {tableDisplay && (
-            <div className="flex justify-between">
+            <div className="flex min-w-0 justify-between gap-3">
               <span className="text-muted-foreground">Vị trí:</span>
               <span>{tableDisplay === 'takeaway' ? 'Mang đi' : `Bàn ${tableDisplay}`}</span>
             </div>
@@ -134,9 +134,9 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
             <div className="text-xs text-muted-foreground mb-2">CHI TIẾT ĐƠN HÀNG</div>
             <div className="space-y-1">
               {items.map((item, index) => (
-                <div key={item.itemId ?? index} className="flex justify-between text-xs">
-                  <span className="flex-1">{item.quantity}x {item.name}</span>
-                  <span className="ml-2">{formatCurrency(item.price * item.quantity)}</span>
+                <div key={item.itemId ?? index} className="flex min-w-0 justify-between gap-3 text-xs">
+                  <span className="min-w-0 break-words">{item.quantity}x {item.name}</span>
+                  <span className="shrink-0 tabular-nums">{formatCurrency(item.price * item.quantity)}</span>
                 </div>
               ))}
             </div>
@@ -145,25 +145,25 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
 
         {/* Summary */}
         <div className="px-4 py-3 border-b border-dashed border-border text-xs">
-          <div className="flex justify-between">
+          <div className="flex min-w-0 justify-between gap-3">
             <span className="text-muted-foreground">Tạm tính</span>
             <span>{formatCurrency(orderData.subtotal ?? 0)}</span>
           </div>
-          <div className="flex justify-between">
+          <div className="flex min-w-0 justify-between gap-3">
             <span className="text-muted-foreground">Phí dịch vụ</span>
             <span>{formatCurrency(serviceCharge)}</span>
           </div>
-          <div className="flex justify-between">
+          <div className="flex min-w-0 justify-between gap-3">
             <span className="text-muted-foreground">Giảm giá</span>
             <span>-{formatCurrency(discountAmount)}</span>
           </div>
           {taxAmount > 0 && (
-            <div className="flex justify-between">
+            <div className="flex min-w-0 justify-between gap-3">
               <span className="text-muted-foreground">Thuế (10%)</span>
               <span>{formatCurrency(taxAmount)}</span>
             </div>
           )}
-          <div className="flex justify-between font-bold text-base mt-2 pt-2 border-t border-border">
+          <div className="mt-2 flex min-w-0 justify-between gap-3 border-t border-border pt-2 text-base font-bold">
             <span>TỔNG CỘNG</span>
             <span>{formatCurrency(totalAmount)}</span>
           </div>
@@ -171,16 +171,16 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
 
         {/* Payment Info */}
         <div className="px-4 py-3 border-b border-dashed border-border text-xs">
-          <div className="flex justify-between">
+          <div className="flex min-w-0 justify-between gap-3">
             <span className="text-muted-foreground">Thanh toán</span>
             <span>{paymentMethodLabel}</span>
           </div>
-          <div className="flex justify-between">
+          <div className="flex min-w-0 justify-between gap-3">
             <span className="text-muted-foreground">Tiền nhận</span>
             <span>{formatCurrency(paidAmount)}</span>
           </div>
           {hasChange && (
-            <div className="flex justify-between font-bold">
+            <div className="flex min-w-0 justify-between gap-3 font-bold">
               <span>Tiền thối</span>
               <span className="text-success">{formatCurrency(paymentData.changeAmount!)}</span>
             </div>
@@ -195,7 +195,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
       </div>
 
       {/* Actions */}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 min-[390px]:grid-cols-2">
         <Button
           variant="outline"
           size="sm"
@@ -218,7 +218,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 min-[390px]:grid-cols-2">
         <Button variant="default" onClick={onNewOrder} iconName="Plus" iconPosition="left">
           Đơn mới
         </Button>

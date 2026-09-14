@@ -38,9 +38,9 @@ export function useFetch<TArgs extends unknown[], TData>(
         if (!isActive) return
 
         setData(response)
-      } catch {
+      } catch (error) {
         if (!isActive) return
-        setError("Không thể tải dữ liệu.")
+        setError(error)
       } finally {
         if (isActive) {
           setIsLoading(false)

@@ -18,8 +18,8 @@ export function SecuritySettingsTab({
 }: SecuritySettingsTabProps) {
   return (
     <>
-      <Card className="border-border bg-card">
-        <CardHeader>
+      <Card className="min-w-0 border-border bg-card">
+        <CardHeader className="px-4 sm:px-6">
           <CardTitle className="text-base font-medium text-destructive">
             Xóa nhà hàng
           </CardTitle>
@@ -28,7 +28,7 @@ export function SecuritySettingsTab({
             tác
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 px-4 sm:px-6">
           <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
             <p className="text-sm text-muted-foreground">
               Khi xóa nhà hàng, toàn bộ thông tin hồ sơ, menu, đơn hàng và dữ
@@ -37,11 +37,16 @@ export function SecuritySettingsTab({
           </div>
 
           <div className="space-y-2">
-            <p className="text-sm font-medium text-foreground">
+            <label htmlFor="delete-restaurant-confirmation" className="block text-sm font-medium text-foreground">
               Nhập <span className="text-destructive">{confirmText}</span> để
               xác nhận xóa.
-            </p>
+            </label>
             <Input
+              id="delete-restaurant-confirmation"
+              name="delete-restaurant-confirmation"
+              type="text"
+              autoComplete="off"
+              spellCheck={false}
               value={deleteRestaurantConfirmText}
               onChange={(event) => onConfirmTextChange(event.target.value)}
               placeholder={confirmText}
@@ -51,9 +56,11 @@ export function SecuritySettingsTab({
 
           <div className="flex justify-end">
             <Button
+              type="button"
               variant="destructive"
               onClick={onDeleteRestaurant}
               disabled={!isDeleteRestaurantEnabled}
+              className="w-full sm:w-auto"
             >
               Xóa nhà hàng
             </Button>

@@ -7,9 +7,9 @@ import { DollarSign, TrendingUp, Users, Target } from "lucide-react";
 
 export function OverviewSection() {
     return (
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
             {/* Metric cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <MetricCard
                     title="Tổng doanh thu"
                     value="2.4 tỷ đ"
@@ -45,15 +45,15 @@ export function OverviewSection() {
             </div>
 
             {/* Charts row */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2">
+            <div className="grid min-w-0 grid-cols-1 gap-6 xl:grid-cols-3">
+                <div className="min-w-0 xl:col-span-2">
                     <RevenueChart />
                 </div>
                 <PipelineOverview />
             </div>
 
             {/* Bottom row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid min-w-0 grid-cols-1 gap-6 xl:grid-cols-2">
                 <RecentDeals />
                 <TopPerformers />
             </div>
